@@ -403,23 +403,23 @@ export default function CustomizableDashboard({
           {/* 4. Dynamic Group Widgets */}
           {Object.entries(groupHires).filter(([groupName, data]) => groupName !== 'Other' || data.count > 0).map(([groupName, data]) => (
             <div key={`group_${groupName}`} style={{ backgroundColor: '#fff', border: `1px solid ${data.color}`, borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', containerType: 'size' }}>
-              <div className="drag-handle" style={{ backgroundColor: data.color, color: data.textColor, padding: '8px 10px', textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem', textTransform: 'uppercase', cursor: 'grab' }}>
+              <div className="drag-handle" style={{ backgroundColor: data.color, color: data.textColor, padding: '6px 10px', textAlign: 'center', fontWeight: 'bold', fontSize: '1.1rem', textTransform: 'uppercase', cursor: 'grab' }}>
                 {groupName}
               </div>
-              <div style={{ padding: '15px 10px', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: 'clamp(1rem, 3cqmin, 1.15rem)', marginBottom: '8px', color: '#555' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.totalEmployees}: <span style={{ fontWeight: 'bold', fontSize: '1.3rem', color: '#000', marginLeft: '5px' }}>{data.count}</span></div>
+              <div style={{ padding: '10px', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflowY: 'auto' }}>
+                <div style={{ fontSize: 'clamp(0.95rem, 3cqmin, 1.1rem)', marginBottom: '5px', color: '#555' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.totalEmployees}: <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#000', marginLeft: '5px' }}>{data.count}</span></div>
                 
-                <div style={{ fontSize: '1.05rem', marginBottom: '10px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '10px', color: '#666' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.hiringRate} {renderTrend(data.current, data.prev)}</div>
+                <div style={{ fontSize: '1rem', marginBottom: '5px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '5px', color: '#666' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.hiringRate} {renderTrend(data.current, data.prev)}</div>
                 
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
-                  <div style={{ fontSize: '1.05rem', color: '#777', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1rem', color: '#777', textAlign: 'center' }}>
                     <div>{currentY}</div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#000', marginTop: '2px' }}>{data.current}</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.15rem', color: '#000', marginTop: '2px' }}>{data.current}</div>
                   </div>
                   <div style={{ width: '1px', backgroundColor: 'rgba(0,0,0,0.1)' }}></div>
-                  <div style={{ fontSize: '1.05rem', color: '#777', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1rem', color: '#777', textAlign: 'center' }}>
                     <div>{prevY}</div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#000', marginTop: '2px' }}>{data.prev}</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.15rem', color: '#000', marginTop: '2px' }}>{data.prev}</div>
                   </div>
                 </div>
               </div>

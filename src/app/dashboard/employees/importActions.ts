@@ -40,12 +40,18 @@ export async function importEmployeeExcel(formData: FormData) {
           const thirdCellText = sheet.getCell(r, 3).text?.trim() || '';
           if (firstCellText.includes('ID') || firstCellText.includes('អត្តលេខ') || firstCellText.includes('No') || thirdCellText.includes('ID')) {
             dataStartRow = r + 1;
-            // Map header text to column index
-            sheet.getRow(r).eachCell((cell, colNumber) => {
-              const text = cell.text?.trim()?.toLowerCase() || '';
-              if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text === 'employee id') headersMap['employeeId'] = colNumber;
+            // Map header text to column index by checking both the current row and the row above it (to handle merged cells)
+            const headerRow = sheet.getRow(r);
+            const prevHeaderRow = r > 1 ? sheet.getRow(r - 1) : null;
+            
+            headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+              const text1 = cell.text?.trim()?.toLowerCase() || '';
+              const text2 = prevHeaderRow ? prevHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
+              const text = text1 + ' ' + text2; // Combine text from both rows
+              
+              if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/)) headersMap['employeeId'] = colNumber;
               else if (text.includes('khmer') || text.includes('ខ្មែរ')) headersMap['nameKh'] = colNumber;
-              else if (text.includes('english') || text.includes('ឡាតាំង') || text === 'name' || text === 'employee name') headersMap['nameEn'] = colNumber;
+              else if (text.includes('english') || text.includes('ឡាតាំង') || text.includes('name') || text.includes('ឈ្មោះ')) headersMap['nameEn'] = colNumber;
               else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ')) headersMap['gender'] = colNumber;
               else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ')) headersMap['hireDate'] = colNumber;
               else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ')) headersMap['position'] = colNumber;

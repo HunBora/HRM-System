@@ -177,16 +177,22 @@ export async function importEmployeeExcel(formData: FormData) {
       const rawRows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
       
       let startRow = 1;
-      if (rawRows.length > 5 && (String(rawRows[0]?.[0] || '').includes('ក្រុមហ៊ុន') || String(rawRows[3]?.[0] || '').includes('EMPLOYEE'))) {
+      if (rawRows.length > 5 && (String(rawRows[0]?.[0] || '').includes('ក្រុមហ៊ុន') || String(rawRows[3]?.[0] || '').includes('EMPLOYEE') || String(rawRows[0]?.[1] || '').includes('ក្រុមហ៊ុន'))) {
         startRow = 6;
         isMasterFormat = true;
       }
 
       for (let r = startRow; r < rawRows.length; r++) {
         const row = rawRows[r];
-        if (!row || !row[0]) continue;
-        const employeeId = String(row[0]).trim();
-        if (employeeId === 'ID No' || employeeId === 'អត្តលេខ' || employeeId === 'No.') continue;
+        if (!row) continue;
+        
+        let employeeId = String(row[0] || '').trim();
+        if (!employeeId || employeeId === 'No' || !isNaN(Number(employeeId))) {
+           const colB = String(row[1] || '').trim();
+           if (colB && colB !== 'ID' && colB !== 'អត្តលេខ') employeeId = colB;
+        }
+        
+        if (!employeeId || employeeId === 'ID No' || employeeId === 'អត្តលេខ' || employeeId === 'No.') continue;
 
         if (isMasterFormat) {
           rowsData.push({
@@ -210,16 +216,22 @@ export async function importEmployeeExcel(formData: FormData) {
             nssfNo: String(row[35] || '').trim()
           });
         } else {
+          // If we fallback here, try to guess if it's the payroll format
+          const nameEn = String(row[2] || row[1] || '').trim();
+          const nameKh = String(row[3] || row[2] || '').trim();
+          const department = String(row[4] || row[7] || 'General').trim();
+          const position = String(row[6] || 'Staff').trim();
+          
           rowsData.push({
             employeeId,
-            nameEn: String(row[1] || '').trim(),
-            nameKh: String(row[2] || '').trim(),
-            genderStr: String(row[3] || '').trim(),
-            dobVal: row[4],
-            hireDateVal: row[5],
-            position: String(row[6] || 'Staff').trim(),
-            department: String(row[7] || 'General').trim(),
-            basicSalary: parseFloat(String(row[8] || '0').replace(/[^0-9.]/g, '')) || 0,
+            nameEn,
+            nameKh,
+            genderStr: String(row[8] || row[3] || '').trim(), // col I in payroll
+            dobVal: row[4], // might be wrong for payroll but fallback
+            hireDateVal: row[10] || row[5], // col K in payroll
+            position,
+            department,
+            basicSalary: parseFloat(String(row[11] || row[8] || '0').replace(/[^0-9.]/g, '')) || 0, // col L in payroll
             phone: String(row[9] || '').trim()
           });
         }

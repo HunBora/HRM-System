@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -363,14 +363,15 @@ export default function CustomizableDashboard({
                 <h4 style={{ textAlign: 'center', fontSize: 'clamp(1rem, 3cqmin, 1.2rem)', marginBottom: '15px', color: '#444', fontWeight: 'bold' }}>ខេត្តកំណើតច្រើនជាងគេ (Top Provinces)</h4>
                 <div style={{ flex: 1, minHeight: '150px' }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topProvinces} layout="horizontal" margin={{ top: 15, right: 10, left: 0, bottom: 5 }}>
-                      <XAxis dataKey="name" type="category" axisLine={false} tickLine={false} style={{ fontSize: '12px', fontWeight: 'bold' }} />
-                      <YAxis type="number" hide />
+                    <PieChart>
+                      <Pie data={topProvinces} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" label>
+                        {topProvinces.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'][index % 7]} />
+                        ))}
+                      </Pie>
                       <Tooltip contentStyle={{ fontSize: '14px', borderRadius: '8px' }} />
                       <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 'bold' }} />
-                      <Bar dataKey="prevCount" name={locale === 'kh' ? `ឆ្នាំ ${prevY}` : `${prevY}`} fill="#cbd5e1" barSize={16} radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="count" name={locale === 'kh' ? `ឆ្នាំ ${currentY}` : `${currentY}`} fill="#8884d8" barSize={16} radius={[4, 4, 0, 0]} />
-                    </BarChart>
+                    </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
@@ -382,14 +383,15 @@ export default function CustomizableDashboard({
                 <div style={{ flex: 1, minHeight: '150px' }}>
                   {topNationalities.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={topNationalities} layout="horizontal" margin={{ top: 15, right: 10, left: 0, bottom: 5 }}>
-                        <XAxis dataKey="name" type="category" axisLine={false} tickLine={false} style={{ fontSize: '12px', fontWeight: 'bold' }} />
-                        <YAxis type="number" hide />
+                      <PieChart>
+                        <Pie data={topNationalities} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#82ca9d" label>
+                          {topNationalities.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658'][index % 7]} />
+                          ))}
+                        </Pie>
                         <Tooltip contentStyle={{ fontSize: '14px', borderRadius: '8px' }} />
                         <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 'bold' }} />
-                        <Bar dataKey="prevCount" name={locale === 'kh' ? `ឆ្នាំ ${prevY}` : `${prevY}`} fill="#cbd5e1" barSize={16} radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="count" name={locale === 'kh' ? `ឆ្នាំ ${currentY}` : `${currentY}`} fill="#82ca9d" barSize={16} radius={[4, 4, 0, 0]} />
-                      </BarChart>
+                      </PieChart>
                     </ResponsiveContainer>
                   ) : (
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: 'clamp(1rem, 3cqmin, 1.2rem)', color: '#999', fontStyle: 'italic' }}>មិនមានជនបរទេសទេ (No Foreigners)</div>

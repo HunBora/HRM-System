@@ -40,7 +40,17 @@ export async function importEmployeeExcel(formData: FormData) {
           if (!rowValues || rowValues.length === 0) continue;
           
           const rowText = rowValues.join(' ').toLowerCase();
-          if (rowText.includes('id no') || rowText.includes('អត្តលេខ') || rowText.includes('employee id') || rowText.match(/\bid\b/) || rowText.includes('name')) {
+          let matchCount = 0;
+          if (rowText.includes('id') || rowText.includes('អត្តលេខ') || rowText.includes('no')) matchCount++;
+          if (rowText.includes('name') || rowText.includes('ឈ្មោះ')) matchCount++;
+          if (rowText.includes('sex') || rowText.includes('gender') || rowText.includes('ភេទ')) matchCount++;
+          if (rowText.includes('dept') || rowText.includes('department') || rowText.includes('ផ្នែក')) matchCount++;
+          if (rowText.includes('position') || rowText.includes('មុខងារ')) matchCount++;
+          if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍')) matchCount++;
+          if (rowText.includes('date') || rowText.includes('ថ្ងៃ')) matchCount++;
+          
+          // Require at least 3 columns to match to be considered a true header row (prevents false positives on titles)
+          if (matchCount >= 3) {
             dataStartRow = r + 1;
             // Map header text to column index by checking both the current row and the row above it (to handle merged cells)
             const headerRow = sheet.getRow(r);
@@ -53,7 +63,11 @@ export async function importEmployeeExcel(formData: FormData) {
               
               if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/)) headersMap['employeeId'] = colNumber;
               else if (text.includes('khmer') || text.includes('ខ្មែរ')) headersMap['nameKh'] = colNumber;
-              else if (text.includes('english') || text.includes('ឡាតាំង') || text.includes('name') || text.includes('ឈ្មោះ')) headersMap['nameEn'] = colNumber;
+              else if (text.includes('english') || text.includes('ឡាតាំង')) headersMap['nameEn'] = colNumber;
+              else if (text.includes('name') || text.includes('ឈ្មោះ')) {
+                 if (!headersMap['nameKh']) headersMap['nameKh'] = colNumber;
+                 else headersMap['nameEn'] = colNumber;
+              }
               else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ')) headersMap['gender'] = colNumber;
               else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ')) headersMap['hireDate'] = colNumber;
               else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ')) headersMap['position'] = colNumber;

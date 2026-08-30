@@ -14,92 +14,106 @@ export async function importEmployeeExcel(formData: FormData) {
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
     const rowsData: any[] = [];
-    const headersMap: { [key: string]: number } = {};
+    
+    let headersMap: Record<string, number> = {};
     let dataStartRow = 2;
     let isMasterFormat = false;
-
+    let foundValidSheet = false;
+    
     // Try parsing with ExcelJS first (best for .xlsx)
     try {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(buffer as any);
-      const sheet = workbook.worksheets[0];
-      if (!sheet) {
-        return { success: false, error: 'ឯកសារទទេ (Empty worksheet).' };
-      }
+      
+      let worksheet = workbook.worksheets[0];
 
-      // Check header text in A1 to A6 to detect if it's Master Employee Excel format
-      const a1Text = sheet.getCell('A1').text?.trim() || '';
-      const a4Text = sheet.getCell('A4').text?.trim() || '';
-      if (a1Text.includes('ក្រុមហ៊ុន') || a1Text.includes('EVERGREEN') || a4Text.includes('EMPLOYEE NAME LIST')) {
-        isMasterFormat = true;
-        dataStartRow = 7;
-      } else {
-        // Find header row (usually row 1 to 10, but search up to 20)
-        for (let r = 1; r <= 20; r++) {
-          const rowValues = sheet.getRow(r).values as any[];
-          if (!rowValues || rowValues.length === 0) continue;
-          
-          const rowText = rowValues.join(' ').toLowerCase();
-          let matchCount = 0;
-          if (rowText.includes('id') || rowText.includes('អត្តលេខ') || rowText.includes('no') || rowText.includes('工號') || rowText.includes('编号')) matchCount++;
-          if (rowText.includes('name') || rowText.includes('ឈ្មោះ') || rowText.includes('姓名')) matchCount++;
-          if (rowText.includes('sex') || rowText.includes('gender') || rowText.includes('ភេទ') || rowText.includes('性别')) matchCount++;
-          if (rowText.includes('dept') || rowText.includes('department') || rowText.includes('ផ្នែក') || rowText.includes('部门')) matchCount++;
-          if (rowText.includes('position') || rowText.includes('មុខងារ') || rowText.includes('តួនាទី') || rowText.includes('职务') || rowText.includes('职位')) matchCount++;
-          if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍') || rowText.includes('ប្រាក់ខែ') || rowText.includes('底薪')) matchCount++;
-          if (rowText.includes('date') || rowText.includes('ថ្ងៃ') || rowText.includes('日期')) matchCount++;
-          
-          // Require at least 3 columns to match to be considered a true header row (prevents false positives on titles)
-          if (matchCount >= 3) {
-            dataStartRow = r + 1;
-            // Map header text to column index by checking both the current row and the row above it (to handle merged cells)
-            const headerRow = sheet.getRow(r);
-            const prevHeaderRow = r > 1 ? sheet.getRow(r - 1) : null;
-            const nextHeaderRow = sheet.getRow(r + 1); // Also check the row below in case this is a multi-row header (e.g. Khmer on row 4, English on row 6)
+      // Iterate through all worksheets to find the one with the correct Employee Master headers
+      for (let ws of workbook.worksheets) {
+        headersMap = {};
+        dataStartRow = 2;
+        isMasterFormat = false;
+        
+        // Check header text in A1 to A6 to detect if it's Master Employee Excel format
+        const a1Text = ws.getCell('A1').text?.trim() || '';
+        const a4Text = ws.getCell('A4').text?.trim() || '';
+        if (a1Text.includes('ក្រុមហ៊ុន') || a1Text.includes('EVERGREEN') || a4Text.includes('EMPLOYEE NAME LIST')) {
+          isMasterFormat = true;
+          dataStartRow = 7;
+          worksheet = ws;
+          foundValidSheet = true;
+          break;
+        } else {
+          // Find header row (usually row 1 to 10, but search up to 20)
+          for (let r = 1; r <= 20; r++) {
+            const rowValues = ws.getRow(r).values as any[];
+            if (!rowValues || rowValues.length === 0) continue;
             
-            headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-              const text1 = cell.text?.trim()?.toLowerCase() || '';
-              const text2 = prevHeaderRow ? prevHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
-              const text3 = nextHeaderRow ? nextHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
-              const text = text1 + ' ' + text2 + ' ' + text3; // Combine text from all 3 possible header rows
+            const rowText = rowValues.join(' ').toLowerCase();
+            let matchCount = 0;
+            if (rowText.includes('id') || rowText.includes('អត្តលេខ') || rowText.includes('no') || rowText.includes('工號') || rowText.includes('编号')) matchCount++;
+            if (rowText.includes('name') || rowText.includes('ឈ្មោះ') || rowText.includes('姓名')) matchCount++;
+            if (rowText.includes('sex') || rowText.includes('gender') || rowText.includes('ភេទ') || rowText.includes('性别')) matchCount++;
+            if (rowText.includes('dept') || rowText.includes('department') || rowText.includes('ផ្នែក') || rowText.includes('部门')) matchCount++;
+            if (rowText.includes('position') || rowText.includes('មុខងារ') || rowText.includes('តួនាទី') || rowText.includes('职务') || rowText.includes('职位')) matchCount++;
+            if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍') || rowText.includes('ប្រាក់ខែ') || rowText.includes('底薪')) matchCount++;
+            if (rowText.includes('date') || rowText.includes('ថ្ងៃ') || rowText.includes('日期')) matchCount++;
+            
+            // Require at least 4 columns to match to be absolutely sure it's the Employee Master table
+            if (matchCount >= 4) {
+              dataStartRow = r + 1;
+              worksheet = ws;
+              foundValidSheet = true;
               
-              if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/) || text.includes('工號') || text.includes('编号')) headersMap['employeeId'] = colNumber;
-              else if (text.includes('khmer') || text.includes('ខ្មែរ') || text.includes('柬文名字')) headersMap['nameKh'] = colNumber;
-              else if (text.includes('english') || text.includes('ឡាតាំង') || text.includes('英文名字')) headersMap['nameEn'] = colNumber;
-              else if (text.includes('name') || text.includes('ឈ្មោះ') || text.includes('姓名')) {
-                 if (!headersMap['nameKh']) headersMap['nameKh'] = colNumber;
-                 else headersMap['nameEn'] = colNumber;
+              // Map header text to column index by checking both the current row and the row above it (to handle merged cells)
+              const headerRow = ws.getRow(r);
+              const prevHeaderRow = r > 1 ? ws.getRow(r - 1) : null;
+              const nextHeaderRow = ws.getRow(r + 1); // Also check the row below in case this is a multi-row header (e.g. Khmer on row 4, English on row 6)
+              
+              headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                const text1 = cell.text?.trim()?.toLowerCase() || '';
+                const text2 = prevHeaderRow ? prevHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
+                const text3 = nextHeaderRow ? nextHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
+                const text = text1 + ' ' + text2 + ' ' + text3; // Combine text from all 3 possible header rows
+                
+                if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/) || text.includes('工號') || text.includes('编号')) headersMap['employeeId'] = colNumber;
+                else if (text.includes('khmer') || text.includes('ខ្មែរ') || text.includes('柬文名字')) headersMap['nameKh'] = colNumber;
+                else if (text.includes('english') || text.includes('ឡាតាំង') || text.includes('英文名字')) headersMap['nameEn'] = colNumber;
+                else if (text.includes('name') || text.includes('ឈ្មោះ') || text.includes('姓名')) {
+                   if (!headersMap['nameKh']) headersMap['nameKh'] = colNumber;
+                   else headersMap['nameEn'] = colNumber;
+                }
+                else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ') || text.includes('性别')) headersMap['gender'] = colNumber;
+                else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ') || text.includes('入职日期')) headersMap['hireDate'] = colNumber;
+                else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ') || text.includes('តួនាទី') || text.includes('职务') || text.includes('职位')) headersMap['position'] = colNumber;
+                else if (text.includes('dept') || text.includes('department') || text.includes('ផ្នែក') || text.includes('部门')) headersMap['department'] = colNumber;
+                else if (text.includes('salary') || text.includes('បៀវត្សរ៍') || text.includes('ប្រាក់ខែ') || text.includes('底薪')) headersMap['basicSalary'] = colNumber;
+                else if (text.includes('phone') || text.includes('ទូរស័ព្ទ') || text.includes('电话')) headersMap['phone'] = colNumber;
+                else if (text.includes('dob') || text.includes('birth') || text.includes('កំណើត') || text.includes('出生')) headersMap['dob'] = colNumber;
+                else if (text.includes('bank') || text.includes('ធនាគារ') || text.includes('银行')) headersMap['bankCardNo'] = colNumber;
+                else if (text.includes('national') || text.includes('អត្តសញ្ញាណប័ណ្ណ') || text.includes('身份证')) headersMap['nationalId'] = colNumber;
+                else if (text.includes('card') || text.includes('កាត') || text.includes('卡号')) headersMap['cardNo'] = colNumber;
+              });
+              
+              // Adjust dataStartRow if the row below is also part of the header (like Chinese or English headers)
+              // If the next row doesn't have an ID or looks like headers, skip it too.
+              let rCheck = r + 1;
+              while(rCheck < r + 4) {
+                 const checkText = ws.getRow(rCheck).values?.toString().toLowerCase() || '';
+                 if (checkText.includes('salary') || checkText.includes('name') || checkText.includes('sex') || checkText.includes('底薪')) {
+                     dataStartRow = rCheck + 1;
+                     rCheck++;
+                 } else {
+                     break;
+                 }
               }
-              else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ') || text.includes('性别')) headersMap['gender'] = colNumber;
-              else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ') || text.includes('入职日期')) headersMap['hireDate'] = colNumber;
-              else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ') || text.includes('តួនាទី') || text.includes('职务') || text.includes('职位')) headersMap['position'] = colNumber;
-              else if (text.includes('dept') || text.includes('department') || text.includes('ផ្នែក') || text.includes('部门')) headersMap['department'] = colNumber;
-              else if (text.includes('salary') || text.includes('បៀវត្សរ៍') || text.includes('ប្រាក់ខែ') || text.includes('底薪')) headersMap['basicSalary'] = colNumber;
-              else if (text.includes('phone') || text.includes('ទូរស័ព្ទ') || text.includes('电话')) headersMap['phone'] = colNumber;
-              else if (text.includes('dob') || text.includes('birth') || text.includes('កំណើត') || text.includes('出生')) headersMap['dob'] = colNumber;
-              else if (text.includes('bank') || text.includes('ធនាគារ') || text.includes('银行')) headersMap['bankCardNo'] = colNumber;
-              else if (text.includes('national') || text.includes('អត្តសញ្ញាណប័ណ្ណ') || text.includes('身份证')) headersMap['nationalId'] = colNumber;
-              else if (text.includes('card') || text.includes('កាត') || text.includes('卡号')) headersMap['cardNo'] = colNumber;
-            });
-            
-            // Adjust dataStartRow if the row below is also part of the header (like Chinese or English headers)
-            // If the next row doesn't have an ID or looks like headers, skip it too.
-            let rCheck = r + 1;
-            while(rCheck < r + 4) {
-               const checkText = sheet.getRow(rCheck).values?.toString().toLowerCase() || '';
-               if (checkText.includes('salary') || checkText.includes('name') || checkText.includes('sex') || checkText.includes('底薪')) {
-                   dataStartRow = rCheck + 1;
-                   rCheck++;
-               } else {
-                   break;
-               }
+              break;
             }
-            break;
           }
         }
+        if (foundValidSheet) break;
       }
 
-      sheet.eachRow((row, rowNumber) => {
+      worksheet.eachRow((row, rowNumber) => {
         if (rowNumber < dataStartRow) return;
 
         let employeeId = '';

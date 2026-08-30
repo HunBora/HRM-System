@@ -89,10 +89,7 @@ export default function EmployeeForm({ employee, t }: { employee?: any, t: any }
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>អត្តលេខ (Emp ID) *</label>
           <input type="text" name="employeeId" defaultValue={employee?.employeeId} className="input-field" required />
         </div>
-        <div>
-          <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>លេខកាត (Card No)</label>
-          <input type="text" name="cardNo" defaultValue={employee?.cardNo} className="input-field" />
-        </div>
+
         <div>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>ថ្ងៃចូលធ្វើការ (Join Date) *</label>
           <input type="date" name="hireDate" defaultValue={formatDate(employee?.hireDate)} className="input-field" required />

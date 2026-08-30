@@ -41,13 +41,13 @@ export async function importEmployeeExcel(formData: FormData) {
           
           const rowText = rowValues.join(' ').toLowerCase();
           let matchCount = 0;
-          if (rowText.includes('id') || rowText.includes('អត្តលេខ') || rowText.includes('no')) matchCount++;
-          if (rowText.includes('name') || rowText.includes('ឈ្មោះ')) matchCount++;
-          if (rowText.includes('sex') || rowText.includes('gender') || rowText.includes('ភេទ')) matchCount++;
-          if (rowText.includes('dept') || rowText.includes('department') || rowText.includes('ផ្នែក')) matchCount++;
-          if (rowText.includes('position') || rowText.includes('មុខងារ') || rowText.includes('តួនាទី')) matchCount++;
-          if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍') || rowText.includes('ប្រាក់ខែ')) matchCount++;
-          if (rowText.includes('date') || rowText.includes('ថ្ងៃ')) matchCount++;
+          if (rowText.includes('id') || rowText.includes('អត្តលេខ') || rowText.includes('no') || rowText.includes('工號') || rowText.includes('编号')) matchCount++;
+          if (rowText.includes('name') || rowText.includes('ឈ្មោះ') || rowText.includes('姓名')) matchCount++;
+          if (rowText.includes('sex') || rowText.includes('gender') || rowText.includes('ភេទ') || rowText.includes('性别')) matchCount++;
+          if (rowText.includes('dept') || rowText.includes('department') || rowText.includes('ផ្នែក') || rowText.includes('部门')) matchCount++;
+          if (rowText.includes('position') || rowText.includes('មុខងារ') || rowText.includes('តួនាទី') || rowText.includes('职务') || rowText.includes('职位')) matchCount++;
+          if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍') || rowText.includes('ប្រាក់ខែ') || rowText.includes('底薪')) matchCount++;
+          if (rowText.includes('date') || rowText.includes('ថ្ងៃ') || rowText.includes('日期')) matchCount++;
           
           // Require at least 3 columns to match to be considered a true header row (prevents false positives on titles)
           if (matchCount >= 3) {
@@ -63,23 +63,23 @@ export async function importEmployeeExcel(formData: FormData) {
               const text3 = nextHeaderRow ? nextHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
               const text = text1 + ' ' + text2 + ' ' + text3; // Combine text from all 3 possible header rows
               
-              if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/)) headersMap['employeeId'] = colNumber;
-              else if (text.includes('khmer') || text.includes('ខ្មែរ')) headersMap['nameKh'] = colNumber;
-              else if (text.includes('english') || text.includes('ឡាតាំង')) headersMap['nameEn'] = colNumber;
-              else if (text.includes('name') || text.includes('ឈ្មោះ')) {
+              if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/) || text.includes('工號') || text.includes('编号')) headersMap['employeeId'] = colNumber;
+              else if (text.includes('khmer') || text.includes('ខ្មែរ') || text.includes('柬文名字')) headersMap['nameKh'] = colNumber;
+              else if (text.includes('english') || text.includes('ឡាតាំង') || text.includes('英文名字')) headersMap['nameEn'] = colNumber;
+              else if (text.includes('name') || text.includes('ឈ្មោះ') || text.includes('姓名')) {
                  if (!headersMap['nameKh']) headersMap['nameKh'] = colNumber;
                  else headersMap['nameEn'] = colNumber;
               }
-              else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ')) headersMap['gender'] = colNumber;
-              else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ')) headersMap['hireDate'] = colNumber;
-              else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ') || text.includes('តួនាទី')) headersMap['position'] = colNumber;
-              else if (text.includes('dept') || text.includes('department') || text.includes('ផ្នែក')) headersMap['department'] = colNumber;
-              else if (text.includes('salary') || text.includes('បៀវត្សរ៍') || text.includes('ប្រាក់ខែ')) headersMap['basicSalary'] = colNumber;
-              else if (text.includes('phone') || text.includes('ទូរស័ព្ទ')) headersMap['phone'] = colNumber;
-              else if (text.includes('dob') || text.includes('birth') || text.includes('កំណើត')) headersMap['dob'] = colNumber;
-              else if (text.includes('bank') || text.includes('ធនាគារ')) headersMap['bankCardNo'] = colNumber;
-              else if (text.includes('national') || text.includes('អត្តសញ្ញាណប័ណ្ណ')) headersMap['nationalId'] = colNumber;
-              else if (text.includes('card') || text.includes('កាត')) headersMap['cardNo'] = colNumber;
+              else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ') || text.includes('性别')) headersMap['gender'] = colNumber;
+              else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ') || text.includes('入职日期')) headersMap['hireDate'] = colNumber;
+              else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ') || text.includes('តួនាទី') || text.includes('职务') || text.includes('职位')) headersMap['position'] = colNumber;
+              else if (text.includes('dept') || text.includes('department') || text.includes('ផ្នែក') || text.includes('部门')) headersMap['department'] = colNumber;
+              else if (text.includes('salary') || text.includes('បៀវត្សរ៍') || text.includes('ប្រាក់ខែ') || text.includes('底薪')) headersMap['basicSalary'] = colNumber;
+              else if (text.includes('phone') || text.includes('ទូរស័ព្ទ') || text.includes('电话')) headersMap['phone'] = colNumber;
+              else if (text.includes('dob') || text.includes('birth') || text.includes('កំណើត') || text.includes('出生')) headersMap['dob'] = colNumber;
+              else if (text.includes('bank') || text.includes('ធនាគារ') || text.includes('银行')) headersMap['bankCardNo'] = colNumber;
+              else if (text.includes('national') || text.includes('អត្តសញ្ញាណប័ណ្ណ') || text.includes('身份证')) headersMap['nationalId'] = colNumber;
+              else if (text.includes('card') || text.includes('កាត') || text.includes('卡号')) headersMap['cardNo'] = colNumber;
             });
             
             // Adjust dataStartRow if the row below is also part of the header (like Chinese or English headers)

@@ -151,3 +151,18 @@ export async function deleteEmployee(formData: FormData) {
   });
   revalidatePath('/dashboard/employees');
 }
+
+export async function clearAllData() {
+  await prisma.$transaction([
+    prisma.dailyAttendance.deleteMany({}),
+    prisma.monthlyAttendance.deleteMany({}),
+    prisma.payroll.deleteMany({}),
+    prisma.leaveRequest.deleteMany({}),
+    prisma.advanceSalary.deleteMany({}),
+    prisma.kpi.deleteMany({}),
+    prisma.employeeDocument.deleteMany({}),
+    prisma.companyAsset.deleteMany({}),
+    prisma.employee.deleteMany({}),
+  ]);
+  revalidatePath('/dashboard/employees');
+}

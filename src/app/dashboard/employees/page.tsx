@@ -5,6 +5,7 @@ import { deleteEmployee } from './actions';
 import { getDictionary } from '@/i18n/getDictionary';
 import EmployeeTable from '@/components/EmployeeTable';
 import EmployeeExportImportButtons from './EmployeeExportImportButtons';
+import ClearAllDataButton from '@/components/ClearAllDataButton';
 
 export default async function EmployeesPage({
   searchParams,
@@ -46,6 +47,7 @@ export default async function EmployeesPage({
         </form>
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <ClearAllDataButton />
           <EmployeeExportImportButtons />
           <Link href="/dashboard/employees/new" className="btn-primary kh-text" style={{ textDecoration: 'none' }}>
             {t.employee.newEmployeeBtn}

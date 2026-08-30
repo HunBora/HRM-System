@@ -27,22 +27,11 @@ export async function importEmployeeExcel(formData: FormData) {
       
       let worksheet = workbook.worksheets[0];
 
-      // Iterate through all worksheets to find the one with the correct Employee Master headers
-      for (let ws of workbook.worksheets) {
-        headersMap = {};
-        dataStartRow = 2;
-        isMasterFormat = false;
-        
-        // Check header text in A1 to A6 to detect if it's Master Employee Excel format
-        const a1Text = ws.getCell('A1').text?.trim() || '';
-        const a4Text = ws.getCell('A4').text?.trim() || '';
-        if (a1Text.includes('ក្រុមហ៊ុន') || a1Text.includes('EVERGREEN') || a4Text.includes('EMPLOYEE NAME LIST')) {
-          isMasterFormat = true;
-          dataStartRow = 7;
-          worksheet = ws;
-          foundValidSheet = true;
-          break;
-        } else {
+        // Iterate through all worksheets to find the one with the correct Employee Master headers
+        for (let ws of workbook.worksheets) {
+          headersMap = {};
+          dataStartRow = 2;
+          
           // Find header row (usually row 1 to 10, but search up to 20)
           for (let r = 1; r <= 20; r++) {
             const rowValues = ws.getRow(r).values as any[];
@@ -58,8 +47,8 @@ export async function importEmployeeExcel(formData: FormData) {
             if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍') || rowText.includes('ប្រាក់ខែ') || rowText.includes('底薪')) matchCount++;
             if (rowText.includes('date') || rowText.includes('ថ្ងៃ') || rowText.includes('日期')) matchCount++;
             
-            // Require at least 4 columns to match to be absolutely sure it's the Employee Master table
-            if (matchCount >= 4) {
+            // Require at least 3 columns to match to be absolutely sure it's the Employee Master table
+            if (matchCount >= 3) {
               dataStartRow = r + 1;
               worksheet = ws;
               foundValidSheet = true;
@@ -109,62 +98,35 @@ export async function importEmployeeExcel(formData: FormData) {
               break;
             }
           }
+          if (foundValidSheet) break;
         }
-        if (foundValidSheet) break;
-      }
 
-      worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber < dataStartRow) return;
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber < dataStartRow) return;
 
-        let employeeId = '';
-        let nameKh = '';
-        let nameEn = '';
-        let genderStr = '';
-        let hireDateVal: any = null;
-        let dobVal: any = null;
-        let position = 'Staff';
-        let department = 'General';
-        let basicSalary = 0;
-        let phone = '';
-        let cardNo = '';
-        let bankCardNo = '';
-        let nationalId = '';
-        let address = '';
-        let placeOfBirth = '';
-        let education = '';
-        let maritalStatus = 'SINGLE';
-        let nssfNo = '';
-        let remark = '';
+          let employeeId = '';
+          let nameKh = '';
+          let nameEn = '';
+          let genderStr = '';
+          let hireDateVal: any = null;
+          let dobVal: any = null;
+          let position = 'Staff';
+          let department = 'General';
+          let basicSalary = 0;
+          let phone = '';
+          let cardNo = '';
+          let bankCardNo = '';
+          let nationalId = '';
+          let address = '';
+          let placeOfBirth = '';
+          let education = '';
+          let maritalStatus = 'SINGLE';
+          let nssfNo = '';
+          let remark = '';
 
-        if (isMasterFormat) {
-          // Fixed col indexes for Master Employee Excel
-          employeeId = row.getCell(1).text?.trim();
-          cardNo = row.getCell(3).text?.trim();
-          nameKh = row.getCell(4).text?.trim();
-          nameEn = row.getCell(5).text?.trim();
-          genderStr = row.getCell(6).text?.trim();
-          hireDateVal = row.getCell(7).value || row.getCell(7).text?.trim();
-          nationalId = row.getCell(8).text?.trim();
-          bankCardNo = row.getCell(9).text?.trim();
-          department = row.getCell(10).text?.trim() || 'General';
-          position = row.getCell(11).text?.trim() || 'Staff';
-          
-          const salVal = row.getCell(17).value || row.getCell(17).text?.trim();
-          basicSalary = typeof salVal === 'number' ? salVal : parseFloat(String(salVal).replace(/[^0-9.]/g, '')) || 0;
-          
-          dobVal = row.getCell(26).value || row.getCell(26).text?.trim();
-          placeOfBirth = row.getCell(28).text?.trim();
-          address = row.getCell(29).text?.trim();
-          education = row.getCell(30).text?.trim();
-          
-          const marStr = row.getCell(32).text?.trim()?.toUpperCase() || '';
-          if (marStr.includes('MARRIED') || marStr.includes('រៀបការ')) maritalStatus = 'MARRIED';
-          
-          remark = row.getCell(35).text?.trim();
-          nssfNo = row.getCell(36).text?.trim();
-        } else if (Object.keys(headersMap).length > 0) {
-          // Dynamic mapped columns
-          if (headersMap['employeeId']) employeeId = row.getCell(headersMap['employeeId']).text?.trim();
+          if (Object.keys(headersMap).length > 0) {
+            // Dynamic mapped columns
+            if (headersMap['employeeId']) employeeId = row.getCell(headersMap['employeeId']).text?.trim();
           
           // Fallback if employeeId was missed by headers
           if (!employeeId) {
@@ -225,11 +187,6 @@ export async function importEmployeeExcel(formData: FormData) {
       const rawRows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
       
       let startRow = 1;
-      if (rawRows.length > 5 && (String(rawRows[0]?.[0] || '').includes('ក្រុមហ៊ុន') || String(rawRows[3]?.[0] || '').includes('EMPLOYEE') || String(rawRows[0]?.[1] || '').includes('ក្រុមហ៊ុន'))) {
-        startRow = 6;
-        isMasterFormat = true;
-      }
-
       for (let r = startRow; r < rawRows.length; r++) {
         const row = rawRows[r];
         if (!row) continue;
@@ -244,47 +201,24 @@ export async function importEmployeeExcel(formData: FormData) {
         const idLower = employeeId.toLowerCase();
         if (idLower.includes('total') || idLower.includes('សរុប')) continue;
 
-        if (isMasterFormat) {
-          rowsData.push({
-            employeeId,
-            cardNo: String(row[2] || '').trim(),
-            nameKh: String(row[3] || '').trim(),
-            nameEn: String(row[4] || '').trim(),
-            genderStr: String(row[5] || '').trim(),
-            hireDateVal: row[6],
-            nationalId: String(row[7] || '').trim(),
-            bankCardNo: String(row[8] || '').trim(),
-            department: String(row[9] || 'General').trim(),
-            position: String(row[10] || 'Staff').trim(),
-            basicSalary: parseFloat(String(row[16] || row[13] || '0').replace(/[^0-9.]/g, '')) || 0,
-            dobVal: row[25],
-            placeOfBirth: String(row[27] || '').trim(),
-            address: String(row[28] || '').trim(),
-            education: String(row[29] || '').trim(),
-            maritalStatus: String(row[31] || '').toUpperCase().includes('MARRIED') ? 'MARRIED' : 'SINGLE',
-            remark: String(row[34] || '').trim(),
-            nssfNo: String(row[35] || '').trim()
-          });
-        } else {
-          // If we fallback here, try to guess if it's the payroll format
-          const nameEn = String(row[2] || row[1] || '').trim();
-          const nameKh = String(row[3] || row[2] || '').trim();
-          const department = String(row[4] || row[7] || 'General').trim();
-          const position = String(row[6] || 'Staff').trim();
-          
-          rowsData.push({
-            employeeId,
-            nameEn,
-            nameKh,
-            genderStr: String(row[8] || row[3] || '').trim(), // col I in payroll
-            dobVal: row[4], // might be wrong for payroll but fallback
-            hireDateVal: row[10] || row[5], // col K in payroll
-            position,
-            department,
-            basicSalary: parseFloat(String(row[11] || row[8] || '0').replace(/[^0-9.]/g, '')) || 0, // col L in payroll
-            phone: String(row[9] || '').trim()
-          });
-        }
+        // If we fallback here, try to guess if it's the payroll format
+        const nameEn = String(row[2] || row[1] || '').trim();
+        const nameKh = String(row[3] || row[2] || '').trim();
+        const department = String(row[4] || row[7] || 'General').trim();
+        const position = String(row[6] || 'Staff').trim();
+        
+        rowsData.push({
+          employeeId,
+          nameEn,
+          nameKh,
+          genderStr: String(row[8] || row[3] || '').trim(), // col I in payroll
+          dobVal: row[4], // might be wrong for payroll but fallback
+          hireDateVal: row[10] || row[5], // col K in payroll
+          position,
+          department,
+          basicSalary: parseFloat(String(row[11] || row[8] || '0').replace(/[^0-9.]/g, '')) || 0, // col L in payroll
+          phone: String(row[9] || '').trim()
+        });
       }
     }
 

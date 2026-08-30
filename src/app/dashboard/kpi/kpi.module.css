@@ -1,0 +1,286 @@
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.headerTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+/* Stats Cards Overview */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: #3b82f6;
+}
+
+.statIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.statInfo h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.statInfo p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Department Grid */
+.sectionTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deptGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.deptCard {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.deptCard:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.deptCardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px dashed var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deptName {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deptScore {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.deptCardBody {
+  padding: 1.5rem;
+}
+
+.kpiList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kpiItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.kpiHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.kpiName {
+  color: var(--text-main);
+}
+
+.kpiTarget {
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease-in-out;
+}
+
+.viewDetailsBtn {
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(59, 130, 246, 0.05);
+  border: none;
+  border-top: 1px solid var(--border-color);
+  color: #3b82f6;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.viewDetailsBtn:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Evidence Section */
+.evidenceSection {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.evidenceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.evidenceItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.05);
+  border-radius: 12px;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  transition: transform 0.2s;
+}
+
+.evidenceItem:hover {
+  transform: scale(1.02);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+/* SMART Framework Section */
+.smartSection {
+  margin-top: 2rem;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.smartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+.smartCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.smartCard:hover {
+  transform: translateY(-5px);
+  border-color: #3b82f6;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.smartCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.smartCard[data-type="S"]::before { background: #ef4444; }
+.smartCard[data-type="M"]::before { background: #f59e0b; }
+.smartCard[data-type="A"]::before { background: #10b981; }
+.smartCard[data-type="R"]::before { background: #3b82f6; }
+.smartCard[data-type="T"]::before { background: #8b5cf6; }
+
+.smartLetter {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.smartCard[data-type="S"] .smartLetter { color: #ef4444; }
+.smartCard[data-type="M"] .smartLetter { color: #f59e0b; }
+.smartCard[data-type="A"] .smartLetter { color: #10b981; }
+.smartCard[data-type="R"] .smartLetter { color: #3b82f6; }
+.smartCard[data-type="T"] .smartLetter { color: #8b5cf6; }
+
+.smartTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.smartDesc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

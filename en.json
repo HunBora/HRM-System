@@ -1,0 +1,258 @@
+{
+    sidebar: {
+      dashboard: "Dashboard",
+      employees: "Employees",
+      attendance: "Attendance",
+      leave: "Leave",
+      advance: "Advance",
+      payroll: "Payroll",
+      exports: "Export Files",
+      settings: "Settings",
+      system: "System",
+      kpi: "HR KPI", documents: "Documents"
+    },
+    leave: {
+      title: "Leave Management",
+      newBtn: "+ New Leave",
+      columns: {
+        id: "ID",
+        name: "Name",
+        type: "Type",
+        startDate: "Start Date",
+        endDate: "End Date",
+        reason: "Reason",
+        status: "Status",
+        actions: "Actions"
+      },
+      status: {
+        PENDING: "Pending",
+        APPROVED: "Approved",
+        REJECTED: "Rejected"
+      },
+      types: {
+        ANNUAL: "Annual Leave",
+        SICK: "Sick Leave",
+        UNPAID: "Unpaid Leave",
+        MATERNITY: "Maternity Leave",
+        OTHER: "Other"
+      },
+      form: {
+        newTitle: "New Leave Request",
+        employee: "Select Employee",
+        type: "Leave Type",
+        startDate: "Start Date",
+        endDate: "End Date",
+        reason: "Reason / Notes",
+        save: "Save",
+        saving: "Saving...",
+        cancel: "Cancel"
+      }
+    },
+    advance: {
+      title: "Advance Salary",
+      newBtn: "+ Request Advance",
+      columns: { id: "ID", name: "Name", amount: "Amount ($)", date: "Date", monthYear: "Month/Year", reason: "Reason", status: "Status", actions: "Actions" },
+      form: { newTitle: "New Advance", employee: "Employee", amount: "Amount ($)", requestDate: "Date", month: "Month", year: "Year", reason: "Reason", save: "Save", saving: "Saving...", cancel: "Cancel" }
+    },
+    header: {
+      adminUser: "Admin User"
+    },
+    dashboard: {
+      totalEmployees: "Total Employees",
+      totalPayroll: "Total Payroll",
+      todayAttendance: "Today Attendance",
+      onLeave: "On Leave"
+    },
+    employee: {
+      listTitle: "Employee Master",
+      searchPlaceholder: "Search name or ID...",
+      searchButton: "Search",
+      newEmployeeBtn: "+ New Employee",
+      noData: "No data available",
+      edit: "Edit",
+      delete: "Delete",
+      confirmDelete: "Are you sure you want to delete?",
+      columns: {
+        id: "ID",
+        nameKh: "Name (KH)",
+        nameEn: "Name (EN)",
+        gender: "Gender",
+        dob: "DOB",
+        hireDate: "Hire Date",
+        position: "Position",
+        department: "Department",
+        salary: "Salary",
+        phone: "Phone",
+        actions: "Actions"
+      },
+      form: {
+        newTitle: "New Employee",
+        editTitle: "Edit Employee",
+        employeeId: "Employee ID",
+        firstNameEn: "First Name (EN)",
+        lastNameEn: "Last Name (EN)",
+        firstNameKh: "First Name (KH)",
+        lastNameKh: "Last Name (KH)",
+        gender: "Gender",
+        male: "Male",
+        female: "Female",
+        dob: "Date of Birth",
+        hireDate: "Hire Date",
+        position: "Position",
+        department: "Department",
+        basicSalary: "Basic Salary ($)",
+        phone: "Phone Number",
+        address: "Current Address",
+        save: "Save Data",
+        saving: "Saving...",
+        cancel: "Cancel",
+        back: "Back"
+      }
+    },
+    exports: {
+      title: "Export Files",
+      employeeReport: "Employee Report",
+      employeeDesc: "Download the list of all employees in Excel, PDF, or Word format.",
+      attendanceReport: "Attendance Report",
+      attendanceDesc: "Download employee attendance records. (Feature in progress)",
+      payrollReport: "Payroll Report",
+      payrollDesc: "Download the employee payroll list. (Feature in progress)"
+    },
+    payroll: {
+      title: "Payroll Master",
+      generateBtn: "+ Generate Payroll",
+      filterBtn: "Filter",
+      noData: "No payroll records found for this month. Click 'Generate Payroll' to begin.",
+      columns: {
+        no: "No",
+        id: "ID",
+        name: "Name",
+        dept: "Dept",
+        line: "Line",
+        position: "Position",
+        shift: "Shift",
+        sex: "Sex",
+        child: "Child",
+        bSalary: "B. Salary",
+        wDay: "W. Day",
+        wSalary: "W. Salary",
+        payScale: "Pay Scale inc.",
+        otHour: "OT Hour",
+        otWage: "OT Wage",
+        sunOt: "Sun OT",
+        sunWage: "Sun Wage",
+        nightOt: "N. OT",
+        nightWage: "N. Wage",
+        annualLeave: "Annual Leave",
+        attBonus: "Att. Bonus",
+        transport: "Transp.",
+        lunch: "Lunch",
+        otMeal: "OT Meal",
+        dayCare: "Day Care",
+        seniority: "Seniority",
+        indemnity: "Indemnity",
+        prodInc: "Prod inc.",
+        adjust: "Adjust",
+        totalSalary: "Total Salary",
+        severance: "SX (5%)",
+        tax: "Tax",
+        loan: "Loan",
+        union: "Union",
+        netUsd: "Net USD",
+        netRiel: "Net Riel",
+        actions: "Actions"
+      }
+    },
+    kpi: {
+      title: "HR KPI Examples",
+      columns: {
+        kpi: "KPI",
+        target: "Target"
+      },
+      items: {
+        attendanceRate: "Attendance Rate",
+        turnover: "Employee Turnover",
+        training: "Training Completion",
+        leadTime: "Recruitment Lead Time",
+        probation: "Probation Pass Rate",
+        satisfaction: "Employee Satisfaction"
+      },
+      evidenceTitle: "Evidence",
+      evidence: {
+        policy: "HR KPI Policy",
+        matrix: "KPI Matrix",
+        orgChart: "Organization Chart",
+        jd: "Job Description",
+        approvalRecord: "KPI Approval Record",
+        managementApproval: "Management Approval"
+      },
+      dashboard: {
+        overview: "Overview",
+        totalDepts: "Total Departments",
+        assignedKPIs: "Assigned KPIs",
+        avgScore: "Average Score",
+        deptAssignments: "Department Assignments",
+        viewDetails: "View Details",
+        progress: "Progress",
+        noData: "No assignments found"
+      },
+      smart: {
+        title: "S.M.A.R.T Principles",
+        s: { title: "Specific", desc: "Clear and well-defined" },
+        m: { title: "Measurable", desc: "Can be quantified" },
+        a: { title: "Achievable", desc: "Realistic to attain" },
+        r: { title: "Relevant", desc: "Aligns with broader goals" },
+        t: { title: "Time-bound", desc: "Has a clear deadline" }
+      },
+      tabs: {
+        overview: "Overview",
+        setting: "KPI Setting Form",
+        master: "Master KPI",
+        approval: "KPI Approval",
+        plan: "Annual Plan",
+        matrix: "KPI Matrix",
+        formulas: "Data & Formulas"
+      },
+      formulas: {
+        title: "3. Data Definition and Measurement",
+        subtitle: "HRM System must pull data from:",
+        sources: ["Attendance", "Leave", "Recruitment", "Training", "Payroll", "OT", "Performance", "Discipline", "Employee Records"],
+        exampleTitle: "Formula Examples",
+        formulaLabel: "Formula:",
+        items: [
+          { name: "Attendance Rate", formula: "Present Days Ã· Working Days Ã— 100%" },
+          { name: "Turnover Rate", formula: "Resigned Employee Ã· Average Headcount Ã— 100%" },
+          { name: "Training Completion", formula: "Completed Ã· Planned Ã— 100%" }
+        ]
+      },
+      setting: {
+        title: "New KPI Input Form",
+        refDoc: "Reference Document*",
+        docDate: "Document Date",
+        employee: "Employee Name (Select ID or Name)",
+        kpi: "KPI",
+        kpiDesc: "KPI Description",
+        measure: "Measure %",
+        target: "Target",
+        actual: "Actual / Achieved",
+        timeSheet: "New Time Sheet",
+        submitBtn: "Submit"
+      },
+      approval: {
+        title: "KPI Approval",
+        table: { employee: "Employee", kpi: "KPI", target: "Target", status: "Status", action: "Action" },
+        approveBtn: "Approve",
+        rejectBtn: "Reject"
+      },
+      plan: {
+        title: "Annual KPI Plan",
+        q1: "Q1", q2: "Q2", q3: "Q3", q4: "Q4"
+      },
+      matrix: {
+        title: "Department KPI Matrix",
+        companyGoal: "Company Goal",
+        deptGoal: "Department Goal",
+        alignment: "Alignment"
+      }
+    }
+  }

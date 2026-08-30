@@ -1,0 +1,317 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("USER") // ADMIN or USER
+  employee  Employee?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id               String   @id @default(uuid())
+  employeeId       String   @unique
+  firstNameEn      String
+  lastNameEn       String
+  firstNameKh      String?
+  lastNameKh       String?
+  gender           String
+  dob              DateTime?
+  position         String
+  department       String
+  line             String?  // New field
+  shift            String?  // New field (e.g. N.T)
+  phone            String?
+  hireDate         DateTime
+  basicSalary      Float
+  maritalStatus    String   @default("SINGLE") // SINGLE, MARRIED
+  spouse           Boolean  @default(false)    // New field (Wife)
+  numberOfChildren Int      @default(0)
+  photoUrl         String?  // New field (Profile Photo)
+  annualLeaveDays  Float    @default(18)       // Annual leave allowance
+  telegramChatId   String?  // Personal Telegram ID for Payslips
+
+  // --- New fields for Employee Master Form ---
+  cardNo             String?
+  nationalId         String?
+  bankCardNo         String?
+  
+  probationStart     DateTime?
+  probationEnd       DateTime?
+  
+  regularContract1   DateTime?
+  regularContract2   DateTime?
+  regularContract3   DateTime?
+  
+  basicSalary1       Float?
+  basicSalary2       Float?
+  basicSalary3       Float?
+  
+  skillAllowance1    Float?
+  skillAllowance2    Float?
+  skillAllowance3    Float?
+  
+  positionAllowance1 Float?
+  positionAllowance2 Float?
+  positionAllowance3 Float?
+  
+  placeOfBirth       String?
+  nationality        String?  @default("Cambodian")
+  address            String?
+  education          String?
+  healthBook         String?
+  healthCertificate  String?
+  nssfNo             String?
+  spouseName         String?
+  remark             String?
+  // -------------------------------------------
+
+  userId           String?  @unique
+  user             User?    @relation(fields: [userId], references: [id])
+  leaveRequests    LeaveRequest[]
+  advances         AdvanceSalary[]
+  attendances      MonthlyAttendance[]
+  dailyAttendances DailyAttendance[]
+  payrolls         Payroll[]
+  kpis             Kpi[]
+  documents        EmployeeDocument[]
+  assets           CompanyAsset[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model DailyAttendance {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  date          DateTime
+  fIn           String?
+  fOut          String?
+  sIn           String?
+  sOut          String?
+  otIn          String?
+  otOut         String?
+  regDay        Float    @default(0)
+  workHrs       Float    @default(0)
+  normalOtHrs   Float    @default(0)
+  nightOtHrs    Float    @default(0)
+  holidayOtHrs  Float    @default(0)
+  lateMins      Int      @default(0)
+  earlyMins     Int      @default(0)
+  remarks       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([employeeId, date])
+}
+
+model MonthlyAttendance {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  month         Int
+  year          Int
+  daysWorked    Float    @default(26)
+  absentDays    Float    @default(0)
+  leaveDays     Float    @default(0)
+  otHours       Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([employeeId, month, year])
+}
+
+model Payroll {
+  id                  String   @id @default(uuid())
+  employeeId          String
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  month               Int
+  year                Int
+  basicSalary         Float    @default(0)
+  basicPayScale       Float    @default(0)
+  workingDays         Float    @default(0)
+  absentDays          Float    @default(0)
+  permissionDays      Float    @default(0)
+  workingSalary       Float    @default(0)
+  payScaleIncentive   Float    @default(0)
+  otHours             Float    @default(0)
+  otWage              Float    @default(0)
+  sunOtHours          Float    @default(0)
+  sunOtWage           Float    @default(0)
+  nightOtHours        Float    @default(0)
+  nightOtWage         Float    @default(0)
+  annualLeaveAmount   Float    @default(0)
+  attendanceBonus     Float    @default(0)
+  transportation      Float    @default(0)
+  lunchAllowance      Float    @default(0)
+  otMealAllowance     Float    @default(0)
+  dayCareAllowance    Float    @default(0)
+  seniority           Float    @default(0)
+  seniorityIndemnity  Float    @default(0)
+  productionIncentive Float    @default(0)
+  adjustmentSkill     Float    @default(0)
+  otherAllowance      Float    @default(0)
+  otherAllowanceDesc  String?
+  totalSalary         Float    @default(0)
+  severancePay        Float    @default(0)
+  taxPayment          Float    @default(0)
+  loanPension         Float    @default(0)
+  unionDeduction      Float    @default(0)
+  nssf                Float    @default(0)
+  netSalaryUsd        Float    @default(0)
+  paidSalaryUsd       Float    @default(0)
+  netSalaryRiel       Float    @default(0)
+  exchangeRate        Float    @default(4000)
+  status              String   @default("DRAFT") // DRAFT, APPROVED, PAID
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([employeeId, month, year])
+}
+
+model CompanySettings {
+  id                String   @id @default("default")
+  companyName       String   @default("HRM System")
+  logoUrl           String?
+  hrContactUrl      String?  @default("https://i.pravatar.cc/100?img=5")
+  shiftMornIn       String   @default("07:00")
+  shiftMornOut      String   @default("11:00")
+  shiftAftIn        String   @default("13:00")
+  shiftAftOut       String   @default("17:00")
+  nightShiftMornIn  String   @default("17:00")
+  nightShiftMornOut String   @default("22:00")
+  nightShiftAftIn   String   @default("23:00")
+  nightShiftAftOut  String   @default("04:00")
+  nightOtStart      String   @default("22:00")
+  payment1StartDate Int      @default(1)
+  payment1EndDate   Int      @default(15)
+  payment2StartDate Int      @default(16)
+  payment2EndDate   Int      @default(31)
+  fontSize          String   @default("14px")
+  fontFamily        String   @default("Khmer OS Siemreap")
+  
+  telegramBotToken  String?
+  telegramChatId    String?
+  contactPhone      String?
+  telegramLink      String?
+  telegramQrUrl     String?
+
+  updatedAt         DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  leaveType   String   // e.g. "ANNUAL", "SICK", "UNPAID", "MATERNITY"
+  startDate   DateTime
+  endDate     DateTime
+  duration    Float    @default(1)
+  reason      String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AdvanceSalary {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  amount      Float
+  requestDate DateTime
+  month       Int
+  year        Int
+  reason      String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED, DEDUCTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Kpi {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  docDate         DateTime
+  kpiType         String
+  description     String?
+  measurePercent  String?
+  target          String?
+  actual          Float    @default(0)
+  tsStart         String?
+  tsEnd           String?
+  tsTotalHours    Float?
+  tsRemark        String?
+  tsFileUrl       String?
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MasterKpi {
+  id          String   @id @default(uuid())
+  department  String
+  kpiType     String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DepartmentGroup {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String   @default("#e3f2fd")
+  textColor String   @default("#1565c0")
+  keywords  String   // comma-separated list of keywords
+  orderIdx  Int      @default(0) // For sorting the display order
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmployeeDocument {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  title      String
+  type       String   @default("OTHER") // ID_CARD, CONTRACT, CERTIFICATE, CV, OTHER
+  fileUrl    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model CompanyAsset {
+  id           String    @id @default(uuid())
+  employeeId   String
+  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  name         String
+  serialNumber String?
+  assignDate   DateTime  @default(now())
+  returnDate   DateTime?
+  status       String    @default("IN_USE") // IN_USE, RETURNED, LOST, DAMAGED
+  remarks      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+model Document {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   @default("Policy")
+  description String?
+  fileData    String?  @db.Text
+  fileUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

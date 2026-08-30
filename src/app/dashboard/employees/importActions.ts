@@ -34,11 +34,13 @@ export async function importEmployeeExcel(formData: FormData) {
         isMasterFormat = true;
         dataStartRow = 7;
       } else {
-        // Find header row (usually row 1 or 2)
-        for (let r = 1; r <= 6; r++) {
-          const firstCellText = sheet.getCell(r, 1).text?.trim() || '';
-          const thirdCellText = sheet.getCell(r, 3).text?.trim() || '';
-          if (firstCellText.includes('ID') || firstCellText.includes('អត្តលេខ') || firstCellText.includes('No') || thirdCellText.includes('ID')) {
+        // Find header row (usually row 1 to 10, but search up to 20)
+        for (let r = 1; r <= 20; r++) {
+          const rowValues = sheet.getRow(r).values as any[];
+          if (!rowValues || rowValues.length === 0) continue;
+          
+          const rowText = rowValues.join(' ').toLowerCase();
+          if (rowText.includes('id no') || rowText.includes('អត្តលេខ') || rowText.includes('employee id') || rowText.match(/\bid\b/) || rowText.includes('name')) {
             dataStartRow = r + 1;
             // Map header text to column index by checking both the current row and the row above it (to handle merged cells)
             const headerRow = sheet.getRow(r);
@@ -120,6 +122,16 @@ export async function importEmployeeExcel(formData: FormData) {
         } else if (Object.keys(headersMap).length > 0) {
           // Dynamic mapped columns
           if (headersMap['employeeId']) employeeId = row.getCell(headersMap['employeeId']).text?.trim();
+          
+          // Fallback if employeeId was missed by headers
+          if (!employeeId) {
+            employeeId = row.getCell(1).text?.trim();
+            if (!employeeId || employeeId === 'No' || !isNaN(Number(employeeId))) {
+               const col2 = row.getCell(2).text?.trim();
+               if (col2 && col2 !== 'ID' && col2 !== 'អត្តលេខ') employeeId = col2;
+            }
+          }
+
           if (headersMap['nameKh']) nameKh = row.getCell(headersMap['nameKh']).text?.trim();
           if (headersMap['nameEn']) nameEn = row.getCell(headersMap['nameEn']).text?.trim();
           if (headersMap['gender']) genderStr = row.getCell(headersMap['gender']).text?.trim();

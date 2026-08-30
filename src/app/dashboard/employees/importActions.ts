@@ -169,6 +169,38 @@ export async function importEmployeeExcel(formData: FormData) {
         }
 
         if (employeeId && employeeId !== 'ID No' && employeeId !== 'អត្តលេខ' && employeeId !== 'No.') {
+          // SMART POST-PROCESSING: Infer meaning from data values
+          // If nameKh is just digits, it's probably a Card No or Phone No, not a name!
+          if (nameKh && /^[\d\s]+$/.test(nameKh)) {
+            if (!cardNo) cardNo = nameKh;
+            nameKh = ''; // It's not a name
+          }
+          // Same for nameEn
+          if (nameEn && /^[\d\s]+$/.test(nameEn)) {
+            if (!cardNo) cardNo = nameEn;
+            nameEn = '';
+          }
+          
+          // Swap English and Khmer names if they were mapped wrong based on text content
+          const khmerRegex = /[\u1780-\u17FF]/;
+          const hasKhmerInEn = nameEn && khmerRegex.test(nameEn);
+          const hasKhmerInKh = nameKh && khmerRegex.test(nameKh);
+          
+          if (hasKhmerInEn && !hasKhmerInKh) {
+             // Swap them
+             const temp = nameKh;
+             nameKh = nameEn;
+             nameEn = temp;
+          } else if (nameKh && !hasKhmerInKh && nameEn === '') {
+             // If nameKh has no Khmer text and nameEn is empty, it's probably just the English name
+             nameEn = nameKh;
+             nameKh = '';
+          }
+          
+          // Fix Dept and Position if they are just raw numbers like "1" or "0" which might be counts for Wife/Child
+          if (department === '1' || department === '0') department = 'General';
+          if (position === '1' || position === '0') position = 'Staff';
+
           // Ignore summary/total rows
           const idLower = employeeId.toLowerCase();
           const nameKhLower = nameKh?.toLowerCase() || '';
@@ -202,10 +234,36 @@ export async function importEmployeeExcel(formData: FormData) {
         if (idLower.includes('total') || idLower.includes('សរុប')) continue;
 
         // If we fallback here, try to guess if it's the payroll format
-        const nameEn = String(row[2] || row[1] || '').trim();
-        const nameKh = String(row[3] || row[2] || '').trim();
-        const department = String(row[4] || row[7] || 'General').trim();
-        const position = String(row[6] || 'Staff').trim();
+        let nameEn = String(row[2] || row[1] || '').trim();
+        let nameKh = String(row[3] || row[2] || '').trim();
+        let department = String(row[4] || row[7] || 'General').trim();
+        let position = String(row[6] || 'Staff').trim();
+        let cardNo = '';
+        
+        if (nameKh && /^[\d\s]+$/.test(nameKh)) {
+          cardNo = nameKh;
+          nameKh = '';
+        }
+        if (nameEn && /^[\d\s]+$/.test(nameEn)) {
+          if (!cardNo) cardNo = nameEn;
+          nameEn = '';
+        }
+        
+        const khmerRegex = /[\u1780-\u17FF]/;
+        const hasKhmerInEn = nameEn && khmerRegex.test(nameEn);
+        const hasKhmerInKh = nameKh && khmerRegex.test(nameKh);
+        
+        if (hasKhmerInEn && !hasKhmerInKh) {
+           const temp = nameKh;
+           nameKh = nameEn;
+           nameEn = temp;
+        } else if (nameKh && !hasKhmerInKh && nameEn === '') {
+           nameEn = nameKh;
+           nameKh = '';
+        }
+        
+        if (department === '1' || department === '0') department = 'General';
+        if (position === '1' || position === '0') position = 'Staff';
         
         rowsData.push({
           employeeId,
@@ -217,7 +275,8 @@ export async function importEmployeeExcel(formData: FormData) {
           position,
           department,
           basicSalary: parseFloat(String(row[11] || row[8] || '0').replace(/[^0-9.]/g, '')) || 0, // col L in payroll
-          phone: String(row[9] || '').trim()
+          phone: String(row[9] || '').trim(),
+          cardNo
         });
       }
     }

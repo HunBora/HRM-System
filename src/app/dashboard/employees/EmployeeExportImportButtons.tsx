@@ -65,45 +65,32 @@ export default function EmployeeExportImportButtons() {
       )}
 
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <button
-          onClick={handleExportMaster}
-          className="btn-secondary kh-text"
-          style={{
-            background: '#2563eb',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            textDecoration: 'none',
+        <select
+          onChange={(e) => {
+            if (e.target.value === 'export') {
+              handleExportMaster();
+            } else if (e.target.value === 'import') {
+              setIsOpen(true);
+            }
+            e.target.value = ''; // Reset selection
           }}
-          title="Export Original Master Employee Excel"
-        >
-          📊 ទាញយក Excel ដើម (Export Master)
-        </button>
-
-        <button
-          onClick={() => setIsOpen(true)}
-          className="btn-secondary kh-text"
+          className="kh-text"
           style={{
-            background: '#10b981',
-            color: 'white',
-            padding: '8px 16px',
+            padding: '8px 12px',
             borderRadius: '6px',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            border: 'none',
+            border: '1px solid #cbd5e1',
+            background: '#f1f5f9',
             cursor: 'pointer',
+            fontWeight: 500,
+            color: '#334155',
+            outline: 'none',
+            fontSize: '0.95rem'
           }}
         >
-          📥 នាំចូល Excel (Import Original Format)
-        </button>
+          <option value="">⚙️ Excel (Import/Export)</option>
+          <option value="export">📊 ទាញយក Excel ដើម (Export)</option>
+          <option value="import">📥 នាំចូល Excel (Import)</option>
+        </select>
       </div>
 
       {isOpen && (

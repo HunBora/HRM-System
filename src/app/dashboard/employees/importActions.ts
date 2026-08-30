@@ -45,8 +45,8 @@ export async function importEmployeeExcel(formData: FormData) {
           if (rowText.includes('name') || rowText.includes('ឈ្មោះ')) matchCount++;
           if (rowText.includes('sex') || rowText.includes('gender') || rowText.includes('ភេទ')) matchCount++;
           if (rowText.includes('dept') || rowText.includes('department') || rowText.includes('ផ្នែក')) matchCount++;
-          if (rowText.includes('position') || rowText.includes('មុខងារ')) matchCount++;
-          if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍')) matchCount++;
+          if (rowText.includes('position') || rowText.includes('មុខងារ') || rowText.includes('តួនាទី')) matchCount++;
+          if (rowText.includes('salary') || rowText.includes('បៀវត្សរ៍') || rowText.includes('ប្រាក់ខែ')) matchCount++;
           if (rowText.includes('date') || rowText.includes('ថ្ងៃ')) matchCount++;
           
           // Require at least 3 columns to match to be considered a true header row (prevents false positives on titles)
@@ -55,11 +55,13 @@ export async function importEmployeeExcel(formData: FormData) {
             // Map header text to column index by checking both the current row and the row above it (to handle merged cells)
             const headerRow = sheet.getRow(r);
             const prevHeaderRow = r > 1 ? sheet.getRow(r - 1) : null;
+            const nextHeaderRow = sheet.getRow(r + 1); // Also check the row below in case this is a multi-row header (e.g. Khmer on row 4, English on row 6)
             
             headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
               const text1 = cell.text?.trim()?.toLowerCase() || '';
               const text2 = prevHeaderRow ? prevHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
-              const text = text1 + ' ' + text2; // Combine text from both rows
+              const text3 = nextHeaderRow ? nextHeaderRow.getCell(colNumber).text?.trim()?.toLowerCase() || '' : '';
+              const text = text1 + ' ' + text2 + ' ' + text3; // Combine text from all 3 possible header rows
               
               if (text.includes('id no') || text.includes('អត្តលេខ') || text === 'id' || text.includes('employee id') || text.match(/\bid\b/)) headersMap['employeeId'] = colNumber;
               else if (text.includes('khmer') || text.includes('ខ្មែរ')) headersMap['nameKh'] = colNumber;
@@ -70,15 +72,28 @@ export async function importEmployeeExcel(formData: FormData) {
               }
               else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ')) headersMap['gender'] = colNumber;
               else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ')) headersMap['hireDate'] = colNumber;
-              else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ')) headersMap['position'] = colNumber;
+              else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ') || text.includes('តួនាទី')) headersMap['position'] = colNumber;
               else if (text.includes('dept') || text.includes('department') || text.includes('ផ្នែក')) headersMap['department'] = colNumber;
-              else if (text.includes('salary') || text.includes('បៀវត្សរ៍')) headersMap['basicSalary'] = colNumber;
+              else if (text.includes('salary') || text.includes('បៀវត្សរ៍') || text.includes('ប្រាក់ខែ')) headersMap['basicSalary'] = colNumber;
               else if (text.includes('phone') || text.includes('ទូរស័ព្ទ')) headersMap['phone'] = colNumber;
               else if (text.includes('dob') || text.includes('birth') || text.includes('កំណើត')) headersMap['dob'] = colNumber;
               else if (text.includes('bank') || text.includes('ធនាគារ')) headersMap['bankCardNo'] = colNumber;
               else if (text.includes('national') || text.includes('អត្តសញ្ញាណប័ណ្ណ')) headersMap['nationalId'] = colNumber;
               else if (text.includes('card') || text.includes('កាត')) headersMap['cardNo'] = colNumber;
             });
+            
+            // Adjust dataStartRow if the row below is also part of the header (like Chinese or English headers)
+            // If the next row doesn't have an ID or looks like headers, skip it too.
+            let rCheck = r + 1;
+            while(rCheck < r + 4) {
+               const checkText = sheet.getRow(rCheck).values?.toString().toLowerCase() || '';
+               if (checkText.includes('salary') || checkText.includes('name') || checkText.includes('sex') || checkText.includes('底薪')) {
+                   dataStartRow = rCheck + 1;
+                   rCheck++;
+               } else {
+                   break;
+               }
+            }
             break;
           }
         }
@@ -178,6 +193,11 @@ export async function importEmployeeExcel(formData: FormData) {
         }
 
         if (employeeId && employeeId !== 'ID No' && employeeId !== 'អត្តលេខ' && employeeId !== 'No.') {
+          // Ignore summary/total rows
+          const idLower = employeeId.toLowerCase();
+          const nameKhLower = nameKh?.toLowerCase() || '';
+          const nameEnLower = nameEn?.toLowerCase() || '';
+          if (idLower.includes('total') || idLower.includes('សរុប') || nameKhLower.includes('total') || nameEnLower.includes('total')) return;
           rowsData.push({
             employeeId, nameKh, nameEn, genderStr, hireDateVal, dobVal, position, department, basicSalary, phone, cardNo, bankCardNo, nationalId, address, placeOfBirth, education, maritalStatus, nssfNo, remark
           });
@@ -207,6 +227,8 @@ export async function importEmployeeExcel(formData: FormData) {
         }
         
         if (!employeeId || employeeId === 'ID No' || employeeId === 'អត្តលេខ' || employeeId === 'No.') continue;
+        const idLower = employeeId.toLowerCase();
+        if (idLower.includes('total') || idLower.includes('សរុប')) continue;
 
         if (isMasterFormat) {
           rowsData.push({

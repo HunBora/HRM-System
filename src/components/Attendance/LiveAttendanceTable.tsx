@@ -57,7 +57,11 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
     backgroundColor: '#f8fafc',
     color: '#334155',
     textAlign: 'left',
-    fontWeight: '600'
+    fontWeight: '600',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    boxShadow: '0 2px 0 var(--border-color)'
   };
 
   const tdStyle: React.CSSProperties = {
@@ -148,7 +152,7 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
           </div>
 
           {/* Daily Table */}
-          <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+          <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 350px)', padding: 0 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
               <thead>
                 <tr>
@@ -203,7 +207,7 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
       )}
 
       {activeTab === 'monthly' && (
-        <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+        <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)', padding: 0 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--surface-color)' }}>

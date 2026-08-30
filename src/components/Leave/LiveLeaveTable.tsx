@@ -44,7 +44,11 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
     color: '#334155',
     textAlign: 'left',
     fontWeight: '600',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    boxShadow: '0 2px 0 var(--border-color)'
   };
 
   const tdStyle: React.CSSProperties = {
@@ -82,7 +86,7 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
         </div>
       </div>
 
-      <div className="card" style={{ overflowX: 'auto', padding: 0 }}>
+      <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)', padding: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--surface-color)' }}>

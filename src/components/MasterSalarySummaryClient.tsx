@@ -415,8 +415,8 @@ export default function MasterSalarySummaryClient({ data, month, year, companyNa
       </div>
 
       <div id="salary-summary-container" className="bg-white">
-        <div className="overflow-x-auto border border-gray-200 rounded-md">
-          <table className="w-full text-sm text-left border-collapse min-w-max">
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)] border border-gray-200 rounded-md relative">
+          <table className="w-full text-sm text-left border-collapse min-w-max relative">
           <thead className="bg-slate-50 text-slate-700 font-semibold sticky top-0 shadow-sm">
             <tr>
               <th className="p-3 border-r border-b border-slate-200 text-center align-middle" rowSpan={2}>

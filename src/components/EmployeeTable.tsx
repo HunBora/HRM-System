@@ -13,7 +13,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
   };
 
   const Th = ({ en, cn, kh, minW = 'auto' }: { en: string, cn: string, kh: string, minW?: string }) => (
-    <th style={{ padding: '10px 8px', borderBottom: '1px dashed var(--border-color)', borderRight: '1px dashed var(--border-color)', verticalAlign: 'middle', minWidth: minW }}>
+    <th style={{ padding: '10px 8px', borderBottom: '1px dashed var(--border-color)', borderRight: '1px dashed var(--border-color)', verticalAlign: 'middle', minWidth: minW, position: 'sticky', top: 0, backgroundColor: 'var(--surface-color)', zIndex: 10, boxShadow: '0 1px 0 var(--border-color)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center', lineHeight: '1.2' }}>
         <span className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-color)' }}>{kh}</span>
         <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#64748b' }}>{en}</span>
@@ -24,7 +24,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
 
   return (
     <>
-      <div className="card" style={{ overflowX: 'auto', padding: 0, border: '1px dashed var(--border-color)' }}>
+      <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 200px)', padding: 0, border: '1px dashed var(--border-color)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', whiteSpace: 'nowrap' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--surface-color)' }}>
@@ -54,7 +54,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
               <Th en="Phone No" cn="电话号码" kh="លេខទូរស័ព្ទ" minW="120px" />
               <Th en="NSSF No" cn="社保" kh="ប.ស.ស" minW="120px" />
               <Th en="Remark" cn="备注" kh="ផ្សេងៗ" minW="150px" />
-              <th style={{ padding: '10px 8px', borderBottom: '1px dashed var(--border-color)', verticalAlign: 'middle' }}>
+              <th style={{ padding: '10px 8px', borderBottom: '1px dashed var(--border-color)', verticalAlign: 'middle', position: 'sticky', top: 0, backgroundColor: 'var(--surface-color)', zIndex: 10, boxShadow: '0 1px 0 var(--border-color)' }}>
                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center', lineHeight: '1.2' }}>
                    <span className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-color)' }}>សកម្មភាព</span>
                    <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#64748b' }}>Actions</span>

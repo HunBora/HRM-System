@@ -47,7 +47,7 @@ export async function importEmployeeExcel(formData: FormData) {
               else if (text.includes('khmer') || text.includes('ខ្មែរ')) headersMap['nameKh'] = colNumber;
               else if (text.includes('english') || text.includes('ឡាតាំង') || text === 'name' || text === 'employee name') headersMap['nameEn'] = colNumber;
               else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ')) headersMap['gender'] = colNumber;
-              else if (text.includes('hire') || text.includes('join') || text.includes('ចូលធ្វើការ')) headersMap['hireDate'] = colNumber;
+              else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ')) headersMap['hireDate'] = colNumber;
               else if (text.includes('position') || text.includes('job') || text.includes('មុខងារ')) headersMap['position'] = colNumber;
               else if (text.includes('dept') || text.includes('department') || text.includes('ផ្នែក')) headersMap['department'] = colNumber;
               else if (text.includes('salary') || text.includes('បៀវត្សរ៍')) headersMap['basicSalary'] = colNumber;

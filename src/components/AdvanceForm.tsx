@@ -2,26 +2,44 @@
 
 import { useState } from 'react';
 import { createAdvanceRequest } from '@/app/dashboard/advance/actions';
+import Select from 'react-select';
 
 export default function AdvanceForm({ employees, t }: { employees: any[], t: any }) {
   const [loading, setLoading] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
+
+  const employeeOptions = employees.map(emp => ({
+    value: emp.id,
+    label: `${emp.employeeId} - ${emp.firstNameEn} ${emp.lastNameEn} (${emp.firstNameKh} ${emp.lastNameKh})`
+  }));
 
   return (
     <form action={createAdvanceRequest} onSubmit={() => setLoading(true)} className="card" style={{ maxWidth: '600px' }}>
       
+      {/* Hidden input for employeeId since react-select doesn't natively submit form data easily */}
+      <input type="hidden" name="employeeId" value={selectedEmployeeId} required />
+      
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '20px' }}>
         <div>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>{t.advance.form.employee} *</label>
-          <select name="employeeId" className="input-field" required>
-            <option value="">-- {t.advance.form.employee} --</option>
-            {employees.map(emp => (
-              <option key={emp.id} value={emp.id}>
-                {emp.employeeId} - {emp.firstNameEn} {emp.lastNameEn}
-              </option>
-            ))}
-          </select>
+          <Select 
+            options={employeeOptions}
+            placeholder={`-- ${t.advance.form.employee} --`}
+            onChange={(option: any) => setSelectedEmployeeId(option?.value || '')}
+            isSearchable={true}
+            className="kh-text"
+            styles={{
+              control: (base) => ({
+                ...base,
+                padding: '2px',
+                borderColor: '#cbd5e1',
+                borderRadius: '8px'
+              })
+            }}
+          />
         </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>

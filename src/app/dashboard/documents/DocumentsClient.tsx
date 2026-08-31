@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Swal from 'sweetalert2';
 import { createDocument, updateDocument, deleteDocument } from './actions';
 
 export default function DocumentsClient({ documents, isAdmin }: { documents: any[], isAdmin: boolean }) {
@@ -48,7 +49,13 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     
     // Validate size (<3MB)
     if (file.size > 3 * 1024 * 1024) {
-      alert('ឯកសារធំពេក! សូមជ្រើសរើសឯកសារក្រោម 3MB ឬប្រើទម្រង់ដាក់ Link ជំនួសវិញ។ (File too large, max 3MB)');
+      Swal.fire({
+        icon: 'error',
+        title: 'ឯកសារធំពេក! (File too large)',
+        text: 'សូមជ្រើសរើសឯកសារក្រោម 3MB ឬប្រើទម្រង់ដាក់ Link ជំនួសវិញ។ (Max 3MB)',
+        confirmButtonColor: '#2563eb'
+      });
+      e.target.value = '';
       return;
     }
     
@@ -63,7 +70,14 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
   };
 
   const handleSave = async () => {
-    if (!title) return alert('សូមបញ្ជូលចំណងជើងឯកសារ (Title required)');
+    if (!title) {
+      return Swal.fire({
+        icon: 'warning',
+        title: 'សូមបញ្ជូលចំណងជើងឯកសារ',
+        text: 'Title is required!',
+        confirmButtonColor: '#2563eb'
+      });
+    }
     setLoading(true);
     try {
       const data = { title, category, description, fileData: fileBase64, fileUrl };
@@ -73,15 +87,45 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         await createDocument(data);
       }
       setIsModalOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'ជោគជ័យ!',
+        text: 'ឯកសារត្រូវបានរក្សាទុក (Document saved)',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      alert('មានបញ្ហាក្នុងការរក្សាទុក (Error saving document)');
+      Swal.fire({
+        icon: 'error',
+        title: 'បរាជ័យ!',
+        text: 'មានបញ្ហាក្នុងការរក្សាទុក (Error saving document)',
+        confirmButtonColor: '#ef4444'
+      });
     }
     setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('តើអ្នកពិតជាចង់លុបឯកសារនេះមែនទេ? (Are you sure you want to delete this?)')) {
+    const result = await Swal.fire({
+      title: 'តើអ្នកពិតជាចង់លុបមែនទេ?',
+      text: "អ្នកនឹងមិនអាចទាញទិន្នន័យនេះមកវិញបានទេ! (You won't be able to revert this!)",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'បាទ/ចាស លុប (Delete)',
+      cancelButtonText: 'បោះបង់ (Cancel)'
+    });
+
+    if (result.isConfirmed) {
       await deleteDocument(id);
+      Swal.fire({
+        icon: 'success',
+        title: 'បានលុបរួចរាល់!',
+        text: 'ឯកសារត្រូវបានលុប (Document deleted)',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
   };
 

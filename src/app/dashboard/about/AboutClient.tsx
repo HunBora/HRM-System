@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useRef } from 'react';
+import Swal from 'sweetalert2';
 import { updateAboutSettings } from './actions';
 
 export default function AboutClient({ settings, isAdmin }: { settings: any, isAdmin: boolean }) {
@@ -30,9 +31,20 @@ export default function AboutClient({ settings, isAdmin }: { settings: any, isAd
         telegramLink: tgLink,
         telegramQrUrl: qrBase64,
       });
-      alert('រក្សាទុកបានជោគជ័យ! (Saved successfully)');
+      Swal.fire({
+        icon: 'success',
+        title: 'ជោគជ័យ!',
+        text: 'រក្សាទុកបានជោគជ័យ! (Saved successfully)',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      alert('មានបញ្ហាក្នុងការរក្សាទុក (Error saving)');
+      Swal.fire({
+        icon: 'error',
+        title: 'បរាជ័យ!',
+        text: 'មានបញ្ហាក្នុងការរក្សាទុក (Error saving)',
+        confirmButtonColor: '#ef4444'
+      });
     }
     setLoading(false);
   };

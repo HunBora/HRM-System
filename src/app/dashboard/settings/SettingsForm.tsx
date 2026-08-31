@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { updateSettings } from './actions';
 import Image from 'next/image';
 
@@ -14,7 +15,13 @@ export default function SettingsForm({ settings }: { settings: any }) {
     const formData = new FormData(e.currentTarget);
     await updateSettings(formData);
     setLoading(false);
-    alert('រក្សាទុកការកំណត់បានជោគជ័យ! (Settings saved successfully)');
+    Swal.fire({
+      icon: 'success',
+      title: 'ជោគជ័យ!',
+      text: 'រក្សាទុកការកំណត់បានជោគជ័យ! (Settings saved successfully)',
+      timer: 2000,
+      showConfirmButton: false
+    });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -168,8 +168,18 @@ export default function PayrollEditForm({ payroll }: { payroll: any }) {
     e.preventDefault();
     setLoading(true);
     
+    // Save extra benefits as JSON
+    const benefitsData = extraBenefits.filter(b => b.confirmed).map(b => ({ name: b.name, nameEn: b.nameEn, amount: b.amount }));
+    const totalExtra = benefitsData.reduce((sum, b) => sum + b.amount, 0);
+    
+    const payload = {
+      ...formData,
+      otherAllowance: totalExtra,
+      otherAllowanceDesc: JSON.stringify(benefitsData)
+    };
+    
     // Clean data for saving
-    const dataToSave = { ...formData };
+    const dataToSave = { ...payload };
     delete dataToSave.id;
     delete dataToSave.employeeId;
     delete dataToSave.employee;
@@ -178,7 +188,16 @@ export default function PayrollEditForm({ payroll }: { payroll: any }) {
 
     await updatePayrollRecord(payroll.id, dataToSave);
     setLoading(false);
-    alert('Payroll record updated successfully');
+    
+    // Dynamically import Swal since this is a client component
+    const Swal = (await import('sweetalert2')).default;
+    Swal.fire({
+      icon: 'success',
+      title: 'ជោគជ័យ!',
+      text: 'Payroll record updated successfully',
+      timer: 2000,
+      showConfirmButton: false
+    });
     window.history.back();
   };
 

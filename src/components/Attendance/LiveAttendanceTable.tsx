@@ -52,7 +52,7 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
   const absentCount = todayData.filter(e => e.attStatus === 'ABSENT').length;
 
   const thStyle: React.CSSProperties = {
-    padding: '12px 16px',
+    padding: '8px 12px',
     borderBottom: '2px solid var(--border-color)',
     backgroundColor: '#f8fafc',
     color: '#334155',
@@ -61,11 +61,12 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
     position: 'sticky',
     top: 0,
     zIndex: 10,
-    boxShadow: '0 2px 0 var(--border-color)'
+    boxShadow: '0 2px 0 var(--border-color)',
+    fontSize: '0.9rem'
   };
 
   const tdStyle: React.CSSProperties = {
-    padding: '12px 16px',
+    padding: '8px 12px',
     borderBottom: '1px solid var(--border-color)',
     verticalAlign: 'middle'
   };
@@ -157,7 +158,8 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
               <thead>
                 <tr>
                   <th style={thStyle} className="kh-text">អត្តលេខ<br/>ID</th>
-                  <th style={thStyle} className="kh-text">ឈ្មោះបុគ្គលិក<br/>Name</th>
+                  <th style={thStyle} className="kh-text">ឈ្មោះខ្មែរ<br/>Name Khmer</th>
+                  <th style={thStyle} className="kh-text">ឈ្មោះឡាតាំង<br/>Name English</th>
                   <th style={thStyle} className="kh-text">ម៉ោងចូល<br/>Check In</th>
                   <th style={thStyle} className="kh-text">ម៉ោងចេញ<br/>Check Out</th>
                   <th style={thStyle} className="kh-text">ស្ថានភាព<br/>Status</th>
@@ -167,15 +169,17 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
               <tbody>
                 {filteredData.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '30px', textAlign: 'center' }} className="kh-text">គ្មានទិន្នន័យ (No Data)</td>
+                    <td colSpan={7} style={{ padding: '20px', textAlign: 'center' }} className="kh-text">គ្មានទិន្នន័យ (No Data)</td>
                   </tr>
                 ) : (
                   filteredData.map((emp: any) => (
-                    <tr key={emp.id} style={{ backgroundColor: '#fff', transition: 'background-color 0.2s' }}>
+                    <tr key={emp.id} style={{ backgroundColor: '#fff', transition: 'background-color 0.2s', fontSize: '0.9rem' }}>
                       <td style={tdStyle}>{emp.employeeId}</td>
+                      <td style={tdStyle} className="kh-text">
+                        {emp.firstNameKh} {emp.lastNameKh}
+                      </td>
                       <td style={tdStyle}>
-                        <div className="kh-text" style={{ fontWeight: '500' }}>{emp.firstNameKh} {emp.lastNameKh}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{emp.firstNameEn} {emp.lastNameEn}</div>
+                        {emp.firstNameEn} {emp.lastNameEn}
                       </td>
                       <td style={tdStyle}>
                         <span style={{ fontWeight: emp.checkIn !== '-' ? 'bold' : 'normal', color: emp.checkIn !== '-' ? '#0f172a' : '#94a3b8' }}>

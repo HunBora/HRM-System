@@ -12,9 +12,11 @@ interface ExportButtonsProps {
   printId?: string; // ID of the HTML element to print
   hidePdf?: boolean;
   hideWord?: boolean;
+  showEmployeeMaster?: boolean;
+  onImportEmployee?: () => void;
 }
 
-export default function ExportButtons({ data, columns, filename, printId, hidePdf, hideWord }: ExportButtonsProps) {
+export default function ExportButtons({ data, columns, filename, printId, hidePdf, hideWord, showEmployeeMaster, onImportEmployee }: ExportButtonsProps) {
   
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(data.map(item => {
@@ -185,15 +187,25 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
           if (val === 'excel') exportToExcel();
           else if (val === 'pdf') exportToPDF();
           else if (val === 'word') exportToWord();
+          else if (val === 'export_master') window.location.href = `/api/export/master-employee?t=${Date.now()}`;
+          else if (val === 'import_master' && onImportEmployee) onImportEmployee();
           
           e.target.value = ''; // Reset after click
         }}
         defaultValue=""
       >
         <option value="" disabled>⚙️ ជម្រើសទាញយក (Export)</option>
-        <option value="excel">📥 Export Excel</option>
+        <option value="excel">📥 Export Excel (តារាងខាងក្រោម)</option>
         {!hidePdf && <option value="pdf">📥 Export PDF</option>}
         {!hideWord && <option value="word">📥 Export Word</option>}
+        
+        {showEmployeeMaster && (
+          <>
+            <option disabled>──────────</option>
+            <option value="export_master">📊 ទាញយក Excel ដើម (Export Master)</option>
+            <option value="import_master">📥 នាំចូល Excel (Import Master)</option>
+          </>
+        )}
       </select>
 
       <button onClick={exportToPrint} className="btn-secondary" style={{ backgroundColor: '#475569', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>

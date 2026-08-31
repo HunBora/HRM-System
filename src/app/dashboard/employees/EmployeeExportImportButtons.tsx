@@ -1,12 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { importEmployeeExcel } from './importActions';
 
-export default function EmployeeExportImportButtons() {
+export interface EmployeeExportImportRef {
+  openModal: () => void;
+}
+
+const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDropdown?: boolean }>(({ hideDropdown }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    openModal: () => setIsOpen(true)
+  }));
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -64,34 +72,36 @@ export default function EmployeeExportImportButtons() {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <select
-          onChange={(e) => {
-            if (e.target.value === 'export') {
-              handleExportMaster();
-            } else if (e.target.value === 'import') {
-              setIsOpen(true);
-            }
-            e.target.value = ''; // Reset selection
-          }}
-          className="kh-text"
-          style={{
-            padding: '8px 12px',
-            borderRadius: '6px',
-            border: '1px solid #cbd5e1',
-            background: '#f1f5f9',
-            cursor: 'pointer',
-            fontWeight: 500,
-            color: '#334155',
-            outline: 'none',
-            fontSize: '0.95rem'
-          }}
-        >
-          <option value="">⚙️ Excel (Import/Export)</option>
-          <option value="export">📊 ទាញយក Excel ដើម (Export)</option>
-          <option value="import">📥 នាំចូល Excel (Import)</option>
-        </select>
-      </div>
+      {!hideDropdown && (
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <select
+            onChange={(e) => {
+              if (e.target.value === 'export') {
+                handleExportMaster();
+              } else if (e.target.value === 'import') {
+                setIsOpen(true);
+              }
+              e.target.value = ''; // Reset selection
+            }}
+            className="kh-text"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              background: '#f1f5f9',
+              cursor: 'pointer',
+              fontWeight: 500,
+              color: '#334155',
+              outline: 'none',
+              fontSize: '0.95rem'
+            }}
+          >
+            <option value="">⚙️ Excel (Import/Export)</option>
+            <option value="export">📊 ទាញយក Excel ដើម (Export)</option>
+            <option value="import">📥 នាំចូល Excel (Import)</option>
+          </select>
+        </div>
+      )}
 
       {isOpen && (
         <div
@@ -196,4 +206,6 @@ export default function EmployeeExportImportButtons() {
       )}
     </>
   );
-}
+});
+
+export default EmployeeExportImportButtons;

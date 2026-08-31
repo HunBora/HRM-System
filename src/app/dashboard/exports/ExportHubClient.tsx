@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ExportButtons from '@/components/ExportButtons';
-import EmployeeExportImportButtons from '@/app/dashboard/employees/EmployeeExportImportButtons';
+import EmployeeExportImportButtons, { EmployeeExportImportRef } from '@/app/dashboard/employees/EmployeeExportImportButtons';
 import { fetchEmployeeReport, fetchAttendanceReport, fetchPayrollReport, fetchBankTransferReport } from './actions';
 
 interface Props {
@@ -17,6 +17,7 @@ export default function ExportHubClient({ t }: Props) {
   
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const employeeImportRef = useRef<EmployeeExportImportRef>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -252,8 +253,10 @@ export default function ExportHubClient({ t }: Props) {
                 printId="preview-table" 
                 hidePdf={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
                 hideWord={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
+                showEmployeeMaster={reportType === 'EMPLOYEE'}
+                onImportEmployee={() => employeeImportRef.current?.openModal()}
               />
-              {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons />}
+              {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons ref={employeeImportRef} hideDropdown={true} />}
               {reportType === 'PAYSLIP_STRIPS' && (
                 <a 
                   href={`/api/export/payslip-strips?month=${month}&year=${year}`}

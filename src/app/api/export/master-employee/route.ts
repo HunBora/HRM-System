@@ -52,8 +52,8 @@ export async function GET() {
 
     // 3. Headers (Row 5 and 6)
     const headers = [
-      { top: '', bottom: { kh: 'អត្តលេខ', cn: '编号', en: 'ID No' }, width: 10 },
       { top: '', bottom: { kh: 'ល.រ', cn: '序号', en: 'No' }, width: 5 },
+      { top: '', bottom: { kh: 'អត្តលេខ', cn: '编号', en: 'ID No' }, width: 10 },
       { top: '', bottom: { kh: 'ឈ្មោះខ្មែរ', cn: '柬文名字', en: 'Name Khmer' }, width: 18 },
       { top: '', bottom: { kh: 'ឈ្មោះឡាតាំង', cn: '英文名字', en: 'Name English' }, width: 18 },
       { top: '', bottom: { kh: 'ភេទ', cn: '性别', en: 'Sex' }, width: 6 },
@@ -139,8 +139,8 @@ export async function GET() {
       const row = sheet.getRow(currentRow);
       
       const rowData = [
-        emp.employeeId,
         index + 1,
+        emp.employeeId,
         emp.firstNameKh ? `${emp.firstNameKh} ${emp.lastNameKh || ''}`.trim() : '',
         `${emp.firstNameEn} ${emp.lastNameEn || ''}`.trim(),
         (emp.gender === 'MALE' || emp.gender === 'ប្រុស' || emp.gender === 'M' || emp.gender?.toLowerCase().includes('male')) ? 'M' : 'F',

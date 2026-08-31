@@ -40,6 +40,29 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     return { desc, department: '', docCode: '' };
   };
 
+  const getFileType = (url: string | null, data: string | null) => {
+    if (data) {
+      if (data.startsWith('data:application/pdf')) return 'PDF';
+      if (data.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml')) return 'DOCX';
+      if (data.startsWith('data:application/msword')) return 'DOC';
+      if (data.startsWith('data:application/vnd.openxmlformats-officedocument.spreadsheetml')) return 'EXCEL';
+      if (data.startsWith('data:application/vnd.ms-excel')) return 'EXCEL';
+      if (data.startsWith('data:text/csv')) return 'CSV';
+      if (data.startsWith('data:image/')) return 'IMAGE';
+      return 'FILE';
+    }
+    if (url) {
+      const lower = url.toLowerCase();
+      if (lower.includes('.pdf')) return 'PDF';
+      if (lower.includes('.doc')) return 'DOCX';
+      if (lower.includes('.xls') || lower.includes('.csv')) return 'EXCEL';
+      if (lower.includes('.jpg') || lower.includes('.png') || lower.includes('.jpeg')) return 'IMAGE';
+      if (lower.includes('drive.google.com')) return 'DRIVE';
+      return 'LINK';
+    }
+    return '';
+  };
+
   const parsedDocuments = useMemo(() => {
     return documents.map(doc => {
       const parsed = parseDescription(doc.description);
@@ -269,15 +292,20 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
                   </td>
                   <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                     {(doc.fileUrl || doc.fileData) ? (
-                      <a 
-                        href={doc.fileUrl || doc.fileData} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="kh-text"
-                        style={{ display: 'inline-block', backgroundColor: '#10b981', color: '#fff', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.9rem' }}
-                      >
-                        មើលឯកសារ (View)
-                      </a>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        <a 
+                          href={doc.fileUrl || doc.fileData} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="kh-text"
+                          style={{ display: 'inline-block', backgroundColor: '#10b981', color: '#fff', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.9rem' }}
+                        >
+                          មើលឯកសារ (View)
+                        </a>
+                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold' }}>
+                          {getFileType(doc.fileUrl, doc.fileData)}
+                        </span>
+                      </div>
                     ) : (
                       <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.9rem' }}>គ្មានឯកសារ</span>
                     )}

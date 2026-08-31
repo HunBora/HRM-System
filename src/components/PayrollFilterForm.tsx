@@ -7,18 +7,29 @@ export default function PayrollFilterForm({
   month, 
   year, 
   department, 
-  filterBtnText 
+  filterBtnText,
+  q = ''
 }: { 
   uniqueDepartments: string[], 
   month: number, 
   year: number, 
   department: string,
-  filterBtnText: string
+  filterBtnText: string,
+  q?: string
 }) {
   const currentYear = new Date().getFullYear();
   
   return (
     <form method="GET" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <input 
+        type="text" 
+        name="q" 
+        defaultValue={q} 
+        placeholder="ស្វែងរកអត្តលេខ ឫឈ្មោះ..." 
+        className="input-field kh-text"
+        style={{ margin: 0, width: '200px', padding: '4px 8px' }}
+      />
+      
       <select 
         name="department" 
         defaultValue={department} 

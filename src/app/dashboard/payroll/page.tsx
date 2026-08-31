@@ -24,7 +24,7 @@ const ThText = ({ kh, en, zh, verticalKh, wrapKh }: { kh: React.ReactNode, en: s
   </div>
 );
 
-export default async function PayrollPage({ searchParams }: { searchParams: Promise<{ month?: string, year?: string, department?: string }> }) {
+export default async function PayrollPage({ searchParams }: { searchParams: Promise<{ month?: string, year?: string, department?: string, q?: string }> }) {
   const t = await getDictionary();
   const resolvedParams = await searchParams;
   const currentMonth = new Date().getMonth() + 1;
@@ -33,13 +33,27 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
   const month = resolvedParams?.month ? parseInt(resolvedParams.month) : currentMonth;
   const year = resolvedParams?.year ? parseInt(resolvedParams.year) : currentYear;
   const department = resolvedParams?.department || '';
+  const q = resolvedParams?.q || '';
 
   const [payrolls, companySettings, distinctDepts] = await Promise.all([
     prisma.payroll.findMany({
       where: {
         month,
         year,
-        ...(department ? { employee: { department } } : {})
+        ...((department || q) ? {
+          employee: {
+            ...(department ? { department } : {}),
+            ...(q ? {
+              OR: [
+                { employeeId: { contains: q, mode: 'insensitive' } },
+                { firstNameEn: { contains: q, mode: 'insensitive' } },
+                { lastNameEn: { contains: q, mode: 'insensitive' } },
+                { firstNameKh: { contains: q, mode: 'insensitive' } },
+                { lastNameKh: { contains: q, mode: 'insensitive' } }
+              ]
+            } : {})
+          }
+        } : {})
       },
       include: {
         employee: true,
@@ -131,6 +145,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
               year={year} 
               department={department} 
               filterBtnText={t.payroll.filterBtn} 
+              q={q}
             />
           </div>
         </div>

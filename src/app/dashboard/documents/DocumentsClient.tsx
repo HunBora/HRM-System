@@ -21,23 +21,39 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Policy');
   const [description, setDescription] = useState('');
+  const [department, setDepartment] = useState('');
+  const [docCode, setDocCode] = useState('');
   const [fileUrl, setFileUrl] = useState('');
   const [fileBase64, setFileBase64] = useState('');
 
   const filteredDocs = useMemo(() => {
-    if (!search) return documents;
-    return documents.filter(doc => 
-      doc.title.toLowerCase().includes(search.toLowerCase()) || 
-      doc.category.toLowerCase().includes(search.toLowerCase())
+    return documents.filter(d => 
+      d.title.toLowerCase().includes(search.toLowerCase()) || 
+      (d.description && d.description.includes(search))
     );
-  }, [search, documents]);
+  }, [documents, search]);
+
+  const parseDescription = (desc: string | null) => {
+    if (!desc) return { desc: '', department: '', docCode: '' };
+    if (desc.startsWith('{')) {
+      try {
+        return JSON.parse(desc);
+      } catch (e) {
+        return { desc, department: '', docCode: '' };
+      }
+    }
+    return { desc, department: '', docCode: '' };
+  };
 
   const openModal = (doc?: any) => {
     if (doc) {
+      const parsed = parseDescription(doc.description);
       setEditId(doc.id);
       setTitle(doc.title);
-      setCategory(doc.category);
-      setDescription(doc.description || '');
+      setCategory(doc.category || 'Policy');
+      setDescription(parsed.desc || '');
+      setDepartment(parsed.department || '');
+      setDocCode(parsed.docCode || '');
       setFileUrl(doc.fileUrl || '');
       setFileBase64(doc.fileData || '');
     } else {
@@ -45,6 +61,8 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
       setTitle('');
       setCategory('Policy');
       setDescription('');
+      setDepartment('');
+      setDocCode('');
       setFileUrl('');
       setFileBase64('');
     }
@@ -88,7 +106,8 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     }
     setLoading(true);
     try {
-      const data = { title, category, description, fileData: fileBase64, fileUrl };
+      const packedDescription = JSON.stringify({ desc: description, department, docCode });
+      const data = { title, category, description: packedDescription, fileData: fileBase64, fileUrl };
       if (editId) {
         await updateDocument(editId, data);
       } else {
@@ -175,7 +194,10 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
           <thead>
             <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0' }}>
+              <th style={{ padding: '10px 8px', width: '50px' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
+              <th style={{ padding: '10px 8px' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
               <th style={{ padding: '10px 8px' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
+              <th style={{ padding: '10px 8px' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
               <th style={{ padding: '10px 8px' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
               <th style={{ padding: '10px 8px' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
               <th style={{ padding: '10px 8px' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
@@ -185,16 +207,25 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
           <tbody>
             {filteredDocs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="kh-text" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
+                <td colSpan={isAdmin ? 8 : 7} className="kh-text" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
                   មិនមានឯកសារនៅឡើយទេ (No documents found)
                 </td>
               </tr>
             ) : (
-              filteredDocs.map(doc => (
+              filteredDocs.map((doc, index) => {
+                const parsed = parseDescription(doc.description);
+                return (
                 <tr key={doc.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '10px 8px', textAlign: 'center', color: '#64748b' }}>{index + 1}</td>
+                  <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
+                    {parsed.docCode || '-'}
+                  </td>
                   <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
                     {doc.title}
-                    {doc.description && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{doc.description}</div>}
+                    {parsed.desc && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{parsed.desc}</div>}
+                  </td>
+                  <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', textAlign: 'center' }}>
+                    {parsed.department || '-'}
                   </td>
                   <td className="kh-text" style={{ padding: '10px 8px', textAlign: 'center' }}>
                     <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
@@ -232,7 +263,8 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
                     </td>
                   )}
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
@@ -248,6 +280,17 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
               <div>
                 <label className="kh-text" style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>ចំណងជើង (Title) *</label>
                 <input type="text" value={title} onChange={e => setTitle(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }} />
+              </div>
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label className="kh-text" style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>លេខកូដឯកសារ (Doc Code)</label>
+                  <input type="text" value={docCode} onChange={e => setDocCode(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }} placeholder="ឧ. DOC-001" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="kh-text" style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>ផ្នែក (Department)</label>
+                  <input type="text" value={department} onChange={e => setDepartment(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }} placeholder="ឧ. ផ្នែកគណនេយ្យ" />
+                </div>
               </div>
               
               <div>

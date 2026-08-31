@@ -199,7 +199,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
 
       <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 280px)', padding: 0, border: '1px solid var(--border-color)', marginTop: '20px' }}>
         <table style={{ width: 'max-content', borderCollapse: 'collapse', textAlign: 'center', minWidth: '100%' }}>
-          <thead>
+          <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid var(--border-color)' }}>
               <th style={thStyle}><ThText kh="ល.រ" zh="序号" en="No" /></th>
               <th style={thStyle}><ThText kh="អត្តលេខ" zh="工号" en="ID" /></th>
@@ -250,7 +250,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
             </tr>
             <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid var(--border-color)', fontSize: '0.8rem', color: '#64748b' }}>
               {Array.from({ length: 46 }, (_, i) => (
-                <th key={`num-${i}`} style={{ padding: '4px', borderRight: '1px solid var(--border-color)', fontWeight: 'normal' }}>
+                <th key={`num-${i}`} style={{ padding: '4px', borderRight: '1px solid var(--border-color)', fontWeight: 'normal', backgroundColor: '#f1f5f9' }}>
                   {i + 1}
                 </th>
               ))}
@@ -384,9 +384,6 @@ const thStyle: React.CSSProperties = {
   fontSize: '0.65rem',
   color: '#475569',
   verticalAlign: 'middle' as const,
-  position: 'sticky',
-  top: 0,
-  zIndex: 10,
   background: '#eef2ff',
   boxShadow: '0 1px 0 var(--border-color)'
 };

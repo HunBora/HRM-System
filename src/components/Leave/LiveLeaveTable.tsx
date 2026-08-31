@@ -38,7 +38,7 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
   };
 
   const thStyle: React.CSSProperties = {
-    padding: '12px 16px',
+    padding: '8px 12px',
     borderBottom: '2px solid var(--border-color)',
     backgroundColor: '#f8fafc',
     color: '#334155',
@@ -48,11 +48,12 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
     position: 'sticky',
     top: 0,
     zIndex: 10,
-    boxShadow: '0 2px 0 var(--border-color)'
+    boxShadow: '0 2px 0 var(--border-color)',
+    fontSize: '0.9rem'
   };
 
   const tdStyle: React.CSSProperties = {
-    padding: '12px 16px',
+    padding: '8px 12px',
     borderBottom: '1px solid var(--border-color)',
     verticalAlign: 'middle'
   };
@@ -90,13 +91,13 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--surface-color)' }}>
-              <th style={thStyle} className="kh-text">បុគ្គលិក (Employee)</th>
-              <th style={thStyle} className="kh-text">ប្រភេទច្បាប់ (Type)</th>
-              <th style={thStyle} className="kh-text">កាលបរិច្ឆេទ (Date)</th>
-              <th style={thStyle} className="kh-text">ចំនួនថ្ងៃ (Days)</th>
-              <th style={thStyle} className="kh-text">ច្បាប់នៅសល់ (Balance)</th>
-              <th style={thStyle} className="kh-text">ស្ថានភាព (Status)</th>
-              <th style={thStyle} className="kh-text">សកម្មភាព (Actions)</th>
+              <th style={thStyle} className="kh-text">បុគ្គលិក<br/>Employee<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>员工</span></th>
+              <th style={thStyle} className="kh-text">ប្រភេទច្បាប់<br/>Type<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>请假类型</span></th>
+              <th style={thStyle} className="kh-text">កាលបរិច្ឆេទ<br/>Date<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>日期</span></th>
+              <th style={thStyle} className="kh-text">ចំនួនថ្ងៃ<br/>Days<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>天数</span></th>
+              <th style={thStyle} className="kh-text">ច្បាប់នៅសល់<br/>Balance<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>剩余假期</span></th>
+              <th style={thStyle} className="kh-text">ស្ថានភាព<br/>Status<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>状态</span></th>
+              <th style={thStyle} className="kh-text">សកម្មភាព<br/>Actions<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>操作</span></th>
             </tr>
           </thead>
           <tbody>

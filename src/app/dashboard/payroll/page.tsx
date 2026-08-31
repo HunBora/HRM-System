@@ -306,17 +306,60 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
                   <td style={tdStyle}>៛{p.netSalaryRiel.toLocaleString()}</td>
                   <td style={tdStyle}></td>
                   <td style={tdStyle}>
-                     <Link href={`/dashboard/payroll/${p.id}`} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.8rem', textDecoration: 'none' }}>
-                       Edit
-                     </Link>
-                     <Link href={`/dashboard/payroll/${p.id}/payslip`} className="btn-secondary kh-text" style={{ padding: '4px 8px', fontSize: '0.8rem', textDecoration: 'none', marginLeft: '5px' }}>
-                       វិក្កយបត្រ (Payslip)
-                     </Link>
+                    <Link href={`/dashboard/payroll/${p.id}`} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.8rem', textDecoration: 'none' }}>
+                      Edit
+                    </Link>
+                    <Link href={`/dashboard/payroll/${p.id}/payslip`} className="btn-secondary kh-text" style={{ padding: '4px 8px', fontSize: '0.8rem', textDecoration: 'none', marginLeft: '5px' }}>
+                      វិក្កយបត្រ (Payslip)
+                    </Link>
                   </td>
                 </tr>
-              )})
+                );
+              })
             )}
           </tbody>
+          {payrolls.length > 0 && (
+            <tfoot>
+              <tr style={{ backgroundColor: '#f8fafc', fontWeight: 'bold', position: 'sticky', bottom: 0, zIndex: 10, boxShadow: '0 -1px 0 var(--border-color)' }}>
+                <td colSpan={12} style={{ ...tdStyle, textAlign: 'right', paddingRight: '20px' }} className="kh-text">
+                  សរុបរួម / Grand Total / 总计:
+                </td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.basicSalary, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.basicPayScale, 0).toFixed(2)}</td>
+                <td style={tdStyle}></td>
+                <td style={tdStyle}></td>
+                <td style={tdStyle}></td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.workingSalary, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.payScaleIncentive, 0).toFixed(2)}</td>
+                <td style={tdStyle}>{payrolls.reduce((sum, p) => sum + p.otHours, 0)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.otWage, 0).toFixed(2)}</td>
+                <td style={tdStyle}>{payrolls.reduce((sum, p) => sum + p.sunOtHours, 0)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.sunOtWage, 0).toFixed(2)}</td>
+                <td style={tdStyle}>{payrolls.reduce((sum, p) => sum + p.nightOtHours, 0)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.nightOtWage, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.annualLeaveAmount, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.attendanceBonus, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.transportation, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.lunchAllowance, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.otMealAllowance, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.dayCareAllowance, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.seniority, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.seniorityIndemnity, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.productionIncentive, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.adjustmentSkill, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.totalSalary, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.severancePay, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${totalTax.toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.loanPension, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + (p.employee.basicSalary1 || 0), 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.unionDeduction, 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.netSalaryUsd, 0).toFixed(2)}</td>
+                <td style={{ ...tdStyle, color: '#166534', fontWeight: '900' }}>${totalUsd.toFixed(2)}</td>
+                <td style={{ ...tdStyle, color: '#166534', fontWeight: '900' }}>៛{totalRiel.toLocaleString()}</td>
+                <td colSpan={2} style={tdStyle}></td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
     </div>

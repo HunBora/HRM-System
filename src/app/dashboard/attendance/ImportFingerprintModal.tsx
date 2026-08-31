@@ -45,9 +45,29 @@ export default function ImportFingerprintModal() {
           {toast.type === 'success' ? '✅' : '❌'} {toast.message}
         </div>
       )}
-      <button onClick={() => setIsOpen(true)} className="btn-primary kh-text">
-        + Import Fingerprint CSV/Excel
-      </button>
+      <select
+        onChange={(e) => {
+          if (e.target.value === 'import') {
+            setIsOpen(true);
+          }
+          e.target.value = ''; // Reset
+        }}
+        className="kh-text"
+        style={{
+          padding: '8px 12px',
+          borderRadius: '6px',
+          border: '1px solid #cbd5e1',
+          background: '#f1f5f9',
+          cursor: 'pointer',
+          fontWeight: 500,
+          color: '#334155',
+          outline: 'none',
+          fontSize: '0.95rem'
+        }}
+      >
+        <option value="">⚙️ ទិន្នន័យវត្តមាន (Attendance Data)</option>
+        <option value="import">📥 នាំចូលទិន្នន័យពីម៉ាស៊ីនស្កេន (Import CSV/Excel)</option>
+      </select>
 
       {isOpen && (
         <div style={{

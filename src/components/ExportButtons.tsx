@@ -10,9 +10,11 @@ interface ExportButtonsProps {
   columns: { header: string; key: string }[];
   filename: string;
   printId?: string; // ID of the HTML element to print
+  hidePdf?: boolean;
+  hideWord?: boolean;
 }
 
-export default function ExportButtons({ data, columns, filename, printId }: ExportButtonsProps) {
+export default function ExportButtons({ data, columns, filename, printId, hidePdf, hideWord }: ExportButtonsProps) {
   
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(data.map(item => {
@@ -178,12 +180,16 @@ export default function ExportButtons({ data, columns, filename, printId }: Expo
       <button onClick={exportToExcel} className="btn-secondary" style={{ backgroundColor: '#107c41', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
         📥 Export Excel
       </button>
-      <button onClick={exportToPDF} className="btn-secondary" style={{ backgroundColor: '#da0b20', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
-        📥 Export PDF
-      </button>
-      <button onClick={exportToWord} className="btn-secondary" style={{ backgroundColor: '#185abd', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
-        📥 Export Word
-      </button>
+      {!hidePdf && (
+        <button onClick={exportToPDF} className="btn-secondary" style={{ backgroundColor: '#da0b20', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
+          📥 Export PDF
+        </button>
+      )}
+      {!hideWord && (
+        <button onClick={exportToWord} className="btn-secondary" style={{ backgroundColor: '#185abd', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
+          📥 Export Word
+        </button>
+      )}
       <button onClick={exportToPrint} className="btn-secondary" style={{ backgroundColor: '#475569', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
         🖨️ Print
       </button>

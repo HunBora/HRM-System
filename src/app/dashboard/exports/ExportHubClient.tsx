@@ -245,7 +245,14 @@ export default function ExportHubClient({ t }: Props) {
         ) : (
           <div>
             <div style={{ marginBottom: '15px', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <ExportButtons data={data} columns={columns} filename={filename} printId="preview-table" />
+              <ExportButtons 
+                data={data} 
+                columns={columns} 
+                filename={filename} 
+                printId="preview-table" 
+                hidePdf={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
+                hideWord={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
+              />
               {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons />}
               {reportType === 'PAYSLIP_STRIPS' && (
                 <a 

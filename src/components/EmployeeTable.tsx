@@ -6,6 +6,8 @@ import DeleteEmployeeButton from '@/components/DeleteEmployeeButton';
 
 export default function EmployeeTable({ employees, t }: { employees: any[], t: any }) {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const formatDate = (date: any) => {
     if (!date) return '-';
@@ -80,6 +82,12 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
                         alt="Photo" 
                         style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer', border: '1px solid #ccc' }} 
                         onClick={() => setSelectedPhoto(emp.photoUrl)}
+                        onMouseEnter={(e) => {
+                          setHoveredPhoto(emp.photoUrl);
+                          setMousePos({ x: e.clientX, y: e.clientY });
+                        }}
+                        onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
+                        onMouseLeave={() => setHoveredPhoto(null)}
                       />
                     ) : (
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'inline-block' }}></div>
@@ -151,6 +159,35 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
               objectFit: 'contain',
               borderRadius: '8px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+            }} 
+          />
+        </div>
+      )}
+
+      {hoveredPhoto && !selectedPhoto && (
+        <div
+          style={{
+            position: 'fixed',
+            top: mousePos.y + 15,
+            left: mousePos.x + 15,
+            zIndex: 1500,
+            pointerEvents: 'none',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+            backgroundColor: 'white',
+            padding: '4px',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        >
+          <img 
+            src={hoveredPhoto} 
+            alt="Preview" 
+            style={{ 
+              width: '180px', 
+              height: '180px', 
+              objectFit: 'cover',
+              borderRadius: '4px'
             }} 
           />
         </div>

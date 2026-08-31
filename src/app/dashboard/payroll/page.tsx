@@ -125,9 +125,18 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
 
   return (
     <div style={{ paddingBottom: '30px' }}>
-      
+      <style>{`
+        @media print {
+          .card { border: none !important; box-shadow: none !important; }
+          div[style*="overflow"] { overflow: visible !important; max-height: none !important; }
+          .btn-primary, .btn-secondary, form, header, nav, a { display: none !important; }
+          table { width: 100% !important; border-collapse: collapse !important; }
+          th, td { padding: 4px !important; font-size: 8pt !important; }
+          @page { size: landscape; margin: 0.5cm; }
+        }
+      `}</style>
       {/* Top Header Section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }} className="print-hidden">
         
         {/* Title Block */}
         <div>

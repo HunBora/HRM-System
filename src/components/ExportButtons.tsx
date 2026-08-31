@@ -176,20 +176,26 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
   };
 
   return (
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-      <button onClick={exportToExcel} className="btn-secondary" style={{ backgroundColor: '#107c41', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
-        📥 Export Excel
-      </button>
-      {!hidePdf && (
-        <button onClick={exportToPDF} className="btn-secondary" style={{ backgroundColor: '#da0b20', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
-          📥 Export PDF
-        </button>
-      )}
-      {!hideWord && (
-        <button onClick={exportToWord} className="btn-secondary" style={{ backgroundColor: '#185abd', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
-          📥 Export Word
-        </button>
-      )}
+    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <select 
+        className="input-field kh-text" 
+        style={{ margin: 0, minWidth: '150px', padding: '8px 12px', cursor: 'pointer' }}
+        onChange={(e) => {
+          const val = e.target.value;
+          if (val === 'excel') exportToExcel();
+          else if (val === 'pdf') exportToPDF();
+          else if (val === 'word') exportToWord();
+          
+          e.target.value = ''; // Reset after click
+        }}
+        defaultValue=""
+      >
+        <option value="" disabled>⚙️ ជម្រើសទាញយក (Export)</option>
+        <option value="excel">📥 Export Excel</option>
+        {!hidePdf && <option value="pdf">📥 Export PDF</option>}
+        {!hideWord && <option value="word">📥 Export Word</option>}
+      </select>
+
       <button onClick={exportToPrint} className="btn-secondary" style={{ backgroundColor: '#475569', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
         🖨️ Print
       </button>

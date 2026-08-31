@@ -4,8 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-import { writeFile } from 'fs/promises'
-import path from 'path'
+
 
 export async function createEmployee(formData: FormData) {
   let photoUrl = null;
@@ -14,11 +13,8 @@ export async function createEmployee(formData: FormData) {
   if (photo && photo.size > 0) {
     const bytes = await photo.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filename = `${Date.now()}-${photo.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-    const uploadDir = path.join(process.cwd(), 'public/uploads');
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-    photoUrl = `/uploads/${filename}`;
+    const mimeType = photo.type || 'image/jpeg';
+    photoUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
   }
 
   await prisma.employee.create({
@@ -80,11 +76,8 @@ export async function updateEmployee(formData: FormData) {
   if (photo && photo.size > 0) {
     const bytes = await photo.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filename = `${Date.now()}-${photo.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-    const uploadDir = path.join(process.cwd(), 'public/uploads');
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-    photoUrl = `/uploads/${filename}`;
+    const mimeType = photo.type || 'image/jpeg';
+    photoUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
   }
 
   const dataToUpdate: any = {

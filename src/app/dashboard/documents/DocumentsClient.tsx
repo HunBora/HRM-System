@@ -16,6 +16,8 @@ const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
 export default function DocumentsClient({ documents, isAdmin }: { documents: any[], isAdmin: boolean }) {
   const [search, setSearch] = useState('');
   const [filterDept, setFilterDept] = useState('');
+  const [filterDocType, setFilterDocType] = useState('');
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
@@ -75,6 +77,11 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     return Array.from(new Set(depts));
   }, [parsedDocuments]);
 
+  const uniqueDocTypes = useMemo(() => {
+    const types = parsedDocuments.map(d => getFileType(d.fileUrl, d.fileData)).filter(Boolean);
+    return Array.from(new Set(types));
+  }, [parsedDocuments]);
+
   const filteredDocs = useMemo(() => {
     return parsedDocuments.filter(d => {
       const lowerSearch = search.toLowerCase();
@@ -83,9 +90,11 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         (d.parsedDesc.desc && d.parsedDesc.desc.toLowerCase().includes(lowerSearch)) ||
         (d.parsedDesc.docCode && d.parsedDesc.docCode.toLowerCase().includes(lowerSearch));
       const matchesDept = filterDept ? d.parsedDesc.department === filterDept : true;
-      return matchesSearch && matchesDept;
+      const type = getFileType(d.fileUrl, d.fileData);
+      const matchesDocType = filterDocType ? type === filterDocType : true;
+      return matchesSearch && matchesDept && matchesDocType;
     });
-  }, [parsedDocuments, search, filterDept]);
+  }, [parsedDocuments, search, filterDept, filterDocType]);
 
   const openModal = (doc?: any) => {
     if (doc) {
@@ -204,12 +213,26 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
           ឯកសារក្រុមហ៊ុន (Company Documents) <span>公司文件</span>
         </h1>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ minWidth: '220px' }}>
+          <div style={{ minWidth: '180px' }}>
             <Select 
-              options={[{value: '', label: 'គ្រប់ផ្នែកទាំងអស់ (All Dept)'}, ...uniqueDepts.map(d => ({ value: d, label: d }))]}
-              value={{ value: filterDept, label: filterDept || 'ជ្រើសរើសផ្នែក (Select Dept)' }}
+              options={[{value: '', label: 'គ្រប់ផ្នែក (All Dept)'}, ...uniqueDepts.map(d => ({ value: d, label: d }))]}
+              value={{ value: filterDept, label: filterDept || 'ផ្នែក (Dept)' }}
               onChange={(opt) => setFilterDept(opt?.value || '')}
-              placeholder="ជ្រើសរើសផ្នែក..."
+              placeholder="ផ្នែក..."
+              className="kh-text no-print"
+              styles={{
+                control: (base) => ({ ...base, minHeight: '38px', borderRadius: '6px' }),
+                menuPortal: base => ({ ...base, zIndex: 9999 })
+              }}
+              menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+            />
+          </div>
+          <div style={{ minWidth: '180px' }}>
+            <Select 
+              options={[{value: '', label: 'គ្រប់ប្រភេទ (All Types)'}, ...uniqueDocTypes.map(t => ({ value: t as string, label: t as string }))]}
+              value={{ value: filterDocType, label: filterDocType || 'ប្រភេទឯកសារ (Type)' }}
+              onChange={(opt) => setFilterDocType(opt?.value || '')}
+              placeholder="ប្រភេទ (Type)..."
               className="kh-text no-print"
               styles={{
                 control: (base) => ({ ...base, minHeight: '38px', borderRadius: '6px' }),
@@ -226,6 +249,22 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
             className="kh-text no-print"
             style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', minWidth: '250px' }}
           />
+          <div className="no-print" style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+            <button
+              onClick={() => setViewMode('table')}
+              style={{ padding: '8px 12px', backgroundColor: viewMode === 'table' ? '#e2e8f0' : '#fff', border: 'none', cursor: 'pointer', borderRight: '1px solid #cbd5e1' }}
+              title="Table View"
+            >
+              📋
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              style={{ padding: '8px 12px', backgroundColor: viewMode === 'grid' ? '#e2e8f0' : '#fff', border: 'none', cursor: 'pointer' }}
+              title="Grid / Photo View"
+            >
+              🖼️
+            </button>
+          </div>
           <button 
             onClick={() => window.print()}
             className="kh-text no-print"
@@ -245,90 +284,148 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         </div>
       </div>
 
-      <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0' }}>
-              <th style={{ padding: '10px 8px', width: '50px' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
-              <th style={{ padding: '10px 8px' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
-              <th style={{ padding: '10px 8px' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
-              <th style={{ padding: '10px 8px' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
-              <th style={{ padding: '10px 8px' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
-              <th style={{ padding: '10px 8px' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
-              <th style={{ padding: '10px 8px' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
-              {isAdmin && <th style={{ padding: '10px 8px' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDocs.length === 0 ? (
-              <tr>
-                <td colSpan={isAdmin ? 8 : 7} className="kh-text" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
-                  មិនមានឯកសារនៅឡើយទេ (No documents found)
-                </td>
+      {viewMode === 'table' ? (
+        <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ padding: '10px 8px', width: '50px' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
+                <th style={{ padding: '10px 8px' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
+                <th style={{ padding: '10px 8px' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
+                <th style={{ padding: '10px 8px' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
+                <th style={{ padding: '10px 8px' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
+                <th style={{ padding: '10px 8px' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
+                <th style={{ padding: '10px 8px' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
+                {isAdmin && <th style={{ padding: '10px 8px' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
               </tr>
-            ) : (
-              filteredDocs.map((doc, index) => {
-                const parsed = parseDescription(doc.description);
-                return (
-                <tr key={doc.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '10px 8px', textAlign: 'center', color: '#64748b' }}>{index + 1}</td>
-                  <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
-                    {parsed.docCode || '-'}
+            </thead>
+            <tbody>
+              {filteredDocs.length === 0 ? (
+                <tr>
+                  <td colSpan={isAdmin ? 8 : 7} className="kh-text" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
+                    មិនមានឯកសារនៅឡើយទេ (No documents found)
                   </td>
-                  <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
-                    {doc.title}
-                    {parsed.desc && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{parsed.desc}</div>}
-                  </td>
-                  <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', textAlign: 'center' }}>
-                    {parsed.department || '-'}
-                  </td>
-                  <td className="kh-text" style={{ padding: '10px 8px', textAlign: 'center' }}>
-                    <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
-                      {doc.category}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 8px', color: '#64748b', fontSize: '0.9rem', textAlign: 'center' }}>
-                    {new Date(doc.createdAt).toLocaleDateString('en-GB')}
-                  </td>
-                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                    {(doc.fileUrl || doc.fileData) ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                        <a 
-                          href={doc.fileUrl || doc.fileData} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="kh-text"
-                          style={{ display: 'inline-block', backgroundColor: '#10b981', color: '#fff', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.9rem' }}
-                        >
-                          មើលឯកសារ (View)
-                        </a>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold' }}>
-                          {getFileType(doc.fileUrl, doc.fileData)}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.9rem' }}>គ្មានឯកសារ</span>
-                    )}
-                  </td>
-                  {isAdmin && (
-                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                        <button onClick={() => openModal(doc)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#3b82f6' }}>
-                          ✏️
-                        </button>
-                        <button onClick={() => handleDelete(doc.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#ef4444' }}>
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  )}
                 </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                filteredDocs.map((doc, index) => {
+                  const parsed = parseDescription(doc.description);
+                  return (
+                  <tr key={doc.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '10px 8px', textAlign: 'center', color: '#64748b' }}>{index + 1}</td>
+                    <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
+                      {parsed.docCode || '-'}
+                    </td>
+                    <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
+                      {doc.title}
+                      {parsed.desc && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{parsed.desc}</div>}
+                    </td>
+                    <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', textAlign: 'center' }}>
+                      {parsed.department || '-'}
+                    </td>
+                    <td className="kh-text" style={{ padding: '10px 8px', textAlign: 'center' }}>
+                      <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
+                        {doc.category}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 8px', color: '#64748b', fontSize: '0.9rem', textAlign: 'center' }}>
+                      {new Date(doc.createdAt).toLocaleDateString('en-GB')}
+                    </td>
+                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                      {(doc.fileUrl || doc.fileData) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                          <a 
+                            href={doc.fileUrl || doc.fileData} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="kh-text"
+                            style={{ display: 'inline-block', backgroundColor: '#10b981', color: '#fff', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.9rem' }}
+                          >
+                            មើលឯកសារ (View)
+                          </a>
+                          <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold' }}>
+                            {getFileType(doc.fileUrl, doc.fileData)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.9rem' }}>គ្មានឯកសារ</span>
+                      )}
+                    </td>
+                    {isAdmin && (
+                      <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                          <button onClick={() => openModal(doc)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#3b82f6' }}>
+                            ✏️
+                          </button>
+                          <button onClick={() => handleDelete(doc.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#ef4444' }}>
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
+          {filteredDocs.length === 0 ? (
+            <div className="kh-text" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8', gridColumn: '1 / -1', backgroundColor: '#fff', borderRadius: '8px' }}>
+              មិនមានឯកសារនៅឡើយទេ (No documents found)
+            </div>
+          ) : (
+            filteredDocs.map((doc) => {
+              const parsed = parseDescription(doc.description);
+              const fileType = getFileType(doc.fileUrl, doc.fileData);
+              const icon = fileType === 'PDF' ? '📕' : fileType === 'EXCEL' ? '📗' : (fileType === 'DOCX' || fileType === 'DOC') ? '📘' : fileType === 'IMAGE' ? '🖼️' : '📄';
+              
+              return (
+                <div key={doc.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', position: 'relative', border: '1px solid #e2e8f0' }}>
+                  {fileType === 'IMAGE' && (doc.fileUrl || doc.fileData) ? (
+                    <div style={{ height: '80px', marginBottom: '15px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', borderRadius: '8px' }}>
+                      <img src={(doc.fileUrl || doc.fileData) as string} alt={doc.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '3.5rem', textAlign: 'center', marginBottom: '15px' }}>{icon}</div>
+                  )}
+                  <h3 className="kh-text" style={{ fontSize: '1rem', color: '#0f172a', margin: '0 0 8px 0', textAlign: 'center', fontWeight: 'bold' }}>{doc.title}</h3>
+                  {parsed.docCode && <div style={{ fontSize: '0.8rem', color: '#64748b', textAlign: 'center', marginBottom: '10px' }}>{parsed.docCode}</div>}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                    <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>{doc.category}</span>
+                    {parsed.department && <span style={{ backgroundColor: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>{parsed.department}</span>}
+                  </div>
+                  
+                  <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {(doc.fileUrl || doc.fileData) ? (
+                      <a 
+                        href={doc.fileUrl || doc.fileData} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="kh-text"
+                        style={{ display: 'block', backgroundColor: '#10b981', color: '#fff', padding: '8px', borderRadius: '6px', textDecoration: 'none', fontSize: '0.9rem', textAlign: 'center' }}
+                      >
+                        មើលឯកសារ {fileType && `(${fileType})`}
+                      </a>
+                    ) : (
+                      <div className="kh-text" style={{ padding: '8px', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem', backgroundColor: '#f8fafc', borderRadius: '6px' }}>គ្មានឯកសារ</div>
+                    )}
+                    
+                    {isAdmin && (
+                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
+                        <button onClick={() => openModal(doc)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#3b82f6' }}>✏️</button>
+                        <button onClick={() => handleDelete(doc.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#ef4444' }}>🗑️</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
 
       {/* Modal */}
       {isModalOpen && (

@@ -17,7 +17,7 @@ export async function importEmployeeExcel(formData: FormData) {
     
     let headersMap: Record<string, number> = {};
     let dataStartRow = 2;
-    let isMasterFormat = false;
+    const isMasterFormat = false;
     let foundValidSheet = false;
     
     // Try parsing with ExcelJS first (best for .xlsx)
@@ -28,7 +28,7 @@ export async function importEmployeeExcel(formData: FormData) {
       let worksheet = workbook.worksheets[0];
 
         // Iterate through all worksheets to find the one with the correct Employee Master headers
-        for (let ws of workbook.worksheets) {
+        for (const ws of workbook.worksheets) {
           headersMap = {};
           dataStartRow = 2;
           
@@ -69,7 +69,7 @@ export async function importEmployeeExcel(formData: FormData) {
                 else if (text.includes('english') || text.includes('ឡាតាំង') || text.includes('英文名字')) headersMap['nameEn'] = colNumber;
                 else if (text.includes('name') || text.includes('ឈ្មោះ') || text.includes('姓名')) {
                    if (!headersMap['nameKh']) headersMap['nameKh'] = colNumber;
-                   else headersMap['nameEn'] = colNumber;
+                   else if (!headersMap['nameEn']) headersMap['nameEn'] = colNumber;
                 }
                 else if (text.includes('sex') || text.includes('gender') || text.includes('ភេទ') || text.includes('性别')) headersMap['gender'] = colNumber;
                 else if (text.includes('hire') || text.includes('join') || text.includes('start date') || text.includes('ចូលធ្វើការ') || text.includes('入职日期')) headersMap['hireDate'] = colNumber;
@@ -117,12 +117,12 @@ export async function importEmployeeExcel(formData: FormData) {
           let cardNo = '';
           let bankCardNo = '';
           let nationalId = '';
-          let address = '';
-          let placeOfBirth = '';
-          let education = '';
-          let maritalStatus = 'SINGLE';
-          let nssfNo = '';
-          let remark = '';
+          const address = '';
+          const placeOfBirth = '';
+          const education = '';
+          const maritalStatus = 'SINGLE';
+          const nssfNo = '';
+          const remark = '';
 
           if (Object.keys(headersMap).length > 0) {
             // Dynamic mapped columns
@@ -218,7 +218,7 @@ export async function importEmployeeExcel(formData: FormData) {
       const sheet = workbook.Sheets[sheetName];
       const rawRows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
       
-      let startRow = 1;
+      const startRow = 1;
       for (let r = startRow; r < rawRows.length; r++) {
         const row = rawRows[r];
         if (!row) continue;

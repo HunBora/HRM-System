@@ -51,6 +51,8 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
       if (data.startsWith('data:application/vnd.ms-excel')) return 'EXCEL';
       if (data.startsWith('data:text/csv')) return 'CSV';
       if (data.startsWith('data:image/')) return 'IMAGE';
+      if (data.startsWith('data:application/zip') || data.startsWith('data:application/x-zip')) return 'ZIP';
+      if (data.startsWith('data:application/vnd.rar') || data.startsWith('data:application/x-rar')) return 'RAR';
       return 'FILE';
     }
     if (url) {
@@ -59,6 +61,8 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
       if (lower.includes('.doc')) return 'DOCX';
       if (lower.includes('.xls') || lower.includes('.csv')) return 'EXCEL';
       if (lower.includes('.jpg') || lower.includes('.png') || lower.includes('.jpeg')) return 'IMAGE';
+      if (lower.includes('.zip')) return 'ZIP';
+      if (lower.includes('.rar')) return 'RAR';
       if (lower.includes('drive.google.com')) return 'DRIVE';
       return 'LINK';
     }
@@ -379,7 +383,7 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
             filteredDocs.map((doc) => {
               const parsed = parseDescription(doc.description);
               const fileType = getFileType(doc.fileUrl, doc.fileData);
-              const icon = fileType === 'PDF' ? '📕' : fileType === 'EXCEL' ? '📗' : (fileType === 'DOCX' || fileType === 'DOC') ? '📘' : fileType === 'IMAGE' ? '🖼️' : '📄';
+              const icon = fileType === 'PDF' ? '📕' : fileType === 'EXCEL' ? '📗' : (fileType === 'DOCX' || fileType === 'DOC') ? '📘' : fileType === 'IMAGE' ? '🖼️' : (fileType === 'ZIP' || fileType === 'RAR') ? '📦' : '📄';
               
               return (
                 <div key={doc.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', position: 'relative', border: '1px solid #e2e8f0' }}>
@@ -477,7 +481,7 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
 
                 <div>
                   <label className="kh-text" style={{ display: 'block', marginBottom: '5px', fontSize: '0.85rem' }}>២. Upload ឯកសារផ្ទាល់ (ក្រោម 3MB)</label>
-                  <input type="file" onChange={handleFileUpload} accept=".pdf,.doc,.docx,.jpg,.png" style={{ width: '100%' }} />
+                  <input type="file" onChange={handleFileUpload} accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.png,.jpeg,.zip,.rar" style={{ width: '100%' }} />
                   {fileBase64 && <div className="kh-text" style={{ color: '#10b981', fontSize: '0.8rem', marginTop: '5px' }}>✓ ឯកសារត្រូវបានជ្រើសរើស (File selected)</div>}
                 </div>
               </div>

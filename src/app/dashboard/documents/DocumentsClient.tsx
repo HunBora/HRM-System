@@ -4,6 +4,14 @@ import React, { useState, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import { createDocument, updateDocument, deleteDocument } from './actions';
 
+const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+    <span className="kh-text" style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{kh}</span>
+    <span style={{ fontSize: '0.65rem', color: '#64748b' }}>{zh}</span>
+    <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>{en}</span>
+  </div>
+);
+
 export default function DocumentsClient({ documents, isAdmin }: { documents: any[], isAdmin: boolean }) {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -133,7 +141,7 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     <div style={{ padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 className="kh-text" style={{ fontSize: '1.6rem', color: '#1e3a8a', margin: 0 }}>
-          ឯកសារក្រុមហ៊ុន (Company Documents)
+          ឯកសារក្រុមហ៊ុន (Company Documents) <span>公司文件</span>
         </h1>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           <input 
@@ -163,15 +171,15 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         </div>
       </div>
 
-      <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-              <th className="kh-text" style={{ padding: '12px 15px', color: '#475569', fontWeight: '600' }}>ចំណងជើង (Title)</th>
-              <th className="kh-text" style={{ padding: '12px 15px', color: '#475569', fontWeight: '600' }}>ប្រភេទ (Category)</th>
-              <th className="kh-text" style={{ padding: '12px 15px', color: '#475569', fontWeight: '600' }}>កាលបរិច្ឆេទ (Date)</th>
-              <th className="kh-text" style={{ padding: '12px 15px', color: '#475569', fontWeight: '600', textAlign: 'center' }}>ឯកសារ (File)</th>
-              {isAdmin && <th className="kh-text" style={{ padding: '12px 15px', color: '#475569', fontWeight: '600', textAlign: 'right' }}>សកម្មភាព (Actions)</th>}
+            <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0' }}>
+              <th style={{ padding: '10px 8px' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
+              <th style={{ padding: '10px 8px' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
+              <th style={{ padding: '10px 8px' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
+              <th style={{ padding: '10px 8px' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
+              {isAdmin && <th style={{ padding: '10px 8px' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
             </tr>
           </thead>
           <tbody>
@@ -184,19 +192,19 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
             ) : (
               filteredDocs.map(doc => (
                 <tr key={doc.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td className="kh-text" style={{ padding: '15px', color: '#0f172a', fontWeight: '500' }}>
+                  <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
                     {doc.title}
                     {doc.description && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{doc.description}</div>}
                   </td>
-                  <td className="kh-text" style={{ padding: '15px' }}>
+                  <td className="kh-text" style={{ padding: '10px 8px', textAlign: 'center' }}>
                     <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
                       {doc.category}
                     </span>
                   </td>
-                  <td style={{ padding: '15px', color: '#64748b', fontSize: '0.9rem' }}>
+                  <td style={{ padding: '10px 8px', color: '#64748b', fontSize: '0.9rem', textAlign: 'center' }}>
                     {new Date(doc.createdAt).toLocaleDateString('en-GB')}
                   </td>
-                  <td style={{ padding: '15px', textAlign: 'center' }}>
+                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                     {(doc.fileUrl || doc.fileData) ? (
                       <a 
                         href={doc.fileUrl || doc.fileData} 
@@ -208,13 +216,19 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
                         មើលឯកសារ (View)
                       </a>
                     ) : (
-                      <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.9rem' }}>គ្មាន (None)</span>
+                      <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.9rem' }}>គ្មានឯកសារ</span>
                     )}
                   </td>
                   {isAdmin && (
-                    <td style={{ padding: '15px', textAlign: 'right' }}>
-                      <button onClick={() => openModal(doc)} style={{ marginRight: '10px', backgroundColor: 'transparent', border: 'none', color: '#3b82f6', cursor: 'pointer', fontSize: '1.2rem' }}>✎</button>
-                      <button onClick={() => handleDelete(doc.id)} style={{ backgroundColor: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1.2rem' }}>🗑</button>
+                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                        <button onClick={() => openModal(doc)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#3b82f6' }}>
+                          ✏️
+                        </button>
+                        <button onClick={() => handleDelete(doc.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#ef4444' }}>
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>

@@ -215,12 +215,12 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--surface-color)' }}>
-                <th style={thStyle}>ID</th>
-                <th style={thStyle}>Khmer Name</th>
-                <th style={thStyle}>English Name</th>
-                <th style={thStyle}>Department</th>
-                <th style={thStyle}>Position</th>
-                <th style={thStyle}>Actions</th>
+                <th style={thStyle} className="kh-text">អត្តលេខ<br/>ID<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>编号</span></th>
+                <th style={thStyle} className="kh-text">ឈ្មោះខ្មែរ<br/>Name Khmer<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>柬文名字</span></th>
+                <th style={thStyle} className="kh-text">ឈ្មោះឡាតាំង<br/>Name English<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>英文名字</span></th>
+                <th style={thStyle} className="kh-text">ផ្នែក<br/>Department<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>部门</span></th>
+                <th style={thStyle} className="kh-text">មុខងារ<br/>Position<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>职务</span></th>
+                <th style={thStyle} className="kh-text">សកម្មភាព<br/>Actions<br/><span style={{fontSize: '0.8rem', color: '#64748b'}}>操作</span></th>
               </tr>
             </thead>
             <tbody>

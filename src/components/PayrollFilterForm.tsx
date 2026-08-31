@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import Select from 'react-select';
 
 export default function PayrollFilterForm({ 
   uniqueDepartments, 
@@ -18,9 +19,16 @@ export default function PayrollFilterForm({
   q?: string
 }) {
   const currentYear = new Date().getFullYear();
-  
+  const formRef = useRef<HTMLFormElement>(null);
+  const [selectedDept, setSelectedDept] = useState(department);
+
+  const deptOptions = [
+    { value: '', label: 'គ្រប់ផ្នែកទាំងអស់ (All Dept)' },
+    ...uniqueDepartments.map(d => ({ value: d, label: d }))
+  ];
+
   return (
-    <form method="GET" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+    <form ref={formRef} method="GET" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
       <input 
         type="text" 
         name="q" 
@@ -30,18 +38,31 @@ export default function PayrollFilterForm({
         style={{ margin: 0, width: '200px', padding: '4px 8px' }}
       />
       
-      <select 
-        name="department" 
-        defaultValue={department} 
-        onChange={(e) => e.currentTarget.form?.submit()} 
-        className="input-field kh-text" 
-        style={{ margin: 0, width: 'auto', padding: '4px 8px', minWidth: '150px' }}
-      >
-        <option value="">គ្រប់ផ្នែកទាំងអស់ (All Dept)</option>
-        {uniqueDepartments.map(d => (
-          <option key={d} value={d}>{d}</option>
-        ))}
-      </select>
+      <input type="hidden" name="department" value={selectedDept} />
+      <div style={{ minWidth: '220px' }}>
+        <Select
+          options={deptOptions}
+          value={deptOptions.find(o => o.value === selectedDept) || deptOptions[0]}
+          onChange={(option: any) => {
+            setSelectedDept(option?.value || '');
+            // Small timeout to ensure state is updated before submitting
+            setTimeout(() => {
+              formRef.current?.submit();
+            }, 0);
+          }}
+          isSearchable={true}
+          className="kh-text"
+          styles={{
+            control: (base) => ({
+              ...base,
+              minHeight: '36px',
+              height: '36px',
+              borderRadius: '6px',
+              borderColor: '#cbd5e1'
+            })
+          }}
+        />
+      </div>
       
       <select 
         name="month" 

@@ -2,12 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { createLeaveRequest } from '@/app/dashboard/leave/actions';
+import Select from 'react-select';
 
 export default function LeaveForm({ employees, t }: { employees: any[], t: any }) {
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [duration, setDuration] = useState<number | ''>(1);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+
+  const employeeOptions = employees.map(emp => ({
+    value: emp.id,
+    label: `${emp.employeeId} - ${emp.firstNameEn} ${emp.lastNameEn} (${emp.firstNameKh} ${emp.lastNameKh})`
+  }));
 
   useEffect(() => {
     if (startDate && endDate) {
@@ -26,17 +33,27 @@ export default function LeaveForm({ employees, t }: { employees: any[], t: any }
   return (
     <form action={createLeaveRequest} onSubmit={() => setLoading(true)} className="card" style={{ maxWidth: '600px' }}>
       
+      {/* Hidden input for employeeId since react-select doesn't natively submit form data easily */}
+      <input type="hidden" name="employeeId" value={selectedEmployeeId} required />
+      
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '20px' }}>
         <div>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>{t.leave.form.employee} *</label>
-          <select name="employeeId" className="input-field" required>
-            <option value="">-- {t.leave.form.employee} --</option>
-            {employees.map(emp => (
-              <option key={emp.id} value={emp.id}>
-                {emp.employeeId} - {emp.firstNameEn} {emp.lastNameEn}
-              </option>
-            ))}
-          </select>
+          <Select 
+            options={employeeOptions}
+            placeholder={`-- ${t.leave.form.employee} --`}
+            onChange={(option: any) => setSelectedEmployeeId(option?.value || '')}
+            isSearchable={true}
+            className="kh-text"
+            styles={{
+              control: (base) => ({
+                ...base,
+                padding: '2px',
+                borderColor: '#cbd5e1',
+                borderRadius: '8px'
+              })
+            }}
+          />
         </div>
         
         <div>

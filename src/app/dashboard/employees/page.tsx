@@ -11,24 +11,48 @@ import { getSession } from '@/lib/session';
 export default async function EmployeesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; dept?: string; sort?: string }>;
 }) {
   const resolvedParams = await searchParams;
   const q = resolvedParams?.q || '';
+  const dept = resolvedParams?.dept || '';
+  const sort = resolvedParams?.sort || 'desc';
   const t = await getDictionary();
   const session = await getSession();
 
-  const employees = await prisma.employee.findMany({
-    where: {
+  const departmentsData = await prisma.employee.findMany({
+    select: { department: true },
+    distinct: ['department'],
+    where: { department: { not: '' } }
+  });
+  const departments = departmentsData.map(d => d.department).filter(Boolean);
+
+  const whereClause: any = {
+    AND: []
+  };
+
+  if (q) {
+    whereClause.AND.push({
       OR: [
-        { firstNameEn: { contains: q } },
-        { lastNameEn: { contains: q } },
+        { firstNameEn: { contains: q, mode: 'insensitive' } },
+        { lastNameEn: { contains: q, mode: 'insensitive' } },
         { firstNameKh: { contains: q } },
         { lastNameKh: { contains: q } },
-        { employeeId: { contains: q } }
+        { employeeId: { contains: q, mode: 'insensitive' } }
       ]
-    },
-    orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  if (dept) {
+    whereClause.AND.push({ department: dept });
+  }
+
+  // If no filters, remove AND
+  const finalWhere = whereClause.AND.length > 0 ? whereClause : {};
+
+  const employees = await prisma.employee.findMany({
+    where: finalWhere,
+    orderBy: sort === 'dept_asc' ? { department: 'asc' } : { createdAt: 'desc' }
   });
 
   return (
@@ -36,7 +60,18 @@ export default async function EmployeesPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 className="title kh-text" style={{ marginBottom: 0 }}>{t.employee.listTitle}</h1>
         
-        <form method="GET" style={{ display: 'flex', gap: '10px', flexGrow: 1, maxWidth: '400px' }}>
+        <form method="GET" style={{ display: 'flex', gap: '10px', flexGrow: 1, maxWidth: '600px' }}>
+          <select 
+            name="dept" 
+            defaultValue={dept} 
+            className="input-field kh-text"
+            style={{ padding: '8px', minWidth: '150px' }}
+          >
+            <option value="">គ្រប់ផ្នែកទាំងអស់ (All Depts)</option>
+            {departments.map((d: any) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
           <input 
             type="text" 
             name="q" 

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Swal from 'sweetalert2';
+import Select from 'react-select';
 import { createDocument, updateDocument, deleteDocument } from './actions';
 
 const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
@@ -14,6 +15,7 @@ const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
 
 export default function DocumentsClient({ documents, isAdmin }: { documents: any[], isAdmin: boolean }) {
   const [search, setSearch] = useState('');
+  const [filterDept, setFilterDept] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
@@ -25,13 +27,6 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
   const [docCode, setDocCode] = useState('');
   const [fileUrl, setFileUrl] = useState('');
   const [fileBase64, setFileBase64] = useState('');
-
-  const filteredDocs = useMemo(() => {
-    return documents.filter(d => 
-      d.title.toLowerCase().includes(search.toLowerCase()) || 
-      (d.description && d.description.includes(search))
-    );
-  }, [documents, search]);
 
   const parseDescription = (desc: string | null) => {
     if (!desc) return { desc: '', department: '', docCode: '' };
@@ -45,15 +40,38 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     return { desc, department: '', docCode: '' };
   };
 
+  const parsedDocuments = useMemo(() => {
+    return documents.map(doc => {
+      const parsed = parseDescription(doc.description);
+      return { ...doc, parsedDesc: parsed };
+    });
+  }, [documents]);
+
+  const uniqueDepts = useMemo(() => {
+    const depts = parsedDocuments.map(d => d.parsedDesc.department).filter(Boolean);
+    return Array.from(new Set(depts));
+  }, [parsedDocuments]);
+
+  const filteredDocs = useMemo(() => {
+    return parsedDocuments.filter(d => {
+      const lowerSearch = search.toLowerCase();
+      const matchesSearch = !search || 
+        d.title.toLowerCase().includes(lowerSearch) || 
+        (d.parsedDesc.desc && d.parsedDesc.desc.toLowerCase().includes(lowerSearch)) ||
+        (d.parsedDesc.docCode && d.parsedDesc.docCode.toLowerCase().includes(lowerSearch));
+      const matchesDept = filterDept ? d.parsedDesc.department === filterDept : true;
+      return matchesSearch && matchesDept;
+    });
+  }, [parsedDocuments, search, filterDept]);
+
   const openModal = (doc?: any) => {
     if (doc) {
-      const parsed = parseDescription(doc.description);
       setEditId(doc.id);
       setTitle(doc.title);
       setCategory(doc.category || 'Policy');
-      setDescription(parsed.desc || '');
-      setDepartment(parsed.department || '');
-      setDocCode(parsed.docCode || '');
+      setDescription(doc.parsedDesc?.desc || '');
+      setDepartment(doc.parsedDesc?.department || '');
+      setDocCode(doc.parsedDesc?.docCode || '');
       setFileUrl(doc.fileUrl || '');
       setFileBase64(doc.fileData || '');
     } else {
@@ -162,13 +180,27 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         <h1 className="kh-text" style={{ fontSize: '1.6rem', color: '#1e3a8a', margin: 0 }}>
           ឯកសារក្រុមហ៊ុន (Company Documents) <span>公司文件</span>
         </h1>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: '220px' }}>
+            <Select 
+              options={[{value: '', label: 'គ្រប់ផ្នែកទាំងអស់ (All Dept)'}, ...uniqueDepts.map(d => ({ value: d, label: d }))]}
+              value={{ value: filterDept, label: filterDept || 'ជ្រើសរើសផ្នែក (Select Dept)' }}
+              onChange={(opt) => setFilterDept(opt?.value || '')}
+              placeholder="ជ្រើសរើសផ្នែក..."
+              className="kh-text no-print"
+              styles={{
+                control: (base) => ({ ...base, minHeight: '38px', borderRadius: '6px' }),
+                menuPortal: base => ({ ...base, zIndex: 9999 })
+              }}
+              menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+            />
+          </div>
           <input 
             type="text" 
-            placeholder="ស្វែងរកឯកសារ..." 
+            placeholder="ស្វែងរកឯកសារ (ចំណងជើង ពិពណ៌នា កូដ)..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="kh-text"
+            className="kh-text no-print"
             style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', minWidth: '250px' }}
           />
           <button 

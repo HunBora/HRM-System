@@ -59,6 +59,10 @@ export default function PayrollFilterForm({
               height: '36px',
               borderRadius: '6px',
               borderColor: '#cbd5e1'
+            }),
+            menu: (base) => ({
+              ...base,
+              zIndex: 9999
             })
           }}
         />

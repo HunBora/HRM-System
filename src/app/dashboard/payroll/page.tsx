@@ -173,7 +173,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
         </div>
       </div>
 
-      <div className="card" style={{ overflowX: 'auto', padding: 0, border: '1px solid var(--border-color)', marginTop: '20px' }}>
+      <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 280px)', padding: 0, border: '1px solid var(--border-color)', marginTop: '20px' }}>
         <table style={{ width: 'max-content', borderCollapse: 'collapse', textAlign: 'center', minWidth: '100%' }}>
           <thead>
             <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid var(--border-color)' }}>
@@ -308,12 +308,20 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
   );
 }
 
-const thStyle = { 
+const thStyle: React.CSSProperties = { 
   padding: '10px 6px', 
   borderRight: '1px solid var(--border-color)',
   borderBottom: '1px solid var(--border-color)',
   whiteSpace: 'nowrap' as const,
-  verticalAlign: 'middle' as const
+  fontWeight: 'bold', 
+  fontSize: '0.65rem',
+  color: '#475569',
+  verticalAlign: 'middle' as const,
+  position: 'sticky',
+  top: 0,
+  zIndex: 10,
+  background: '#eef2ff',
+  boxShadow: '0 1px 0 var(--border-color)'
 };
 
 const tdStyle = { 

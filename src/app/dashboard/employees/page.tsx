@@ -6,6 +6,7 @@ import { getDictionary } from '@/i18n/getDictionary';
 import EmployeeTable from '@/components/EmployeeTable';
 import EmployeeExportImportButtons from './EmployeeExportImportButtons';
 import ClearAllDataButton from '@/components/ClearAllDataButton';
+import SearchFilter from '@/components/SearchFilter';
 import { getSession } from '@/lib/session';
 
 export default async function EmployeesPage({
@@ -60,28 +61,7 @@ export default async function EmployeesPage({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 className="title kh-text" style={{ marginBottom: 0 }}>{t.employee.listTitle}</h1>
         
-        <form method="GET" style={{ display: 'flex', gap: '10px', flexGrow: 1, maxWidth: '600px' }}>
-          <select 
-            name="dept" 
-            defaultValue={dept} 
-            className="input-field kh-text"
-            style={{ padding: '8px', minWidth: '150px' }}
-          >
-            <option value="">គ្រប់ផ្នែកទាំងអស់ (All Depts)</option>
-            {departments.map((d: any) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-          <input 
-            type="text" 
-            name="q" 
-            defaultValue={q} 
-            placeholder={t.employee.searchPlaceholder} 
-            className="input-field kh-text" 
-            style={{ width: '100%', margin: 0 }} 
-          />
-          <button type="submit" className="btn-secondary kh-text">{t.employee.searchButton}</button>
-        </form>
+        <SearchFilter q={q} dept={dept} departments={departments} t={t} />
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           {(session?.role === 'DEVELOPER' || session?.role === 'ADMIN') && (

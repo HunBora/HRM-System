@@ -6,6 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import ResizableSidebar from '@/components/ResizableSidebar';
 import { getSession } from '@/lib/session';
 import LogoutButton from '@/components/LogoutButton';
+import GlobalSearch from '@/components/GlobalSearch';
 
 export default async function DashboardLayout({
   children,
@@ -34,6 +35,7 @@ export default async function DashboardLayout({
         <header className={`${styles.header} no-print`}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>{companyName}</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <GlobalSearch />
             <ThemeToggle />
             <LanguageSwitcher />
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -210,6 +210,10 @@ model CompanySettings {
   telegramLink      String?
   telegramQrUrl     String?
 
+  advanceMaxLimit           Float    @default(50)
+  advanceEligibilityMonths  Int      @default(3)
+  advanceRepaymentPolicy    String   @default("NEXT_PAYROLL")
+
   updatedAt         DateTime @updatedAt
 }
 

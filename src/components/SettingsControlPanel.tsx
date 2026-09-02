@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import DepartmentGroupManager from './DepartmentGroupManager';
 import PayrollSettingsManager from './PayrollSettingsManager';
 import AppearanceSettingsManager from './AppearanceSettingsManager';
+import AdvanceSalarySettingsManager from './AdvanceSalarySettingsManager';
 import Link from 'next/link';
 
 export default function SettingsControlPanel({ initialCompanySettings }: { initialCompanySettings: any }) {
@@ -54,12 +55,7 @@ export default function SettingsControlPanel({ initialCompanySettings }: { initi
           {activeTab === 'groups' && <DepartmentGroupManager />}
           {activeTab === 'payroll' && <PayrollSettingsManager initialSettings={initialCompanySettings} />}
           {activeTab === 'appearance' && <AppearanceSettingsManager initialSettings={initialCompanySettings} />}
-          {activeTab === 'advance' && (
-            <div style={{ textAlign: 'center', color: '#888', marginTop: '50px' }}>
-              <h2>មុខងារប្រាក់ខ្ចី (Advance Salary)</h2>
-              <p>នឹងមានការដាក់ឱ្យប្រើប្រាស់នាពេលខាងមុខ។ (Coming Soon)</p>
-            </div>
-          )}
+          {activeTab === 'advance' && <AdvanceSalarySettingsManager initialSettings={initialCompanySettings} />}
           {activeTab === 'kpi' && (
             <div style={{ textAlign: 'center', color: '#888', marginTop: '50px' }}>
               <h2>មុខងារវាយតម្លៃ (KPI)</h2>

@@ -18,11 +18,10 @@ export async function uploadDocument(formData: FormData) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    // Save to public/uploads
-    const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-    const filepath = path.join(process.cwd(), 'public/uploads', filename);
-    await writeFile(filepath, buffer);
-    fileUrl = `/uploads/${filename}`;
+    // Convert file to Base64 Data URI for Vercel compatibility
+    const mimeType = file.type || 'application/octet-stream';
+    const base64Data = buffer.toString('base64');
+    fileUrl = `data:${mimeType};base64,${base64Data}`;
   } else {
     throw new Error('No file provided');
   }

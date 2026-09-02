@@ -12,10 +12,15 @@ export default function EmployeeDocumentsTab({ employeeId, documents }: { employ
     const formData = new FormData(e.currentTarget);
     formData.append('employeeId', employeeId);
     
-    await uploadDocument(formData);
-    
-    setLoading(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      await uploadDocument(formData);
+      (e.target as HTMLFormElement).reset();
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('មានបញ្ហាក្នុងការបញ្ចូលឯកសារ! សូមព្យាយាមម្តងទៀត។');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (docId: string) => {

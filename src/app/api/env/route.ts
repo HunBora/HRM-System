@@ -1,8 +1,0 @@
-import { NextResponse } from 'next/server'; 
-
-export async function GET() { 
-  return NextResponse.json({ 
-    PRISMA: process.env.POSTGRES_PRISMA_URL, 
-    NON_POOL: process.env.POSTGRES_URL_NON_POOLING 
-  }); 
-}

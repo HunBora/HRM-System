@@ -441,8 +441,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 height: '34px'
               }}
             >
-              <span>🔍</span>
-              <span>ស្វែងរក</span>
+              <span>✅</span>
+              <span>បង្ហាញទិន្នន័យ</span>
             </button>
           </form>
         </div>

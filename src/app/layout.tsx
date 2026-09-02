@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
 import { prisma } from '@/lib/prisma';
 
@@ -22,6 +22,17 @@ export default async function RootLayout({
     <html lang="en">
       <body style={{ '--sys-font-size': fontSize, '--sys-font-family': fontFamily } as React.CSSProperties}>
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );

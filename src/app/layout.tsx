@@ -20,6 +20,11 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon.jpg" />
+        <meta name="theme-color" content="#1976d2" />
+      </head>
       <body style={{ '--sys-font-size': fontSize, '--sys-font-family': fontFamily } as React.CSSProperties}>
         {children}
         <script

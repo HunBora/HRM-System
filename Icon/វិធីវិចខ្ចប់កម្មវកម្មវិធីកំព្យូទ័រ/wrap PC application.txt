@@ -1,0 +1,7 @@
+បើសិនជាថ្ងៃក្រោយ អ្នកចង់វេចខ្ចប់វាដោយខ្លួនឯង នេះជាវិធីដែលខ្ញុំកំពុងធ្វើ៖
+
+យើងប្រើប្រាស់កញ្ចប់ (Package) របស់ Node.js មួយឈ្មោះថា nativefier ដែលវាមានតួនាទីទាញយក Website ទាំងមូលមកវេចខ្ចប់ជាកម្មវិធី Windows (.exe) យ៉ាងងាយស្រួលបំផុតត្រឹមតែ ១ Command ប៉ុណ្ណោះ។
+
+របៀបធ្វើដោយខ្លួនឯង (ពេលក្រោយ)៖ ១. បើក Terminal ឬ CMD។ ២. វាយ Command នេះ៖
+
+npx nativefier --name "HRM System" "https://hrm-system-mrbora.vercel.app/dashboard"

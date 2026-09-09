@@ -159,7 +159,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         year: filterYear,
         status: { in: ['APPROVED', 'DEDUCTED'] } 
       },
-      select: { employeeId: true, amount: true }
+      select: { employeeId: true, amount: true, status: true }
     }),
     prisma.payroll.findMany({
       where: { month: filterMonth, year: filterYear },
@@ -197,6 +197,51 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   // Calculate Totals for Summary Cards based on filterMonth
   let filterTotalAdvance = 0;
   let filterTotalTax = 0;
+  
+  // Compute advanceStats
+  const advanceStats = { paid: 0, remaining: 0, count: 0 };
+  const advanceSet = new Set();
+  monthAdvances.forEach((adv) => {
+    if (adv.status === 'DEDUCTED') {
+      advanceStats.paid += adv.amount;
+    } else if (adv.status === 'APPROVED') {
+      advanceStats.remaining += adv.amount;
+    }
+    advanceSet.add(adv.employeeId);
+  });
+  advanceStats.count = advanceSet.size;
+
+  // Compute recruitmentByDept
+  const deptCount: Record<string, number> = {};
+  allEmployees.forEach(emp => {
+    const dept = emp.department || 'General';
+    deptCount[dept] = (deptCount[dept] || 0) + 1;
+  });
+  const recruitmentByDept = Object.entries(deptCount)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Compute weeklyAttendanceData
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const attCountByDay: Record<number, number> = {};
+  weeklyAttendance.forEach(att => {
+    const d = new Date(att.date).getDay();
+    attCountByDay[d] = (attCountByDay[d] || 0) + 1;
+  });
+  
+  const weeklyAttendanceData = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+    const dayIndex = d.getDay();
+    const presentCount = attCountByDay[dayIndex] || 0;
+    weeklyAttendanceData.push({
+      name: days[dayIndex],
+      present: presentCount,
+      absent: totalEmployees - presentCount
+    });
+  }
+  
   let filterTotalNSSF = 0;
   let filterGrandTotalSalary = 0;
   let filterGrandNetSalary = 0;
@@ -478,8 +523,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         prevY={prevY}
         allEmployees={allEmployees}
         groupHires={groupHires}
-        recentLeaveRequests={recentLeaveRequests}
-        weeklyAttendance={weeklyAttendance}
+        recentLeaveRequests={recentLeaveRequests} advanceStats={advanceStats} recruitmentByDept={recruitmentByDept} weeklyAttendanceData={weeklyAttendanceData}
+        
         hrContactUrl={companySettings?.hrContactUrl || 'https://i.pravatar.cc/100?img=5'}
       />
 

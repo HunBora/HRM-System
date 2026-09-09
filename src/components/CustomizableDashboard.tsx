@@ -22,7 +22,9 @@ type Props = {
   groupHires: Record<string, any>;
   hrContactUrl?: string;
   recentLeaveRequests?: any[];
-  weeklyAttendance?: any[];
+  advanceStats?: { paid: number, remaining: number, count: number };
+  weeklyAttendanceData?: { name: string, present: number, absent: number }[];
+  recruitmentByDept?: { name: string, count: number }[];
 };
 
 const DEFAULT_LAYOUTS = {
@@ -39,7 +41,7 @@ const DEFAULT_LAYOUTS = {
 export default function CustomizableDashboard({
   locale, l, leaveStats, absentStats, leaveByDept, absentByDept,
   qHires, currentY, prevY, allEmployees, groupHires, hrContactUrl,
-  recentLeaveRequests = [], weeklyAttendance = []
+  recentLeaveRequests = [], advanceStats = { paid: 0, remaining: 0, count: 0 }, weeklyAttendanceData = [], recruitmentByDept = []
 }: Props) {
   
   const [layouts, setLayouts] = useState<any>(null);
@@ -230,15 +232,7 @@ export default function CustomizableDashboard({
             </div>
             <div style={{ width: '100%', height: 'calc(100% - 40px)' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[
-                  { name: 'Sun', present: 80, absent: 20 },
-                  { name: 'Mon', present: 95, absent: 5 },
-                  { name: 'Tue', present: 90, absent: 10 },
-                  { name: 'Wed', present: 85, absent: 15 },
-                  { name: 'Thu', present: 88, absent: 12 },
-                  { name: 'Fri', present: 70, absent: 30 },
-                  { name: 'Sat', present: 80, absent: 20 }
-                ]}>
+                <BarChart data={weeklyAttendanceData.length > 0 ? weeklyAttendanceData : [{ name: 'Sun', present: 0, absent: 0 }]}>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
                   <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} tickFormatter={(value) => `${value}%`} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
@@ -258,11 +252,7 @@ export default function CustomizableDashboard({
             </div>
             <div style={{ width: '100%', height: 'calc(100% - 40px)' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart layout="vertical" data={[
-                  { name: 'General', count: topProvinces[0]?.count || 28 },
-                  { name: 'Software', count: topProvinces[1]?.count || 19 },
-                  { name: 'Data Analysis', count: topProvinces[2]?.count || 36 }
-                ]}>
+                <BarChart layout="vertical" data={recruitmentByDept.length > 0 ? recruitmentByDept : [{ name: 'General', count: 0 }]}>
                   <XAxis type="number" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
                   <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#d946ef', fontSize: 12}} width={90} />
                   <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
@@ -281,19 +271,19 @@ export default function CustomizableDashboard({
             <div style={{ flex: 1, position: 'relative' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={[{ name: 'Paid', value: 8440 }, { name: 'Remaining', value: 1560 }]} dataKey="value" nameKey="name" cx="50%" cy="100%" startAngle={180} endAngle={0} innerRadius={80} outerRadius={100} fill="#8884d8" paddingAngle={5} stroke="none">
+                  <Pie data={[{ name: 'Paid', value: advanceStats.paid }, { name: 'Remaining', value: advanceStats.remaining }]} dataKey="value" nameKey="name" cx="50%" cy="100%" startAngle={180} endAngle={0} innerRadius={80} outerRadius={100} fill="#8884d8" paddingAngle={5} stroke="none">
                     <Cell fill="#0ea5e9" />
                     <Cell fill="#d946ef" />
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ position: 'absolute', bottom: '10%', left: '50%', transform: 'translateX(-50%)', textAlign: 'center' }}>
-                <div style={{ color: '#d946ef', fontSize: '1.5rem', fontWeight: 'bold' }}>$8440</div>
+                <div style={{ color: '#d946ef', fontSize: '1.5rem', fontWeight: 'bold' }}>$\{advanceStats.paid + advanceStats.remaining}</div>
                 <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Loan Amount</div>
               </div>
             </div>
             <div style={{ textAlign: 'center', backgroundColor: '#f8fafc', padding: '8px', borderRadius: '8px', fontSize: '0.85rem', color: '#64748b', marginTop: '10px' }}>
-              <span style={{ color: '#0ea5e9', fontWeight: 'bold' }}>💡 Total Loan Amount:</span> {allEmployees.length * 2} People
+              <span style={{ color: '#0ea5e9', fontWeight: 'bold' }}>💡 Total Loan Amount:</span> {advanceStats.count} People
             </div>
           </div>
 

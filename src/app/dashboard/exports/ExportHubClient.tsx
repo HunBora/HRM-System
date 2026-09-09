@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react';
+import Swal from 'sweetalert2';
 import ExportButtons from '@/components/ExportButtons';
 import EmployeeExportImportButtons, { EmployeeExportImportRef } from '@/app/dashboard/employees/EmployeeExportImportButtons';
 import { fetchEmployeeReport, fetchAttendanceReport, fetchPayrollReport, fetchBankTransferReport, fetchExpenseReport } from './actions';
@@ -150,6 +151,89 @@ export default function ExportHubClient({ t }: Props) {
     return [];
   };
 
+  const handleDownloadExpenseSummary = async () => {
+    if (data.length === 0) {
+      return Swal.fire('Info', 'មិនមានទិន្នន័យសម្រាប់ទាញយកទេ (No data to export)', 'info');
+    }
+
+    try {
+      setLoading(true);
+      const ExcelJS = (await import('exceljs')).default;
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Expense Summary', {
+        pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 } 
+      });
+      
+      // Title
+      worksheet.mergeCells('A1:F1');
+      const titleCell = worksheet.getCell('A1');
+      titleCell.value = `របាយការណ៍ចំណាយសរុបប្រចាំខែ (Monthly Expense Summary) (ខែ ${month} ឆ្នាំ ${year})`;
+      titleCell.font = { name: 'Khmer OS Siemreap', size: 14, bold: true, color: { argb: 'FF000000' } };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+      worksheet.getRow(1).height = 40;
+      
+      // Header Row (Row 2)
+      const headers = [
+        'ផ្នែក\n(Department)', 
+        'ចំនួនបុគ្គលិក\nកំពុងធ្វើការ\n(Active Staff)', 
+        'ប្រាក់ខែសរុប\n(Regular Net Salary)', 
+        'ចំនួនបុគ្គលិកបញ្ឈប់\n(Term. Staff)', 
+        'ប្រាក់ទូទាត់បញ្ឈប់\n(Offboarding Net)', 
+        'ចំណាយសរុប\n(Total Expense)'
+      ];
+      
+      const headerRow = worksheet.getRow(2);
+      headers.forEach((header, index) => {
+        const cell = headerRow.getCell(index + 1);
+        cell.value = header;
+        cell.font = { name: 'Khmer OS Siemreap', size: 11, bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+      });
+      headerRow.height = 60;
+      
+      // Columns width
+      worksheet.columns = [
+        { width: 25 }, { width: 20 }, { width: 25 }, { width: 20 }, { width: 25 }, { width: 25 }
+      ];
+      
+      // Data
+      data.forEach((rowObj, i) => {
+        const row = worksheet.addRow([
+          rowObj.dept,
+          rowObj.empCount,
+          rowObj.regularNetSalary,
+          rowObj.termCount,
+          rowObj.offboardingNet,
+          rowObj.totalExpense
+        ]);
+        
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          cell.font = { name: 'Khmer OS Siemreap', size: 11 };
+          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin', color: {argb: 'FF000000'} } };
+          cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+          if (colNumber === 3 || colNumber === 5 || colNumber === 6) {
+            cell.numFmt = '#,##0.00'; 
+          }
+        });
+        row.height = 30;
+      });
+      
+      // Save
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Monthly_Expense_Summary_${month}_${year}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (e: any) {
+      Swal.fire('Error', e.message, 'error');
+    }
+    setLoading(false);
+  };
+
   const columns = getColumns();
   const filename = reportType === 'BANK_TRANSFER_EXCEL' 
     ? `Bank_Transfer_${bankName}_${month}_${year}`
@@ -260,16 +344,26 @@ export default function ExportHubClient({ t }: Props) {
         ) : (
           <div>
             <div style={{ marginBottom: '15px', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <ExportButtons 
-                data={data} 
-                columns={columns} 
-                filename={filename} 
-                printId="preview-table" 
-                hidePdf={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
-                hideWord={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
-                showEmployeeMaster={reportType === 'EMPLOYEE'}
-                onImportEmployee={() => employeeImportRef.current?.openModal()}
-              />
+              {reportType === 'EXPENSE_SUMMARY' ? (
+                <button 
+                  onClick={handleDownloadExpenseSummary}
+                  className="btn-primary kh-text"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  📊 ទាញយក Excel 100% Fit (Download)
+                </button>
+              ) : (
+                <ExportButtons 
+                  data={data} 
+                  columns={columns} 
+                  filename={filename} 
+                  printId="preview-table" 
+                  hidePdf={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
+                  hideWord={reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL'}
+                  showEmployeeMaster={reportType === 'EMPLOYEE'}
+                  onImportEmployee={() => employeeImportRef.current?.openModal()}
+                />
+              )}
               {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons ref={employeeImportRef} hideDropdown={true} />}
               {reportType === 'PAYSLIP_STRIPS' && (
                 <a 

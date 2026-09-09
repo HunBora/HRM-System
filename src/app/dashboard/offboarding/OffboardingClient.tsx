@@ -114,8 +114,8 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
           <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <tr style={{ backgroundColor: '#fee2e2' }}>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ល.រ" zh="序号" en="No." /></th>
-              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="បុគ្គលិក" zh="员工" en="Employee" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="អត្តលេខ" zh="工号" en="Emp ID" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="បុគ្គលិក" zh="员工" en="Employee" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ថ្ងៃចូលធ្វើការ" zh="入职日期" en="Hire Date" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ថ្ងៃបញ្ឈប់" zh="离职日期" en="Term. Date" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="មូលហេតុ" zh="原因" en="Reason" /></th>
@@ -129,11 +129,11 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
             {terminations.map((t, index) => (
               <tr key={t.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                 <td style={{ padding: '10px 8px', textAlign: 'center' }}>{index + 1}</td>
-                <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                  {t.employee.firstNameEn} {t.employee.lastNameEn}
-                </td>
                 <td style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 'bold' }}>
                   {t.employee.employeeId}
+                </td>
+                <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                  {t.employee.firstNameEn} {t.employee.lastNameEn}
                 </td>
                 <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                   {t.employee.hireDate ? new Date(t.employee.hireDate).toLocaleDateString('en-GB') : '-'}

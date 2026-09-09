@@ -145,7 +145,8 @@ export async function getTerminations() {
           lastNameKh: true,
           employeeId: true,
           department: true,
-          position: true
+          position: true,
+          hireDate: true
         }
       }
     },

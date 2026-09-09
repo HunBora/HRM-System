@@ -115,6 +115,7 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
             <tr style={{ backgroundColor: '#fee2e2' }}>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ល.រ" zh="序号" en="No." /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="បុគ្គលិក" zh="员工" en="Employee" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="លេខកាត/ID" zh="卡号" en="Card/ID" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ថ្ងៃចូលធ្វើការ" zh="入职日期" en="Hire Date" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ថ្ងៃបញ្ឈប់" zh="离职日期" en="Term. Date" /></th>
               <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="មូលហេតុ" zh="原因" en="Reason" /></th>
@@ -130,6 +131,9 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
                 <td style={{ padding: '10px 8px', textAlign: 'center' }}>{index + 1}</td>
                 <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                   {t.employee.employeeId} - {t.employee.firstNameEn} {t.employee.lastNameEn}
+                </td>
+                <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                  {t.employee.cardNo || t.employee.nationalId || '-'}
                 </td>
                 <td style={{ padding: '10px 8px', textAlign: 'center' }}>
                   {t.employee.hireDate ? new Date(t.employee.hireDate).toLocaleDateString('en-GB') : '-'}
@@ -174,7 +178,7 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
               </tr>
             ))}
             {terminations.length === 0 && (
-              <tr><td colSpan={9} style={{ padding: '20px', textAlign: 'center' }} className="kh-text">មិនមានទិន្នន័យ (No Data)</td></tr>
+              <tr><td colSpan={10} style={{ padding: '20px', textAlign: 'center' }} className="kh-text">មិនមានទិន្នន័យ (No Data)</td></tr>
             )}
           </tbody>
         </table>
@@ -288,10 +292,12 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
                 <div>
                   <div style={{ marginBottom: '8px' }}><strong>អត្តលេខ (Emp ID):</strong> {printData.employee.employeeId}</div>
                   <div style={{ marginBottom: '8px' }} className="kh-text"><strong>ឈ្មោះ (Name):</strong> {printData.employee.firstNameKh} {printData.employee.lastNameKh}</div>
+                  <div style={{ marginBottom: '8px' }}><strong>លេខកាត/អត្តសញ្ញាណប័ណ្ណ (Card/ID):</strong> {printData.employee.cardNo || printData.employee.nationalId || '-'}</div>
                 </div>
                 <div>
                   <div style={{ marginBottom: '8px' }}><strong>ផ្នែក (Department):</strong> {printData.employee.department}</div>
                   <div style={{ marginBottom: '8px' }}><strong>តួនាទី (Position):</strong> {printData.employee.position}</div>
+                  <div style={{ marginBottom: '8px' }}><strong>ថ្ងៃចូលធ្វើការ (Hire Date):</strong> {printData.employee.hireDate ? new Date(printData.employee.hireDate).toLocaleDateString('en-GB') : '-'}</div>
                 </div>
               </div>
 

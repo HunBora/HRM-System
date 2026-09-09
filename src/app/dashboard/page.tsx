@@ -132,7 +132,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     payrollsForFilter,
     companySettings,
     allEmployees,
-    departmentGroupsDb
+    departmentGroupsDb,
+    recentLeaveRequests,
+    weeklyAttendance
   ] = await Promise.all([
     prisma.employee.count(),
     prisma.payroll.aggregate({
@@ -165,7 +167,20 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     }),
     prisma.companySettings.findUnique({ where: { id: 'default' } }),
     prisma.employee.findMany({ orderBy: { hireDate: 'desc' }, select: { id: true, firstNameKh: true, lastNameKh: true, firstNameEn: true, lastNameEn: true, gender: true, department: true, hireDate: true, basicSalary: true, placeOfBirth: true, nationality: true } }),
-    prisma.departmentGroup.findMany({ orderBy: { orderIdx: 'asc' } })
+    prisma.departmentGroup.findMany({ orderBy: { orderIdx: 'asc' } }),
+    // New query: recent leave requests
+    prisma.leaveRequest.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+      include: { employee: true }
+    }),
+    // New query: 7 days attendance
+    prisma.dailyAttendance.findMany({
+      where: {
+        date: { gte: new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000) }
+      },
+      select: { date: true, status: true }
+    })
   ]);
 
   const settings = {
@@ -463,6 +478,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         prevY={prevY}
         allEmployees={allEmployees}
         groupHires={groupHires}
+        recentLeaveRequests={recentLeaveRequests}
+        weeklyAttendance={weeklyAttendance}
         hrContactUrl={companySettings?.hrContactUrl || 'https://i.pravatar.cc/100?img=5'}
       />
 

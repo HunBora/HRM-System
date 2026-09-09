@@ -25,6 +25,7 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
   const [noticeGiven, setNoticeGiven] = useState(true);
   
   const [previewData, setPreviewData] = useState<any>(null);
+  const [printData, setPrintData] = useState<any>(null);
 
   const employeeOptions = employees.map(emp => ({
     value: emp.id,
@@ -145,15 +146,24 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
                   </span>
                 </td>
                 <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                  {t.status === 'PENDING' && (
+                  <div style={{ display: 'flex', gap: '5px', justifyItems: 'center', justifyContent: 'center' }}>
+                    {t.status === 'PENDING' && (
+                      <button 
+                        onClick={() => handleApprove(t.id)}
+                        className="kh-text no-print"
+                        style={{ padding: '4px 10px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        អនុម័ត (Approve)
+                      </button>
+                    )}
                     <button 
-                      onClick={() => handleApprove(t.id)}
-                      className="kh-text"
-                      style={{ padding: '4px 10px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                      onClick={() => setPrintData(t)}
+                      className="kh-text no-print"
+                      style={{ padding: '4px 10px', backgroundColor: '#64748b', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                     >
-                      អនុម័ត (Approve)
+                      បោះពុម្ព (Print)
                     </button>
-                  )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -251,7 +261,114 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
             </div>
           </div>
         </div>
+      {printData && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '12px', width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }} className="print-modal-content">
+            <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px', gap: '10px' }}>
+              <button onClick={() => window.print()} className="kh-text" style={{ padding: '8px 16px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>🖨️ បោះពុម្ព (Print)</button>
+              <button onClick={() => setPrintData(null)} className="kh-text" style={{ padding: '8px 16px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>បិទ (Close)</button>
+            </div>
+            
+            <div className="payslip-container" style={{ padding: '20px', color: '#0f172a' }}>
+              <div style={{ textAlign: 'center', marginBottom: '30px', borderBottom: '2px solid #0f172a', paddingBottom: '20px' }}>
+                <h1 className="kh-text" style={{ fontSize: '1.6rem', marginBottom: '5px' }}>ការទូទាត់ប្រាក់បញ្ចប់ការងារ (Final Settlement)</h1>
+                <h2 className="kh-text" style={{ fontSize: '1.2rem', color: '#334155' }}>Offboarding Payslip</h2>
+                <div style={{ fontSize: '1rem', marginTop: '10px' }}>កាលបរិច្ឆេទបញ្ឈប់ (Termination Date): {new Date(printData.terminationDate).toLocaleDateString('en-GB')}</div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px', fontSize: '1rem' }}>
+                <div>
+                  <div style={{ marginBottom: '8px' }}><strong>អត្តលេខ (Emp ID):</strong> {printData.employee.employeeId}</div>
+                  <div style={{ marginBottom: '8px' }} className="kh-text"><strong>ឈ្មោះ (Name):</strong> {printData.employee.firstNameKh} {printData.employee.lastNameKh}</div>
+                </div>
+                <div>
+                  <div style={{ marginBottom: '8px' }}><strong>ផ្នែក (Department):</strong> {printData.employee.department}</div>
+                  <div style={{ marginBottom: '8px' }}><strong>តួនាទី (Position):</strong> {printData.employee.position}</div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '30px' }}>
+                <h3 className="kh-text" style={{ borderBottom: '1px solid #cbd5e1', paddingBottom: '8px', marginBottom: '15px' }}>ប្រាក់ចំណូល និងកាត់កង (Earnings & Deductions)</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem' }}>
+                  <span>ប្រាក់ឈ្នួលនៅសល់ (Unpaid Wages)</span><span>${printData.unpaidWages.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem' }}>
+                  <span>ប្រាក់ជួសការឈប់សម្រាក (Annual Leave Pay)</span><span>${printData.annualLeavePay.toFixed(2)}</span>
+                </div>
+                {printData.severancePay > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem' }}>
+                    <span>ប្រាក់បំណាច់ ៥% (Severance Pay 5%)</span><span>${printData.severancePay.toFixed(2)}</span>
+                  </div>
+                )}
+                {printData.noticePay > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem' }}>
+                    <span>ប្រាក់ជួសការជូនដំណឹងមុន (Notice Pay)</span><span>${printData.noticePay.toFixed(2)}</span>
+                  </div>
+                )}
+                {printData.seniorityIndemnity > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem' }}>
+                    <span>ប្រាក់អតីតភាពការងារ (Seniority Indemnity)</span><span>${printData.seniorityIndemnity.toFixed(2)}</span>
+                  </div>
+                )}
+                {printData.damagesPay > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem' }}>
+                    <span>ប្រាក់ជំងឺចិត្ត (Damages)</span><span>${printData.damagesPay.toFixed(2)}</span>
+                  </div>
+                )}
+                {printData.unpaidAdvances > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '1.05rem', color: '#ef4444' }}>
+                    <span>បំណុលបុរេប្រទាន (Unpaid Advances)</span><span>-${printData.unpaidAdvances.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ borderTop: '2px solid #0f172a', paddingTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ width: '350px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.3rem', fontWeight: 'bold' }}>
+                    <span className="kh-text">ប្រាក់ត្រូវបើកសរុប (NET PAY):</span>
+                    <span style={{ color: '#15803d' }}>${printData.totalFinalPay.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '60px', textAlign: 'center' }}>
+                <div>
+                  <div style={{ borderTop: '1px dashed #cbd5e1', width: '200px', margin: '0 auto', paddingTop: '10px' }} className="kh-text">
+                    ហត្ថលេខាអ្នករៀបចំ (Prepared By)
+                  </div>
+                </div>
+                <div>
+                  <div style={{ borderTop: '1px dashed #cbd5e1', width: '200px', margin: '0 auto', paddingTop: '10px' }} className="kh-text">
+                    ហត្ថលេខាអ្នកទទួល (Received By)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .payslip-container, .payslip-container * {
+            visibility: visible;
+          }
+          .payslip-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none !important;
+            padding: 0 !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}} />
     </div>
   );
 }

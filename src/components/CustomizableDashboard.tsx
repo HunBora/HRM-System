@@ -103,16 +103,17 @@ export default function CustomizableDashboard({
 
   useEffect(() => {
     setIsClient(true);
-    // Load from local storage if exists
-    const saved = localStorage.getItem('dashboard_layout_v5');
-    
-    // Generate dynamic layout for groups
-    setLayouts(DEFAULT_LAYOUTS);
+    const saved = localStorage.getItem('dashboard_layout_v6');
+    if (saved) {
+      try {
+        setLayouts(JSON.parse(saved));
+      } catch (e) {
+        setLayouts(DEFAULT_LAYOUTS);
       }
     } else {
-      setLayouts(dynamicLayout);
+      setLayouts(DEFAULT_LAYOUTS);
     }
-  }, [groupHires]);
+  }, []);
 
   const onLayoutChange = (layout: Layout[], allLayouts: any) => {
     setLayouts(allLayouts);

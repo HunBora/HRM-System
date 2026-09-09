@@ -298,107 +298,107 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 2. Trends Widget */}
-          <div key="trends" style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', display: 'flex', flexDirection: 'column', containerType: 'size' }}>
-            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #eee', cursor: 'grab', fontWeight: 'bold', fontSize: '1.25rem', color: '#333' }}>
+          <div key="trends" style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', cursor: 'grab', fontWeight: 'bold', fontSize: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px' }}>
               📈 ស្ថិតិជ្រើសរើសបុគ្គលិកប្រចាំត្រីមាស (Hiring Trends)
             </div>
-            <div style={{ padding: '15px', flex: 1, display: 'flex', justifyContent: 'space-around', alignItems: 'center', overflowX: 'auto' }}>
-              {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
-                <div key={q} style={{ textAlign: 'center' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '12px', backgroundColor: '#f8f9fa', padding: '6px 12px', borderRadius: '4px' }} className={locale === 'kh' ? 'kh-text' : ''}>{l[`${q.toLowerCase()}NewHires`]}</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '10px' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.yoy} {renderTrend(qHires.current[q], qHires.prev[q])}</div>
-                  <div style={{ fontSize: '1.05rem', color: '#555', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                    <span>{currentY}: <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#000' }}>{qHires.current[q]}</span></span>
-                  </div>
-                  <div style={{ fontSize: '1.05rem', color: '#555', display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '6px' }}>
-                    <span>{prevY}: <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#000' }}>{qHires.prev[q]}</span></span>
-                  </div>
-                </div>
-              ))}
-
+            <div style={{ padding: '15px', flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <ResponsiveContainer width="100%" height="100%" minHeight={150}>
+                <BarChart data={[
+                  { name: 'Q1', [prevY.toString()]: qHires.prev['Q1'], [currentY.toString()]: qHires.current['Q1'] },
+                  { name: 'Q2', [prevY.toString()]: qHires.prev['Q2'], [currentY.toString()]: qHires.current['Q2'] },
+                  { name: 'Q3', [prevY.toString()]: qHires.prev['Q3'], [currentY.toString()]: qHires.current['Q3'] },
+                  { name: 'Q4', [prevY.toString()]: qHires.prev['Q4'], [currentY.toString()]: qHires.current['Q4'] }
+                ]}>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} allowDecimals={false} />
+                  <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  <Bar dataKey={prevY.toString()} fill="#cbd5e1" radius={[4, 4, 0, 0]} barSize={30} />
+                  <Bar dataKey={currentY.toString()} fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
           {/* 3. New Hires Widget */}
-          <div key="newHires" style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', display: 'flex', flexDirection: 'column', containerType: 'size' }}>
-            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #eee', cursor: 'grab', fontWeight: 'bold', fontSize: '1.25rem', color: '#333' }}>
+          <div key="newHires" style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', cursor: 'grab', fontWeight: 'bold', fontSize: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px' }}>
               👤 {l.incomingNewHire}
             </div>
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              <table style={{ width: '100%', fontSize: '1.05rem', textAlign: 'left', borderCollapse: 'collapse' }}>
-                <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 15px 15px 15px' }}>
+              <table style={{ width: '100%', fontSize: '0.95rem', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <thead style={{ position: 'sticky', top: 0, backgroundColor: '#ffffff', zIndex: 1 }}>
                   <tr>
-                    <th style={{ padding: '10px 15px', borderBottom: '2px solid #ddd', fontWeight: 'bold', width: '70px', lineHeight: '1.3' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.onboardingComplete}</th>
-                    <th style={{ padding: '10px 15px', borderBottom: '2px solid #ddd', fontWeight: 'bold' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.primary}</th>
-                    <th style={{ padding: '10px 15px', borderBottom: '2px solid #ddd', fontWeight: 'bold' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.dept}</th>
-                    <th style={{ padding: '10px 15px', borderBottom: '2px solid #ddd', fontWeight: 'bold' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.startDate}</th>
+                    <th style={{ padding: '15px 10px', borderBottom: '2px solid #e2e8f0', fontWeight: 'bold', width: '80px', color: '#64748b' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.onboardingComplete}</th>
+                    <th style={{ padding: '15px 10px', borderBottom: '2px solid #e2e8f0', fontWeight: 'bold', color: '#64748b' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.primary}</th>
+                    <th style={{ padding: '15px 10px', borderBottom: '2px solid #e2e8f0', fontWeight: 'bold', color: '#64748b' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.dept}</th>
+                    <th style={{ padding: '15px 10px', borderBottom: '2px solid #e2e8f0', fontWeight: 'bold', color: '#64748b' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.startDate}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allEmployees.slice(0, 10).map((emp, idx) => (
-                    <tr key={emp.id} style={{ borderBottom: '1px solid #eee' }}>
-                      <td style={{ padding: '10px 15px' }}><div style={{ width: `${Math.max(10, 100 - idx * 10)}%`, height: '8px', backgroundColor: '#2196f3', borderRadius: '4px' }}></div></td>
-                      <td style={{ padding: '10px 15px', fontWeight: 'bold', color: '#333' }}>{locale === 'kh' ? (`${emp.lastNameKh || ''} ${emp.firstNameKh || ''}`.trim() || `${emp.lastNameEn} ${emp.firstNameEn}`) : `${emp.firstNameEn} ${emp.lastNameEn}`}</td>
-                      <td style={{ padding: '10px 15px' }}>{emp.department}</td>
-                      <td style={{ padding: '10px 15px' }}>{new Date(emp.hireDate).toLocaleDateString('en-GB')}</td>
+                    <tr key={emp.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f8fafc'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <td style={{ padding: '12px 10px' }}><div style={{ width: `${Math.max(10, 100 - idx * 10)}%`, height: '8px', backgroundColor: '#3b82f6', borderRadius: '4px' }}></div></td>
+                      <td style={{ padding: '12px 10px', fontWeight: 'bold', color: '#0f172a' }}>{locale === 'kh' ? (`${emp.lastNameKh || ''} ${emp.firstNameKh || ''}`.trim() || `${emp.lastNameEn} ${emp.firstNameEn}`) : `${emp.firstNameEn} ${emp.lastNameEn}`}</td>
+                      <td style={{ padding: '12px 10px', color: '#475569' }}>{emp.department}</td>
+                      <td style={{ padding: '12px 10px', color: '#475569' }}>{new Date(emp.hireDate).toLocaleDateString('en-GB')}</td>
                     </tr>
                   ))}
                   {allEmployees.length === 0 && (
-                    <tr><td colSpan={4} style={{ padding: '15px', textAlign: 'center', fontSize: '1.1rem' }}>No employees found</td></tr>
+                    <tr><td colSpan={4} style={{ padding: '20px', textAlign: 'center', fontSize: '1rem', color: '#94a3b8' }}>No employees found</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          
           {/* 5. Demographics Widget */}
-          <div key="demographics" style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', display: 'flex', flexDirection: 'column', containerType: 'size' }}>
-            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f5f0f6', borderBottom: '1px solid #e1d5e7', cursor: 'grab', fontWeight: 'bold', fontSize: '1.25rem', color: '#6a1b9a' }}>
+          <div key="demographics" style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', cursor: 'grab', fontWeight: 'bold', fontSize: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px' }}>
               🌍 ស្ថិតិទីកន្លែងកំណើត និងជនបរទេស (Demographics)
             </div>
-            <div style={{ display: 'flex', flex: 1, padding: '15px', gap: '20px' }}>
+            <div style={{ display: 'flex', flex: 1, padding: '20px', gap: '30px' }}>
               
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h4 style={{ textAlign: 'center', fontSize: 'clamp(1rem, 3cqmin, 1.2rem)', marginBottom: '15px', color: '#444', fontWeight: 'bold' }}>ខេត្តកំណើតច្រើនជាងគេ (Top Provinces)</h4>
-                <div style={{ flex: 1, minHeight: '150px' }}>
+                <h4 style={{ textAlign: 'center', fontSize: '1rem', marginBottom: '10px', color: '#64748b', fontWeight: 'bold' }}>ខេត្តកំណើត (Top Provinces)</h4>
+                <div style={{ flex: 1, minHeight: '180px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={topProvinces} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#8884d8" label>
+                      <Pie data={topProvinces} dataKey="count" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} fill="#8884d8" paddingAngle={3} label={false}>
                         {topProvinces.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'][index % 7]} />
+                          <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316'][index % 7]} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={{ fontSize: '14px', borderRadius: '8px' }} />
-                      <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 'bold' }} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                      <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#475569' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div style={{ width: '1px', backgroundColor: '#eee' }}></div>
+              <div style={{ width: '1px', backgroundColor: '#e2e8f0' }}></div>
 
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h4 style={{ textAlign: 'center', fontSize: 'clamp(1rem, 3cqmin, 1.2rem)', marginBottom: '15px', color: '#444', fontWeight: 'bold' }}>ជនបរទេសច្រើនជាងគេ (Top Foreigners)</h4>
-                <div style={{ flex: 1, minHeight: '150px' }}>
+                <h4 style={{ textAlign: 'center', fontSize: '1rem', marginBottom: '10px', color: '#64748b', fontWeight: 'bold' }}>ជនបរទេស (Top Foreigners)</h4>
+                <div style={{ flex: 1, minHeight: '180px' }}>
                   {topNationalities.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie data={topNationalities} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#82ca9d" label>
+                        <Pie data={topNationalities} dataKey="count" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} fill="#10b981" paddingAngle={3} label={false}>
                           {topNationalities.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658'][index % 7]} />
+                            <Cell key={`cell-${index}`} fill={['#8b5cf6', '#6366f1', '#0ea5e9', '#10b981', '#84cc16', '#eab308', '#f59e0b'][index % 7]} />
                           ))}
                         </Pie>
-                        <Tooltip contentStyle={{ fontSize: '14px', borderRadius: '8px' }} />
-                        <Legend wrapperStyle={{ fontSize: '13px', fontWeight: 'bold' }} />
+                        <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                        <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" wrapperStyle={{ fontSize: '12px', color: '#475569' }} />
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: 'clamp(1rem, 3cqmin, 1.2rem)', color: '#999', fontStyle: 'italic' }}>មិនមានជនបរទេសទេ (No Foreigners)</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', fontSize: '1rem', color: '#94a3b8', fontStyle: 'italic' }}>មិនមានជនបរទេសទេ (No Foreigners)</div>
                   )}
                 </div>
               </div>
-
             </div>
           </div>
 

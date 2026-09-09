@@ -5,6 +5,14 @@ import Swal from 'sweetalert2';
 import { initiateTermination, approveTermination, calculateFinalSettlement } from './actions';
 import Select from 'react-select';
 
+const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
+    <span className="kh-text" style={{ fontSize: '0.75rem', fontWeight: 'bold', textAlign: 'center' }}>{kh}</span>
+    <span style={{ fontSize: '0.65rem', color: '#64748b', textAlign: 'center' }}>{zh}</span>
+    <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', textAlign: 'center' }}>{en}</span>
+  </div>
+);
+
 export default function OffboardingClient({ initialTerminations, employees }: { initialTerminations: any[], employees: any[] }) {
   const [terminations, setTerminations] = useState(initialTerminations);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,14 +97,14 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 className="kh-text" style={{ fontSize: '1.6rem', color: '#1e3a8a', margin: 0 }}>
-          ការបញ្ចប់ការងារ និង ទូទាត់ប្រាក់ (Offboarding & Final Settlement)
+          ការបញ្ចប់ការងារ និង ទូទាត់ប្រាក់ <span>离职与结算</span> (Offboarding & Final Settlement)
         </h1>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="kh-text no-print"
           style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
         >
-          + បញ្ឈប់បុគ្គលិក (Terminate Employee)
+          + បញ្ឈប់បុគ្គលិក (Terminate)
         </button>
       </div>
 
@@ -104,13 +112,13 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
           <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <tr style={{ backgroundColor: '#fee2e2' }}>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>បុគ្គលិក (Employee)</th>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>កាលបរិច្ឆេទ (Date)</th>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>មូលហេតុ (Reason)</th>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>ប្រភេទកិច្ចសន្យា (Contract)</th>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>ប្រាក់សរុប (Total Pay)</th>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>ស្ថានភាព (Status)</th>
-              <th className="kh-text" style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}>សកម្មភាព (Actions)</th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="បុគ្គលិក" zh="员工" en="Employee" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="Date" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="មូលហេតុ" zh="原因" en="Reason" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ប្រភេទកិច្ចសន្យា" zh="合同类型" en="Contract" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ប្រាក់សរុប" zh="总金额" en="Total Pay" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="ស្ថានភាព" zh="状态" en="Status" /></th>
+              <th style={{ padding: '10px 8px', borderBottom: '1px solid #fca5a5' }}><ThText kh="សកម្មភាព" zh="操作" en="Actions" /></th>
             </tr>
           </thead>
           <tbody>

@@ -290,18 +290,18 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
       </div>
 
       {viewMode === 'table' ? (
-        <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
+        <div className="table-responsive-wrapper" style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
-              <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                <th style={{ padding: '10px 8px', width: '50px' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
-                <th style={{ padding: '10px 8px' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
-                <th style={{ padding: '10px 8px' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
-                <th style={{ padding: '10px 8px' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
-                <th style={{ padding: '10px 8px' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
-                <th style={{ padding: '10px 8px' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
-                <th style={{ padding: '10px 8px' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
-                {isAdmin && <th style={{ padding: '10px 8px' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
+              <tr style={{ backgroundColor: '#eef2ff' }}>
+                <th style={{ padding: '10px 8px', width: '50px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
+                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
+                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
+                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
+                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
+                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
+                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
+                {isAdmin && <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
               </tr>
             </thead>
             <tbody>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { initiateTermination, approveTermination, calculateFinalSettlement } from './actions';
 import Select from 'react-select';
+import * as XLSX from 'xlsx';
 
 const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
@@ -94,19 +95,60 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
     }
   };
 
+  const handleExportExcel = () => {
+    if (terminations.length === 0) {
+      return Swal.fire('Info', 'មិនមានទិន្នន័យសម្រាប់ទាញយកទេ (No data to export)', 'info');
+    }
+
+    const dataToExport = terminations.map((t, index) => ({
+      'ល.រ (No.)': index + 1,
+      'អត្តលេខ (Emp ID)': t.employee.employeeId,
+      'បុគ្គលិក (Employee)': `${t.employee.firstNameEn} ${t.employee.lastNameEn}`,
+      'លេខកាត/ID (Card/ID)': t.employee.cardNo || t.employee.nationalId || '-',
+      'ផ្នែក (Department)': t.employee.department,
+      'តួនាទី (Position)': t.employee.position,
+      'ថ្ងៃចូលធ្វើការ (Hire Date)': t.employee.hireDate ? new Date(t.employee.hireDate).toLocaleDateString('en-GB') : '-',
+      'ថ្ងៃបញ្ឈប់ (Term. Date)': new Date(t.terminationDate).toLocaleDateString('en-GB'),
+      'មូលហេតុ (Reason)': reasonOptions.find(r => r.value === t.reason)?.label || t.reason,
+      'ប្រភេទកិច្ចសន្យា (Contract)': t.contractType,
+      'ប្រាក់ឈ្នួលនៅសល់ (Unpaid Wages)': t.unpaidWages,
+      'ប្រាក់ជួសការឈប់សម្រាក (Annual Leave)': t.annualLeavePay,
+      'ប្រាក់បំណាច់/ជូនដំណឹង (Severance/Notice)': t.severancePay + t.noticePay,
+      'ប្រាក់អតីតភាព (Seniority)': t.seniorityIndemnity,
+      'ប្រាក់ជំងឺចិត្ត (Damages)': t.damagesPay,
+      'កាត់បំណុល (Advances)': t.unpaidAdvances,
+      'ប្រាក់ត្រូវបើកសរុប (NET PAY)': t.totalFinalPay,
+      'ស្ថានភាព (Status)': t.status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Offboarding_Report");
+    XLSX.writeFile(wb, `Offboarding_Report_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`);
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 className="kh-text" style={{ fontSize: '1.6rem', color: '#1e3a8a', margin: 0 }}>
           ការបញ្ចប់ការងារ និង ទូទាត់ប្រាក់ <span>离职与结算</span> (Offboarding & Final Settlement)
         </h1>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="kh-text no-print"
-          style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          + បញ្ឈប់បុគ្គលិក (Terminate)
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={handleExportExcel}
+            className="kh-text no-print"
+            style={{ padding: '8px 15px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            ទាញយក Excel (Export)
+          </button>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="kh-text no-print"
+            style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            + បញ្ឈប់បុគ្គលិក (Terminate)
+          </button>
+        </div>
       </div>
 
       <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'auto' }}>

@@ -119,7 +119,7 @@ export default function CustomizableDashboard({
 
   const onLayoutChange = (layout: Layout[], allLayouts: any) => {
     setLayouts(allLayouts);
-    localStorage.setItem('dashboard_layout_v5', JSON.stringify(allLayouts));
+    localStorage.setItem('dashboard_layout_v6', JSON.stringify(allLayouts));
   };
 
   const renderTrend = (current: number, prev: number) => {
@@ -159,12 +159,12 @@ export default function CustomizableDashboard({
           cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
           rowHeight={100}
           onLayoutChange={onLayoutChange}
-          draggableHandle=".drag-handle"
+          
         >
           
           
                     {/* 1. Summary Cards (2x2 Grid) */}
-          <div key="summary_cards" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '15px' }}>
+          <div key="summary_cards" data-grid={{ x: 0, y: 0, w: 5, h: 3, minW: 4, minH: 3 }} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '15px' }}>
             <div style={{ backgroundColor: '#0ea5e9', borderRadius: '16px', padding: '20px', color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.2)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
@@ -223,7 +223,7 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 2. Daily Attendance Statistic */}
-          <div key="daily_attendance" style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+          <div key="daily_attendance" data-grid={{ x: 5, y: 0, w: 7, h: 3, minW: 5, minH: 3 }} style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Daily attendance statistic</h3>
               <span style={{ color: '#64748b', fontSize: '0.9rem' }}>This Week</span>
@@ -251,7 +251,7 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 3. Recruitment (Horizontal Bar) */}
-          <div key="recruitment" style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+          <div key="recruitment" data-grid={{ x: 0, y: 3, w: 4, h: 3, minW: 3, minH: 2 }} style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Recruitment</h3>
               <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Yearly ⌄</span>
@@ -273,7 +273,7 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 4. Loan Pay Received */}
-          <div key="loan_pay" style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+          <div key="loan_pay" data-grid={{ x: 4, y: 3, w: 4, h: 3, minW: 3, minH: 2 }} style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Advance Salary</h3>
               <span style={{ color: '#ef4444', fontSize: '0.9rem', fontWeight: 'bold' }}>-12% ↑</span>
@@ -298,7 +298,7 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 5. Leave Application */}
-          <div key="leave_application" style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+          <div key="leave_application" data-grid={{ x: 8, y: 3, w: 4, h: 3, minW: 3, minH: 2 }} style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Leave Application</h3>
               <span style={{ color: '#64748b', fontSize: '0.9rem', cursor: 'pointer' }}>See All ⌄</span>
@@ -339,7 +339,7 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 6. Employee List (Table) */}
-          <div key="employee_list" style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+          <div key="employee_list" data-grid={{ x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 }} style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Employee List</h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

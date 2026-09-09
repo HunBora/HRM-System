@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { initiateTermination, approveTermination, calculateFinalSettlement } from './actions';
 import Select from 'react-select';
-import * as XLSX from 'xlsx';
 
 const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
@@ -95,36 +94,99 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (terminations.length === 0) {
       return Swal.fire('Info', 'មិនមានទិន្នន័យសម្រាប់ទាញយកទេ (No data to export)', 'info');
     }
 
-    const dataToExport = terminations.map((t, index) => ({
-      'ល.រ (No.)': index + 1,
-      'អត្តលេខ (Emp ID)': t.employee.employeeId,
-      'បុគ្គលិក (Employee)': `${t.employee.firstNameEn} ${t.employee.lastNameEn}`,
-      'លេខកាត/ID (Card/ID)': t.employee.cardNo || t.employee.nationalId || '-',
-      'ផ្នែក (Department)': t.employee.department,
-      'តួនាទី (Position)': t.employee.position,
-      'ថ្ងៃចូលធ្វើការ (Hire Date)': t.employee.hireDate ? new Date(t.employee.hireDate).toLocaleDateString('en-GB') : '-',
-      'ថ្ងៃបញ្ឈប់ (Term. Date)': new Date(t.terminationDate).toLocaleDateString('en-GB'),
-      'មូលហេតុ (Reason)': reasonOptions.find(r => r.value === t.reason)?.label || t.reason,
-      'ប្រភេទកិច្ចសន្យា (Contract)': t.contractType,
-      'ប្រាក់ឈ្នួលនៅសល់ (Unpaid Wages)': t.unpaidWages,
-      'ប្រាក់ជួសការឈប់សម្រាក (Annual Leave)': t.annualLeavePay,
-      'ប្រាក់បំណាច់/ជូនដំណឹង (Severance/Notice)': t.severancePay + t.noticePay,
-      'ប្រាក់អតីតភាព (Seniority)': t.seniorityIndemnity,
-      'ប្រាក់ជំងឺចិត្ត (Damages)': t.damagesPay,
-      'កាត់បំណុល (Advances)': t.unpaidAdvances,
-      'ប្រាក់ត្រូវបើកសរុប (NET PAY)': t.totalFinalPay,
-      'ស្ថានភាព (Status)': t.status
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Offboarding_Report");
-    XLSX.writeFile(wb, `Offboarding_Report_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`);
+    try {
+      setLoading(true);
+      const ExcelJS = (await import('exceljs')).default;
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Offboarding', {
+        pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 } 
+      });
+      
+      // Title
+      worksheet.mergeCells('A1:Q1');
+      const titleCell = worksheet.getCell('A1');
+      titleCell.value = 'ការបញ្ចប់ការងារ និង ទូទាត់ប្រាក់ 离职与结算 (Offboarding & Final Settlement)';
+      titleCell.font = { name: 'Khmer OS Siemreap', size: 14, bold: true, color: { argb: 'FF1E3A8A' } };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+      worksheet.getRow(1).height = 40;
+      worksheet.getRow(2).height = 10;
+      
+      // Header Row (Row 3)
+      const headers = [
+        'ល.រ\n(No.)', 'អត្តលេខ\n(Emp ID)', 'បុគ្គលិក\n(Employee)', 'ផ្នែក\n(Department)', 'តួនាទី\n(Position)', 
+        'ថ្ងៃចូលធ្វើការ\n(Hire Date)', 'ថ្ងៃបញ្ឈប់\n(Term. Date)', 'មូលហេតុ (Reason)', 'ប្រភេទកិច្ចសន្យា\n(Contract)',
+        'ប្រាក់ឈ្នួល\nនៅសល់\n(Unpaid\nWages)', 'ប្រាក់ជួសការឈប់\nសម្រាក (Annual\nLeave)', 'ប្រាក់បំណាច់/ជូន\nដំណឹង\n(Severance/Notice)',
+        'ប្រាក់អតីតភាព\n(Seniority)', 'ប្រាក់ជំងឺចិត្ត\n(Damages)', 'កាត់បំណុល\n(Advances)', 'ប្រាក់ត្រូវ\nបើកសរុប\n(NET PAY)', 'ស្ថានភាព\n(Status)'
+      ];
+      
+      const headerRow = worksheet.getRow(3);
+      headers.forEach((header, index) => {
+        const cell = headerRow.getCell(index + 1);
+        cell.value = header;
+        cell.font = { name: 'Khmer OS Siemreap', size: 9, bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+      });
+      headerRow.height = 60;
+      
+      // Columns width
+      worksheet.columns = [
+        { width: 5 }, { width: 12 }, { width: 22 }, { width: 12 }, { width: 12 },
+        { width: 12 }, { width: 12 }, { width: 25 }, { width: 12 }, 
+        { width: 12 }, { width: 13 }, { width: 15 }, { width: 12 }, { width: 12 }, { width: 10 }, { width: 12 }, { width: 12 }
+      ];
+      
+      // Data
+      terminations.forEach((t, i) => {
+        const row = worksheet.addRow([
+          i + 1,
+          t.employee.employeeId,
+          `${t.employee.firstNameEn} ${t.employee.lastNameEn}`,
+          t.employee.department,
+          t.employee.position,
+          t.employee.hireDate ? new Date(t.employee.hireDate).toLocaleDateString('en-GB') : '-',
+          new Date(t.terminationDate).toLocaleDateString('en-GB'),
+          reasonOptions.find(r => r.value === t.reason)?.label || t.reason,
+          t.contractType,
+          t.unpaidWages,
+          t.annualLeavePay,
+          t.severancePay + t.noticePay,
+          t.seniorityIndemnity,
+          t.damagesPay,
+          t.unpaidAdvances,
+          t.totalFinalPay,
+          t.status
+        ]);
+        
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          cell.font = { name: 'Khmer OS Siemreap', size: 9 };
+          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin', color: {argb: 'FF000000'} } };
+          cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+          if (colNumber >= 10 && colNumber <= 16) {
+            cell.numFmt = '#,##0.00'; 
+          }
+        });
+        row.height = 25;
+      });
+      
+      // Save
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Offboarding_Report_${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (e: any) {
+      Swal.fire('Error', e.message, 'error');
+    }
+    setLoading(false);
   };
 
   return (

@@ -21,6 +21,8 @@ type Props = {
   allEmployees: any[];
   groupHires: Record<string, any>;
   hrContactUrl?: string;
+  recentLeaveRequests?: any[];
+  weeklyAttendance?: any[];
 };
 
 const DEFAULT_LAYOUTS = {

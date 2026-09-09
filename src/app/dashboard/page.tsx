@@ -179,7 +179,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       where: {
         date: { gte: new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000) }
       },
-      select: { date: true, status: true }
+      select: { date: true }
     })
   ]);
 

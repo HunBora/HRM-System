@@ -151,17 +151,17 @@ export default function CustomizableDashboard({
     return <span style={{ color: '#f57c00' }}>—</span>;
   };
 
-  if (!isClient || !layouts) return <div>Loading Dashboard Layout...</div>;
+  if (!isClient || !layouts) return <div style={{ padding: '20px' }}>Loading Dashboard...</div>;
 
   return (
-    <div style={{ minHeight: '800px', backgroundColor: '#fefefe' }}>
-      <div style={{ padding: '12px 30px', backgroundColor: '#e3f2fd', borderBottom: '1px solid #bbdefb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 'clamp(0.9rem, 3cqmin, 1.1rem)', color: '#1565c0' }}>💡 លោកអ្នកអាចចាប់ទាញ (Drag) របារខាងលើនៃផ្ទាំងនីមួយៗ ដើម្បីផ្លាស់ប្តូរទីតាំង ឬទាញកែងខាងស្តាំក្រោម ដើម្បីបង្រួម/ពង្រីក (Resize)។</span>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f1f5f9' }}>
+      <div style={{ padding: '12px 30px', backgroundColor: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.95rem', color: '#64748b' }}>💡 លោកអ្នកអាចចាប់ទាញ (Drag) របារខាងលើនៃផ្ទាំងនីមួយៗ ដើម្បីផ្លាស់ប្តូរទីតាំង ឬទាញកែងខាងស្តាំក្រោម ដើម្បីបង្រួម/ពង្រីក (Resize)។</span>
         <div style={{ display: 'flex', gap: '15px' }}>
           <button 
             onClick={() => window.print()} 
             className="no-print"
-            style={{ padding: '6px 12px', fontSize: 'clamp(0.9rem, 3cqmin, 1.1rem)', backgroundColor: '#fff', border: '1px solid #475569', color: '#475569', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' }}
+            style={{ padding: '6px 12px', fontSize: '0.95rem', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' }}
           >
             🖨️ {locale === 'kh' ? 'ព្រីន (Print)' : 'Print'}
           </button>
@@ -187,54 +187,54 @@ export default function CustomizableDashboard({
           
           
           {/* 0. Summary Widget (Top Row) */}
-          <div key="summary" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', borderRadius: '16px', boxShadow: '0 10px 25px rgba(139, 92, 246, 0.2)', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
-            <div style={{ position: 'absolute', bottom: '-30%', right: '-5%', width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
-            
-            <div className="drag-handle" style={{ padding: '4px 15px', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderBottom: '1px solid rgba(255, 255, 255, 0.2)', cursor: 'grab', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'rgba(255,255,255,0.95)', letterSpacing: '0.5px', whiteSpace: 'nowrap' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'សេចក្តីសង្ខេប (Summary)' : 'Summary'}</span>
+          <div key="summary" style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="drag-handle" style={{ padding: '8px 15px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', cursor: 'grab', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span style={{ fontWeight: 'bold', fontSize: '1rem', color: '#475569' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'សេចក្តីសង្ខេប (Overview)' : 'Overview'}</span>
             </div>
             
-            <div style={{ padding: 'clamp(8px, 2cqh, 15px) clamp(15px, 4cqw, 25px)', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '15px', containerType: 'size', zIndex: 1, overflow: 'visible' }}>
+            <div style={{ padding: 'clamp(15px, 3cqh, 25px)', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  style={{ width: 'clamp(50px, 12cqmin, 80px)', height: 'clamp(50px, 12cqmin, 80px)', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.8)', overflow: 'hidden', cursor: 'pointer', boxShadow: '0 4px 8px rgba(0,0,0,0.2)', position: 'relative', flexShrink: 0, backgroundColor: '#fff' }}
+                  style={{ width: '60px', height: '60px', borderRadius: '50%', border: '2px solid #e2e8f0', overflow: 'hidden', cursor: 'pointer', position: 'relative', flexShrink: 0, backgroundColor: '#f1f5f9' }}
                   title="Click to change HR Contact Avatar"
                   className="interactive-icon"
                 >
                   <img src={hrImg} alt="HR" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <div style={{ position: 'absolute', bottom: 0, width: '100%', backgroundColor: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.65rem', textAlign: 'center', padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>Upload</div>
+                  <div style={{ position: 'absolute', bottom: 0, width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.7)', color: '#fff', fontSize: '0.6rem', textAlign: 'center', padding: '2px 0', fontWeight: 'bold' }}>EDIT</div>
                   <input type="file" accept="image/*" ref={fileInputRef} onChange={handleUpload} style={{ display: 'none' }} />
                 </div>
-                <div style={{ paddingBottom: '8px', overflow: 'visible' }}>
-                  <h1 style={{ color: '#ffffff', fontSize: 'clamp(1.4rem, 4.5cqmin, 2.2rem)', margin: 0, fontWeight: 'bold', lineHeight: 'normal', textShadow: '0 2px 4px rgba(0,0,0,0.2)', whiteSpace: 'nowrap', overflow: 'visible' }} className={locale === 'kh' ? 'moul-text' : ''}>
-                    {locale === 'en' ? <><span style={{ fontWeight: 'bold' }}>HR</span> Hiring Dashboard</> : (l.title || 'ទំព័រដើមគ្រប់គ្រងធនធានមនុស្ស')}
+                <div>
+                  <h1 style={{ color: '#0f172a', fontSize: 'clamp(1.2rem, 3cqmin, 1.8rem)', margin: 0, fontWeight: '800', letterSpacing: '-0.5px' }} className={locale === 'kh' ? 'moul-text' : ''}>
+                    {locale === 'en' ? 'HR Dashboard' : (l.title || 'គ្រប់គ្រងធនធានមនុស្ស')}
                   </h1>
+                  <p style={{ margin: '5px 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>Welcome back! Here is what is happening today.</p>
                 </div>
               </div>
               
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'nowrap', alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', borderRadius: '10px', padding: '12px 20px', minWidth: '120px', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 'clamp(0.85rem, 2cqmin, 1.05rem)', fontWeight: 'bold', color: 'rgba(255,255,255,0.95)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', whiteSpace: 'nowrap' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.totalEmployees || 'បុគ្គលិកសរុប'}</span>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <span style={{ fontSize: 'clamp(1.8rem, 5cqmin, 2.5rem)', fontWeight: 'bold', color: '#ffffff', lineHeight: '1' }}>{allEmployees.length.toLocaleString()}</span>
-                    <span style={{ fontSize: 'clamp(0.9rem, 2cqmin, 1.1rem)', fontWeight: 'normal', color: 'rgba(255,255,255,0.9)', whiteSpace: 'nowrap' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'នាក់' : 'people'}</span>
+                {/* Total Employees */}
+                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#f8fafc', borderRadius: '8px', padding: '15px 20px', minWidth: '140px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase' }} className={locale === 'kh' ? 'kh-text' : ''}>{l.totalEmployees || 'បុគ្គលិកសរុប'}</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '5px' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: '800', color: '#0f172a', lineHeight: '1' }}>{allEmployees.length.toLocaleString()}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(59, 130, 246, 0.25)', backdropFilter: 'blur(10px)', borderRadius: '10px', padding: '12px 20px', minWidth: '110px', border: '1px solid rgba(96, 165, 250, 0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 'clamp(0.85rem, 2cqmin, 1.05rem)', fontWeight: 'bold', color: '#bae6fd', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', whiteSpace: 'nowrap' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'ប្រុស (M)' : 'Male'}</span>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                    <span style={{ fontSize: 'clamp(1.8rem, 5cqmin, 2.5rem)', fontWeight: 'bold', color: '#ffffff', lineHeight: '1' }}>{allEmployees.filter(e => e.gender === 'Male' || e.gender === 'M' || e.gender === 'ប្រុស' || (e.gender && e.gender.includes('ប្រុស'))).length.toLocaleString()}</span>
+                {/* Male */}
+                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#eff6ff', borderRadius: '8px', padding: '15px 20px', minWidth: '120px', border: '1px solid #bfdbfe' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#1d4ed8', textTransform: 'uppercase' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'ប្រុស (Male)' : 'Male'}</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '5px' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: '800', color: '#1e3a8a', lineHeight: '1' }}>{allEmployees.filter(e => e.gender === 'Male' || e.gender === 'M' || e.gender === 'ប្រុស' || (e.gender && e.gender.includes('ប្រុស'))).length.toLocaleString()}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(236, 72, 153, 0.25)', backdropFilter: 'blur(10px)', borderRadius: '10px', padding: '12px 20px', minWidth: '110px', border: '1px solid rgba(244, 114, 182, 0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 'clamp(0.85rem, 2cqmin, 1.05rem)', fontWeight: 'bold', color: '#fbcfe8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', whiteSpace: 'nowrap' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'ស្រី (F)' : 'Female'}</span>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                    <span style={{ fontSize: 'clamp(1.8rem, 5cqmin, 2.5rem)', fontWeight: 'bold', color: '#ffffff', lineHeight: '1' }}>{allEmployees.filter(e => e.gender === 'Female' || e.gender === 'F' || e.gender === 'ស្រី' || (e.gender && e.gender.includes('ស្រី'))).length.toLocaleString()}</span>
+                {/* Female */}
+                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#fdf2f8', borderRadius: '8px', padding: '15px 20px', minWidth: '120px', border: '1px solid #fbcfe8' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#be185d', textTransform: 'uppercase' }} className={locale === 'kh' ? 'kh-text' : ''}>{locale === 'kh' ? 'ស្រី (Female)' : 'Female'}</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '5px' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: '800', color: '#831843', lineHeight: '1' }}>{allEmployees.filter(e => e.gender === 'Female' || e.gender === 'F' || e.gender === 'ស្រី' || (e.gender && e.gender.includes('ស្រី'))).length.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -242,14 +242,14 @@ export default function CustomizableDashboard({
           </div>
 
           {/* 1. Attendance Widget */}
-          <div key="attendance" style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', display: 'flex', flexDirection: 'column', containerType: 'size' }}>
-            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #eee', cursor: 'grab', fontWeight: 'bold', fontSize: '1.25rem', color: '#333' }}>
+          <div key="attendance" style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div className="drag-handle" style={{ padding: '10px 15px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', cursor: 'grab', fontWeight: 'bold', fontSize: '1rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '8px' }}>
               📊 ស្ថិតិអវត្តមាន និងច្បាប់ (Attendance)
             </div>
-            <div style={{ padding: '15px', flex: 1, overflowY: 'auto' }}>
-              <div style={{ display: 'flex', gap: '15px', flexDirection: 'column' }}>
+            <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
+              <div style={{ display: 'flex', gap: '20px', flexDirection: 'column' }}>
                 {/* On Leave Block */}
-                <div style={{ backgroundColor: '#fdf9ff', border: '1px solid #ebccff', borderRadius: '6px', padding: '12px' }}>
+                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '8px', padding: '15px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px dashed #ebccff', paddingBottom: '8px' }}>
                     <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#9c27b0' }} className={locale === 'kh' ? 'kh-text' : ''}>
                       <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#9c27b0', marginRight: '6px' }}></span>

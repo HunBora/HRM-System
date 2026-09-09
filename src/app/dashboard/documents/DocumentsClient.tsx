@@ -290,10 +290,10 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
       </div>
 
       {viewMode === 'table' ? (
-        <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
+        <div style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0' }}>
+            <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+              <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                 <th style={{ padding: '10px 8px', width: '50px' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
                 <th style={{ padding: '10px 8px' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
                 <th style={{ padding: '10px 8px' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>

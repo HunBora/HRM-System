@@ -68,6 +68,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     { href: '/dashboard', icon: '📊', label: t.sidebar.dashboard, roles: ['ADMIN', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/users', icon: '🔐', label: 'គ្រប់គ្រងគណនី', roles: ['ADMIN'] },
     { href: '/dashboard/employees', icon: '👥', label: t.sidebar.employees, roles: ['ADMIN', 'HR'] },
+    { href: '/dashboard/offboarding', icon: '🚪', label: 'បញ្ចប់ការងារ (Offboarding)', roles: ['ADMIN', 'HR'] },
     { href: '/dashboard/attendance', icon: '📅', label: t.sidebar.attendance, roles: ['ADMIN', 'HR'] },
     { href: '/dashboard/leave', icon: '🌴', label: t.sidebar.leave, roles: ['ADMIN', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/advance', icon: '💵', label: t.sidebar.advance || 'ប្រាក់បុរេប្រទាន', roles: ['ADMIN', 'HR'] },

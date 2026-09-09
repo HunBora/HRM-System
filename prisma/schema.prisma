@@ -79,6 +79,8 @@ model Employee {
   remark             String?
   // -------------------------------------------
 
+  status           String   @default("ACTIVE") // ACTIVE, TERMINATED, ALUMNI
+  terminations     Termination[]
   userId           String?  @unique
   user             User?    @relation(fields: [userId], references: [id])
   leaveRequests    LeaveRequest[]
@@ -92,6 +94,38 @@ model Employee {
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model Termination {
+  id                  String   @id @default(uuid())
+  employeeId          String
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  
+  terminationDate     DateTime
+  contractType        String   // FDC, UDC
+  reason              String   // NO_OFFENSE, SERIOUS_OFFENSE, CLOSURE, RESIGNATION
+  noticeGiven         Boolean  @default(true)
+  
+  // Final Settlement Breakdown
+  unpaidWages         Float    @default(0)
+  annualLeavePay      Float    @default(0)
+  severancePay        Float    @default(0) // For FDC 5%
+  noticePay           Float    @default(0) // If notice not given
+  seniorityIndemnity  Float    @default(0)
+  damagesPay          Float    @default(0) // ជំងឺចិត្ត
+  
+  // Deductions
+  unpaidAdvances      Float    @default(0)
+  assetDeductions     Float    @default(0)
+  otherDeductions     Float    @default(0)
+  
+  totalFinalPay       Float    @default(0)
+  
+  status              String   @default("PENDING") // PENDING, APPROVED, PAID
+  remarks             String?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model DailyAttendance {

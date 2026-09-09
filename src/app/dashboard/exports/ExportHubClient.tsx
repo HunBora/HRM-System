@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ExportButtons from '@/components/ExportButtons';
 import EmployeeExportImportButtons, { EmployeeExportImportRef } from '@/app/dashboard/employees/EmployeeExportImportButtons';
-import { fetchEmployeeReport, fetchAttendanceReport, fetchPayrollReport, fetchBankTransferReport } from './actions';
+import { fetchEmployeeReport, fetchAttendanceReport, fetchPayrollReport, fetchBankTransferReport, fetchExpenseReport } from './actions';
 
 interface Props {
   t: any;
@@ -33,6 +33,9 @@ export default function ExportHubClient({ t }: Props) {
         setData(res);
       } else if (reportType === 'BANK_TRANSFER_EXCEL') {
         const res = await fetchBankTransferReport(month, year);
+        setData(res);
+      } else if (reportType === 'EXPENSE_SUMMARY') {
+        const res = await fetchExpenseReport(month, year);
         setData(res);
       }
     } catch (error) {
@@ -122,16 +125,26 @@ export default function ExportHubClient({ t }: Props) {
         { header: "ប្រាក់ត្រូវបើកUSD\nPaid Salary USD\n实发薪水USD", key: "paidSalaryUsd" },
         { header: "ប្រាក់រៀល\nRIEL\n瑞尔", key: "riel" },
         { header: "ហត្ថលេខា\nSignature\n签名", key: "signature" }
-
       ];
     }
     if (reportType === 'BANK_TRANSFER_EXCEL') {
       return [
+        { header: "No", key: "no" },
         { header: "Employee Name", key: "name" },
         { header: "Employee Id", key: "empId" },
         { header: "Account Number", key: "accountNumber" },
         { header: "Amount", key: "amount" },
         { header: "Remark", key: "remark" }
+      ];
+    }
+    if (reportType === 'EXPENSE_SUMMARY') {
+      return [
+        { header: "ផ្នែក (Department)", key: "dept" },
+        { header: "ចំនួនបុគ្គលិកកំពុងធ្វើការ (Active Staff)", key: "empCount" },
+        { header: "ប្រាក់ខែសរុប (Regular Net Salary)", key: "regularNetSalary" },
+        { header: "ចំនួនបុគ្គលិកបញ្ឈប់ (Term. Staff)", key: "termCount" },
+        { header: "ប្រាក់ទូទាត់បញ្ឈប់ (Offboarding Net)", key: "offboardingNet" },
+        { header: "ចំណាយសរុប (Total Expense)", key: "totalExpense" },
       ];
     }
     return [];
@@ -155,6 +168,7 @@ export default function ExportHubClient({ t }: Props) {
               <option value="ATTENDANCE">របាយការណ៍វត្តមាន (Attendance Report)</option>
               <option value="PAYROLL">របាយការណ៍ប្រាក់ខែ (Payroll Report)</option>
               <option value="PAYSLIP_STRIPS">បោះពុម្ពក្រដាសប្រាក់ខែ (Payslip Strips)</option>
+              <option value="EXPENSE_SUMMARY">របាយការណ៍ចំណាយសរុបប្រចាំខែ (Monthly Expense Summary)</option>
               <option value="BANK_TRANSFER_EXCEL">របាយការណ៍ផ្ទេរប្រាក់ធនាគារ (Bank Transfer Excel)</option>
               <option value="MASTER_PAYROLL_EXCEL">Master Payroll ពេញលេញ (Master Payroll Excel)</option>
               <option value="MASTER_ATTENDANCE_EXCEL">Master Attendance ពេញលេញ (Master Attendance Excel)</option>

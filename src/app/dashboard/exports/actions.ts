@@ -116,3 +116,61 @@ export async function fetchBankTransferReport(month: number, year: number) {
     remark: ''
   }));
 }
+
+export async function fetchExpenseReport(month: number, year: number) {
+  // 1. Payrolls for the month
+  const payrolls = await prisma.payroll.findMany({
+    where: { month, year },
+    include: { employee: true }
+  });
+
+  // 2. Terminations for the month
+  // Start and end of the month
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 0, 23, 59, 59);
+  
+  const terminations = await prisma.termination.findMany({
+    where: {
+      terminationDate: {
+        gte: startDate,
+        lte: endDate
+      },
+      status: 'APPROVED'
+    },
+    include: { employee: true }
+  });
+
+  // Group by department
+  const depts: Record<string, any> = {};
+
+  payrolls.forEach(p => {
+    const d = p.employee.department || 'Other';
+    if (!depts[d]) depts[d] = { dept: d, empCount: 0, regularNetSalary: 0, offboardingNet: 0, totalExpense: 0, termCount: 0 };
+    depts[d].empCount += 1;
+    depts[d].regularNetSalary += p.netSalaryUsd;
+    depts[d].totalExpense += p.netSalaryUsd;
+  });
+
+  terminations.forEach(t => {
+    const d = t.employee.department || 'Other';
+    if (!depts[d]) depts[d] = { dept: d, empCount: 0, regularNetSalary: 0, offboardingNet: 0, totalExpense: 0, termCount: 0 };
+    depts[d].termCount += 1;
+    depts[d].offboardingNet += t.totalFinalPay;
+    depts[d].totalExpense += t.totalFinalPay;
+  });
+
+  // Convert to array and calculate total row
+  const result = Object.values(depts);
+  
+  const total = {
+    dept: 'TOTAL (សរុបរួម)',
+    empCount: result.reduce((s, r) => s + r.empCount, 0),
+    regularNetSalary: result.reduce((s, r) => s + r.regularNetSalary, 0),
+    termCount: result.reduce((s, r) => s + r.termCount, 0),
+    offboardingNet: result.reduce((s, r) => s + r.offboardingNet, 0),
+    totalExpense: result.reduce((s, r) => s + r.totalExpense, 0)
+  };
+
+  return [...result, total];
+}
+

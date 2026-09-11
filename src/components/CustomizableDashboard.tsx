@@ -366,14 +366,16 @@ export default function CustomizableDashboard({
           <div key="employee_list" data-grid={{ x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 }} style={{ display: 'flex', gap: '20px' }}>
             {/* Employees by Role */}
             <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: '16px', padding: '15px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', backgroundColor: '#5c1b33', color: '#fff', padding: '10px', textAlign: 'center', borderRadius: '4px' }}>Employees by Role</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Employees by Role</h3>
+              </div>
               <div style={{ flex: 1 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={employeesByRole} margin={{ top: 20, right: 20, left: -20, bottom: 40 }}>
                     <XAxis dataKey="name" axisLine={{ stroke: '#cbd5e1' }} tickLine={false} tick={{fill: '#475569', fontSize: 11, angle: -45, textAnchor: 'end'}} interval={0} />
                     <YAxis axisLine={{ stroke: '#cbd5e1' }} tickLine={false} tick={{fill: '#475569', fontSize: 11}} label={{ value: '# of Employee', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 12, offset: 10 }} />
                     <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
-                    <Bar dataKey="count" fill="#5c1b33" barSize={25} label={{ position: 'top', fill: '#475569', fontSize: 11 }} />
+                    <Bar dataKey="count" fill="#0ea5e9" barSize={25} radius={[4, 4, 0, 0]} label={{ position: 'top', fill: '#475569', fontSize: 11 }} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -381,14 +383,16 @@ export default function CustomizableDashboard({
 
             {/* Employees by Location */}
             <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: '16px', padding: '15px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', backgroundColor: '#5c1b33', color: '#fff', padding: '10px', textAlign: 'center', borderRadius: '4px' }}>Number of Employees by Location</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Number of Employees by Location</h3>
+              </div>
               <div style={{ flex: 1 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart layout="vertical" data={topProvinces} margin={{ top: 20, right: 40, left: 10, bottom: 20 }}>
                     <XAxis type="number" hide />
                     <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#475569', fontSize: 12}} width={100} />
                     <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
-                    <Bar dataKey="count" fill="#5c1b33" barSize={16} label={{ position: 'right', fill: '#475569', fontSize: 11 }} />
+                    <Bar dataKey="count" fill="#d946ef" barSize={16} radius={[0, 4, 4, 0]} label={{ position: 'right', fill: '#475569', fontSize: 11 }} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

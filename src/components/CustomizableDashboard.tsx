@@ -85,7 +85,10 @@ export default function CustomizableDashboard({
     .sort((a, b) => b.count - a.count)
     .slice(0, 7);
 
-
+  const totalFemale = allEmployees.filter(e => e.gender === 'Female' || e.gender === 'F' || e.gender === 'ស្រី').length;
+  const totalMale = allEmployees.filter(e => e.gender === 'Male' || e.gender === 'M' || e.gender === 'ប្រុស').length;
+  const presentFemale = Math.max(0, totalFemale - (absentStats?.female || 0) - (leaveStats?.female || 0));
+  const presentMale = Math.max(0, totalMale - (absentStats?.male || 0) - (leaveStats?.male || 0));
 
   const [hrImg, setHrImg] = useState(hrContactUrl || 'https://i.pravatar.cc/100?img=5');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -171,7 +174,12 @@ export default function CustomizableDashboard({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '5px' }}>Total Employee</div>
-                  <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1' }}>{allEmployees.length}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1' }}>{allEmployees.length}</div>
+                    <div style={{ fontSize: '0.85rem', opacity: 0.9, paddingBottom: '4px' }}>
+                      ( {locale === 'kh' ? 'ស្រី' : 'F'}: {totalFemale} / {locale === 'kh' ? 'ប្រុស' : 'M'}: {totalMale} )
+                    </div>
+                  </div>
                 </div>
                 <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>👥</div>
               </div>
@@ -185,7 +193,12 @@ export default function CustomizableDashboard({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ fontSize: '0.95rem', color: '#64748b', marginBottom: '5px' }}>Total Presents</div>
-                  <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1', color: '#0f172a' }}>{allEmployees.length - absentStats.total - leaveStats.total}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1', color: '#0f172a' }}>{allEmployees.length - absentStats.total - leaveStats.total}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b', paddingBottom: '4px' }}>
+                      ( {locale === 'kh' ? 'ស្រី' : 'F'}: {presentFemale} / {locale === 'kh' ? 'ប្រុស' : 'M'}: {presentMale} )
+                    </div>
+                  </div>
                 </div>
                 <div style={{ backgroundColor: '#f1f5f9', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>✅</div>
               </div>
@@ -199,7 +212,12 @@ export default function CustomizableDashboard({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ fontSize: '0.95rem', color: '#64748b', marginBottom: '5px' }}>Total Absents</div>
-                  <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1', color: '#0f172a' }}>{absentStats.total}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1', color: '#0f172a' }}>{absentStats.total}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b', paddingBottom: '4px' }}>
+                      ( {locale === 'kh' ? 'ស្រី' : 'F'}: {absentStats?.female || 0} / {locale === 'kh' ? 'ប្រុស' : 'M'}: {absentStats?.male || 0} )
+                    </div>
+                  </div>
                 </div>
                 <div style={{ backgroundColor: '#f1f5f9', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>❌</div>
               </div>
@@ -213,7 +231,12 @@ export default function CustomizableDashboard({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ fontSize: '0.95rem', color: '#64748b', marginBottom: '5px' }}>Total Leave</div>
-                  <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1', color: '#0f172a' }}>{leaveStats.total}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+                    <div style={{ fontSize: '2.2rem', fontWeight: 'bold', lineHeight: '1', color: '#0f172a' }}>{leaveStats.total}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b', paddingBottom: '4px' }}>
+                      ( {locale === 'kh' ? 'ស្រី' : 'F'}: {leaveStats?.female || 0} / {locale === 'kh' ? 'ប្រុស' : 'M'}: {leaveStats?.male || 0} )
+                    </div>
+                  </div>
                 </div>
                 <div style={{ backgroundColor: '#f1f5f9', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}>🌴</div>
               </div>

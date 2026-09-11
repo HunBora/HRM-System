@@ -85,6 +85,17 @@ export default function CustomizableDashboard({
     .sort((a, b) => b.count - a.count)
     .slice(0, 7);
 
+  const employeesByRole = React.useMemo(() => {
+    const dCount: Record<string, number> = {};
+    allEmployees.forEach(emp => {
+      const dept = emp.department || 'General';
+      dCount[dept] = (dCount[dept] || 0) + 1;
+    });
+    return Object.entries(dCount)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [allEmployees]);
+
   const totalFemale = allEmployees.filter(e => e.gender === 'Female' || e.gender === 'F' || e.gender === 'ស្រី').length;
   const totalMale = allEmployees.filter(e => e.gender === 'Male' || e.gender === 'M' || e.gender === 'ប្រុស').length;
   const presentFemale = Math.max(0, totalFemale - (absentStats?.female || 0) - (leaveStats?.female || 0));
@@ -351,46 +362,36 @@ export default function CustomizableDashboard({
             </div>
           </div>
 
-          {/* 6. Employee List (Table) */}
-          <div key="employee_list" data-grid={{ x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 }} style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a' }}>Employee List</h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <button style={{ backgroundColor: '#0ea5e9', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '20px', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  ⊕ Add New Employee
-                </button>
-                <span style={{ color: '#64748b', fontSize: '0.9rem', cursor: 'pointer' }}>See All ⌄</span>
+          {/* 6. Employees by Role & Location (Charts) */}
+          <div key="employee_list" data-grid={{ x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 }} style={{ display: 'flex', gap: '20px' }}>
+            {/* Employees by Role */}
+            <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: '16px', padding: '15px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', backgroundColor: '#5c1b33', color: '#fff', padding: '10px', textAlign: 'center', borderRadius: '4px' }}>Employees by Role</h3>
+              <div style={{ flex: 1 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={employeesByRole} margin={{ top: 20, right: 20, left: -20, bottom: 40 }}>
+                    <XAxis dataKey="name" axisLine={{ stroke: '#cbd5e1' }} tickLine={false} tick={{fill: '#475569', fontSize: 11, angle: -45, textAnchor: 'end'}} interval={0} />
+                    <YAxis axisLine={{ stroke: '#cbd5e1' }} tickLine={false} tick={{fill: '#475569', fontSize: 11}} label={{ value: '# of Employee', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 12, offset: 10 }} />
+                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                    <Bar dataKey="count" fill="#5c1b33" barSize={25} label={{ position: 'top', fill: '#475569', fontSize: 11 }} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              <table style={{ width: '100%', fontSize: '0.95rem', textAlign: 'left', borderCollapse: 'collapse' }}>
-                <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
-                  <tr>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9' }}>Name</th>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9' }}>Id</th>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9' }}>Department</th>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9' }}>Date Of Birth</th>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9' }}>Join Date</th>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9' }}>Status</th>
-                    <th style={{ padding: '12px', color: '#94a3b8', fontWeight: 'normal', borderBottom: '1px solid #f1f5f9', textAlign: 'center' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allEmployees.slice(0, 5).map((emp, idx) => (
-                    <tr key={emp.id} style={{ borderBottom: '1px solid #f8fafc' }}>
-                      <td style={{ padding: '12px', color: '#475569' }}>{emp.firstNameEn} {emp.lastNameEn}</td>
-                      <td style={{ padding: '12px', color: '#64748b' }}>00{idx + 10}</td>
-                      <td style={{ padding: '12px', color: '#64748b' }}>{emp.department || 'General'}</td>
-                      <td style={{ padding: '12px', color: '#64748b' }}>1990-05-21</td>
-                      <td style={{ padding: '12px', color: '#64748b' }}>{new Date(emp.hireDate).toISOString().split('T')[0]}</td>
-                      <td style={{ padding: '12px' }}>
-                        <span style={{ color: '#10b981' }}>Active</span>
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center', color: '#0f172a', fontWeight: 'bold', cursor: 'pointer' }}>...</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            {/* Employees by Location */}
+            <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: '16px', padding: '15px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', backgroundColor: '#5c1b33', color: '#fff', padding: '10px', textAlign: 'center', borderRadius: '4px' }}>Number of Employees by Location</h3>
+              <div style={{ flex: 1 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart layout="vertical" data={topProvinces} margin={{ top: 20, right: 40, left: 10, bottom: 20 }}>
+                    <XAxis type="number" hide />
+                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#475569', fontSize: 12}} width={100} />
+                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                    <Bar dataKey="count" fill="#5c1b33" barSize={16} label={{ position: 'right', fill: '#475569', fontSize: 11 }} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </ResponsiveGridLayout>

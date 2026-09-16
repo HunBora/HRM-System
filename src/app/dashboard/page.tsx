@@ -128,9 +128,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   if (session?.role === 'EMPLOYEE') {
     const employeeId = session.employeeId;
     let employeeData = null;
-    let recentLeaves = [];
-    let recentAttendances = [];
-    let recentPayrolls = [];
+    let recentLeaves: any[] = [];
+    let recentAttendances: any[] = [];
+    let recentPayrolls: any[] = [];
 
     if (employeeId) {
       employeeData = await prisma.employee.findUnique({

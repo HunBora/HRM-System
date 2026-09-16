@@ -31,49 +31,62 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
     }
   };
 
+  const t = l.expenses;
+
   const statusColors: any = {
-    'PENDING': { bg: '#fef3c7', text: '#92400e', label: 'កំពុងរង់ចាំ' },
-    'APPROVED_DEPT': { bg: '#e0e7ff', text: '#3730a3', label: 'ប្រធានផ្នែកអនុម័ត' },
-    'APPROVED_HR': { bg: '#dbeafe', text: '#1e40af', label: 'HR អនុម័ត' },
-    'REJECTED': { bg: '#fee2e2', text: '#991b1b', label: 'បដិសេធ' },
-    'PAID': { bg: '#d1fae5', text: '#065f46', label: 'ទូទាត់រួច' }
+    'PENDING': { bg: '#fef3c7', text: '#92400e', label: t.status.pending },
+    'APPROVED_DEPT': { bg: '#e0e7ff', text: '#3730a3', label: t.status.approved_dept },
+    'APPROVED_HR': { bg: '#dbeafe', text: '#1e40af', label: t.status.approved_hr },
+    'REJECTED': { bg: '#fee2e2', text: '#991b1b', label: t.status.rejected },
+    'PAID': { bg: '#d1fae5', text: '#065f46', label: t.status.paid }
+  };
+
+  const getCategoryLabel = (cat: string) => {
+    const map: any = {
+      'TRANSPORT': t.categories.transport,
+      'MEAL': t.categories.meal,
+      'SUPPLIES': t.categories.supplies,
+      'ACCOMMODATION': t.categories.accommodation,
+      'OTHER': t.categories.other
+    };
+    return map[cat] || cat;
   };
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 className="title kh-text">ស្នើសុំទូទាត់ការចំណាយ (Expense Claims)</h1>
+        <h1 className="title kh-text">{t.title}</h1>
         <button 
           onClick={() => setShowForm(!showForm)}
           className="btn-primary kh-text"
           style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: '#4f46e5', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}
         >
-          {showForm ? 'បិទផ្ទាំងស្នើសុំ' : '+ ស្នើសុំទូទាត់ប្រាក់'}
+          {showForm ? t.closeBtn : t.newBtn}
         </button>
       </div>
 
       {showForm && (
         <div className="card animate-fade-in" style={{ marginBottom: '20px', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <h2 className="kh-text" style={{ fontSize: '1.2rem', marginBottom: '15px' }}>ទម្រង់ស្នើសុំ</h2>
+          <h2 className="kh-text" style={{ fontSize: '1.2rem', marginBottom: '15px' }}>{t.form.title}</h2>
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div className="form-group">
-              <label className="kh-text">ថ្ងៃទីចំណាយ *</label>
+              <label className="kh-text">{t.form.date}</label>
               <input type="date" name="date" required className="input-field" defaultValue={new Date().toISOString().split('T')[0]} />
             </div>
             <div className="form-group">
-              <label className="kh-text">ប្រភេទចំណាយ *</label>
+              <label className="kh-text">{t.form.category}</label>
               <select name="category" required className="input-field">
-                <option value="TRANSPORT">ការធ្វើដំណើរ (Transport)</option>
-                <option value="MEAL">អាហារ (Meals)</option>
-                <option value="SUPPLIES">សម្ភារៈការិយាល័យ (Supplies)</option>
-                <option value="ACCOMMODATION">កន្លែងស្នាក់នៅ (Accommodation)</option>
-                <option value="OTHER">ផ្សេងៗ (Other)</option>
+                <option value="TRANSPORT">{t.categories.transport}</option>
+                <option value="MEAL">{t.categories.meal}</option>
+                <option value="SUPPLIES">{t.categories.supplies}</option>
+                <option value="ACCOMMODATION">{t.categories.accommodation}</option>
+                <option value="OTHER">{t.categories.other}</option>
               </select>
             </div>
             <div className="form-group">
-              <label className="kh-text">ចំនួនទឹកប្រាក់ *</label>
+              <label className="kh-text">{t.form.amount}</label>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="ឧទាហរណ៍: 15.50" />
+                <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="15.50" />
                 <select name="currency" className="input-field" style={{ width: '80px' }}>
                   <option value="USD">USD</option>
                   <option value="KHR">KHR</option>
@@ -81,16 +94,16 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
               </div>
             </div>
             <div className="form-group">
-              <label className="kh-text">តំណភ្ជាប់វិក្កយបត្រ (Receipt Link)</label>
+              <label className="kh-text">{t.form.receipt}</label>
               <input type="url" name="receiptUrl" className="input-field" placeholder="Google Drive Link..." />
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="kh-text">បរិយាយ / មូលហេតុ *</label>
-              <textarea name="description" required className="input-field" rows={3} placeholder="មូលហេតុនៃការចំណាយ..."></textarea>
+              <label className="kh-text">{t.form.desc}</label>
+              <textarea name="description" required className="input-field" rows={3} placeholder="..."></textarea>
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end' }}>
               <button type="submit" disabled={isSubmitting} className="btn-primary kh-text" style={{ padding: '8px 24px', background: '#059669', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
-                {isSubmitting ? 'កំពុងបញ្ជូន...' : 'បញ្ជូនសំណើ'}
+                {isSubmitting ? t.form.submitting : t.form.submit}
               </button>
             </div>
           </form>
@@ -101,12 +114,12 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>ថ្ងៃទី</th>
-              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>បុគ្គលិក</th>}
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>ប្រភេទ</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>ទឹកប្រាក់</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>ស្ថានភាព</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>សកម្មភាព</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{t.table.date}</th>
+              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{t.table.employee}</th>}
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{t.table.type}</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>{t.table.amount}</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>{t.table.status}</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>{t.table.action}</th>
             </tr>
           </thead>
           <tbody>
@@ -120,7 +133,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                   </td>
                 )}
                 <td style={{ padding: '12px 15px' }}>
-                  <div style={{ fontWeight: 'bold' }}>{claim.category}</div>
+                  <div style={{ fontWeight: 'bold' }}>{getCategoryLabel(claim.category)}</div>
                   <div style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{claim.description}</div>
                 </td>
                 <td style={{ padding: '12px 15px', textAlign: 'right', fontWeight: 'bold', color: '#059669' }}>
@@ -168,7 +181,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
             {claims.length === 0 && (
               <tr>
                 <td colSpan={6} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }} className="kh-text">
-                  មិនមានសំណើទូទាត់ការចំណាយទេ
+                  {t.table.noData}
                 </td>
               </tr>
             )}

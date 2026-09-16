@@ -12,7 +12,8 @@ export const dictionaries = {
       system: "ប្រព័ន្ធ",
       kpi: "KPI របស់ HR",
       documents: "ឯកសារក្រុមហ៊ុន",
-      about: "អំពីប្រព័ន្ធ"
+      about: "អំពីប្រព័ន្ធ",
+      expenses: "ចំណាយ និងទូទាត់"
     },
     leave: {
       title: "គ្រប់គ្រងថ្ងៃឈប់សម្រាក",
@@ -221,6 +222,44 @@ export const dictionaries = {
         deptGoal: "គោលដៅផ្នែក",
         alignment: "ការតម្រឹម (Alignment)"
       }
+    },
+    expenses: {
+      title: "ស្នើសុំទូទាត់ការចំណាយ",
+      newBtn: "+ ស្នើសុំទូទាត់ប្រាក់",
+      closeBtn: "បិទផ្ទាំងស្នើសុំ",
+      form: {
+        title: "ទម្រង់ស្នើសុំ",
+        date: "ថ្ងៃទីចំណាយ *",
+        category: "ប្រភេទចំណាយ *",
+        amount: "ចំនួនទឹកប្រាក់ *",
+        receipt: "តំណភ្ជាប់វិក្កយបត្រ (Receipt Link)",
+        desc: "បរិយាយ / មូលហេតុ *",
+        submit: "បញ្ជូនសំណើ",
+        submitting: "កំពុងបញ្ជូន..."
+      },
+      categories: {
+        transport: "ការធ្វើដំណើរ (Transport)",
+        meal: "អាហារ (Meals)",
+        supplies: "សម្ភារៈការិយាល័យ (Supplies)",
+        accommodation: "កន្លែងស្នាក់នៅ (Accommodation)",
+        other: "ផ្សេងៗ (Other)"
+      },
+      table: {
+        date: "ថ្ងៃទី",
+        employee: "បុគ្គលិក",
+        type: "ប្រភេទ",
+        amount: "ទឹកប្រាក់",
+        status: "ស្ថានភាព",
+        action: "សកម្មភាព",
+        noData: "មិនមានសំណើទូទាត់ការចំណាយទេ"
+      },
+      status: {
+        pending: "កំពុងរង់ចាំ",
+        approved_dept: "ប្រធានផ្នែកអនុម័ត",
+        approved_hr: "HR អនុម័ត",
+        rejected: "បដិសេធ",
+        paid: "ទូទាត់រួច"
+      }
     }
   },
   en: {
@@ -236,7 +275,8 @@ export const dictionaries = {
       system: "System",
       kpi: "HR KPI",
       documents: "Documents",
-      about: "About"
+      about: "About",
+      expenses: "Expenses"
     },
     leave: {
       title: "Leave Management",
@@ -445,6 +485,44 @@ export const dictionaries = {
         deptGoal: "Department Goal",
         alignment: "Alignment"
       }
+    },
+    expenses: {
+      title: "Expense Claims",
+      newBtn: "+ New Claim",
+      closeBtn: "Close Form",
+      form: {
+        title: "Request Form",
+        date: "Date *",
+        category: "Category *",
+        amount: "Amount *",
+        receipt: "Receipt Link",
+        desc: "Description / Reason *",
+        submit: "Submit Request",
+        submitting: "Submitting..."
+      },
+      categories: {
+        transport: "Transport",
+        meal: "Meals",
+        supplies: "Supplies",
+        accommodation: "Accommodation",
+        other: "Other"
+      },
+      table: {
+        date: "Date",
+        employee: "Employee",
+        type: "Type",
+        amount: "Amount",
+        status: "Status",
+        action: "Action",
+        noData: "No expense claims found"
+      },
+      status: {
+        pending: "Pending",
+        approved_dept: "Dept Approved",
+        approved_hr: "HR Approved",
+        rejected: "Rejected",
+        paid: "Paid"
+      }
     }
   },
   zh: {
@@ -460,7 +538,8 @@ export const dictionaries = {
       system: "系统",
       kpi: "人力资源KPI",
       documents: "公司文件",
-      about: "关于系统"
+      about: "关于系统",
+      expenses: "报销"
     },
     leave: {
       title: "请假管理",
@@ -667,7 +746,45 @@ export const dictionaries = {
         title: "部门KPI矩阵",
         companyGoal: "公司目标",
         deptGoal: "部门目标",
-        alignment: "对齐度 (Alignment)"
+        alignment: "对齐 (Alignment)"
+      }
+    },
+    expenses: {
+      title: "报销申请",
+      newBtn: "+ 新申请",
+      closeBtn: "关闭表格",
+      form: {
+        title: "申请表",
+        date: "日期 *",
+        category: "类别 *",
+        amount: "金额 *",
+        receipt: "收据链接",
+        desc: "描述 / 原因 *",
+        submit: "提交申请",
+        submitting: "提交中..."
+      },
+      categories: {
+        transport: "交通",
+        meal: "餐饮",
+        supplies: "办公用品",
+        accommodation: "住宿",
+        other: "其他"
+      },
+      table: {
+        date: "日期",
+        employee: "员工",
+        type: "类别",
+        amount: "金额",
+        status: "状态",
+        action: "操作",
+        noData: "没有报销申请"
+      },
+      status: {
+        pending: "待处理",
+        approved_dept: "部门已批",
+        approved_hr: "HR已批",
+        rejected: "已拒绝",
+        paid: "已支付"
       }
     }
   }

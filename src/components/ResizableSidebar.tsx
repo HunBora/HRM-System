@@ -65,19 +65,19 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   };
 
   const navItems = [
-    { href: '/dashboard', icon: '📊', label: t.sidebar.dashboard, roles: ['ADMIN', 'HR', 'EMPLOYEE'] },
+    { href: '/dashboard', icon: '📊', label: t.sidebar.dashboard, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
     { href: '/dashboard/users', icon: '🔐', label: 'គ្រប់គ្រងគណនី', roles: ['ADMIN'] },
-    { href: '/dashboard/employees', icon: '👥', label: t.sidebar.employees, roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/offboarding', icon: '🚪', label: 'បញ្ចប់ការងារ (Offboarding)', roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/attendance', icon: '📅', label: t.sidebar.attendance, roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/leave', icon: '🌴', label: t.sidebar.leave, roles: ['ADMIN', 'HR', 'EMPLOYEE'] },
-    { href: '/dashboard/advance', icon: '💵', label: t.sidebar.advance || 'ប្រាក់បុរេប្រទាន', roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/payroll', icon: '💰', label: t.sidebar.payroll, roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/exports', icon: '📥', label: t.sidebar.exports, roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/kpi', icon: '📈', label: t.sidebar.kpi, roles: ['ADMIN', 'HR'] },
-    { href: '/dashboard/documents', icon: '📁', label: t.sidebar.documents || (t.sidebar.dashboard === 'Dashboard' ? 'Documents' : t.sidebar.dashboard === '仪表板' ? '公司文件' : 'ឯកសារក្រុមហ៊ុន'), roles: ['ADMIN', 'HR', 'EMPLOYEE'] },
+    { href: '/dashboard/employees', icon: '👥', label: t.sidebar.employees, roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
+    { href: '/dashboard/offboarding', icon: '🚪', label: 'បញ្ចប់ការងារ (Offboarding)', roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
+    { href: '/dashboard/attendance', icon: '📅', label: t.sidebar.attendance, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'] },
+    { href: '/dashboard/leave', icon: '🌴', label: t.sidebar.leave, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'] },
+    { href: '/dashboard/advance', icon: '💵', label: t.sidebar.advance || 'ប្រាក់បុរេប្រទាន', roles: ['ADMIN', 'PAYROLL_ADMIN'] },
+    { href: '/dashboard/payroll', icon: '💰', label: t.sidebar.payroll, roles: ['ADMIN', 'PAYROLL_ADMIN'] },
+    { href: '/dashboard/exports', icon: '📥', label: t.sidebar.exports, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
+    { href: '/dashboard/kpi', icon: '📈', label: t.sidebar.kpi, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
+    { href: '/dashboard/documents', icon: '📁', label: t.sidebar.documents || (t.sidebar.dashboard === 'Dashboard' ? 'Documents' : t.sidebar.dashboard === '仪表板' ? '公司文件' : 'ឯកសារក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/settings', icon: '⚙️', label: t.sidebar.settings, roles: ['ADMIN'] },
-    { href: '/dashboard/about', icon: 'ℹ️', label: t.sidebar.about || (t.sidebar.dashboard === 'Dashboard' ? 'About' : t.sidebar.dashboard === '仪表板' ? '关于系统' : 'អំពីប្រព័ន្ធ'), roles: ['ADMIN', 'HR', 'EMPLOYEE'] },
+    { href: '/dashboard/about', icon: 'ℹ️', label: t.sidebar.about || (t.sidebar.dashboard === 'Dashboard' ? 'About' : t.sidebar.dashboard === '仪表板' ? '关于系统' : 'អំពីប្រព័ន្ធ'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
   ].filter(item => item.roles.includes(role));
 
   const currentWidth = isCollapsed ? 74 : width;

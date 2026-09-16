@@ -72,8 +72,8 @@ export default function UserManagementClient({ users, employees }: { users: any[
               <td style={{ padding: '15px', borderBottom: '1px solid #e2e8f0' }}>{user.email}</td>
               <td style={{ padding: '15px', borderBottom: '1px solid #e2e8f0' }}>
                 <span style={{ 
-                  backgroundColor: user.role === 'ADMIN' ? '#fee2e2' : user.role === 'HR' ? '#fef3c7' : '#e0f2fe',
-                  color: user.role === 'ADMIN' ? '#991b1b' : user.role === 'HR' ? '#92400e' : '#0369a1',
+                  backgroundColor: user.role === 'ADMIN' ? '#fee2e2' : user.role === 'HR_MANAGER' || user.role === 'HR' ? '#fef3c7' : user.role === 'PAYROLL_ADMIN' ? '#dcfce7' : user.role === 'DEPT_HEAD' ? '#f3e8ff' : '#e0f2fe',
+                  color: user.role === 'ADMIN' ? '#991b1b' : user.role === 'HR_MANAGER' || user.role === 'HR' ? '#92400e' : user.role === 'PAYROLL_ADMIN' ? '#166534' : user.role === 'DEPT_HEAD' ? '#6b21a8' : '#0369a1',
                   padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold'
                 }}>
                   {user.role}
@@ -115,8 +115,10 @@ export default function UserManagementClient({ users, employees }: { users: any[
                 <label className="kh-text" style={{ display: 'block', marginBottom: '5px' }}>តួនាទី (Role)</label>
                 <select name="role" defaultValue={editingUser?.role || 'EMPLOYEE'} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '4px' }}>
                   <option value="ADMIN">ADMIN - អ្នកគ្រប់គ្រងប្រព័ន្ធ</option>
-                  <option value="HR">HR - បុគ្គលិករដ្ឋបាល</option>
-                  <option value="EMPLOYEE">EMPLOYEE - បុគ្គលិកទូទៅ (មើលបានតែប្រាក់ខែ)</option>
+                  <option value="HR_MANAGER">HR_MANAGER - អ្នកគ្រប់គ្រងធនធានមនុស្ស</option>
+                  <option value="PAYROLL_ADMIN">PAYROLL_ADMIN - អ្នកធ្វើប្រាក់ខែ</option>
+                  <option value="DEPT_HEAD">DEPT_HEAD - ប្រធានផ្នែក</option>
+                  <option value="EMPLOYEE">EMPLOYEE - បុគ្គលិកទូទៅ</option>
                 </select>
               </div>
 

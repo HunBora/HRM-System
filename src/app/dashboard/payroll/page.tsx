@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import React from 'react';
 import Link from 'next/link';
 import { getDictionary } from '@/i18n/getDictionary';
+import { getSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 import GeneratePayrollButton from './GeneratePayrollButton';
 import DraggableSummaryCards from '@/components/DraggableSummaryCards';
 import PayrollFilterForm from '@/components/PayrollFilterForm';
@@ -25,6 +27,12 @@ const ThText = ({ kh, en, zh, verticalKh, wrapKh }: { kh: React.ReactNode, en: s
 );
 
 export default async function PayrollPage({ searchParams }: { searchParams: Promise<{ month?: string, year?: string, department?: string, q?: string }> }) {
+  const session = await getSession();
+  
+  if (session?.role !== 'ADMIN' && session?.role !== 'PAYROLL_ADMIN' && session?.role !== 'HR') {
+    redirect('/dashboard');
+  }
+
   const t = await getDictionary();
   const resolvedParams = await searchParams;
   const currentMonth = new Date().getMonth() + 1;

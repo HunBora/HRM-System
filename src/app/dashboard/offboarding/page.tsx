@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 
 export default async function OffboardingPage() {
   const session = await getSession();
-  if (!session || session.role !== 'ADMIN') {
+  if (!session || (session.role !== 'ADMIN' && session.role !== 'HR_MANAGER' && session.role !== 'HR')) {
     redirect('/dashboard');
   }
 

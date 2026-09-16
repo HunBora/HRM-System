@@ -23,18 +23,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Role-based restrictions
-  if (session?.role === 'EMPLOYEE') {
-    // Employees can only access specific routes
-    const allowedPrefixes = ['/dashboard/leave', '/dashboard/payslip'];
-    
-    // Exact path allowed
-    if (path === '/dashboard') return NextResponse.next();
+  // Role-based route definitions
+  const rolePermissions: Record<string, string[]> = {
+    'ADMIN': ['/dashboard'], // ADMIN can access everything under dashboard
+    'HR_MANAGER': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about'],
+    'HR': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about'], // Legacy HR
+    'PAYROLL_ADMIN': ['/dashboard', '/dashboard/payroll', '/dashboard/advance', '/dashboard/attendance', '/dashboard/exports', '/dashboard/about'],
+    'DEPT_HEAD': ['/dashboard', '/dashboard/attendance', '/dashboard/leave', '/dashboard/kpi', '/dashboard/about'],
+    'EMPLOYEE': ['/dashboard', '/dashboard/leave', '/dashboard/documents', '/dashboard/about']
+  };
 
-    // Check if path starts with any allowed prefix
-    const isAllowed = allowedPrefixes.some(prefix => path.startsWith(prefix));
+  if (path.startsWith('/dashboard')) {
+    const role = session?.role || 'EMPLOYEE';
+    const allowedPrefixes = rolePermissions[role] || rolePermissions['EMPLOYEE'];
     
-    if (!isAllowed) {
+    // Check if the path matches the exact root allowed or starts with an allowed prefix + '/'
+    const isAllowed = allowedPrefixes.some(prefix => 
+      path === prefix || path.startsWith(`${prefix}/`)
+    );
+
+    if (!isAllowed && path !== '/dashboard') {
       // Redirect back to dashboard if trying to access unauthorized area
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }

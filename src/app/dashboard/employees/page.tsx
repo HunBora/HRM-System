@@ -8,6 +8,7 @@ import EmployeeExportImportButtons from './EmployeeExportImportButtons';
 import ClearAllDataButton from '@/components/ClearAllDataButton';
 import SearchFilter from '@/components/SearchFilter';
 import { getSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 
 export default async function EmployeesPage({
   searchParams,
@@ -20,6 +21,10 @@ export default async function EmployeesPage({
   const sort = resolvedParams?.sort || 'desc';
   const t = await getDictionary();
   const session = await getSession();
+
+  if (session?.role !== 'ADMIN' && session?.role !== 'HR_MANAGER' && session?.role !== 'HR') {
+    redirect('/dashboard');
+  }
 
   const departmentsData = await prisma.employee.findMany({
     select: { department: true },

@@ -40,7 +40,7 @@ export default async function DashboardLayout({
             <LanguageSwitcher />
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontWeight: 500, backgroundColor: '#e2e8f0', padding: '4px 8px', borderRadius: '4px', fontSize: '0.9rem', color: '#334155' }} className="kh-text">
-                {role === 'ADMIN' ? 'អ្នកគ្រប់គ្រង (Admin)' : role === 'HR' ? 'បុគ្គលិក HR' : 'បុគ្គលិកទូទៅ'}
+                {role === 'ADMIN' ? 'អ្នកគ្រប់គ្រង (Admin)' : role === 'HR_MANAGER' || role === 'HR' ? 'បុគ្គលិក HR' : role === 'PAYROLL_ADMIN' ? 'អ្នកធ្វើប្រាក់ខែ (Payroll)' : role === 'DEPT_HEAD' ? 'ប្រធានផ្នែក (Dept Head)' : 'បុគ្គលិកទូទៅ (Employee)'}
               </span>
               <LogoutButton />
             </div>

@@ -1,5 +1,6 @@
 import { getDictionary } from '@/i18n/getDictionary';
 import { cookies } from "next/headers";
+import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import KhmerCalendar from '@/components/KhmerCalendar';
@@ -121,6 +122,51 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   const filterMonth = resolvedParams?.month ? parseInt(resolvedParams.month) : (resolvedParams?.date ? actualDateObj.getMonth() + 1 : currentMonth);
   const filterYear = resolvedParams?.year ? parseInt(resolvedParams.year) : (resolvedParams?.date ? actualDateObj.getFullYear() : currentYear);
+
+  const session = await getSession();
+
+  if (session?.role === 'EMPLOYEE') {
+    const employeeId = session.employeeId;
+    let employeeData = null;
+    let recentLeaves = [];
+    let recentAttendances = [];
+    let recentPayrolls = [];
+
+    if (employeeId) {
+      employeeData = await prisma.employee.findUnique({
+        where: { id: employeeId }
+      });
+      if (employeeData) {
+        recentLeaves = await prisma.leaveRequest.findMany({
+          where: { employeeId: employeeId },
+          orderBy: { createdAt: 'desc' },
+          take: 5
+        });
+        recentAttendances = await prisma.dailyAttendance.findMany({
+          where: { employeeId: employeeId },
+          orderBy: { date: 'desc' },
+          take: 5
+        });
+        recentPayrolls = await prisma.payroll.findMany({
+          where: { employeeId: employeeId, status: { in: ['APPROVED', 'PAID'] } },
+          orderBy: [{ year: 'desc' }, { month: 'desc' }],
+          take: 3
+        });
+      }
+    }
+
+    const EmployeeDashboard = (await import('@/components/EmployeeDashboard')).default;
+    return (
+      <EmployeeDashboard 
+        employee={employeeData} 
+        recentLeaves={recentLeaves} 
+        recentAttendances={recentAttendances} 
+        recentPayrolls={recentPayrolls} 
+        l={l} 
+        locale={locale} 
+      />
+    );
+  }
 
   // Fetch metrics
   const [

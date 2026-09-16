@@ -26,11 +26,11 @@ export async function middleware(request: NextRequest) {
   // Role-based route definitions
   const rolePermissions: Record<string, string[]> = {
     'ADMIN': ['/dashboard'], // ADMIN can access everything under dashboard
-    'HR_MANAGER': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about'],
-    'HR': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about'], // Legacy HR
-    'PAYROLL_ADMIN': ['/dashboard', '/dashboard/payroll', '/dashboard/advance', '/dashboard/attendance', '/dashboard/exports', '/dashboard/about'],
-    'DEPT_HEAD': ['/dashboard', '/dashboard/attendance', '/dashboard/leave', '/dashboard/kpi', '/dashboard/about'],
-    'EMPLOYEE': ['/dashboard', '/dashboard/leave', '/dashboard/documents', '/dashboard/about']
+    'HR_MANAGER': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about', '/dashboard/expenses'],
+    'HR': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about', '/dashboard/expenses'], // Legacy HR
+    'PAYROLL_ADMIN': ['/dashboard', '/dashboard/payroll', '/dashboard/advance', '/dashboard/attendance', '/dashboard/exports', '/dashboard/about', '/dashboard/expenses'],
+    'DEPT_HEAD': ['/dashboard', '/dashboard/attendance', '/dashboard/leave', '/dashboard/kpi', '/dashboard/about', '/dashboard/expenses'],
+    'EMPLOYEE': ['/dashboard', '/dashboard/leave', '/dashboard/documents', '/dashboard/about', '/dashboard/expenses']
   };
 
   if (path.startsWith('/dashboard')) {

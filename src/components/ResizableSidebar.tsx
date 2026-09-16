@@ -76,6 +76,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     { href: '/dashboard/exports', icon: '📥', label: t.sidebar.exports, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
     { href: '/dashboard/kpi', icon: '📈', label: t.sidebar.kpi, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
     { href: '/dashboard/documents', icon: '📁', label: t.sidebar.documents || (t.sidebar.dashboard === 'Dashboard' ? 'Documents' : t.sidebar.dashboard === '仪表板' ? '公司文件' : 'ឯកសារក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
+    { href: '/dashboard/expenses', icon: '💸', label: 'ចំណាយ និងការទូទាត់', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
     { href: '/dashboard/settings', icon: '⚙️', label: t.sidebar.settings, roles: ['ADMIN'] },
     { href: '/dashboard/about', icon: 'ℹ️', label: t.sidebar.about || (t.sidebar.dashboard === 'Dashboard' ? 'About' : t.sidebar.dashboard === '仪表板' ? '关于系统' : 'អំពីប្រព័ន្ធ'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
   ].filter(item => item.roles.includes(role));

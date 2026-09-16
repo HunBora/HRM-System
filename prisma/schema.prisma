@@ -91,6 +91,7 @@ model Employee {
   kpis             Kpi[]
   documents        EmployeeDocument[]
   assets           CompanyAsset[]
+  expenseClaims    ExpenseClaim[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -353,3 +354,19 @@ model Document {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model ExpenseClaim {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  date        DateTime
+  category    String
+  amount      Float
+  currency    String   @default("USD")
+  description String?
+  receiptUrl  String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

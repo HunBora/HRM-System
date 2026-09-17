@@ -210,7 +210,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text"><div>ទឹកប្រាក់</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Amount</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>金额</div></label>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="15.50" style={{ width: '100%' }} />
+                <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="15.50" style={{ flex: 1, minWidth: 0 }} />
                 <select name="currency" className="input-field" style={{ minWidth: '100px', flexShrink: 0 }}>
                   <option value="USD">USD</option>
                   <option value="KHR">KHR</option>

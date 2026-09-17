@@ -103,7 +103,9 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
       Date: new Date(c.date).toLocaleDateString('en-GB'),
+      Department: c.employee?.department || '',
       Employee: c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+      'Emp ID': c.employee?.employeeId || '',
       Type: c.category,
       Amount: c.amount,
       Currency: c.currency,
@@ -118,7 +120,9 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
   const exportToCSV = () => {
     const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
       Date: new Date(c.date).toLocaleDateString('en-GB'),
+      Department: c.employee?.department || '',
       Employee: c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+      'Emp ID': c.employee?.employeeId || '',
       Type: c.category,
       Amount: c.amount,
       Currency: c.currency,
@@ -137,10 +141,12 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
     const doc = new jsPDF();
     doc.text('Expense Claims', 14, 15);
     (doc as any).autoTable({
-      head: [['Date', 'Employee', 'Type', 'Amount', 'Currency', 'Status']],
+      head: [['Date', 'Dept', 'Employee', 'Emp ID', 'Type', 'Amount', 'Currency', 'Status']],
       body: claims.map((c: any) => [
         new Date(c.date).toLocaleDateString('en-GB'),
+        c.employee?.department || '',
         c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+        c.employee?.employeeId || '',
         c.category,
         c.amount,
         c.currency,
@@ -276,7 +282,11 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>
               <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>កាលបរិច្ឆេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Date</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>日期</div></th>
+                            {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>ផ្នែក</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Dept</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>部门</div></th>}
+                            {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>ផ្នែក</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Dept</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>部门</div></th>}
               {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>បុគ្គលិក</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Employee</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>员工</div></th>}
+              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>អត្តលេខ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Emp ID</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>工号</div></th>}
+              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>អត្តលេខ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Emp ID</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>工号</div></th>}
               <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>ប្រភេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Type</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>类别</div></th>
               <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}><div>ទឹកប្រាក់</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Amount</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>金额</div></th>
               <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}><div>ស្ថានភាព</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Status</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>状态</div></th>
@@ -289,8 +299,17 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                 <td style={{ padding: '12px 15px' }}>{new Date(claim.date).toLocaleDateString('en-GB')}</td>
                 {role !== 'EMPLOYEE' && (
                   <td style={{ padding: '12px 15px' }} className="kh-text">
+                    <div style={{ fontSize: '0.85rem' }}>{claim.employee?.department || '-'}</div>
+                  </td>
+                )}
+                {role !== 'EMPLOYEE' && (
+                  <td style={{ padding: '12px 15px' }} className="kh-text">
                     {claim.employee?.firstNameKh} {claim.employee?.lastNameKh}
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{claim.employee?.department}</div>
+                  </td>
+                )}
+                {role !== 'EMPLOYEE' && (
+                  <td style={{ padding: '12px 15px' }} className="kh-text">
+                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{claim.employee?.employeeId || '-'}</div>
                   </td>
                 )}
                 <td style={{ padding: '12px 15px' }}>
@@ -344,7 +363,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
             ))}
             {claims.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }} className="kh-text">
+                <td colSpan={10} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }} className="kh-text">
                   {t.table.noData}
                 </td>
               </tr>

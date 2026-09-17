@@ -12,6 +12,22 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const parseDescription = (desc: string) => {
+    if (!desc) return { realDesc: '', name: '', id: '', phone: '' };
+    const match = desc.match(/\n\((.*?)\)$/);
+    if (!match) return { realDesc: desc, name: '', id: '', phone: '' };
+    const extraStr = match[1];
+    const realDesc = desc.replace(/\n\((.*?)\)$/, '');
+    let name = ''; let id = ''; let phone = '';
+    extraStr.split(', ').forEach((p: string) => {
+      if (p.startsWith('Name: ')) name = p.substring(6);
+      if (p.startsWith('ID: ')) id = p.substring(4);
+      if (p.startsWith('Phone: ')) phone = p.substring(7);
+    });
+    return { realDesc, name, id, phone };
+  };
+
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -102,15 +118,20 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
 
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
-      Date: new Date(c.date).toLocaleDateString('en-GB'),
-      Department: c.employee?.department || '',
-      Employee: c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
-      'Emp ID': c.employee?.employeeId || '',
-      Type: c.category,
-      Amount: c.amount,
-      Currency: c.currency,
-      Status: c.status,
-      Description: c.description
+      ...(() => {
+        const p = parseDescription(c.description);
+        return {
+          Date: new Date(c.date).toLocaleDateString('en-GB'),
+          Department: c.employee?.department || '',
+          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : p.name,
+          'Emp ID': c.employee?.employeeId || p.id,
+          Type: c.category,
+          Amount: c.amount,
+          Currency: c.currency,
+          Status: c.status,
+          Description: p.realDesc
+        };
+      })()
     })));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
@@ -119,15 +140,20 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
 
   const exportToCSV = () => {
     const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
-      Date: new Date(c.date).toLocaleDateString('en-GB'),
-      Department: c.employee?.department || '',
-      Employee: c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
-      'Emp ID': c.employee?.employeeId || '',
-      Type: c.category,
-      Amount: c.amount,
-      Currency: c.currency,
-      Status: c.status,
-      Description: c.description
+      ...(() => {
+        const p = parseDescription(c.description);
+        return {
+          Date: new Date(c.date).toLocaleDateString('en-GB'),
+          Department: c.employee?.department || '',
+          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : p.name,
+          'Emp ID': c.employee?.employeeId || p.id,
+          Type: c.category,
+          Amount: c.amount,
+          Currency: c.currency,
+          Status: c.status,
+          Description: p.realDesc
+        };
+      })()
     })));
     const csv = XLSX.utils.sheet_to_csv(ws);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -292,7 +318,13 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
             </tr>
           </thead>
           <tbody>
-            {claims.map((claim: any) => (
+            {claims.map((claim: any) => {
+              const parsed = parseDescription(claim.description);
+              const empName = claim.employee?.firstNameKh ? `${claim.employee.firstNameKh} ${claim.employee.lastNameKh}` : parsed.name;
+              const empId = claim.employee?.employeeId || parsed.id;
+              
+              return (
+
               <tr key={claim.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                 <td style={{ padding: '12px 15px' }}>{new Date(claim.date).toLocaleDateString('en-GB')}</td>
                 {role !== 'EMPLOYEE' && (
@@ -312,7 +344,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                 )}
                 <td style={{ padding: '12px 15px' }}>
                   <div style={{ fontWeight: 'bold' }}>{getCategoryLabel(claim.category)}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{claim.description}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{parsed.realDesc || '-'}</div>
                 </td>
                 <td style={{ padding: '12px 15px', textAlign: 'right', fontWeight: 'bold', color: '#059669' }}>
                   {claim.currency === 'USD' ? '$' : '៛'} {claim.amount.toLocaleString()}
@@ -358,7 +390,8 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                   )}
                 </td>
               </tr>
-            ))}
+            );
+          })}
             {claims.length === 0 && (
               <tr>
                 <td colSpan={10} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }} className="kh-text">

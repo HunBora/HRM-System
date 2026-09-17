@@ -16,9 +16,9 @@ export default async function AssetsPage() {
   }
 
   // Load language preference
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
-  const l = await getDictionary(locale as any);
+  const l = await getDictionary();
 
   let assets;
   

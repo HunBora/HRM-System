@@ -198,14 +198,17 @@ export default function AssetClient({ role, assets, employees, l }: any) {
           </thead>
           <tbody>
             {assets.map((asset: any) => {
-              const empName = asset.employee?.firstNameKh ? `${asset.employee.firstNameKh} ${asset.employee.lastNameKh}` : `${asset.employee.firstNameEn} ${asset.employee.lastNameEn}`;
+              const firstKh = asset.employee?.firstNameKh?.trim();
+              const firstEn = asset.employee?.firstNameEn?.trim();
+              const empName = firstKh ? `${firstKh} ${asset.employee?.lastNameKh?.trim() || ''}` : (firstEn ? `${firstEn} ${asset.employee?.lastNameEn?.trim() || ''}` : 'Unknown');
+              const empId = asset.employee?.employeeId || '-';
               
               return (
               <tr key={asset.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                 <td style={{ padding: '12px 15px' }}>{new Date(asset.assignDate).toLocaleDateString('en-GB')}</td>
                 <td style={{ padding: '12px 15px' }} className="kh-text">
                   <div style={{ fontWeight: 'bold' }}>{empName}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{asset.employee.employeeId}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{empId}</div>
                 </td>
                 <td style={{ padding: '12px 15px' }} className="kh-text">
                   {asset.name}

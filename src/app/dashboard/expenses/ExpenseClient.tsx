@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { submitExpenseClaim, updateExpenseStatus } from './actions';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
 
 export default function ExpenseClient({ role, currentEmployeeId, claims, l, locale }: any) {
   const [showForm, setShowForm] = useState(false);
@@ -13,6 +17,21 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
     setIsSubmitting(true);
     
     const formData = new FormData(e.currentTarget);
+    const empId = formData.get('empId') as string;
+    const empName = formData.get('empName') as string;
+    const empPhone = formData.get('empPhone') as string;
+    let desc = formData.get('description') as string;
+    
+    let extraInfo = [];
+    if (empId) extraInfo.push('ID: ' + empId);
+    if (empName) extraInfo.push('Name: ' + empName);
+    if (empPhone) extraInfo.push('Phone: ' + empPhone);
+    
+    if (extraInfo.length > 0) {
+      desc = desc + '\n(' + extraInfo.join(', ') + ')';
+      formData.set('description', desc);
+    }
+
     const res = await submitExpenseClaim(formData);
     
     setIsSubmitting(false);
@@ -66,6 +85,62 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
     }
   };
 
+  
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
+      Date: new Date(c.date).toLocaleDateString('en-GB'),
+      Employee: c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+      Type: c.category,
+      Amount: c.amount,
+      Currency: c.currency,
+      Status: c.status,
+      Description: c.description
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
+    XLSX.writeFile(wb, 'expenses.xlsx');
+  };
+
+  const exportToCSV = () => {
+    const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
+      Date: new Date(c.date).toLocaleDateString('en-GB'),
+      Employee: c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+      Type: c.category,
+      Amount: c.amount,
+      Currency: c.currency,
+      Status: c.status,
+      Description: c.description
+    })));
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'expenses.csv';
+    link.click();
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Expense Claims', 14, 15);
+    (doc as any).autoTable({
+      head: [['Date', 'Employee', 'Type', 'Amount', 'Currency', 'Status']],
+      body: claims.map((c: any) => [
+        new Date(c.date).toLocaleDateString('en-GB'),
+        c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+        c.category,
+        c.amount,
+        c.currency,
+        c.status
+      ]),
+      startY: 20
+    });
+    doc.save('expenses.pdf');
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   const t = l.expenses;
 
   const statusColors: any = {
@@ -90,7 +165,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 className="title kh-text">{t.title}</h1>
+        <h1 className="title kh-text">ស្នើសុំចំណាយ / Expense Claims / 报销申请</h1>
         <button 
           onClick={() => setShowForm(!showForm)}
           className="btn-primary kh-text"
@@ -105,11 +180,11 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
           <h2 className="kh-text" style={{ fontSize: '1.2rem', marginBottom: '15px' }}>{t.form.title}</h2>
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div className="form-group">
-              <label className="kh-text">{t.form.date}</label>
+              <label className="kh-text">កាលបរិច្ឆេទ / Date / 日期</label>
               <input type="date" name="date" required className="input-field" defaultValue={new Date().toISOString().split('T')[0]} />
             </div>
             <div className="form-group">
-              <label className="kh-text">{t.form.category}</label>
+              <label className="kh-text">ប្រភេទ / Category / 类别</label>
               <select name="category" required className="input-field">
                 <option value="TRANSPORT">{t.categories.transport}</option>
                 <option value="MEAL">{t.categories.meal}</option>
@@ -119,7 +194,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
               </select>
             </div>
             <div className="form-group">
-              <label className="kh-text">{t.form.amount}</label>
+              <label className="kh-text">ទឹកប្រាក់ / Amount / 金额</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="15.50" />
                 <select name="currency" className="input-field" style={{ width: '80px' }}>
@@ -128,33 +203,54 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                 </select>
               </div>
             </div>
+            
             <div className="form-group">
-              <label className="kh-text">{t.form.receipt}</label>
+              <label className="kh-text">លេខសម្គាល់បុគ្គលិក / Emp ID (Optional)</label>
+              <input type="text" name="empId" className="input-field" placeholder="e.g. EMP-001" />
+            </div>
+            <div className="form-group">
+              <label className="kh-text">ឈ្មោះ / Name (Optional)</label>
+              <input type="text" name="empName" className="input-field" placeholder="e.g. Sokha" />
+            </div>
+            <div className="form-group">
+              <label className="kh-text">លេខទូរស័ព្ទ / Phone (Optional)</label>
+              <input type="text" name="empPhone" className="input-field" placeholder="e.g. 012345678" />
+            </div>
+<div className="form-group">
+              <label className="kh-text">ឯកសារយោង / Receipt Link / 收据链接</label>
               <input type="url" name="receiptUrl" className="input-field" placeholder="Google Drive Link..." />
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="kh-text">{t.form.desc}</label>
+              <label className="kh-text">មូលហេតុ / Description / 原因</label>
               <textarea name="description" required className="input-field" rows={3} placeholder="..."></textarea>
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end' }}>
               <button type="submit" disabled={isSubmitting} className="btn-primary kh-text" style={{ padding: '8px 24px', background: '#059669', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
-                {isSubmitting ? t.form.submitting : t.form.submit}
+                {isSubmitting ? "កំពុងបញ្ជូន... / Submitting..." : "បញ្ជូនការស្នើសុំ / Submit Request"}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="card" style={{ padding: '0', overflow: 'hidden', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+      
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }} className="print-hidden">
+        <button onClick={exportToPDF} style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📄 PDF</button>
+        <button onClick={exportToExcel} style={{ padding: '6px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📊 Excel</button>
+        <button onClick={exportToCSV} style={{ padding: '6px 12px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📑 CSV</button>
+        <button onClick={handlePrint} style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>🖨️ Print</button>
+      </div>
+      <div className="card"
+, borderRadius: '12px', border: '1px solid #e2e8f0' }}>
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{t.table.date}</th>
-              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{t.table.employee}</th>}
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>{t.table.type}</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>{t.table.amount}</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>{t.table.status}</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>{t.table.action}</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>កាលបរិច្ឆេទ / Date / 日期</th>
+              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>បុគ្គលិក / Employee / 员工</th>}
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>ប្រភេទ / Type / 类别</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>ទឹកប្រាក់ / Amount / 金额</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>ស្ថានភាព / Status / 状态</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>សកម្មភាព / Action / 操作</th>
             </tr>
           </thead>
           <tbody>

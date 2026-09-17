@@ -123,7 +123,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         return {
           Date: new Date(c.date).toLocaleDateString('en-GB'),
           Department: c.employee?.department || '',
-          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : (c.employee?.firstNameEn ? c.employee.firstNameEn + ' ' + c.employee.lastNameEn : p.name),
+          Employee: c.employee?.firstNameKh?.trim() ? c.employee.firstNameKh + ' ' + (c.employee.lastNameKh || '') : (c.employee?.firstNameEn?.trim() ? c.employee.firstNameEn + ' ' + (c.employee.lastNameEn || '') : p.name),
           'Emp ID': c.employee?.employeeId || p.id,
           Type: c.category,
           Amount: c.amount,
@@ -145,7 +145,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         return {
           Date: new Date(c.date).toLocaleDateString('en-GB'),
           Department: c.employee?.department || '',
-          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : (c.employee?.firstNameEn ? c.employee.firstNameEn + ' ' + c.employee.lastNameEn : p.name),
+          Employee: c.employee?.firstNameKh?.trim() ? c.employee.firstNameKh + ' ' + (c.employee.lastNameKh || '') : (c.employee?.firstNameEn?.trim() ? c.employee.firstNameEn + ' ' + (c.employee.lastNameEn || '') : p.name),
           'Emp ID': c.employee?.employeeId || p.id,
           Type: c.category,
           Amount: c.amount,
@@ -320,7 +320,9 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
           <tbody>
             {claims.map((claim: any) => {
               const parsed = parseDescription(claim.description);
-              const empName = claim.employee?.firstNameKh ? `${claim.employee.firstNameKh} ${claim.employee.lastNameKh}` : (claim.employee?.firstNameEn ? `${claim.employee.firstNameEn} ${claim.employee.lastNameEn}` : parsed.name);
+              const firstKh = claim.employee?.firstNameKh?.trim();
+              const firstEn = claim.employee?.firstNameEn?.trim();
+              const empName = firstKh ? `${firstKh} ${claim.employee?.lastNameKh?.trim() || ''}` : (firstEn ? `${firstEn} ${claim.employee?.lastNameEn?.trim() || ''}` : parsed.name);
               const empId = claim.employee?.employeeId || parsed.id;
               
               return (
@@ -334,7 +336,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                 )}
                 {role !== 'EMPLOYEE' && (
                   <td style={{ padding: '12px 15px' }} className="kh-text">
-                    {empName}
+                    {empName?.trim() ? empName : (empId || '-')}
                   </td>
                 )}
                 {role !== 'EMPLOYEE' && (

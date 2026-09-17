@@ -180,7 +180,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
           <h2 className="kh-text" style={{ fontSize: '1.2rem', marginBottom: '15px' }}>{t.form.title}</h2>
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div className="form-group">
-              <label className="kh-text">កាលបរិច្ឆេទ / Date / 日期</label>
+              <label className="kh-text"><div>កាលបរិច្ឆេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Date</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>日期</div></label>
               <input type="date" name="date" required className="input-field" defaultValue={new Date().toISOString().split('T')[0]} />
             </div>
             <div className="form-group">
@@ -194,7 +194,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
               </select>
             </div>
             <div className="form-group">
-              <label className="kh-text">ទឹកប្រាក់ / Amount / 金额</label>
+              <label className="kh-text"><div>ទឹកប្រាក់</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Amount</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>金额</div></label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="15.50" />
                 <select name="currency" className="input-field" style={{ width: '80px' }}>
@@ -234,22 +234,37 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
       )}
 
       
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }} className="print-hidden">
-        <button onClick={exportToPDF} style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📄 PDF</button>
-        <button onClick={exportToExcel} style={{ padding: '6px 12px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📊 Excel</button>
-        <button onClick={exportToCSV} style={{ padding: '6px 12px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📑 CSV</button>
-        <button onClick={handlePrint} style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>🖨️ Print</button>
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }} className="print-hidden">
+        <select 
+          className="input-field kh-text"
+          style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', width: '250px' }}
+          defaultValue=""
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === 'pdf') exportToPDF();
+            else if (val === 'excel') exportToExcel();
+            else if (val === 'csv') exportToCSV();
+            else if (val === 'print') handlePrint();
+            e.target.value = "";
+          }}
+        >
+          <option value="" disabled>ទាញយករបាយការណ៍ / Export...</option>
+          <option value="pdf">📄 ទាញយកជា PDF</option>
+          <option value="excel">📊 ទាញយកជា Excel</option>
+          <option value="csv">📑 ទាញយកជា CSV</option>
+          <option value="print">🖨️ ព្រីនចេញ (Print)</option>
+        </select>
       </div>
       <div className="card" style={{ padding: '0', overflow: 'hidden', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>កាលបរិច្ឆេទ / Date / 日期</th>
-              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>បុគ្គលិក / Employee / 员工</th>}
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>ប្រភេទ / Type / 类别</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}>ទឹកប្រាក់ / Amount / 金额</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>ស្ថានភាព / Status / 状态</th>
-              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>សកម្មភាព / Action / 操作</th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>កាលបរិច្ឆេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Date</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>日期</div></th>
+              {role !== 'EMPLOYEE' && <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>បុគ្គលិក</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Employee</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>员工</div></th>}
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}><div>ប្រភេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Type</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>类别</div></th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'right', borderBottom: '1px solid #e2e8f0' }}><div>ទឹកប្រាក់</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Amount</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>金额</div></th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}><div>ស្ថានភាព</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Status</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>状态</div></th>
+              <th className="kh-text" style={{ padding: '12px 15px', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}><div>សកម្មភាព</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Action</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>操作</div></th>
             </tr>
           </thead>
           <tbody>

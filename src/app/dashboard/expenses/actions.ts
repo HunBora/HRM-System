@@ -5,9 +5,21 @@ import { getSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 
 export async function submitExpenseClaim(formData: FormData) {
-  const session = await getSession();
-  if (!session?.employeeId) {
-    return { error: 'មិនអាចស្វែងរកទិន្នន័យបុគ្គលិករបស់អ្នកបានទេ!' };
+    const session = await getSession();
+  let targetEmployeeId = session?.employeeId;
+
+  const formEmpId = formData.get('empId') as string;
+  if (formEmpId) {
+    const employee = await prisma.employee.findUnique({ where: { employeeId: formEmpId } });
+    if (employee) {
+      targetEmployeeId = employee.id;
+    } else {
+      return { error: 'រកមិនឃើញលេខសម្គាល់បុគ្គលិកនេះទេ! (Employee ID not found)' };
+    }
+  }
+
+  if (!targetEmployeeId) {
+    return { error: 'មិនអាចស្វែងរកទិន្នន័យបុគ្គលិករបស់អ្នកបានទេ! (No Employee linked to your account)' };
   }
 
   const date = formData.get('date') as string;
@@ -24,7 +36,7 @@ export async function submitExpenseClaim(formData: FormData) {
 
   await prisma.expenseClaim.create({
     data: {
-      employeeId: session.employeeId,
+      employeeId: targetEmployeeId,
       date: new Date(date),
       category,
       amount,

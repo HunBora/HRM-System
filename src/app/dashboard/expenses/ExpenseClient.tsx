@@ -193,11 +193,11 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         <div className="card animate-fade-in" style={{ marginBottom: '20px', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <h2 className="kh-text" style={{ fontSize: '1.2rem', marginBottom: '15px' }}>{t.form.title}</h2>
           <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text"><div>កាលបរិច្ឆេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Date</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>日期</div></label>
               <input type="date" name="date" required className="input-field" defaultValue={new Date().toISOString().split('T')[0]} />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text">ប្រភេទ / Category / 类别</label>
               <select name="category" required className="input-field">
                 <option value="TRANSPORT">{t.categories.transport}</option>
@@ -207,7 +207,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                 <option value="OTHER">{t.categories.other}</option>
               </select>
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text"><div>ទឹកប្រាក់</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Amount</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>金额</div></label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input type="number" name="amount" step="0.01" min="0.01" required className="input-field" placeholder="15.50" />
@@ -218,23 +218,23 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
               </div>
             </div>
             
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text">លេខសម្គាល់បុគ្គលិក / Emp ID (Optional)</label>
               <input type="text" name="empId" className="input-field" placeholder="e.g. EMP-001" />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text">ឈ្មោះ / Name (Optional)</label>
               <input type="text" name="empName" className="input-field" placeholder="e.g. Sokha" />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text">លេខទូរស័ព្ទ / Phone (Optional)</label>
               <input type="text" name="empPhone" className="input-field" placeholder="e.g. 012345678" />
             </div>
-<div className="form-group" style={{ gridColumn: 'span 2' }}>
+<div className="form-group" style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text">ឯកសារយោង / Receipt Link / 收据链接</label>
               <input type="url" name="receiptUrl" className="input-field" placeholder="Google Drive Link..." />
             </div>
-            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <div className="form-group" style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <label className="kh-text">មូលហេតុ / Description / 原因</label>
               <textarea name="description" required className="input-field" rows={3} placeholder="..."></textarea>
             </div>

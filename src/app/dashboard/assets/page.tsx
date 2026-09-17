@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import AssetClient from './AssetClient';
-import { getDictionary } from '@/i18n';
+import { getDictionary } from '@/i18n/getDictionary';
 import { cookies } from 'next/headers';
 
 export const metadata = {

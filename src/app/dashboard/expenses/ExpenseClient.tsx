@@ -240,8 +240,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         <button onClick={exportToCSV} style={{ padding: '6px 12px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>📑 CSV</button>
         <button onClick={handlePrint} style={{ padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>🖨️ Print</button>
       </div>
-      <div className="card"
-, borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+      <div className="card" style={{ padding: '0', overflow: 'hidden', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc' }}>
             <tr>

@@ -13,7 +13,8 @@ export const dictionaries = {
       kpi: "KPI របស់ HR",
       documents: "ឯកសារក្រុមហ៊ុន",
       about: "អំពីប្រព័ន្ធ",
-      expenses: "ចំណាយ និងទូទាត់"
+      expenses: "ចំណាយ និងទូទាត់",
+      assets: "ទ្រព្យសម្បត្តិក្រុមហ៊ុន"
     },
     leave: {
       title: "គ្រប់គ្រងថ្ងៃឈប់សម្រាក",
@@ -260,6 +261,41 @@ export const dictionaries = {
         rejected: "បដិសេធ",
         paid: "ទូទាត់រួច"
       }
+    },
+    assets: {
+      title: "គ្រប់គ្រងទ្រព្យសម្បត្តិក្រុមហ៊ុន",
+      newBtn: "+ បញ្ចូលទ្រព្យសម្បត្តិថ្មី",
+      columns: {
+        id: "លេខសម្គាល់",
+        employee: "អ្នកកាន់កាប់",
+        name: "ឈ្មោះទ្រព្យ",
+        serial: "លេខកូដ/ស៊េរី",
+        assignDate: "ថ្ងៃប្រគល់",
+        returnDate: "ថ្ងៃប្រគល់វិញ",
+        status: "ស្ថានភាព",
+        remarks: "កំណត់សម្គាល់",
+        actions: "សកម្មភាព"
+      },
+      status: {
+        IN_USE: "កំពុងប្រើប្រាស់",
+        RETURNED: "បានប្រគល់វិញ",
+        LOST: "បាត់បង់",
+        DAMAGED: "ខូចខាត"
+      },
+      form: {
+        newTitle: "ប្រគល់ទ្រព្យសម្បត្តិថ្មី",
+        editTitle: "កែប្រែព័ត៌មានទ្រព្យ",
+        employee: "ជ្រើសរើសបុគ្គលិក",
+        name: "ឈ្មោះទ្រព្យ (ឧ. កុំព្យូទ័រយួរដៃ, ឡាន...)",
+        serial: "លេខកូដ / លេខស៊េរី",
+        assignDate: "កាលបរិច្ឆេទប្រគល់",
+        returnDate: "កាលបរិច្ឆេទប្រគល់វិញ",
+        status: "ស្ថានភាព",
+        remarks: "កំណត់សម្គាល់",
+        save: "រក្សាទុក",
+        saving: "កំពុងរក្សាទុក...",
+        cancel: "បោះបង់"
+      }
     }
   },
   en: {
@@ -276,7 +312,8 @@ export const dictionaries = {
       kpi: "HR KPI",
       documents: "Documents",
       about: "About",
-      expenses: "Expenses"
+      expenses: "Expense Claims",
+      assets: "Company Assets"
     },
     leave: {
       title: "Leave Management",
@@ -523,6 +560,41 @@ export const dictionaries = {
         rejected: "Rejected",
         paid: "Paid"
       }
+    },
+    assets: {
+      title: "Company Assets",
+      newBtn: "+ Assign New Asset",
+      columns: {
+        id: "ID",
+        employee: "Assigned To",
+        name: "Asset Name",
+        serial: "Serial No.",
+        assignDate: "Assign Date",
+        returnDate: "Return Date",
+        status: "Status",
+        remarks: "Remarks",
+        actions: "Actions"
+      },
+      status: {
+        IN_USE: "In Use",
+        RETURNED: "Returned",
+        LOST: "Lost",
+        DAMAGED: "Damaged"
+      },
+      form: {
+        newTitle: "Assign New Asset",
+        editTitle: "Edit Asset Info",
+        employee: "Select Employee",
+        name: "Asset Name (e.g. Laptop, Phone...)",
+        serial: "Serial No.",
+        assignDate: "Assign Date",
+        returnDate: "Return Date",
+        status: "Status",
+        remarks: "Remarks",
+        save: "Save",
+        saving: "Saving...",
+        cancel: "Cancel"
+      }
     }
   },
   zh: {
@@ -539,7 +611,8 @@ export const dictionaries = {
       kpi: "人力资源KPI",
       documents: "公司文件",
       about: "关于系统",
-      expenses: "报销"
+      expenses: "报销申请",
+      assets: "公司资产"
     },
     leave: {
       title: "请假管理",
@@ -785,6 +858,41 @@ export const dictionaries = {
         approved_hr: "HR已批",
         rejected: "已拒绝",
         paid: "已支付"
+      }
+    },
+    assets: {
+      title: "公司资产",
+      newBtn: "+ 分配新资产",
+      columns: {
+        id: "编号",
+        employee: "借用人",
+        name: "资产名称",
+        serial: "序列号",
+        assignDate: "分配日期",
+        returnDate: "归还日期",
+        status: "状态",
+        remarks: "备注",
+        actions: "操作"
+      },
+      status: {
+        IN_USE: "使用中",
+        RETURNED: "已归还",
+        LOST: "丢失",
+        DAMAGED: "损坏"
+      },
+      form: {
+        newTitle: "分配新资产",
+        editTitle: "编辑资产信息",
+        employee: "选择员工",
+        name: "资产名称 (例如：笔记本电脑，手机...)",
+        serial: "序列号",
+        assignDate: "分配日期",
+        returnDate: "归还日期",
+        status: "状态",
+        remarks: "备注",
+        save: "保存",
+        saving: "保存中...",
+        cancel: "取消"
       }
     }
   }

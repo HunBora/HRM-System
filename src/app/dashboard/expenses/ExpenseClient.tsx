@@ -192,7 +192,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
       {showForm && (
         <div className="card animate-fade-in" style={{ marginBottom: '20px', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <h2 className="kh-text" style={{ fontSize: '1.2rem', marginBottom: '15px' }}>{t.form.title}</h2>
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
             <div className="form-group">
               <label className="kh-text"><div>កាលបរិច្ឆេទ</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>Date</div><div style={{fontSize:'0.75rem',color:'#64748b'}}>日期</div></label>
               <input type="date" name="date" required className="input-field" defaultValue={new Date().toISOString().split('T')[0]} />
@@ -230,7 +230,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
               <label className="kh-text">លេខទូរស័ព្ទ / Phone (Optional)</label>
               <input type="text" name="empPhone" className="input-field" placeholder="e.g. 012345678" />
             </div>
-<div className="form-group">
+<div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label className="kh-text">ឯកសារយោង / Receipt Link / 收据链接</label>
               <input type="url" name="receiptUrl" className="input-field" placeholder="Google Drive Link..." />
             </div>

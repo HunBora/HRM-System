@@ -107,7 +107,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
     const doc = new jsPDF();
     doc.text('Expense Claim Detail', 14, 15);
     doc.text(`Date: ${new Date(claim.date).toLocaleDateString('en-GB')}`, 14, 25);
-    doc.text(`Employee: ${claim.employee ? claim.employee.firstNameKh + ' ' + claim.employee.lastNameKh : 'N/A'}`, 14, 35);
+    doc.text(`Employee: ${claim.employee ? (claim.employee.firstNameKh ? claim.employee.firstNameKh + ' ' + claim.employee.lastNameKh : claim.employee.firstNameEn + ' ' + claim.employee.lastNameEn) : 'N/A'}`, 14, 35);
     doc.text(`Category: ${claim.category}`, 14, 45);
     doc.text(`Amount: ${claim.amount} ${claim.currency}`, 14, 55);
     doc.text(`Status: ${claim.status}`, 14, 65);
@@ -123,7 +123,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         return {
           Date: new Date(c.date).toLocaleDateString('en-GB'),
           Department: c.employee?.department || '',
-          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : p.name,
+          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : (c.employee?.firstNameEn ? c.employee.firstNameEn + ' ' + c.employee.lastNameEn : p.name),
           'Emp ID': c.employee?.employeeId || p.id,
           Type: c.category,
           Amount: c.amount,
@@ -145,7 +145,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
         return {
           Date: new Date(c.date).toLocaleDateString('en-GB'),
           Department: c.employee?.department || '',
-          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : p.name,
+          Employee: c.employee?.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : (c.employee?.firstNameEn ? c.employee.firstNameEn + ' ' + c.employee.lastNameEn : p.name),
           'Emp ID': c.employee?.employeeId || p.id,
           Type: c.category,
           Amount: c.amount,
@@ -171,7 +171,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
       body: claims.map((c: any) => [
         new Date(c.date).toLocaleDateString('en-GB'),
         c.employee?.department || '',
-        c.employee ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : '',
+        c.employee ? (c.employee.firstNameKh ? c.employee.firstNameKh + ' ' + c.employee.lastNameKh : c.employee.firstNameEn + ' ' + c.employee.lastNameEn) : '',
         c.employee?.employeeId || '',
         c.category,
         c.amount,
@@ -320,7 +320,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
           <tbody>
             {claims.map((claim: any) => {
               const parsed = parseDescription(claim.description);
-              const empName = claim.employee?.firstNameKh ? `${claim.employee.firstNameKh} ${claim.employee.lastNameKh}` : parsed.name;
+              const empName = claim.employee?.firstNameKh ? `${claim.employee.firstNameKh} ${claim.employee.lastNameKh}` : (claim.employee?.firstNameEn ? `${claim.employee.firstNameEn} ${claim.employee.lastNameEn}` : parsed.name);
               const empId = claim.employee?.employeeId || parsed.id;
               
               return (
@@ -334,12 +334,12 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                 )}
                 {role !== 'EMPLOYEE' && (
                   <td style={{ padding: '12px 15px' }} className="kh-text">
-                    {claim.employee?.firstNameKh} {claim.employee?.lastNameKh}
+                    {empName}
                   </td>
                 )}
                 {role !== 'EMPLOYEE' && (
                   <td style={{ padding: '12px 15px' }} className="kh-text">
-                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{claim.employee?.employeeId || '-'}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{empId || '-'}</div>
                   </td>
                 )}
                 <td style={{ padding: '12px 15px' }}>

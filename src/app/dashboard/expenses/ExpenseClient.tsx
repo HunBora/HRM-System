@@ -86,6 +86,20 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
   };
 
   
+  
+  const printSingleClaim = (claim: any) => {
+    const doc = new jsPDF();
+    doc.text('Expense Claim Detail', 14, 15);
+    doc.text(`Date: ${new Date(claim.date).toLocaleDateString('en-GB')}`, 14, 25);
+    doc.text(`Employee: ${claim.employee ? claim.employee.firstNameKh + ' ' + claim.employee.lastNameKh : 'N/A'}`, 14, 35);
+    doc.text(`Category: ${claim.category}`, 14, 45);
+    doc.text(`Amount: ${claim.amount} ${claim.currency}`, 14, 55);
+    doc.text(`Status: ${claim.status}`, 14, 65);
+    doc.text(`Description: ${claim.description || 'N/A'}`, 14, 75);
+    
+    doc.save(`Expense_${claim.id}.pdf`);
+  };
+
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(claims.map((c: any) => ({
       Date: new Date(c.date).toLocaleDateString('en-GB'),
@@ -234,7 +248,7 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
       )}
 
       
-      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }} className="print-hidden">
+      <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '10px', marginBottom: '15px' }} className="print-hidden">
         <select 
           className="input-field kh-text"
           style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', cursor: 'pointer', width: '250px' }}
@@ -244,7 +258,6 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
             if (val === 'pdf') exportToPDF();
             else if (val === 'excel') exportToExcel();
             else if (val === 'csv') exportToCSV();
-            else if (val === 'print') handlePrint();
             e.target.value = "";
           }}
         >
@@ -252,8 +265,11 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
           <option value="pdf">📄 ទាញយកជា PDF</option>
           <option value="excel">📊 ទាញយកជា Excel</option>
           <option value="csv">📑 ទាញយកជា CSV</option>
-          <option value="print">🖨️ ព្រីនចេញ (Print)</option>
         </select>
+        
+        <button onClick={handlePrint} style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          🖨️ Print
+        </button>
       </div>
       <div className="card" style={{ padding: '0', overflow: 'hidden', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -294,7 +310,10 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
                   </span>
                 </td>
                 <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                  {claim.receiptUrl && (
+                  <button onClick={() => printSingleClaim(claim)} style={{ display: 'inline-block', marginRight: '10px', background: 'none', border: 'none', cursor: 'pointer', color: '#10b981' }} title="Print / ព្រីន">
+                      🖨️
+                    </button>
+                    {claim.receiptUrl && (
                     <a href={claim.receiptUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginRight: '10px', color: '#3b82f6', textDecoration: 'none' }} title="មើលវិក្កយបត្រ">
                       📎
                     </a>

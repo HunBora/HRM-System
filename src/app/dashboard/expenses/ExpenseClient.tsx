@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { submitExpenseClaim, updateExpenseStatus } from './actions';
+import Swal from 'sweetalert2';
 
 export default function ExpenseClient({ role, currentEmployeeId, claims, l, locale }: any) {
   const [showForm, setShowForm] = useState(false);
@@ -16,18 +17,52 @@ export default function ExpenseClient({ role, currentEmployeeId, claims, l, loca
     
     setIsSubmitting(false);
     if (res?.error) {
-      alert(res.error);
+      Swal.fire({
+        icon: 'error',
+        title: 'បរាជ័យ',
+        text: res.error,
+        confirmButtonText: 'យល់ព្រម'
+      });
     } else {
       setShowForm(false);
-      alert('បានបញ្ជូនការស្នើសុំដោយជោគជ័យ!');
+      Swal.fire({
+        icon: 'success',
+        title: 'ជោគជ័យ',
+        text: 'បានបញ្ជូនការស្នើសុំដោយជោគជ័យ!',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
-    if (!confirm('តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពមែនទេ?')) return;
+    const result = await Swal.fire({
+      title: 'បញ្ជាក់',
+      text: 'តើអ្នកពិតជាចង់ផ្លាស់ប្តូរស្ថានភាពមែនទេ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'យល់ព្រម',
+      cancelButtonText: 'បោះបង់'
+    });
+    
+    if (!result.isConfirmed) return;
+    
     const res = await updateExpenseStatus(id, status);
     if (res?.error) {
-      alert(res.error);
+      Swal.fire({
+        icon: 'error',
+        title: 'បរាជ័យ',
+        text: res.error,
+        confirmButtonText: 'យល់ព្រម'
+      });
+    } else {
+      Swal.fire({
+        icon: 'success',
+        title: 'ជោគជ័យ',
+        text: 'ស្ថានភាពត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ!',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
   };
 

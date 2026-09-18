@@ -332,18 +332,28 @@ model EmployeeDocument {
 }
 
 model CompanyAsset {
-  id           String    @id @default(uuid())
-  employeeId   String
-  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  name         String
-  serialNumber String?
-  assignDate   DateTime  @default(now())
-  returnDate   DateTime?
-  status       String    @default("IN_USE") // IN_USE, RETURNED, LOST, DAMAGED
-  remarks      String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String    @id @default(uuid())
+  assetCode       String?   @unique
+  itemType        String?
+  employeeId      String?
+  employee        Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  serialNumber    String?
+  uom             String    @default("Unit")
+  qtyInList       Int       @default(1)
+  counting        Int?
+  variance        Int?
+  quality         String?
+  imageUrl        String?   @db.Text
+  assignDate      DateTime  @default(now())
+  returnDate      DateTime?
+  status          String    @default("IN_USE") // IN_USE, RETURNED, LOST, DAMAGED
+  remarks         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
+
 model Document {
   id          String   @id @default(cuid())
   title       String

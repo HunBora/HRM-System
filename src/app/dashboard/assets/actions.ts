@@ -10,14 +10,22 @@ export async function createAsset(formData: FormData) {
     return { error: 'គ្មានសិទ្ធិអនុម័ត!' };
   }
 
-  const employeeIdStr = formData.get('employeeId') as string;
+  const employeeIdStr = formData.get('employeeId') as string || null;
   const name = formData.get('name') as string;
   const serialNumber = formData.get('serialNumber') as string || null;
   const assignDate = formData.get('assignDate') as string;
   const status = formData.get('status') as string || 'IN_USE';
   const remarks = formData.get('remarks') as string || null;
+  const assetCode = formData.get('assetCode') as string || null;
+  const itemType = formData.get('itemType') as string || null;
+  const description = formData.get('description') as string || null;
+  const uom = formData.get('uom') as string || 'Unit';
+  const qtyInList = parseInt(formData.get('qtyInList') as string) || 1;
+  const counting = formData.get('counting') ? parseInt(formData.get('counting') as string) : null;
+  const variance = formData.get('variance') ? parseInt(formData.get('variance') as string) : null;
+  const quality = formData.get('quality') as string || null;
 
-  if (!employeeIdStr || !name || !assignDate) {
+  if (!name || !assignDate) {
     return { error: 'សូមបំពេញព័ត៌មានដែលចាំបាច់ទាំងអស់!' };
   }
 
@@ -29,6 +37,14 @@ export async function createAsset(formData: FormData) {
       assignDate: new Date(assignDate),
       status,
       remarks,
+      assetCode,
+      itemType,
+      description,
+      uom,
+      qtyInList,
+      counting,
+      variance,
+      quality,
     }
   });
 

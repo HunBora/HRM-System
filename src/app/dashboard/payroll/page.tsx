@@ -5,6 +5,7 @@ import { getDictionary } from '@/i18n/getDictionary';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import GeneratePayrollButton from './GeneratePayrollButton';
+import BulkTelegramPayslipButton from './BulkTelegramPayslipButton';
 import DraggableSummaryCards from '@/components/DraggableSummaryCards';
 import PayrollFilterForm from '@/components/PayrollFilterForm';
 
@@ -177,6 +178,11 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
             >
               របាយការណ៍សរុប (Master Summary)
             </Link>
+            <BulkTelegramPayslipButton 
+              month={month} 
+              year={year} 
+              eligibleCount={payrolls.filter(p => p.employee?.telegramChatId && p.employee.telegramChatId.trim() !== '').length} 
+            />
             <GeneratePayrollButton month={month} year={year} text={t.payroll.generateBtn} />
           </div>
           

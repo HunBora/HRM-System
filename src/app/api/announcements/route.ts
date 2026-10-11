@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendTelegramNotification } from '@/lib/telegram';
+import { recordAudit } from '@/lib/audit';
 
 // GET: ទាញយកបញ្ជីសេចក្តីជូនដំណឹង (Company Announcements)
 export async function GET(request: Request) {
@@ -83,6 +85,34 @@ export async function POST(request: Request) {
         attachmentUrl: attachmentUrl || null,
         status: status || 'PUBLISHED',
       }
+    });
+
+    // Auto-broadcast announcement to company Telegram Channel if PUBLISHED
+    if (announcement.status === 'PUBLISHED') {
+      const priorityBadge = announcement.priority === 'URGENT' ? '🚨 <b>បន្ទាន់ខ្លាំង (URGENT)</b>' : '📢 <b>សេចក្តីជូនដំណឹង (ANNOUNCEMENT)</b>';
+      const telegramBroadcast = `${priorityBadge}
+━━━━━━━━━━━━━━━━━━━━
+📌 <b>ប្រធានបទ (Title):</b> ${announcement.title}
+🏢 <b>ផ្នែកពាក់ព័ន្ធ (Target Dept):</b> ${announcement.targetDept === 'ALL' ? 'បុគ្គលិកគ្រប់ផ្នែក (All Staff)' : announcement.targetDept}
+👤 <b>ចេញផ្សាយដោយ (By):</b> ${announcement.authorName || 'HR Management'}
+📅 <b>កាលបរិច្ឆេទ (Date):</b> ${new Date().toLocaleDateString('km-KH')}
+
+📝 <b>ខ្លឹមសារសង្ខេប (Content):</b>
+${announcement.content.length > 300 ? announcement.content.substring(0, 300) + '...' : announcement.content}
+
+━━━━━━━━━━━━━━━━━━━━
+<i>សូមបុគ្គលិកទាំងអស់ជ្រាបជាព័ត៌មាន (Please be informed accordingly).</i>`;
+
+      sendTelegramNotification(telegramBroadcast).catch(err => console.error('Telegram broadcast error:', err));
+    }
+
+    await recordAudit({
+      action: 'CREATE',
+      module: 'ANNOUNCEMENTS',
+      targetId: announcement.id,
+      targetName: announcement.title,
+      details: `Created announcement with priority ${announcement.priority} for ${announcement.targetDept}`,
+      status: 'SUCCESS'
     });
 
     return NextResponse.json(announcement, { status: 201 });

@@ -66,3 +66,9 @@ export async function updateSettings(formData: FormData) {
   
   revalidatePath('/', 'layout');
 }
+
+export async function testTelegramBotAction(botToken?: string, chatId?: string) {
+  const { testTelegramBotConnection } = await import('@/lib/telegram');
+  return await testTelegramBotConnection(botToken, chatId);
+}
+

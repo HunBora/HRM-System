@@ -2,12 +2,57 @@
 
 import { useState } from 'react';
 import Swal from 'sweetalert2';
-import { updateSettings } from './actions';
+import { updateSettings, testTelegramBotAction } from './actions';
 import Image from 'next/image';
 
 export default function SettingsForm({ settings }: { settings: any }) {
   const [loading, setLoading] = useState(false);
+  const [testingBot, setTestingBot] = useState(false);
   const [preview, setPreview] = useState<string | null>(settings?.logoUrl || null);
+
+  const handleTestTelegram = async () => {
+    const tokenInput = document.querySelector('input[name="telegramBotToken"]') as HTMLInputElement;
+    const chatInput = document.querySelector('input[name="telegramChatId"]') as HTMLInputElement;
+    const token = tokenInput ? tokenInput.value.trim() : '';
+    const chatId = chatInput ? chatInput.value.trim() : '';
+
+    if (!token || !chatId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'ទិន្នន័យមិនទាន់គ្រប់គ្រាន់',
+        text: 'សូមបញ្ចូល Telegram Bot Token និង Chat ID ជាមុនសិន! (Please fill Bot Token & Chat ID)',
+      });
+      return;
+    }
+
+    setTestingBot(true);
+    try {
+      const res = await testTelegramBotAction(token, chatId);
+      if (res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'តភ្ជាប់ជោគជ័យ! (Success)',
+          text: res.message,
+          confirmButtonColor: '#10b981',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'តភ្ជាប់មិនបានសម្រេច (Failed)',
+          text: res.message,
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    } catch (e: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'កំហុសបច្ចេកទេស',
+        text: e.message || 'Error testing bot',
+      });
+    } finally {
+      setTestingBot(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -130,14 +175,41 @@ export default function SettingsForm({ settings }: { settings: any }) {
             <input 
               type="text" 
               name="telegramChatId" 
+              id="telegramChatId"
               defaultValue={settings?.telegramChatId || ''} 
               style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px' }} 
               placeholder="វាយបញ្ចូល Chat ID គោលដៅ..."
             />
           </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
+            <button
+              type="button"
+              disabled={testingBot}
+              onClick={handleTestTelegram}
+              className="btn-secondary kh-text"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                backgroundColor: '#0284c7',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '0.88rem',
+                cursor: testingBot ? 'not-allowed' : 'pointer',
+                opacity: testingBot ? 0.7 : 1,
+              }}
+            >
+              <span>{testingBot ? 'កំពុងសាកល្បង...' : '⚡ សាកល្បងតភ្ជាប់ (Test Connection)'}</span>
+            </button>
+            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+              ចុចដើម្បីផ្ញើសារសាកល្បង (Test Ping) ទៅកាន់ Telegram Chat ID ខាងលើ
+            </span>
+          </div>
         </div>
       </div>
-
 
       <button type="submit" className="btn-primary kh-text" disabled={loading} style={{ alignSelf: 'flex-start', marginTop: '10px' }}>
         {loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក (Save Settings)'}

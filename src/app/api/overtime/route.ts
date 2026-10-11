@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendTelegramNotification } from '@/lib/telegram';
+import { recordAudit } from '@/lib/audit';
 
 // Calculate rate multiplier based on OT Type
 function getMultiplier(type: string): number {
@@ -168,6 +170,21 @@ export async function POST(request: Request) {
         }
       }
     });
+
+    // Notify via Telegram group/channel
+    const empName = `${newRequest.employee.firstNameKh || ''} ${newRequest.employee.lastNameKh || ''} (${newRequest.employee.firstNameEn} ${newRequest.employee.lastNameEn})`;
+    const otMsg = `⏰ <b>សំណើថែមម៉ោងថ្មី (New OT Request)</b>
+━━━━━━━━━━━━━━━━━━━━
+👤 <b>បុគ្គលិក:</b> ${empName}
+📌 <b>អត្តលេខ:</b> ${newRequest.employee.employeeId} | <b>ផ្នែក:</b> ${newRequest.employee.department}
+📅 <b>កាលបរិច្ឆេទ:</b> ${new Date(newRequest.otDate).toLocaleDateString('km-KH')}
+⏱ <b>ម៉ោង:</b> ${newRequest.startTime} - ${newRequest.endTime} (<b>${newRequest.totalHours} ម៉ោង</b>)
+🏷 <b>ប្រភេទ OT:</b> ${newRequest.otType} (មេគុណ ${newRequest.rateMultiplier}x)
+📝 <b>មូលហេតុ:</b> ${newRequest.reason || '-'}
+━━━━━━━━━━━━━━━━━━━━
+<i>រង់ចាំការអនុម័តពីប្រធានផ្នែក/HR (Pending Approval).</i>`;
+
+    sendTelegramNotification(otMsg).catch(e => console.error('Error sending OT telegram notification:', e));
 
     return NextResponse.json(newRequest, { status: 201 });
   } catch (error: any) {

@@ -448,6 +448,27 @@ export default function LoansClient({
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <a
+            href="/dashboard/advance"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#f8fafc',
+              color: '#334155',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '10px 14px',
+              fontWeight: 700,
+              fontSize: '0.86rem',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>💵</span>
+            <span>ប្រាក់បុរេប្រទាន (Advance Salary)</span>
+          </a>
+
           {isHR && (
             <button
               onClick={() => setIsAddModalOpen(true)}

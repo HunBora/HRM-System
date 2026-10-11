@@ -64,7 +64,28 @@ export default async function KpiPage() {
             {t.kpi.dashboard?.overview || "Dashboard Overview"}
           </p>
         </div>
-        <KpiExportImportButtons />
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <a
+            href="/dashboard/performance"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#eff6ff',
+              color: '#2563eb',
+              border: '1px solid #bfdbfe',
+              borderRadius: '6px',
+              padding: '8px 14px',
+              fontWeight: 700,
+              fontSize: '0.86rem',
+              textDecoration: 'none',
+            }}
+          >
+            <span>🎯</span>
+            <span>ការវាយតម្លៃបុគ្គលិក (Appraisal 360)</span>
+          </a>
+          <KpiExportImportButtons />
+        </div>
       </div>
 
       {/* Summary Stats */}

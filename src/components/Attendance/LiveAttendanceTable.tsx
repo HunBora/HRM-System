@@ -90,6 +90,22 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
             />
             <button type="submit" className="btn-secondary kh-text">{t?.employee?.searchButton || "ស្វែងរក"}</button>
           </form>
+          <Link
+            href="/dashboard/biometric"
+            className="btn-secondary kh-text"
+            style={{ 
+              textDecoration: 'none', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              backgroundColor: '#eff6ff',
+              color: '#2563eb',
+              borderColor: '#bfdbfe'
+            }}
+          >
+            <span>📲</span>
+            <span>ម៉ាស៊ីនស្កេនមេដៃ (Biometrics)</span>
+          </Link>
           <ImportFingerprintModal />
         </div>
       </div>

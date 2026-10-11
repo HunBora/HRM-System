@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -12,9 +12,25 @@ interface SidebarProps {
   role?: string;
 }
 
+interface NavItem {
+  href: string;
+  icon: string;
+  label: string;
+  subLabel?: string;
+  badge?: string;
+  roles: string[];
+}
+
+interface NavGroup {
+  groupTitleKh: string;
+  groupTitleEn: string;
+  roles: string[];
+  items: NavItem[];
+}
+
 export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPLOYEE' }: SidebarProps) {
   const pathname = usePathname();
-  const [width, setWidth] = useState<number>(260);
+  const [width, setWidth] = useState<number>(270);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -24,7 +40,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     const savedCollapsed = localStorage.getItem('hrm_sidebar_collapsed');
     if (savedWidth) {
       const parsed = parseInt(savedWidth, 10);
-      if (!isNaN(parsed) && parsed >= 160 && parsed <= 480) {
+      if (!isNaN(parsed) && parsed >= 180 && parsed <= 480) {
         setWidth(parsed);
       }
     }
@@ -44,9 +60,9 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     setIsResizing(true);
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
-      const newWidth = Math.max(160, Math.min(480, moveEvent.clientX));
+      const newWidth = Math.max(180, Math.min(480, moveEvent.clientX));
       setWidth(newWidth);
-      if (isCollapsed && newWidth > 180) {
+      if (isCollapsed && newWidth > 200) {
         setIsCollapsed(false);
         localStorage.setItem('hrm_sidebar_collapsed', 'false');
       }
@@ -54,7 +70,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
     const handleMouseUp = (upEvent: MouseEvent) => {
       setIsResizing(false);
-      const finalWidth = Math.max(160, Math.min(480, upEvent.clientX));
+      const finalWidth = Math.max(180, Math.min(480, upEvent.clientX));
       localStorage.setItem('hrm_sidebar_width', String(finalWidth));
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
@@ -64,36 +80,198 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  const navItems = [
-    { href: '/dashboard', icon: '📊', label: t.sidebar.dashboard, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/my-portal', icon: '📱', label: 'ផតថលបុគ្គលិក (My Portal)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/announcements', icon: '📣', label: 'សេចក្តីជូនដំណឹង (Announcements)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/users', icon: '🔐', label: 'គ្រប់គ្រងគណនី', roles: ['ADMIN'] },
-    { href: '/dashboard/employees', icon: '👥', label: t.sidebar.employees, roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
-    { href: '/dashboard/recruitment', icon: '📢', label: 'ជ្រើសរើសបុគ្គលិក (Recruitment)', roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
-    { href: '/dashboard/offboarding', icon: '🚪', label: 'បញ្ចប់ការងារ (Offboarding)', roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
-    { href: '/dashboard/resignation', icon: '📝', label: 'លាលែង និងសម្ភាសន៍ (Resignation)', roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
-    { href: '/dashboard/attendance', icon: '📅', label: t.sidebar.attendance, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'] },
-    { href: '/dashboard/biometric', icon: '📲', label: 'ស្កេនមេដៃ (Biometrics)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
-    { href: '/dashboard/roster', icon: '⏱️', label: 'កាលវិភាគវេន (Roster)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/leave', icon: '🌴', label: t.sidebar.leave, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/overtime', icon: '⏰', label: 'ស្នើសុំថែមម៉ោង (Overtime)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/advance', icon: '💵', label: t.sidebar.advance || 'ប្រាក់បុរេប្រទាន', roles: ['ADMIN', 'PAYROLL_ADMIN'] },
-    { href: '/dashboard/loans', icon: '💳', label: 'ប្រាក់កម្ចីបុគ្គលិក (Loans)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
-    { href: '/dashboard/payroll', icon: '💰', label: t.sidebar.payroll, roles: ['ADMIN', 'PAYROLL_ADMIN'] },
-    { href: '/dashboard/exports', icon: '📥', label: t.sidebar.exports, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
-    { href: '/dashboard/kpi', icon: '📈', label: t.sidebar.kpi, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
-    { href: '/dashboard/performance', icon: '🎯', label: 'វាយតម្លៃការងារ (Appraisal)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
-    { href: '/dashboard/trainings', icon: '🎓', label: 'វគ្គបណ្តុះបណ្តាល (Training)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
-    { href: '/dashboard/disciplinary', icon: '⚖️', label: 'វិធានការវិន័យ (Disciplinary)', roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
-    { href: '/dashboard/documents', icon: '📁', label: t.sidebar.documents || (t.sidebar.dashboard === 'Dashboard' ? 'Documents' : t.sidebar.dashboard === '仪表板' ? '公司文件' : 'ឯកសារក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
-    { href: '/dashboard/certificates', icon: '📜', label: 'លិខិតបញ្ជាក់ (Certificates)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
-    { href: '/dashboard/assets', icon: '💻', label: t.sidebar.assets || (t.sidebar.dashboard === 'Dashboard' ? 'Company Assets' : t.sidebar.dashboard === '仪表板' ? '公司资产' : 'ទ្រព្យសម្បត្តិក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
-    { href: '/dashboard/expenses', icon: '💸', label: t.sidebar.expenses || 'ចំណាយ និងការទូទាត់', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-    { href: '/dashboard/audit', icon: '🛡️', label: 'កំណត់ត្រាសវនកម្ម (Audit Trail)', roles: ['ADMIN'] },
-    { href: '/dashboard/settings', icon: '⚙️', label: t.sidebar.settings, roles: ['ADMIN'] },
-    { href: '/dashboard/about', icon: 'ℹ️', label: t.sidebar.about || (t.sidebar.dashboard === 'Dashboard' ? 'About' : t.sidebar.dashboard === '仪表板' ? '关于系统' : 'អំពីប្រព័ន្ធ'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
-  ].filter(item => item.roles.includes(role));
+  // Structured Categorical Navigation (Merged & Organized into 6 Enterprise Groups)
+  const navGroups: NavGroup[] = [
+    {
+      groupTitleKh: 'ទូទៅ',
+      groupTitleEn: 'General & Portal',
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      items: [
+        {
+          href: '/dashboard',
+          icon: '📊',
+          label: t.sidebar.dashboard || 'ផ្ទាំងគ្រប់គ្រង (Dashboard)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/my-portal',
+          icon: '📱',
+          label: 'ផតថលបុគ្គលិក (My Portal)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/announcements',
+          icon: '📣',
+          label: 'សេចក្តីជូនដំណឹង (Announcements)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+      ],
+    },
+    {
+      groupTitleKh: 'បុគ្គលិក & ជ្រើសរើស',
+      groupTitleEn: 'Workforce & Talent',
+      roles: ['ADMIN', 'HR_MANAGER', 'HR'],
+      items: [
+        {
+          href: '/dashboard/employees',
+          icon: '👥',
+          label: t.sidebar.employees || 'បញ្ជីបុគ្គលិក (Employees)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
+        },
+        {
+          href: '/dashboard/recruitment',
+          icon: '📢',
+          label: 'ជ្រើសរើសបុគ្គលិក (Recruitment)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
+        },
+        {
+          href: '/dashboard/offboarding',
+          icon: '🚪',
+          label: 'បញ្ចប់ការងារ & លាលែង (Offboarding)',
+          subLabel: 'Offboarding & Resignation',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
+        },
+      ],
+    },
+    {
+      groupTitleKh: 'វត្តមាន & វេនការងារ',
+      groupTitleEn: 'Time & Attendance',
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      items: [
+        {
+          href: '/dashboard/attendance',
+          icon: '📅',
+          label: 'វត្តមាន & ស្កេនមេដៃ (Attendance)',
+          subLabel: 'Attendance & Biometrics',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
+        },
+        {
+          href: '/dashboard/roster',
+          icon: '⏱️',
+          label: 'កាលវិភាគវេន (Shift Roster)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/leave',
+          icon: '🌴',
+          label: t.sidebar.leave || 'ច្បាប់ឈប់សម្រាក (Leave)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/overtime',
+          icon: '⏰',
+          label: 'ស្នើសុំថែមម៉ោង (Overtime)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+      ],
+    },
+    {
+      groupTitleKh: 'ប្រាក់បៀវត្សរ៍ & ហិរញ្ញវត្ថុ',
+      groupTitleEn: 'Payroll & Finance',
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      items: [
+        {
+          href: '/dashboard/payroll',
+          icon: '💰',
+          label: t.sidebar.payroll || 'តារាងប្រាក់ខែ (Payroll)',
+          roles: ['ADMIN', 'PAYROLL_ADMIN'],
+        },
+        {
+          href: '/dashboard/loans',
+          icon: '💳',
+          label: 'កម្ចី & បុរេប្រទាន (Loans & Advances)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
+        },
+        {
+          href: '/dashboard/expenses',
+          icon: '💸',
+          label: t.sidebar.expenses || 'ចំណាយ & ការទូទាត់ (Expenses)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/exports',
+          icon: '📥',
+          label: t.sidebar.exports || 'នាំចេញទិន្នន័យ (Master Exports)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
+        },
+      ],
+    },
+    {
+      groupTitleKh: 'ការអភិវឌ្ឍន៍ & ប្រតិបត្តិការ',
+      groupTitleEn: 'Operations & Performance',
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+      items: [
+        {
+          href: '/dashboard/performance',
+          icon: '🎯',
+          label: 'វាយតម្លៃការងារ & KPI (Performance)',
+          subLabel: 'Appraisal & KPI Matrix',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
+        },
+        {
+          href: '/dashboard/trainings',
+          icon: '🎓',
+          label: 'វគ្គបណ្តុះបណ្តាល (Training LMS)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/disciplinary',
+          icon: '⚖️',
+          label: 'វិធានការវិន័យ (Disciplinary)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
+        },
+        {
+          href: '/dashboard/certificates',
+          icon: '📜',
+          label: 'លិខិតបញ្ជាក់ (Certificates)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/documents',
+          icon: '📁',
+          label: 'ឯកសារក្រុមហ៊ុន (Documents)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+        },
+        {
+          href: '/dashboard/assets',
+          icon: '💻',
+          label: 'សម្ភារៈក្រុមហ៊ុន (Company Assets)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+        },
+      ],
+    },
+    {
+      groupTitleKh: 'ការគ្រប់គ្រងប្រព័ន្ធ',
+      groupTitleEn: 'System Administration',
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      items: [
+        {
+          href: '/dashboard/users',
+          icon: '🔐',
+          label: 'គ្រប់គ្រងគណនី (Users & Roles)',
+          roles: ['ADMIN'],
+        },
+        {
+          href: '/dashboard/audit',
+          icon: '🛡️',
+          label: 'កំណត់ត្រាសវនកម្ម (Audit Trail)',
+          roles: ['ADMIN'],
+        },
+        {
+          href: '/dashboard/settings',
+          icon: '⚙️',
+          label: t.sidebar.settings || 'ការកំណត់ប្រព័ន្ធ (Settings)',
+          roles: ['ADMIN'],
+        },
+        {
+          href: '/dashboard/about',
+          icon: 'ℹ️',
+          label: 'អំពីប្រព័ន្ធ (About HRM)',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+      ],
+    },
+  ];
 
   const currentWidth = isCollapsed ? 74 : width;
 
@@ -114,27 +292,42 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           background: rgba(255, 255, 255, 0.3);
         }
         .nav-item-link {
-          padding: 12px 14px;
-          font-size: 0.95rem;
+          padding: 9px 12px;
+          font-size: 0.88rem;
           font-weight: 500;
           display: flex;
           align-items: center;
-          gap: 14px;
-          transition: all 0.2s ease;
-          border-radius: 12px;
+          gap: 12px;
+          transition: all 0.18s ease;
+          border-radius: 10px;
           color: #94a3b8;
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
         }
         .nav-item-link:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.08);
           color: #ffffff;
+          transform: translateX(2px);
         }
         .nav-item-link.active {
-          background: linear-gradient(90deg, rgba(99, 102, 241, 0.25) 0%, rgba(59, 130, 246, 0.1) 100%);
+          background: linear-gradient(90deg, rgba(59, 130, 246, 0.22) 0%, rgba(37, 99, 235, 0.12) 100%);
           color: #ffffff;
+          font-weight: 700;
           border-left: 3px solid #60a5fa;
+        }
+        .group-header {
+          padding: 10px 12px 4px 12px;
+          font-size: 0.68rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #64748b;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+          margin-bottom: 4px;
         }
         .resize-handle {
           position: absolute;
@@ -189,14 +382,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {/* Header / Logo Area */}
         <div
           style={{
-            padding: isCollapsed ? '20px 10px' : '22px 18px',
+            padding: isCollapsed ? '20px 10px' : '20px 16px',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: isCollapsed ? 'center' : 'space-between',
             gap: '10px',
             background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
-            minHeight: '72px',
+            minHeight: '68px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
@@ -206,11 +399,11 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               </div>
             ) : (
               <span className="kh-text" style={{ color: '#60a5fa', fontWeight: 'bold', fontSize: '1.2rem', flexShrink: 0 }}>
-                {isCollapsed ? 'HR' : t.sidebar.system}
+                {isCollapsed ? 'HR' : (t.sidebar.system || 'HRM System')}
               </span>
             )}
             {!isCollapsed && (
-              <span style={{ fontSize: '0.95rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span style={{ fontSize: '0.92rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {companyName}
               </span>
             )}
@@ -242,39 +435,65 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           </button>
         </div>
 
-        {/* Navigation Menu (Scrollable with custom scrollbar) */}
+        {/* Navigation Menu (Grouped & Scrollable) */}
         <nav
           className="sidebar-nav-scroll"
           style={{
             display: 'flex',
             flexDirection: 'column',
-            padding: isCollapsed ? '16px 8px' : '20px 14px',
-            gap: '6px',
+            padding: isCollapsed ? '12px 6px' : '14px 10px',
+            gap: isCollapsed ? '4px' : '10px',
             flex: 1,
             overflowY: 'auto',
             overflowX: 'hidden',
           }}
         >
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+          {navGroups.map((group, groupIdx) => {
+            // Filter items by role
+            const visibleItems = group.items.filter((item) => item.roles.includes(role));
+            if (visibleItems.length === 0) return null;
+
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`nav-item-link ${isActive ? 'active' : ''}`}
-                title={isCollapsed ? item.label : undefined}
-                style={{
-                  justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  padding: isCollapsed ? '12px 0' : '12px 14px',
-                }}
-              >
-                <span className="interactive-icon" style={{ fontSize: '1.25rem', flexShrink: 0 }}>{item.icon}</span>
+              <div key={groupIdx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                {/* Group Category Header (Hidden on collapse) */}
                 {!isCollapsed && (
-                  <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {item.label}
-                  </span>
+                  <div className="group-header">
+                    <span>{group.groupTitleKh}</span>
+                    <span style={{ fontSize: '0.62rem', opacity: 0.65, fontWeight: 500 }}>{group.groupTitleEn}</span>
+                  </div>
                 )}
-              </Link>
+
+                {/* Group Items */}
+                {visibleItems.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`nav-item-link ${isActive ? 'active' : ''}`}
+                      title={isCollapsed ? item.label : undefined}
+                      style={{
+                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                        padding: isCollapsed ? '10px 0' : '9px 12px',
+                      }}
+                    >
+                      <span className="interactive-icon" style={{ fontSize: '1.2rem', flexShrink: 0 }}>
+                        {item.icon}
+                      </span>
+                      {!isCollapsed && (
+                        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', lineHeight: 1.25 }}>
+                          <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {item.label}
+                          </span>
+                        </div>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
@@ -282,19 +501,19 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {/* Footer Area */}
         <div
           style={{
-            padding: isCollapsed ? '12px 4px' : '14px 12px',
+            padding: isCollapsed ? '12px 4px' : '12px 10px',
             borderTop: '1px solid rgba(255,255,255,0.06)',
             fontSize: '0.7rem',
             color: '#64748b',
             textAlign: 'center',
-            background: 'rgba(0,0,0,0.15)',
+            background: 'rgba(0,0,0,0.18)',
           }}
         >
           {isCollapsed ? (
             <div style={{ fontWeight: 'bold', fontSize: '0.65rem' }}>v1.0</div>
           ) : (
             <>
-              <div style={{ marginBottom: '3px', fontWeight: 500 }}>Version 1.0 HRM System</div>
+              <div style={{ marginBottom: '2px', fontWeight: 600 }}>Version 1.0 • HRM Enterprise</div>
               <div className="kh-text" style={{ fontSize: '0.65rem', opacity: 0.8 }}>រក្សាសិទ្ធិដោយ Mr.Hun Bora</div>
             </>
           )}

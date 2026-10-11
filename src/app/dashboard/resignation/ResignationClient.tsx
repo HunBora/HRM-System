@@ -425,6 +425,27 @@ export default function ResignationClient({ initialRecords, employees, departmen
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <a
+            href="/dashboard/offboarding"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#f8fafc',
+              color: '#334155',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '10px 14px',
+              fontWeight: 700,
+              fontSize: '0.86rem',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>🚪</span>
+            <span>បញ្ចប់ការងារ & ទូទាត់ប្រាក់ (Offboarding)</span>
+          </a>
+
           {isHR && (
             <button
               onClick={handleOpenCreate}

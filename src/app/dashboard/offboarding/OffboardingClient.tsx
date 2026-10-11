@@ -196,6 +196,26 @@ export default function OffboardingClient({ initialTerminations, employees }: { 
           ការបញ្ចប់ការងារ និង ទូទាត់ប្រាក់ <span>离职与结算</span> (Offboarding & Final Settlement)
         </h1>
         <div style={{ display: 'flex', gap: '10px' }}>
+          <a
+            href="/dashboard/resignation"
+            className="kh-text no-print"
+            style={{ 
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 15px', 
+              backgroundColor: '#f8fafc', 
+              color: '#334155', 
+              border: '1px solid #cbd5e1', 
+              borderRadius: '6px', 
+              cursor: 'pointer', 
+              fontWeight: 'bold',
+              textDecoration: 'none'
+            }}
+          >
+            <span>📝</span>
+            <span>លាលែង & សម្ភាសន៍ (Resignation)</span>
+          </a>
           <button 
             onClick={handleExportExcel}
             className="kh-text no-print"

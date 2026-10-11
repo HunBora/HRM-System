@@ -396,6 +396,27 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <a
+            href="/dashboard/kpi"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#f8fafc',
+              color: '#334155',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '10px 14px',
+              fontWeight: 700,
+              fontSize: '0.86rem',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>📈</span>
+            <span>គោលដៅ KPI តាមផ្នែក (Department KPIs)</span>
+          </a>
+
           {isHR && (
             <button
               onClick={handleOpenCreate}

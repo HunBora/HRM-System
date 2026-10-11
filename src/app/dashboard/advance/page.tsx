@@ -36,9 +36,15 @@ export default async function AdvancePage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 className="title kh-text" style={{ marginBottom: 0 }}>ប្រាក់ខ្ចី (Advance Salary)</h1>
         
-        <Link href="/dashboard/advance/new" className="btn-primary kh-text" style={{ textDecoration: 'none' }}>
-          {t.advance.newBtn}
-        </Link>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Link href="/dashboard/loans" className="btn-secondary kh-text" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>💳</span>
+            <span>ប្រាក់កម្ចីបុគ្គលិក (Employee Loans)</span>
+          </Link>
+          <Link href="/dashboard/advance/new" className="btn-primary kh-text" style={{ textDecoration: 'none' }}>
+            {t.advance.newBtn}
+          </Link>
+        </div>
       </div>
 
       <div className="card" style={{ overflowX: 'auto', padding: 0, border: '1px dashed var(--border-color)' }}>

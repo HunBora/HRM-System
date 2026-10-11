@@ -92,8 +92,10 @@ export async function POST(req: NextRequest) {
       for (const o of data.overtimeRequests) {
         const payload = {
           ...o,
-          date: o.date ? new Date(o.date) : new Date(),
+          otDate: o.otDate ? new Date(o.otDate) : o.date ? new Date(o.date) : new Date(),
         };
+        // Remove rogue date property if present in payload
+        delete (payload as any).date;
         await prisma.overtimeRequest.upsert({ where: { id: o.id }, update: payload, create: payload });
       }
     }

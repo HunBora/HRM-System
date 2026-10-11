@@ -99,6 +99,7 @@ model Employee {
   exitInterviews   ExitInterview[]
   overtimeRequests OvertimeRequest[]
   certificateRequests CertificateRequest[]
+  loans            EmployeeLoan[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -640,8 +641,30 @@ model CompanyAnnouncement {
   updatedAt       DateTime  @updatedAt
 }
 
+// --- Employee Loan & Installment Deduction Models ---
 
-
-
-
-
+model EmployeeLoan {
+  id                    String    @id @default(uuid())
+  employeeId            String
+  employee              Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  loanCode              String    @unique // e.g. LN-2026-0001
+  loanAmount            Float     // Principal amount in USD
+  interestRate          Float     @default(0) // Annual interest rate in % (default 0%)
+  termMonths            Int       @default(6) // Repayment duration in months
+  monthlyDeduction      Float     // Auto calculated or fixed monthly installment
+  totalRepaid           Float     @default(0) // Total repaid so far
+  remainingBalance      Float     // Remaining balance
+  disbursementDate      DateTime  @default(now())
+  startDeductionMonth   String    // e.g. "2026-11"
+  status                String    @default("ACTIVE") // PENDING, ACTIVE, PAID_OFF, DEFAULTED, REJECTED
+  purpose               String    // Medical, Education, Housing, Emergency, Personal
+  guarantorName         String?
+  guarantorPhone        String?
+  disbursedBy           String?   @default("Finance / HR")
+  notes                 String?   @db.Text
+  repaymentSchedule     Json?     // Array of installments [{ installmentNo, dueDate, amount, status, paidDate }]
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}

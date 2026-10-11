@@ -98,6 +98,7 @@ model Employee {
   appraisals       PerformanceAppraisal[]
   exitInterviews   ExitInterview[]
   overtimeRequests OvertimeRequest[]
+  certificateRequests CertificateRequest[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -596,6 +597,28 @@ model OvertimeRequest {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
+
+// --- Employee Certificate & Official Letter Models ---
+
+model CertificateRequest {
+  id              String    @id @default(uuid())
+  employeeId      String
+  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  certificateType String    @default("EMPLOYMENT_CERTIFICATE") // EMPLOYMENT_CERTIFICATE, SALARY_CERTIFICATE, INTERNSHIP_CERTIFICATE, EXPERIENCE_LETTER
+  requestDate     DateTime  @default(now())
+  purpose         String    // Bank Loan, Embassy Visa, Rental, Job Application, Other
+  addressee       String?   // e.g. "To Whom It May Concern", "ជូនចំពោះ..."
+  status          String    @default("PENDING") // PENDING, APPROVED, ISSUED, REJECTED
+  issuedDate      DateTime?
+  issuedBy        String?   @default("HR Department")
+  referenceNo     String    @unique
+  notes           String?   @db.Text
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 
 
 

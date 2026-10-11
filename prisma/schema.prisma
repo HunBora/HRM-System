@@ -97,6 +97,7 @@ model Employee {
   disciplinaryActions DisciplinaryAction[]
   appraisals       PerformanceAppraisal[]
   exitInterviews   ExitInterview[]
+  overtimeRequests OvertimeRequest[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -570,6 +571,32 @@ model ExitInterview {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 }
+
+// --- Overtime (OT) Request & Approval Models ---
+
+model OvertimeRequest {
+  id              String    @id @default(uuid())
+  employeeId      String
+  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  otDate          DateTime
+  startTime       String    // e.g. "17:30"
+  endTime         String    // e.g. "20:30"
+  totalHours      Float     @default(1.0)
+  otType          String    @default("REGULAR_OT") // REGULAR_OT, NIGHT_OT, SUNDAY_OT, HOLIDAY_OT
+  rateMultiplier  Float     @default(1.5)
+  reason          String    // Project, Urgency, Line Workload, etc.
+  notes           String?   @db.Text
+  
+  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED, CANCELLED
+  approvedBy      String?   // Manager / HR
+  approvedAt      DateTime?
+  rejectionReason String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 
 
 

@@ -96,6 +96,7 @@ model Employee {
   rosters          ShiftRoster[]
   disciplinaryActions DisciplinaryAction[]
   appraisals       PerformanceAppraisal[]
+  exitInterviews   ExitInterview[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -532,5 +533,43 @@ model PerformanceAppraisal {
 
   @@unique([employeeId, period])
 }
+
+// --- Resignation & Exit Interview Models ---
+
+model ExitInterview {
+  id                  String    @id @default(uuid())
+  employeeId          String
+  employee            Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  resignationDate     DateTime  @default(now())
+  lastWorkingDate     DateTime
+  primaryReason       String    @default("CAREER_GROWTH") // BETTER_OFFER, CAREER_GROWTH, WORK_ENVIRONMENT, MANAGEMENT, PERSONAL_FAMILY, RELOCATION, HEALTH, OTHER
+  reasonDetails       String?   @db.Text
+  
+  // Feedback Ratings (1 - 5 stars)
+  cultureRating       Int       @default(4)
+  managementRating    Int       @default(4)
+  salaryBenefitRating Int       @default(3)
+  workEnvRating       Int       @default(4)
+  growthOppRating     Int       @default(3)
+  
+  wouldRecommend      Boolean   @default(true)
+  handoverPerson      String?
+  handoverNotes       String?   @db.Text
+  
+  // Clearance Checklist
+  itClearance         Boolean   @default(false)
+  financeClearance    Boolean   @default(false)
+  adminClearance      Boolean   @default(false)
+  hrClearance         Boolean   @default(false)
+  
+  interviewerName     String?   @default("HR Department")
+  feedbackNotes       String?   @db.Text
+  status              String    @default("PENDING") // PENDING, CLEARANCE_IN_PROGRESS, COMPLETED, CANCELLED
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
 
 

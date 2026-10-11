@@ -113,7 +113,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       titleEn: 'General Hub',
       icon: '🏢',
       badgeColor: '#3b82f6',
-      bgGlow: 'rgba(59, 130, 246, 0.15)',
+      bgGlow: 'rgba(59, 130, 246, 0.28)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
@@ -145,7 +145,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       titleEn: 'Workforce Hub',
       icon: '👥',
       badgeColor: '#6366f1',
-      bgGlow: 'rgba(99, 102, 241, 0.15)',
+      bgGlow: 'rgba(99, 102, 241, 0.28)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR'],
       items: [
         {
@@ -184,7 +184,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       titleEn: 'Time & Shifts',
       icon: '⏱️',
       badgeColor: '#0284c7',
-      bgGlow: 'rgba(2, 132, 199, 0.15)',
+      bgGlow: 'rgba(2, 132, 199, 0.28)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
@@ -230,7 +230,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       titleEn: 'Payroll & Finance',
       icon: '💳',
       badgeColor: '#10b981',
-      bgGlow: 'rgba(16, 185, 129, 0.15)',
+      bgGlow: 'rgba(16, 185, 129, 0.28)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
@@ -276,7 +276,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       titleEn: 'Talent & Operations',
       icon: '🎯',
       badgeColor: '#f59e0b',
-      bgGlow: 'rgba(245, 158, 11, 0.15)',
+      bgGlow: 'rgba(245, 158, 11, 0.28)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
@@ -336,7 +336,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       titleEn: 'System Administration',
       icon: '🛡️',
       badgeColor: '#8b5cf6',
-      bgGlow: 'rgba(139, 92, 246, 0.15)',
+      bgGlow: 'rgba(139, 92, 246, 0.28)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
@@ -404,23 +404,25 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           background: rgba(255, 255, 255, 0.28);
         }
 
-        /* Folder Card Container */
+        /* Folder Card Container with Crisp Contrast */
         .folder-card {
-          background: rgba(255, 255, 255, 0.025);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(26, 38, 65, 0.65);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 12px;
           overflow: hidden;
           transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+          backdrop-filter: blur(8px);
         }
         .folder-card:hover {
-          border-color: rgba(255, 255, 255, 0.14);
-          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(96, 165, 250, 0.35);
+          background: rgba(30, 48, 82, 0.8);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
         }
         .folder-card.active-parent {
-          border-color: rgba(96, 165, 250, 0.35);
-          background: rgba(30, 41, 59, 0.4);
-          box-shadow: 0 4px 16px rgba(14, 165, 233, 0.08);
+          border-color: rgba(96, 165, 250, 0.5);
+          background: rgba(27, 44, 78, 0.92);
+          box-shadow: 0 6px 20px rgba(37, 99, 235, 0.18);
         }
 
         /* Folder Trigger Button */
@@ -429,33 +431,33 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 9px 11px;
+          padding: 10px 12px;
           background: transparent;
           border: none;
-          color: #e2e8f0;
+          color: #f8fafc;
           cursor: pointer;
           font-weight: 700;
-          font-size: 0.86rem;
+          font-size: 0.88rem;
           transition: all 0.2s ease;
           outline: none;
           user-select: none;
         }
         .folder-trigger:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.06);
           color: #ffffff;
         }
 
         /* Folder Icon Badge */
         .folder-icon-badge {
-          width: 28px;
-          height: 28px;
-          border-radius: 8px;
+          width: 32px;
+          height: 32px;
+          border-radius: 9px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1rem;
+          font-size: 1.05rem;
           flex-shrink: 0;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
           transition: transform 0.2s ease;
         }
         .folder-trigger:hover .folder-icon-badge {
@@ -464,19 +466,19 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
         /* Count Pill Tag */
         .count-pill {
-          font-size: 0.65rem;
-          font-weight: 700;
-          padding: 1px 6px;
+          font-size: 0.68rem;
+          font-weight: 800;
+          padding: 2px 7px;
           border-radius: 10px;
-          background: rgba(255, 255, 255, 0.07);
-          color: #94a3b8;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.12);
+          color: #e2e8f0;
+          border: 1px solid rgba(255, 255, 255, 0.14);
           transition: all 0.15s ease;
         }
         .folder-card.active-parent .count-pill {
-          background: rgba(96, 165, 250, 0.15);
-          color: #93c5fd;
-          border-color: rgba(96, 165, 250, 0.3);
+          background: rgba(59, 130, 246, 0.3);
+          color: #bfdbfe;
+          border-color: rgba(96, 165, 250, 0.45);
         }
 
         /* Smooth CSS Grid List-Down Animation */
@@ -497,41 +499,42 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           position: relative;
           display: flex;
           flex-direction: column;
-          padding: 4px 6px 6px 14px;
-          margin-left: 12px;
-          border-left: 2px dashed rgba(255, 255, 255, 0.1);
+          padding: 6px 8px 8px 14px;
+          margin-left: 14px;
+          border-left: 2px solid rgba(148, 163, 184, 0.22);
+          background: rgba(10, 16, 30, 0.25);
         }
         .folder-card.active-parent .sub-items-tree {
-          border-left-color: rgba(96, 165, 250, 0.25);
+          border-left-color: rgba(96, 165, 250, 0.45);
         }
 
         /* Sub Item Link */
         .sub-item-link {
-          padding: 7px 10px;
-          font-size: 0.81rem;
+          padding: 8px 10px;
+          font-size: 0.83rem;
           display: flex;
           align-items: center;
-          gap: 9px;
+          gap: 10px;
           border-radius: 8px;
           transition: all 0.16s ease;
-          color: #94a3b8;
+          color: #cbd5e1;
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
-          margin-top: 2px;
+          margin-top: 3px;
           position: relative;
         }
         .sub-item-link:hover {
           color: #ffffff;
-          background: rgba(255, 255, 255, 0.07);
+          background: rgba(255, 255, 255, 0.1);
           transform: translateX(3px);
         }
         .sub-item-link.active {
           color: #ffffff;
-          background: linear-gradient(90deg, rgba(37, 99, 235, 0.35) 0%, rgba(37, 99, 235, 0.1) 100%);
-          border-left: 3px solid #60a5fa;
+          background: linear-gradient(90deg, rgba(37, 99, 235, 0.45) 0%, rgba(37, 99, 235, 0.18) 100%);
+          border-left: 3px solid #38bdf8;
           font-weight: 700;
-          box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
+          box-shadow: 0 2px 12px rgba(37, 99, 235, 0.28);
         }
 
         /* Resize Handle */
@@ -573,17 +576,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           width: `${currentWidth}px`,
           minWidth: `${currentWidth}px`,
           maxWidth: `${currentWidth}px`,
-          backgroundColor: '#0b1329',
-          backgroundImage: 'radial-gradient(circle at 10% 15%, rgba(59, 130, 246, 0.14) 0%, transparent 70%)',
+          backgroundColor: '#0f172a',
+          backgroundImage: 'radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.22) 0%, transparent 65%), linear-gradient(180deg, #101c36 0%, #0c1426 100%)',
           color: '#f8fafc',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '4px 0 25px rgba(0,0,0,0.35)',
+          boxShadow: '4px 0 25px rgba(0,0,0,0.45)',
           zIndex: 40,
           position: 'relative',
           transition: isResizing ? 'none' : 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
           userSelect: isResizing ? 'none' : 'auto',
-          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
         }}
       >
         {/* Header / Logo Area */}
@@ -751,10 +754,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     </span>
 
                     <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: 1.25 }}>
-                      <span className="kh-text" style={{ fontSize: '0.84rem', fontWeight: 700, color: hasActiveChild ? '#ffffff' : '#f1f5f9' }}>
+                      <span className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700, color: hasActiveChild ? '#ffffff' : '#f8fafc' }}>
                         {group.titleKh}
                       </span>
-                      <span style={{ fontSize: '0.65rem', color: hasActiveChild ? '#93c5fd' : '#64748b', fontWeight: 600 }}>
+                      <span style={{ fontSize: '0.66rem', color: hasActiveChild ? '#93c5fd' : '#94a3b8', fontWeight: 600 }}>
                         {group.titleEn}
                       </span>
                     </div>
@@ -769,8 +772,8 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     {/* Smooth Rotating Arrow Symbol */}
                     <span
                       style={{
-                        fontSize: '0.75rem',
-                        color: hasActiveChild ? '#60a5fa' : '#64748b',
+                        fontSize: '0.78rem',
+                        color: hasActiveChild ? '#60a5fa' : '#94a3b8',
                         transform: isGroupOpen ? 'rotate(90deg)' : 'rotate(0deg)',
                         transition: 'transform 0.24s cubic-bezier(0.4, 0, 0.2, 1)',
                         display: 'inline-block',
@@ -796,12 +799,12 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                             href={item.href}
                             className={`sub-item-link ${isActive ? 'active' : ''}`}
                           >
-                            <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>{item.icon}</span>
+                            <span style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
                             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
-                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.8rem' }}>
+                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500 }}>
                                 {item.labelKh}
                               </span>
-                              <span style={{ fontSize: '0.63rem', opacity: isActive ? 0.9 : 0.65 }}>
+                              <span style={{ fontSize: '0.65rem', color: isActive ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
                                 {item.labelEn}
                               </span>
                             </div>

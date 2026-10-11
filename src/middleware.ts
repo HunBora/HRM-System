@@ -23,27 +23,118 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Role-based route definitions
-  const rolePermissions: Record<string, string[]> = {
-    'ADMIN': ['/dashboard'], // ADMIN can access everything under dashboard
-    'HR_MANAGER': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about', '/dashboard/expenses'],
-    'HR': ['/dashboard', '/dashboard/employees', '/dashboard/attendance', '/dashboard/leave', '/dashboard/offboarding', '/dashboard/kpi', '/dashboard/documents', '/dashboard/exports', '/dashboard/about', '/dashboard/expenses'], // Legacy HR
-    'PAYROLL_ADMIN': ['/dashboard', '/dashboard/payroll', '/dashboard/advance', '/dashboard/attendance', '/dashboard/exports', '/dashboard/about', '/dashboard/expenses'],
-    'DEPT_HEAD': ['/dashboard', '/dashboard/attendance', '/dashboard/leave', '/dashboard/kpi', '/dashboard/about', '/dashboard/expenses'],
-    'EMPLOYEE': ['/dashboard', '/dashboard/leave', '/dashboard/documents', '/dashboard/about', '/dashboard/expenses']
-  };
-
+  // Role-based route definitions matching ResizableSidebar
   if (path.startsWith('/dashboard')) {
     const role = session?.role || 'EMPLOYEE';
+    
+    // ADMIN has full access to all dashboard routes
+    if (role === 'ADMIN') {
+      return NextResponse.next();
+    }
+
+    const rolePermissions: Record<string, string[]> = {
+      'HR_MANAGER': [
+        '/dashboard',
+        '/dashboard/my-portal',
+        '/dashboard/announcements',
+        '/dashboard/employees',
+        '/dashboard/recruitment',
+        '/dashboard/offboarding',
+        '/dashboard/resignation',
+        '/dashboard/attendance',
+        '/dashboard/biometric',
+        '/dashboard/roster',
+        '/dashboard/leave',
+        '/dashboard/overtime',
+        '/dashboard/loans',
+        '/dashboard/exports',
+        '/dashboard/kpi',
+        '/dashboard/performance',
+        '/dashboard/trainings',
+        '/dashboard/disciplinary',
+        '/dashboard/documents',
+        '/dashboard/certificates',
+        '/dashboard/assets',
+        '/dashboard/expenses',
+        '/dashboard/about',
+      ],
+      'HR': [
+        '/dashboard',
+        '/dashboard/my-portal',
+        '/dashboard/announcements',
+        '/dashboard/employees',
+        '/dashboard/recruitment',
+        '/dashboard/offboarding',
+        '/dashboard/resignation',
+        '/dashboard/attendance',
+        '/dashboard/biometric',
+        '/dashboard/roster',
+        '/dashboard/leave',
+        '/dashboard/overtime',
+        '/dashboard/loans',
+        '/dashboard/exports',
+        '/dashboard/kpi',
+        '/dashboard/performance',
+        '/dashboard/trainings',
+        '/dashboard/disciplinary',
+        '/dashboard/documents',
+        '/dashboard/certificates',
+        '/dashboard/assets',
+        '/dashboard/expenses',
+        '/dashboard/about',
+      ],
+      'PAYROLL_ADMIN': [
+        '/dashboard',
+        '/dashboard/my-portal',
+        '/dashboard/announcements',
+        '/dashboard/attendance',
+        '/dashboard/biometric',
+        '/dashboard/roster',
+        '/dashboard/overtime',
+        '/dashboard/advance',
+        '/dashboard/loans',
+        '/dashboard/payroll',
+        '/dashboard/exports',
+        '/dashboard/expenses',
+        '/dashboard/about',
+      ],
+      'DEPT_HEAD': [
+        '/dashboard',
+        '/dashboard/my-portal',
+        '/dashboard/announcements',
+        '/dashboard/attendance',
+        '/dashboard/roster',
+        '/dashboard/leave',
+        '/dashboard/overtime',
+        '/dashboard/kpi',
+        '/dashboard/performance',
+        '/dashboard/expenses',
+        '/dashboard/about',
+      ],
+      'EMPLOYEE': [
+        '/dashboard',
+        '/dashboard/my-portal',
+        '/dashboard/announcements',
+        '/dashboard/roster',
+        '/dashboard/leave',
+        '/dashboard/overtime',
+        '/dashboard/trainings',
+        '/dashboard/documents',
+        '/dashboard/certificates',
+        '/dashboard/assets',
+        '/dashboard/expenses',
+        '/dashboard/about',
+      ],
+    };
+
     const allowedPrefixes = rolePermissions[role] || rolePermissions['EMPLOYEE'];
     
-    // Check if the path matches the exact root allowed or starts with an allowed prefix + '/'
+    // Check if path matches or starts with allowed prefix
     const isAllowed = allowedPrefixes.some(prefix => 
       path === prefix || path.startsWith(`${prefix}/`)
     );
 
     if (!isAllowed && path !== '/dashboard') {
-      // Redirect back to dashboard if trying to access unauthorized area
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }

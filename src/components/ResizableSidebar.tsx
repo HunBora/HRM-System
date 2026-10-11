@@ -49,6 +49,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
   const [isBackupLoading, setIsBackupLoading] = useState<boolean>(false);
   const [isRestoreModalOpen, setIsRestoreModalOpen] = useState<boolean>(false);
+  const [pendingRestoreFile, setPendingRestoreFile] = useState<File | null>(null);
   const [restoreStatus, setRestoreStatus] = useState<{ loading: boolean; message: string; success?: boolean } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,14 +74,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     }
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setPendingRestoreFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
-    if (!confirm(`តើលោកអ្នកពិតជាចង់ Restore ទិន្នន័យពី File "${file.name}" នេះមែនទេ?`)) {
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
+  const confirmAndExecuteRestore = async () => {
+    if (!pendingRestoreFile) return;
+    const file = pendingRestoreFile;
+    setPendingRestoreFile(null);
 
     try {
       setRestoreStatus({ loading: true, message: 'កំពុងអាន File និង Restore ចូល Database...' });
@@ -112,8 +116,6 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         success: false,
         message: 'Restore បរាជ័យ: ' + err.message,
       });
-    } finally {
-      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -1160,6 +1162,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   onClick={() => {
                     setIsRestoreModalOpen(false);
                     setRestoreStatus(null);
+                    setPendingRestoreFile(null);
                   }}
                   style={{
                     padding: '10px',
@@ -1173,6 +1176,140 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   }}
                 >
                   បោះបង់ (Cancel)
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ELEGANT CONFIRMATION MODAL ALERT */}
+        {pendingRestoreFile && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 10000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: '#111c35',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                borderRadius: '18px',
+                padding: '26px',
+                width: '100%',
+                maxWidth: '430px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 25px rgba(245, 158, 11, 0.15)',
+                color: '#f8fafc',
+                textAlign: 'center',
+              }}
+            >
+              {/* Animated Warning Icon */}
+              <div
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                  border: '2px solid rgba(245, 158, 11, 0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.8rem',
+                  margin: '0 auto 16px auto',
+                  boxShadow: '0 0 16px rgba(245, 158, 11, 0.25)',
+                }}
+              >
+                ⚠️
+              </div>
+
+              <h3 className="kh-text" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', margin: '0 0 8px 0' }}>
+                បញ្ជាក់ការ Restore ទិន្នន័យ
+              </h3>
+
+              <p className="kh-text" style={{ fontSize: '0.86rem', color: '#cbd5e1', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+                តើលោកអ្នកពិតជាចង់បញ្ចូលទិន្នន័យពី File ខាងក្រោមនេះត្រឡប់ទៅក្នុង Database វិញមែនទេ?
+              </p>
+
+              {/* File Pill Badge */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  marginBottom: '20px',
+                  fontSize: '0.82rem',
+                  color: '#93c5fd',
+                  fontWeight: 600,
+                  wordBreak: 'break-all',
+                }}
+              >
+                <span>📄</span>
+                <span>{pendingRestoreFile.name}</span>
+                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                  ({(pendingRestoreFile.size / 1024).toFixed(1)} KB)
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => setPendingRestoreFile(null)}
+                  style={{
+                    padding: '11px 16px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255, 255, 255, 0.14)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }}
+                >
+                  <span className="kh-text">បោះបង់ (Cancel)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={confirmAndExecuteRestore}
+                  style={{
+                    padding: '11px 16px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: '#ffffff',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
+                  onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <span className="kh-text">យល់ព្រម Restore</span>
                 </button>
               </div>
             </div>

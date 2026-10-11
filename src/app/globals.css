@@ -366,3 +366,72 @@ tbody tr:hover {
   transform: scale(1.1) translateY(-2px) !important;
 }
 
+/* =========================================================================
+   Universal Compact Data Tables (Fit-content Rows & Crisp Enterprise Layout)
+   Applies to Employee lists, Payroll, Attendance, Leave, Advances, and all forms
+   ========================================================================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Compact Table Headers */
+table thead th,
+table th {
+  padding: 6px 8px !important;
+  font-size: 0.82rem !important;
+  line-height: 1.25 !important;
+  vertical-align: middle !important;
+}
+
+/* Compact Table Data Cells across all pages & forms */
+table tbody td:not([colspan]),
+table td:not([colspan]) {
+  padding: 5px 8px !important;
+  font-size: 0.83rem !important;
+  line-height: 1.25 !important;
+  vertical-align: middle !important;
+}
+
+/* Avatars & Employee Thumbnails inside any table */
+table tbody td img,
+table td img {
+  max-width: 28px !important;
+  max-height: 28px !important;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Subtle Zebra Striping & Smooth Hover Highlight across all tables */
+table tbody tr:nth-child(even) {
+  background-color: rgba(241, 245, 249, 0.35);
+}
+
+table tbody tr {
+  transition: background-color 0.15s ease-in-out;
+}
+
+table tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* Dark mode adjustments for tables */
+[data-theme='dark'] table tbody tr:nth-child(even) {
+  background-color: rgba(30, 41, 59, 0.35);
+}
+
+[data-theme='dark'] table tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Table containers in cards shouldn't bounce or jump */
+.card:has(table) {
+  transform: none !important;
+}
+.card:has(table):hover {
+  transform: none !important;
+}
+
+

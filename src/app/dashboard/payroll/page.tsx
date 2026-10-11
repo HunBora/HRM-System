@@ -10,20 +10,20 @@ import DraggableSummaryCards from '@/components/DraggableSummaryCards';
 import PayrollFilterForm from '@/components/PayrollFilterForm';
 
 const ThText = ({ kh, en, zh, verticalKh, wrapKh }: { kh: React.ReactNode, en: string, zh: string, verticalKh?: boolean, wrapKh?: boolean }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', lineHeight: '1.2' }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: verticalKh ? '90px' : 'auto' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', lineHeight: '1.15' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: verticalKh ? '75px' : 'auto' }}>
       <span style={{ 
-        fontSize: '0.85rem', 
+        fontSize: '0.8rem', 
         fontWeight: 'bold', 
         writingMode: verticalKh ? 'vertical-rl' : 'horizontal-tb',
         transform: verticalKh ? 'rotate(180deg)' : 'none',
         whiteSpace: wrapKh ? 'normal' : 'nowrap',
         textAlign: 'center',
-        maxWidth: wrapKh ? '100px' : 'none'
+        maxWidth: wrapKh ? '90px' : 'none'
       }}>{kh}</span>
     </div>
-    <span style={{ fontSize: '0.8rem', fontWeight: '500', whiteSpace: 'nowrap', color: '#333' }}>{zh}</span>
-    <span style={{ fontSize: '0.7rem', color: '#4b5563', whiteSpace: 'nowrap' }}>{en}</span>
+    <span style={{ fontSize: '0.72rem', fontWeight: '500', whiteSpace: 'nowrap', color: '#333' }}>{zh}</span>
+    <span style={{ fontSize: '0.65rem', color: '#4b5563', whiteSpace: 'nowrap' }}>{en}</span>
   </div>
 );
 
@@ -282,7 +282,15 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
                 const firstPayment = (p.employee.basicSalary1 || 0);
                 const secondPayment = p.netSalaryUsd;
                 return (
-                <tr key={p.id} style={{ transition: 'background-color 0.2s', fontSize: '0.85rem' }} className="hover:bg-gray-50">
+                  <tr 
+                    key={p.id} 
+                    style={{ 
+                      transition: 'background-color 0.15s ease', 
+                      fontSize: '0.82rem',
+                      backgroundColor: index % 2 === 1 ? 'rgba(241, 245, 249, 0.45)' : 'white'
+                    }} 
+                    className="hover:bg-indigo-50/60"
+                  >
                   <td style={tdStyle}>{index + 1}</td>
                   <td style={tdStyle}>{p.employee.employeeId}</td>
                   <td style={tdStyle}>{p.employee.firstNameKh} {p.employee.lastNameKh}</td>
@@ -390,21 +398,24 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
 }
 
 const thStyle: React.CSSProperties = { 
-  padding: '10px 6px', 
+  padding: '6px 5px', 
   borderRight: '1px solid var(--border-color)',
   borderBottom: '1px solid var(--border-color)',
   whiteSpace: 'nowrap' as const,
   fontWeight: 'bold', 
-  fontSize: '0.65rem',
+  fontSize: '0.68rem',
   color: '#475569',
   verticalAlign: 'middle' as const,
   background: '#eef2ff',
   boxShadow: '0 1px 0 var(--border-color)'
 };
 
-const tdStyle = { 
-  padding: '8px 6px', 
+const tdStyle: React.CSSProperties = { 
+  padding: '5px 6px', 
   borderRight: '1px solid var(--border-color)',
   borderBottom: '1px solid var(--border-color)',
-  whiteSpace: 'nowrap' as const
+  whiteSpace: 'nowrap' as const,
+  fontSize: '0.82rem',
+  lineHeight: '1.25',
+  verticalAlign: 'middle' as const
 };

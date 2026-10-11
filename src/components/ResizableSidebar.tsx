@@ -99,57 +99,67 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  // 6 Clean Collapsible / Dropdown Enterprise Groups
-  const menuGroups: MenuGroup[] = [
+  // 6 Refined Enterprise Folders with Distinct Symbols & Color Accents
+  interface MenuGroupWithAccent extends MenuGroup {
+    badgeColor: string;
+    bgGlow: string;
+    itemCount?: number;
+  }
+
+  const menuGroups: MenuGroupWithAccent[] = [
     {
       id: 'general',
-      titleKh: 'ផ្ទាំងគ្រប់គ្រងទូទៅ',
-      titleEn: 'General & Portal',
-      icon: '📊',
+      titleKh: 'មជ្ឈមណ្ឌលទូទៅ',
+      titleEn: 'General Hub',
+      icon: '🏢',
+      badgeColor: '#3b82f6',
+      bgGlow: 'rgba(59, 130, 246, 0.15)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
           href: '/dashboard',
           icon: '📊',
-          labelKh: 'ផ្ទាំងគ្រប់គ្រង',
-          labelEn: 'Dashboard',
+          labelKh: 'ផ្ទាំងគ្រប់គ្រងមេ',
+          labelEn: 'Main Dashboard',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
           href: '/dashboard/my-portal',
           icon: '📱',
-          labelKh: 'ផតថលបុគ្គលិក',
-          labelEn: 'My Portal',
+          labelKh: 'ផតថលស្វ័យសេវាបុគ្គលិក',
+          labelEn: 'Employee Self-Service',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
           href: '/dashboard/announcements',
           icon: '📣',
-          labelKh: 'សេចក្តីជូនដំណឹង',
-          labelEn: 'Announcements',
+          labelKh: 'សេចក្តីជូនដំណឹងក្រុមហ៊ុន',
+          labelEn: 'Company News & Notices',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
     },
     {
       id: 'workforce',
-      titleKh: 'បុគ្គលិក & ជ្រើសរើស',
-      titleEn: 'Employees & Talent',
+      titleKh: 'គ្រប់គ្រងកម្លាំងពលកម្ម',
+      titleEn: 'Workforce Hub',
       icon: '👥',
+      badgeColor: '#6366f1',
+      bgGlow: 'rgba(99, 102, 241, 0.15)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR'],
       items: [
         {
           href: '/dashboard/employees',
-          icon: '👥',
-          labelKh: 'បញ្ជីបុគ្គលិក',
-          labelEn: 'Employee Master',
+          icon: '📋',
+          labelKh: 'បញ្ជីបុគ្គលិកមេ',
+          labelEn: 'Employee Directory',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
           href: '/dashboard/recruitment',
           icon: '📢',
-          labelKh: 'ជ្រើសរើសបុគ្គលិក',
-          labelEn: 'Recruitment & ATS',
+          labelKh: 'ជ្រើសរើសបុគ្គលិក & ATS',
+          labelEn: 'Recruitment & Candidates',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -162,7 +172,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {
           href: '/dashboard/resignation',
           icon: '📝',
-          labelKh: 'លាលែង & សម្ភាសន៍',
+          labelKh: 'លាលែង & សម្ភាសន៍ចាកចេញ',
           labelEn: 'Resignation & Clearance',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
@@ -170,9 +180,11 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     },
     {
       id: 'time',
-      titleKh: 'វត្តមាន & វេនការងារ',
-      titleEn: 'Time & Attendance',
-      icon: '📅',
+      titleKh: 'វត្តមាន & កាលវិភាគ',
+      titleEn: 'Time & Shifts',
+      icon: '⏱️',
+      badgeColor: '#0284c7',
+      bgGlow: 'rgba(2, 132, 199, 0.15)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
@@ -185,15 +197,15 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {
           href: '/dashboard/biometric',
           icon: '📲',
-          labelKh: 'ម៉ាស៊ីនស្កេនមេដៃ',
+          labelKh: 'ម៉ាស៊ីនស្កេនមេដៃផ្ទាល់',
           labelEn: 'Biometric Terminals',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
         {
           href: '/dashboard/roster',
-          icon: '⏱️',
+          icon: '🗓️',
           labelKh: 'កាលវិភាគវេនការងារ',
-          labelEn: 'Shift Rostering',
+          labelEn: 'Shift Rostering & Plans',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -214,16 +226,18 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     },
     {
       id: 'finance',
-      titleKh: 'ប្រាក់ខែ & ហិរញ្ញវត្ថុ',
-      titleEn: 'Payroll & Loans',
-      icon: '💰',
+      titleKh: 'ប្រាក់បៀវត្សរ៍ & ហិរញ្ញវត្ថុ',
+      titleEn: 'Payroll & Finance',
+      icon: '💳',
+      badgeColor: '#10b981',
+      bgGlow: 'rgba(16, 185, 129, 0.15)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
           href: '/dashboard/payroll',
           icon: '💰',
-          labelKh: 'តារាងប្រាក់ខែបុគ្គលិក',
-          labelEn: 'Payroll Management',
+          labelKh: 'តារាងបើកប្រាក់ខែ',
+          labelEn: 'Monthly Payroll Run',
           roles: ['ADMIN', 'PAYROLL_ADMIN'],
         },
         {
@@ -237,36 +251,38 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           href: '/dashboard/advance',
           icon: '💵',
           labelKh: 'ប្រាក់បុរេប្រទាន',
-          labelEn: 'Salary Advance',
+          labelEn: 'Salary Advances',
           roles: ['ADMIN', 'PAYROLL_ADMIN'],
         },
         {
           href: '/dashboard/expenses',
           icon: '💸',
-          labelKh: 'ចំណាយ & បង្វែរសង',
+          labelKh: 'ចំណាយ & ទូទាត់សំណង',
           labelEn: 'Expense Claims',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
           href: '/dashboard/exports',
           icon: '📥',
-          labelKh: 'ទាញយករបាយការណ៍សរុប',
-          labelEn: 'Master Excel Exports',
+          labelKh: 'នាំចេញរបាយការណ៍មេ (Excel)',
+          labelEn: 'Master Excel Reports',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
       ],
     },
     {
       id: 'operations',
-      titleKh: 'ការវាយតម្លៃ & ប្រតិបត្តិការ',
-      titleEn: 'Performance & Ops',
+      titleKh: 'ការអភិវឌ្ឍន៍ & ប្រតិបត្តិការ',
+      titleEn: 'Talent & Operations',
       icon: '🎯',
+      badgeColor: '#f59e0b',
+      bgGlow: 'rgba(245, 158, 11, 0.15)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
           href: '/dashboard/performance',
           icon: '🎯',
-          labelKh: 'វាយតម្លៃការងារបុគ្គលិក',
+          labelKh: 'វាយតម្លៃការងារ 360°',
           labelEn: 'Performance Appraisal',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
@@ -280,8 +296,8 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {
           href: '/dashboard/trainings',
           icon: '🎓',
-          labelKh: 'វគ្គបណ្តុះបណ្តាល',
-          labelEn: 'Training LMS',
+          labelKh: 'វគ្គបណ្តុះបណ្តាល LMS',
+          labelEn: 'Training & Courses',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -294,7 +310,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {
           href: '/dashboard/certificates',
           icon: '📜',
-          labelKh: 'លិខិតបញ្ជាក់ការងារ/ប្រាក់ខែ',
+          labelKh: 'លិខិតបញ្ជាក់ផ្លូវការ',
           labelEn: 'Official Certificates',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
@@ -316,23 +332,25 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     },
     {
       id: 'admin',
-      titleKh: 'ការគ្រប់គ្រងប្រព័ន្ធ',
-      titleEn: 'Administration',
-      icon: '⚙️',
+      titleKh: 'រដ្ឋបាល & សុវត្ថិភាព',
+      titleEn: 'System Administration',
+      icon: '🛡️',
+      badgeColor: '#8b5cf6',
+      bgGlow: 'rgba(139, 92, 246, 0.15)',
       roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
       items: [
         {
           href: '/dashboard/users',
           icon: '🔐',
-          labelKh: 'គ្រប់គ្រងគណនីប្រើប្រាស់',
-          labelEn: 'User Accounts & Roles',
+          labelKh: 'គណនី & សិទ្ធិប្រើប្រាស់',
+          labelEn: 'Users & Roles Matrix',
           roles: ['ADMIN'],
         },
         {
           href: '/dashboard/audit',
           icon: '🛡️',
           labelKh: 'កំណត់ត្រាសវនកម្មសុវត្ថិភាព',
-          labelEn: 'System Audit Logs',
+          labelEn: 'Security Audit Trail',
           roles: ['ADMIN'],
         },
         {
@@ -345,7 +363,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {
           href: '/dashboard/about',
           icon: 'ℹ️',
-          labelKh: 'អំពីប្រព័ន្ធ HRM',
+          labelKh: 'អំពីប្រព័ន្ធ HRM & កំណែ',
           labelEn: 'About System & Version',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
@@ -379,84 +397,144 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           background: transparent;
         }
         .sidebar-nav-scroll::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.12);
           border-radius: 4px;
         }
         .sidebar-nav-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.28);
         }
-        .group-card {
-          background: rgba(255, 255, 255, 0.03);
+
+        /* Folder Card Container */
+        .folder-card {
+          background: rgba(255, 255, 255, 0.025);
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 12px;
           overflow: hidden;
-          transition: all 0.2s ease;
+          transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
-        .group-card:hover {
-          border-color: rgba(96, 165, 250, 0.25);
+        .folder-card:hover {
+          border-color: rgba(255, 255, 255, 0.14);
           background: rgba(255, 255, 255, 0.04);
         }
-        .group-trigger {
+        .folder-card.active-parent {
+          border-color: rgba(96, 165, 250, 0.35);
+          background: rgba(30, 41, 59, 0.4);
+          box-shadow: 0 4px 16px rgba(14, 165, 233, 0.08);
+        }
+
+        /* Folder Trigger Button */
+        .folder-trigger {
           width: 100%;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 10px 12px;
+          padding: 9px 11px;
           background: transparent;
           border: none;
           color: #e2e8f0;
           cursor: pointer;
           font-weight: 700;
-          font-size: 0.88rem;
-          transition: background 0.15s ease;
+          font-size: 0.86rem;
+          transition: all 0.2s ease;
           outline: none;
+          user-select: none;
         }
-        .group-trigger:hover {
-          background: rgba(255, 255, 255, 0.06);
+        .folder-trigger:hover {
+          background: rgba(255, 255, 255, 0.05);
           color: #ffffff;
         }
-        .sub-item-link {
-          padding: 8px 12px 8px 34px;
-          font-size: 0.82rem;
+
+        /* Folder Icon Badge */
+        .folder-icon-badge {
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
           display: flex;
           align-items: center;
-          gap: 10px;
+          justify-content: center;
+          font-size: 1rem;
+          flex-shrink: 0;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+          transition: transform 0.2s ease;
+        }
+        .folder-trigger:hover .folder-icon-badge {
+          transform: scale(1.08);
+        }
+
+        /* Count Pill Tag */
+        .count-pill {
+          font-size: 0.65rem;
+          font-weight: 700;
+          padding: 1px 6px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.07);
+          color: #94a3b8;
+          border: 1px solid rgba(255, 255, 255, 0.08);
           transition: all 0.15s ease;
+        }
+        .folder-card.active-parent .count-pill {
+          background: rgba(96, 165, 250, 0.15);
+          color: #93c5fd;
+          border-color: rgba(96, 165, 250, 0.3);
+        }
+
+        /* Smooth CSS Grid List-Down Animation */
+        .folder-accordion {
+          display: grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .folder-accordion.open {
+          grid-template-rows: 1fr;
+        }
+        .folder-accordion-inner {
+          overflow: hidden;
+        }
+
+        /* Tree Guide Line & Sub Items */
+        .sub-items-tree {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          padding: 4px 6px 6px 14px;
+          margin-left: 12px;
+          border-left: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+        .folder-card.active-parent .sub-items-tree {
+          border-left-color: rgba(96, 165, 250, 0.25);
+        }
+
+        /* Sub Item Link */
+        .sub-item-link {
+          padding: 7px 10px;
+          font-size: 0.81rem;
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          border-radius: 8px;
+          transition: all 0.16s ease;
           color: #94a3b8;
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
+          margin-top: 2px;
           position: relative;
-        }
-        .sub-item-link::before {
-          content: '';
-          position: absolute;
-          left: 18px;
-          top: 50%;
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.2);
-          transform: translateY(-50%);
-          transition: all 0.15s ease;
         }
         .sub-item-link:hover {
           color: #ffffff;
-          background: rgba(255, 255, 255, 0.06);
-        }
-        .sub-item-link:hover::before {
-          background: #60a5fa;
-          transform: translateY(-50%) scale(1.3);
+          background: rgba(255, 255, 255, 0.07);
+          transform: translateX(3px);
         }
         .sub-item-link.active {
-          color: #60a5fa;
-          background: rgba(59, 130, 246, 0.15);
+          color: #ffffff;
+          background: linear-gradient(90deg, rgba(37, 99, 235, 0.35) 0%, rgba(37, 99, 235, 0.1) 100%);
+          border-left: 3px solid #60a5fa;
           font-weight: 700;
+          box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
         }
-        .sub-item-link.active::before {
-          background: #60a5fa;
-          box-shadow: 0 0 8px #60a5fa;
-        }
+
+        /* Resize Handle */
         .resize-handle {
           position: absolute;
           top: 0;
@@ -564,14 +642,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           </button>
         </div>
 
-        {/* Navigation Menu (Scrollable Accordion Cards) */}
+        {/* Navigation Menu (Scrollable Accordion Folders) */}
         <nav
           className="sidebar-nav-scroll"
           style={{
             display: 'flex',
             flexDirection: 'column',
             padding: isCollapsed ? '12px 6px' : '14px 10px',
-            gap: isCollapsed ? '6px' : '8px',
+            gap: isCollapsed ? '8px' : '8px',
             flex: 1,
             overflowY: 'auto',
             overflowX: 'hidden',
@@ -589,10 +667,35 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               (item) => pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
             );
 
-            // Collapsed icon-only mode
+            // Collapsed icon-only mode with stylish tooltip
             if (isCollapsed) {
               return (
                 <div key={group.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div
+                    title={`${group.titleKh} (${group.titleEn})`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px 0',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.95rem',
+                        background: group.bgGlow,
+                        border: `1px solid ${group.badgeColor}40`,
+                      }}
+                    >
+                      {group.icon}
+                    </span>
+                  </div>
                   {visibleItems.map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
                     return (
@@ -604,12 +707,12 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          padding: '10px 0',
+                          padding: '8px 0',
                           borderRadius: '8px',
                           textDecoration: 'none',
                           color: isActive ? '#60a5fa' : '#94a3b8',
                           background: isActive ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                          fontSize: '1.2rem',
+                          fontSize: '1.1rem',
                           transition: 'all 0.15s ease',
                         }}
                       >
@@ -621,84 +724,93 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               );
             }
 
-            // Expanded Mode: Real Foldable Accordion Card Group
+            // Expanded Mode: Real Foldable Accordion Card Group with Smooth List-Down
             return (
               <div
                 key={group.id}
-                className="group-card"
-                style={{
-                  borderColor: hasActiveChild ? 'rgba(96, 165, 250, 0.35)' : 'rgba(255, 255, 255, 0.06)',
-                  background: hasActiveChild ? 'rgba(30, 41, 59, 0.45)' : 'rgba(255, 255, 255, 0.02)',
-                }}
+                className={`folder-card ${hasActiveChild ? 'active-parent' : ''}`}
               >
                 {/* Accordion Trigger Header */}
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.id)}
-                  className="group-trigger"
-                  style={{
-                    color: hasActiveChild ? '#ffffff' : '#cbd5e1',
-                  }}
+                  className="folder-trigger"
+                  aria-expanded={isGroupOpen}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-                    <span style={{ fontSize: '1.1rem' }}>{group.icon}</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: 1.2 }}>
-                      <span className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {/* Stylish Symbol Badge */}
+                    <span
+                      className="folder-icon-badge"
+                      style={{
+                        background: group.bgGlow,
+                        border: `1px solid ${group.badgeColor}40`,
+                        color: '#ffffff',
+                      }}
+                    >
+                      {group.icon}
+                    </span>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: 1.25 }}>
+                      <span className="kh-text" style={{ fontSize: '0.84rem', fontWeight: 700, color: hasActiveChild ? '#ffffff' : '#f1f5f9' }}>
                         {group.titleKh}
                       </span>
-                      <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 600 }}>
+                      <span style={{ fontSize: '0.65rem', color: hasActiveChild ? '#93c5fd' : '#64748b', fontWeight: 600 }}>
                         {group.titleEn}
                       </span>
                     </div>
                   </div>
 
-                  <span
-                    style={{
-                      fontSize: '0.72rem',
-                      color: '#64748b',
-                      transform: isGroupOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s ease',
-                    }}
-                  >
-                    ▼
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* Item Count Pill */}
+                    <span className="count-pill">
+                      {visibleItems.length}
+                    </span>
+
+                    {/* Smooth Rotating Arrow Symbol */}
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        color: hasActiveChild ? '#60a5fa' : '#64748b',
+                        transform: isGroupOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.24s cubic-bezier(0.4, 0, 0.2, 1)',
+                        display: 'inline-block',
+                      }}
+                    >
+                      ❯
+                    </span>
+                  </div>
                 </button>
 
-                {/* Sub Menu Links (Collapsible Body) */}
-                {isGroupOpen && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      padding: '2px 0 6px 0',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.04)',
-                    }}
-                  >
-                    {visibleItems.map((item) => {
-                      const isActive =
-                        pathname === item.href ||
-                        (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                {/* Smooth Animated List-Down Body */}
+                <div className={`folder-accordion ${isGroupOpen ? 'open' : ''}`}>
+                  <div className="folder-accordion-inner">
+                    <div className="sub-items-tree">
+                      {visibleItems.map((item) => {
+                        const isActive =
+                          pathname === item.href ||
+                          (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={`sub-item-link ${isActive ? 'active' : ''}`}
-                        >
-                          <span style={{ fontSize: '0.92rem' }}>{item.icon}</span>
-                          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
-                            <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {item.labelKh}
-                            </span>
-                            <span style={{ fontSize: '0.64rem', opacity: 0.65 }}>
-                              {item.labelEn}
-                            </span>
-                          </div>
-                        </Link>
-                      );
-                    })}
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`sub-item-link ${isActive ? 'active' : ''}`}
+                          >
+                            <span style={{ fontSize: '0.95rem', flexShrink: 0 }}>{item.icon}</span>
+                            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
+                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.8rem' }}>
+                                {item.labelKh}
+                              </span>
+                              <span style={{ fontSize: '0.63rem', opacity: isActive ? 0.9 : 0.65 }}>
+                                {item.labelEn}
+                              </span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}

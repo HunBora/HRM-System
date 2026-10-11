@@ -47,6 +47,76 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     admin: false,
   });
 
+  const [isBackupLoading, setIsBackupLoading] = useState<boolean>(false);
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState<boolean>(false);
+  const [restoreStatus, setRestoreStatus] = useState<{ loading: boolean; message: string; success?: boolean } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownloadBackup = async () => {
+    try {
+      setIsBackupLoading(true);
+      const res = await fetch('/api/database/backup');
+      if (!res.ok) throw new Error('Failed to generate backup');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hrm_full_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      alert('កំហុសក្នុងការ Backup: ' + err.message);
+    } finally {
+      setIsBackupLoading(false);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!confirm(`តើលោកអ្នកពិតជាចង់ Restore ទិន្នន័យពី File "${file.name}" នេះមែនទេ?`)) {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    try {
+      setRestoreStatus({ loading: true, message: 'កំពុងអាន File និង Restore ចូល Database...' });
+      const text = await file.text();
+      const json = JSON.parse(text);
+
+      const res = await fetch('/api/database/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(json),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Restore failed');
+      }
+
+      setRestoreStatus({
+        loading: false,
+        success: true,
+        message: `ជោគជ័យ! បាន Restore បុគ្គលិក ${result.counts?.employees || 0} នាក់ និងទិន្នន័យពាក់ព័ន្ធទាំងអស់។`,
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err: any) {
+      setRestoreStatus({
+        loading: false,
+        success: false,
+        message: 'Restore បរាជ័យ: ' + err.message,
+      });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   useEffect(() => {
     const savedWidth = localStorage.getItem('hrm_sidebar_width');
     const savedCollapsed = localStorage.getItem('hrm_sidebar_collapsed');
@@ -818,6 +888,296 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             );
           })}
         </nav>
+
+        {/* ========================================================
+            ENTERPRISE BACKUP & RESTORE DATABASE CONTROLS (TWO BUTTONS)
+           ======================================================== */}
+        {role === 'ADMIN' && (
+          <div
+            style={{
+              padding: isCollapsed ? '10px 4px' : '10px 10px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'rgba(15, 23, 42, 0.55)',
+            }}
+          >
+            {isCollapsed ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={handleDownloadBackup}
+                  disabled={isBackupLoading}
+                  title="Backup Database (ទាញយកទិន្នន័យទុក)"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    color: '#34d399',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                  }}
+                >
+                  {isBackupLoading ? '⏳' : '📥'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsRestoreModalOpen(true)}
+                  title="Restore Database (បញ្ចូលទិន្នន័យត្រឡប់មកវិញ)"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(245, 158, 11, 0.4)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                    color: '#fbbf24',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                  }}
+                >
+                  🔄
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  backgroundColor: 'rgba(26, 38, 65, 0.65)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '10px 10px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.95rem' }}>🗄️</span>
+                    <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f8fafc' }}>
+                      មូលដ្ឋានទិន្នន័យ (Database)
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.62rem', color: '#10b981', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: '1px 6px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                    ONLINE
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {/* Backup Button */}
+                  <button
+                    type="button"
+                    onClick={handleDownloadBackup}
+                    disabled={isBackupLoading}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '7px 8px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(16, 185, 129, 0.4)',
+                      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.35) 100%)',
+                      color: '#ffffff',
+                      cursor: 'pointer',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      transition: 'all 0.18s ease',
+                      boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)',
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
+                    onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                  >
+                    <span>{isBackupLoading ? '⏳' : '📥'}</span>
+                    <span className="kh-text">{isBackupLoading ? 'កំពុង...' : 'Backup'}</span>
+                  </button>
+
+                  {/* Restore Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsRestoreModalOpen(true)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '7px 8px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(245, 158, 11, 0.4)',
+                      background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%)',
+                      color: '#ffffff',
+                      cursor: 'pointer',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                      transition: 'all 0.18s ease',
+                      boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)',
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
+                    onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+                  >
+                    <span>🔄</span>
+                    <span className="kh-text">Restore</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* RESTORE POPUP MODAL */}
+        {isRestoreModalOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.65)',
+              backdropFilter: 'blur(5px)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: '#0f172a',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '16px',
+                padding: '24px',
+                width: '100%',
+                maxWidth: '440px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+                color: '#f8fafc',
+                position: 'relative',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1.4rem' }}>🔄</span>
+                  <div>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff' }}>
+                      Restore មូលដ្ឋានទិន្នន័យ (Restore Database)
+                    </h3>
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>បញ្ចូលទិន្នន័យពី File Backup ត្រឡប់មកវិញ</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRestoreModalOpen(false);
+                    setRestoreStatus(null);
+                  }}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: '#94a3b8',
+                    fontSize: '1.2rem',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '10px', padding: '12px', marginBottom: '16px', fontSize: '0.8rem', color: '#fef3c7' }}>
+                ⚠️ <strong>ការណែនាំ៖</strong> សូមជ្រើសរើស File Backup (`.json`) ដែលលោកអ្នកបានទាញយកពីប៊ូតុង Backup។ ទិន្នន័យនៅក្នុង File នោះនឹងត្រូវបានបញ្ចូលចូល Database វិញដោយសុវត្ថិភាព។
+              </div>
+
+              {restoreStatus && (
+                <div
+                  style={{
+                    padding: '12px',
+                    borderRadius: '10px',
+                    marginBottom: '16px',
+                    fontSize: '0.82rem',
+                    backgroundColor: restoreStatus.loading
+                      ? 'rgba(59, 130, 246, 0.15)'
+                      : restoreStatus.success
+                      ? 'rgba(16, 185, 129, 0.15)'
+                      : 'rgba(239, 68, 68, 0.15)',
+                    border: `1px solid ${
+                      restoreStatus.loading
+                        ? 'rgba(59, 130, 246, 0.4)'
+                        : restoreStatus.success
+                        ? 'rgba(16, 185, 129, 0.4)'
+                        : 'rgba(239, 68, 68, 0.4)'
+                    }`,
+                    color: restoreStatus.loading
+                      ? '#93c5fd'
+                      : restoreStatus.success
+                      ? '#86efac'
+                      : '#fca5a5',
+                  }}
+                >
+                  {restoreStatus.loading && '⏳ '}
+                  {restoreStatus.message}
+                </div>
+              )}
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
+                onChange={handleFileSelect}
+              />
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={restoreStatus?.loading}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: '1px dashed #60a5fa',
+                    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                    color: '#93c5fd',
+                    fontWeight: 700,
+                    cursor: restoreStatus?.loading ? 'not-allowed' : 'pointer',
+                    fontSize: '0.88rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.22)')}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.12)')}
+                >
+                  <span>📂</span>
+                  <span className="kh-text">ជ្រើសរើស File Backup (.json) ដើម្បី Restore</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRestoreModalOpen(false);
+                    setRestoreStatus(null);
+                  }}
+                  style={{
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  បោះបង់ (Cancel)
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer Area */}
         <div

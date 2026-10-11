@@ -311,6 +311,23 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
     }
   };
 
+  // Auto-fit column widths for Excel
+  const autoFitColumns = (data: any[]) => {
+    if (!data || data.length === 0) return [];
+    const keys = Object.keys(data[0]);
+    return keys.map(key => {
+      let maxLen = key.length;
+      data.forEach(row => {
+        const val = row[key] !== undefined && row[key] !== null ? String(row[key]) : '';
+        if (val.length > maxLen) {
+          maxLen = val.length;
+        }
+      });
+      // Add extra margin so Khmer font and English text fit comfortably
+      return { wch: Math.max(maxLen + 6, 16) };
+    });
+  };
+
   // Export Candidates to Excel
   const exportCandidatesToExcel = () => {
     if (filteredCandidates.length === 0) {
@@ -333,6 +350,8 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
+    ws['!cols'] = autoFitColumns(exportData);
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Candidates');
     XLSX.writeFile(wb, `Candidate_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -358,6 +377,8 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
+    ws['!cols'] = autoFitColumns(exportData);
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Job_Postings');
     XLSX.writeFile(wb, `Job_Postings_Report_${new Date().toISOString().split('T')[0]}.xlsx`);

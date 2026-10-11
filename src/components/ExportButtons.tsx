@@ -19,13 +19,30 @@ interface ExportButtonsProps {
 export default function ExportButtons({ data, columns, filename, printId, hidePdf, hideWord, showEmployeeMaster, onImportEmployee }: ExportButtonsProps) {
   
   const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(data.map(item => {
+    const rows = data.map(item => {
       const row: any = {};
       columns.forEach(col => {
         row[col.header] = item[col.key];
       });
       return row;
-    }));
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // Auto-fit column widths
+    if (rows.length > 0) {
+      ws['!cols'] = columns.map(col => {
+        let maxLen = col.header.length;
+        data.forEach(item => {
+          const val = item[col.key] !== undefined && item[col.key] !== null ? String(item[col.key]) : '';
+          if (val.length > maxLen) {
+            maxLen = val.length;
+          }
+        });
+        return { wch: Math.max(maxLen + 6, 16) };
+      });
+    }
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Data");
     XLSX.writeFile(wb, `${filename}.xlsx`);

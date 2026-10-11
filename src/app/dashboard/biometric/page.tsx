@@ -67,11 +67,13 @@ export default async function BiometricPage() {
   ]);
 
   return (
-    <BiometricClient
-      initialLogs={initialLogs as any}
-      initialDevices={initialDevices as any}
-      employees={employees as any}
-      currentUserRole={session.role}
-    />
+    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+      <BiometricClient
+        initialLogs={JSON.parse(JSON.stringify(initialLogs))}
+        initialDevices={JSON.parse(JSON.stringify(initialDevices))}
+        employees={JSON.parse(JSON.stringify(employees))}
+        currentUserRole={session.role}
+      />
+    </div>
   );
 }

@@ -10,6 +10,10 @@ export default async function AuditPage() {
     redirect('/login');
   }
 
+  if (session.role !== 'ADMIN') {
+    redirect('/dashboard');
+  }
+
   // Pre-fetch latest audit logs
   const initialLogs = await prisma.auditLog.findMany({
     take: 200,
@@ -17,9 +21,11 @@ export default async function AuditPage() {
   });
 
   return (
-    <AuditClient
-      initialLogs={initialLogs as any}
-      currentUserRole={session.role}
-    />
+    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+      <AuditClient
+        initialLogs={JSON.parse(JSON.stringify(initialLogs))}
+        currentUserRole={session.role}
+      />
+    </div>
   );
 }

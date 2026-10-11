@@ -53,10 +53,12 @@ export default async function LoansPage() {
   ]);
 
   return (
-    <LoansClient
-      initialLoans={initialLoans as any}
-      employees={employees as any}
-      currentUserRole={session.role}
-    />
+    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+      <LoansClient
+        initialLoans={JSON.parse(JSON.stringify(initialLoans))}
+        employees={JSON.parse(JSON.stringify(employees))}
+        currentUserRole={session.role}
+      />
+    </div>
   );
 }

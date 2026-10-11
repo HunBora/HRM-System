@@ -92,6 +92,7 @@ model Employee {
   documents        EmployeeDocument[]
   assets           CompanyAsset[]
   expenseClaims    ExpenseClaim[]
+  trainings        TrainingEnrollment[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -415,5 +416,43 @@ model Candidate {
   rating          Int?         
   
   updatedAt       DateTime     @updatedAt
+}
+
+// --- Training & Development Models ---
+
+model TrainingProgram {
+  id              String                @id @default(uuid())
+  title           String
+  description     String?               @db.Text
+  trainer         String?               // Trainer name or Institute
+  location        String?               // Online, Head Office, Training Center...
+  startDate       DateTime
+  endDate         DateTime
+  cost            Float                 @default(0)
+  status          String                @default("UPCOMING") // UPCOMING, ONGOING, COMPLETED, CANCELLED
+  enrollments     TrainingEnrollment[]
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+}
+
+model TrainingEnrollment {
+  id              String          @id @default(uuid())
+  trainingId      String
+  training        TrainingProgram @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  employeeId      String
+  employee        Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  status          String          @default("ENROLLED") // ENROLLED, COMPLETED, FAILED, DROPPED
+  score           Float?
+  feedback        String?         @db.Text
+  certificateUrl  String?         @db.Text
+  enrolledAt      DateTime        @default(now())
+  completedAt     DateTime?
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([trainingId, employeeId])
 }
 

@@ -76,6 +76,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     { href: '/dashboard/payroll', icon: '💰', label: t.sidebar.payroll, roles: ['ADMIN', 'PAYROLL_ADMIN'] },
     { href: '/dashboard/exports', icon: '📥', label: t.sidebar.exports, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
     { href: '/dashboard/kpi', icon: '📈', label: t.sidebar.kpi, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
+    { href: '/dashboard/trainings', icon: '🎓', label: 'វគ្គបណ្តុះបណ្តាល (Training)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/documents', icon: '📁', label: t.sidebar.documents || (t.sidebar.dashboard === 'Dashboard' ? 'Documents' : t.sidebar.dashboard === '仪表板' ? '公司文件' : 'ឯកសារក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/assets', icon: '💻', label: t.sidebar.assets || (t.sidebar.dashboard === 'Dashboard' ? 'Company Assets' : t.sidebar.dashboard === '仪表板' ? '公司资产' : 'ទ្រព្យសម្បត្តិក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/expenses', icon: '💸', label: t.sidebar.expenses || 'ចំណាយ និងការទូទាត់', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },

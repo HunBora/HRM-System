@@ -380,3 +380,40 @@ model ExpenseClaim {
   updatedAt   DateTime @updatedAt
 }
 
+// --- Recruitment & ATS Models ---
+
+model JobPosting {
+  id              String       @id @default(uuid())
+  title           String
+  department      String
+  location        String
+  type            String       @default("FULL_TIME") // FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP
+  description     String       @db.Text
+  requirements    String?      @db.Text
+  status          String       @default("OPEN") // OPEN, CLOSED, DRAFT
+  closingDate     DateTime?
+  candidates      Candidate[]
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Candidate {
+  id              String       @id @default(uuid())
+  jobPostingId    String
+  jobPosting      JobPosting   @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  resumeUrl       String?      @db.Text
+  coverLetter     String?      @db.Text
+  status          String       @default("NEW") // NEW, REVIEWING, INTERVIEWING, OFFERED, HIRED, REJECTED
+  appliedAt       DateTime     @default(now())
+  
+  notes           String?      @db.Text
+  rating          Int?         
+  
+  updatedAt       DateTime     @updatedAt
+}
+

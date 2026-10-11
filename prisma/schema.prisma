@@ -94,6 +94,7 @@ model Employee {
   expenseClaims    ExpenseClaim[]
   trainings        TrainingEnrollment[]
   rosters          ShiftRoster[]
+  disciplinaryActions DisciplinaryAction[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -474,4 +475,27 @@ model ShiftRoster {
 
   @@unique([employeeId, date])
 }
+
+// --- Disciplinary Actions & Warning Letters ---
+
+model DisciplinaryAction {
+  id              String    @id @default(uuid())
+  employeeId      String
+  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  actionType      String    @default("WRITTEN_WARNING") // VERBAL_WARNING, WRITTEN_WARNING, SUSPENSION, TERMINATION, OTHER
+  incidentDate    DateTime
+  subject         String
+  reason          String    // ATTENDANCE, MISCONDUCT, NEGLIGENCE, POLICY_VIOLATION, SAFETY, OTHER
+  description     String?   @db.Text
+  actionTaken     String?   @db.Text
+  issuedBy        String?
+  status          String    @default("ACTIVE") // ACTIVE, RESOLVED, APPEALED
+  documentUrl     String?   @db.Text
+  warningCount    Int       @default(1)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 

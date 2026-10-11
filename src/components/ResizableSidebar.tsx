@@ -66,6 +66,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
   const navItems = [
     { href: '/dashboard', icon: '📊', label: t.sidebar.dashboard, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
+    { href: '/dashboard/my-portal', icon: '📱', label: 'ផតថលបុគ្គលិក (My Portal)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
     { href: '/dashboard/announcements', icon: '📣', label: 'សេចក្តីជូនដំណឹង (Announcements)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'] },
     { href: '/dashboard/users', icon: '🔐', label: 'គ្រប់គ្រងគណនី', roles: ['ADMIN'] },
     { href: '/dashboard/employees', icon: '👥', label: t.sidebar.employees, roles: ['ADMIN', 'HR_MANAGER', 'HR'] },

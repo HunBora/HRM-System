@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 
 interface JobPosting {
   id: string;
@@ -269,6 +270,100 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
     }
   };
 
+  // Convert Hired Candidate to Employee
+  const handleConvertToEmployee = async (c: Candidate) => {
+    const result = await Swal.fire({
+      title: 'បញ្ជាក់ការផ្ទេរជាបុគ្គលិក?',
+      html: `តើអ្នកចង់បង្កើតគណនីបុគ្គលិកផ្លូវការសម្រាប់ <b>${c.firstName} ${c.lastName}</b> (${c.jobPosting?.title || 'Staff'}) ដែរឬទេ?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#16a34a',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'បាទ/ចាស, ផ្ទេរភ្លាមៗ!',
+      cancelButtonText: 'បោះបង់',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/recruitment/candidates/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidateId: c.id }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to convert');
+
+        // Update local candidate notes
+        setCandidates(candidates.map(item => item.id === c.id ? { ...item, status: 'HIRED', notes: (item.notes ? item.notes + ' | ' : '') + `Converted (${data.employee.employeeId})` } : item));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'ជោគជ័យ!',
+          html: `បានបង្កើតបុគ្គលិកថ្មីជោគជ័យ! <br/><b>Employee ID: ${data.employee.employeeId}</b><br/><a href="/dashboard/employees" style="color: #2563eb; text-decoration: underline;">ចុចទីនេះដើម្បីមើលបញ្ជីបុគ្គលិក</a>`,
+        });
+      } catch (err: any) {
+        Swal.fire({ icon: 'error', title: 'បរាជ័យ!', text: err.message });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Export Candidates to Excel
+  const exportCandidatesToExcel = () => {
+    if (filteredCandidates.length === 0) {
+      Swal.fire({ icon: 'info', title: 'គ្មានទិន្នន័យដើម្បីទាញយកទេ!' });
+      return;
+    }
+
+    const exportData = filteredCandidates.map((c, index) => ({
+      'ល.រ (No.)': index + 1,
+      'នាមខ្លួន (First Name)': c.firstName,
+      'គោត្តនាម (Last Name)': c.lastName,
+      'មុខតំណែង (Job Title)': c.jobPosting?.title || 'N/A',
+      'ផ្នែក (Department)': c.jobPosting?.department || 'N/A',
+      'អ៊ីមែល (Email)': c.email,
+      'លេខទូរស័ព្ទ (Phone)': c.phone || 'N/A',
+      'ស្ថានភាព (Status)': STATUS_COLORS[c.status]?.labelKh || c.status,
+      'ពិន្ទុ (Rating)': `${c.rating || 5} ផ្កាយ`,
+      'កាលបរិច្ឆេទដាក់ពាក្យ (Applied Date)': new Date(c.appliedAt).toLocaleDateString(),
+      'កំណត់ចំណាំ (Notes)': c.notes || '',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Candidates');
+    XLSX.writeFile(wb, `Candidate_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    Swal.fire({ icon: 'success', title: 'បានទាញយក File Excel ជោគជ័យ!', timer: 1500, showConfirmButton: false });
+  };
+
+  // Export Jobs to Excel
+  const exportJobsToExcel = () => {
+    if (filteredJobs.length === 0) {
+      Swal.fire({ icon: 'info', title: 'គ្មានទិន្នន័យដើម្បីទាញយកទេ!' });
+      return;
+    }
+
+    const exportData = filteredJobs.map((j, index) => ({
+      'ល.រ (No.)': index + 1,
+      'ចំណងជើងការងារ (Job Title)': j.title,
+      'ផ្នែក (Department)': j.department,
+      'ទីតាំង (Location)': j.location,
+      'ប្រភេទ (Type)': j.type,
+      'ស្ថានភាព (Status)': STATUS_COLORS[j.status]?.labelKh || j.status,
+      'ចំនួនបេក្ខជន (Applicants)': j._count?.candidates || 0,
+      'ថ្ងៃផុតកំណត់ (Closing Date)': j.closingDate ? new Date(j.closingDate).toLocaleDateString() : 'N/A',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Job_Postings');
+    XLSX.writeFile(wb, `Job_Postings_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    Swal.fire({ icon: 'success', title: 'បានទាញយក File Excel ជោគជ័យ!', timer: 1500, showConfirmButton: false });
+  };
+
   // Filtered lists
   const filteredJobs = jobs.filter(j => {
     const matchSearch = j.title.toLowerCase().includes(jobSearch.toLowerCase()) || j.department.toLowerCase().includes(jobSearch.toLowerCase());
@@ -297,65 +392,107 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           {activeTab === 'jobs' ? (
-            <button
-              onClick={openCreateJobModal}
-              style={{
-                backgroundColor: '#2563eb',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 18px',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
-              }}
-            >
-              ➕ បង្កើតការប្រកាសថ្មី (Post Job)
-            </button>
+            <>
+              <button
+                onClick={exportJobsToExcel}
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
+                }}
+              >
+                📊 ទាញយក Excel (Export Jobs)
+              </button>
+              <button
+                onClick={openCreateJobModal}
+                style={{
+                  backgroundColor: '#2563eb',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                }}
+              >
+                ➕ បង្កើតការប្រកាសថ្មី (Post Job)
+              </button>
+            </>
           ) : (
-            <button
-              onClick={() => {
-                if (jobs.length === 0) {
-                  Swal.fire({ icon: 'info', title: 'សូមបង្កើត Job Posting ជាមុនសិន!' });
-                  return;
-                }
-                setCandidateForm({
-                  jobPostingId: jobs[0].id,
-                  firstName: '',
-                  lastName: '',
-                  email: '',
-                  phone: '',
-                  resumeUrl: '',
-                  coverLetter: '',
-                  status: 'NEW',
-                  notes: '',
-                  rating: '5',
-                });
-                setShowCandidateModal(true);
-              }}
-              style={{
-                backgroundColor: '#16a34a',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 18px',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 2px 4px rgba(22, 163, 74, 0.2)',
-              }}
-            >
-              ➕ បញ្ចូលបេក្ខជន (Add Candidate)
-            </button>
+            <>
+              <button
+                onClick={exportCandidatesToExcel}
+                style={{
+                  backgroundColor: '#059669',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
+                }}
+              >
+                📊 ទាញយករបាយការណ៍បេក្ខជន Excel
+              </button>
+              <button
+                onClick={() => {
+                  if (jobs.length === 0) {
+                    Swal.fire({ icon: 'info', title: 'សូមបង្កើត Job Posting ជាមុនសិន!' });
+                    return;
+                  }
+                  setCandidateForm({
+                    jobPostingId: jobs[0].id,
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    resumeUrl: '',
+                    coverLetter: '',
+                    status: 'NEW',
+                    notes: '',
+                    rating: '5',
+                  });
+                  setShowCandidateModal(true);
+                }}
+                style={{
+                  backgroundColor: '#16a34a',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 18px',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 2px 4px rgba(22, 163, 74, 0.2)',
+                }}
+              >
+                ➕ បញ្ចូលបេក្ខជន (Add Candidate)
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -696,21 +833,44 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
                           </span>
                         </td>
                         <td style={{ padding: '14px 18px', textAlign: 'right' }}>
-                          <button
-                            onClick={() => handleDeleteCandidate(c.id, `${c.firstName} ${c.lastName}`)}
-                            style={{
-                              background: '#fef2f2',
-                              border: '1px solid #fca5a5',
-                              borderRadius: '6px',
-                              padding: '5px 10px',
-                              fontSize: '0.8rem',
-                              cursor: 'pointer',
-                              color: '#dc2626',
-                              fontWeight: 600,
-                            }}
-                          >
-                            🗑️
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            {c.status === 'HIRED' && (
+                              <button
+                                onClick={() => handleConvertToEmployee(c)}
+                                title="បង្កើតជាបុគ្គលិកផ្លូវការក្នុងប្រព័ន្ធ"
+                                style={{
+                                  background: '#dcfce7',
+                                  border: '1px solid #86efac',
+                                  borderRadius: '6px',
+                                  padding: '5px 10px',
+                                  fontSize: '0.8rem',
+                                  cursor: 'pointer',
+                                  color: '#15803d',
+                                  fontWeight: 600,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                              >
+                                👤 ផ្ទេរជាបុគ្គលិក
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteCandidate(c.id, `${c.firstName} ${c.lastName}`)}
+                              style={{
+                                background: '#fef2f2',
+                                border: '1px solid #fca5a5',
+                                borderRadius: '6px',
+                                padding: '5px 10px',
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                color: '#dc2626',
+                                fontWeight: 600,
+                              }}
+                            >
+                              🗑️
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

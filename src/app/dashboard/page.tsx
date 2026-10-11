@@ -569,8 +569,16 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         prevY={prevY}
         allEmployees={allEmployees}
         groupHires={groupHires}
-        recentLeaveRequests={recentLeaveRequests} advanceStats={advanceStats} recruitmentByDept={recruitmentByDept} weeklyAttendanceData={weeklyAttendanceData}
-        
+        recentLeaveRequests={recentLeaveRequests}
+        advanceStats={advanceStats}
+        recruitmentByDept={recruitmentByDept}
+        weeklyAttendanceData={weeklyAttendanceData}
+        totalPayrollValue={totalPayrollValue}
+        totalAdvanceValue={totalAdvanceValue}
+        filterGrandTotalSalary={filterGrandTotalSalary}
+        filterMonth={filterMonth}
+        filterYear={filterYear}
+        todayAttendancesCount={todayAttendances.length}
         hrContactUrl={companySettings?.hrContactUrl || 'https://i.pravatar.cc/100?img=5'}
       />
 

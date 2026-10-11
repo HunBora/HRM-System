@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 
 interface Employee {
@@ -8,8 +9,8 @@ interface Employee {
   employeeId: string;
   firstNameEn: string;
   lastNameEn: string;
-  firstNameKh: string | null;
-  lastNameKh: string | null;
+  firstNameKh?: string | null;
+  lastNameKh?: string | null;
   position: string;
   department: string;
   line?: string | null;
@@ -56,11 +57,44 @@ interface LoansClientProps {
   currentUserRole: string;
 }
 
+const STATUS_CONFIG: Record<string, { labelKh: string; labelEn: string; labelZh: string; bg: string; text: string }> = {
+  ACTIVE: {
+    labelKh: 'កំពុងកាត់រំលស់',
+    labelEn: 'Active Deduction',
+    labelZh: '还款中',
+    bg: '#e0f2fe',
+    text: '#0284c7'
+  },
+  PAID_OFF: {
+    labelKh: 'បានសងរួចរាល់',
+    labelEn: 'Paid Off',
+    labelZh: '已结清',
+    bg: '#dcfce7',
+    text: '#16a34a'
+  },
+  DEFAULTED: {
+    labelKh: 'ខកខានសង',
+    labelEn: 'Defaulted',
+    labelZh: '违约逾期',
+    bg: '#fee2e2',
+    text: '#dc2626'
+  },
+  REJECTED: {
+    labelKh: 'បដិសេធ',
+    labelEn: 'Rejected',
+    labelZh: '已拒绝',
+    bg: '#f1f5f9',
+    text: '#64748b'
+  }
+};
+
 export default function LoansClient({
   initialLoans,
   employees,
   currentUserRole,
 }: LoansClientProps) {
+  const isHR = ['ADMIN', 'HR_MANAGER', 'PAYROLL_ADMIN'].includes(currentUserRole);
+
   const [loans, setLoans] = useState<EmployeeLoan[]>(initialLoans);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -86,7 +120,7 @@ export default function LoansClient({
   const [formPurpose, setFormPurpose] = useState('បន្ទាន់ផ្ទាល់ខ្លួន (Personal Emergency)');
   const [formGuarantorName, setFormGuarantorName] = useState('');
   const [formGuarantorPhone, setFormGuarantorPhone] = useState('');
-  const [formDisbursedBy, setFormDisbursedBy] = useState('Finance / HR Management');
+  const [formDisbursedBy, setFormDisbursedBy] = useState('Finance & HR Director');
   const [formNotes, setFormNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -165,7 +199,12 @@ export default function LoansClient({
   const handleCreateLoan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formEmployeeId || !formAmount || !formTermMonths || !formStartMonth) {
-      alert('សូមបំពេញព័ត៌មានចាំបាច់ទាំងអស់ (Please fill all required fields)');
+      Swal.fire({
+        icon: 'warning',
+        title: 'សូមបំពេញព័ត៌មានចាំបាច់',
+        text: 'Please fill all required fields.',
+        confirmButtonColor: '#2563eb'
+      });
       return;
     }
 
@@ -206,9 +245,21 @@ export default function LoansClient({
       setFormGuarantorName('');
       setFormGuarantorPhone('');
       setFormNotes('');
-      alert('បានបង្កើតកម្ចីបុគ្គលិកដោយជោគជ័យ! (Loan created successfully!)');
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ជោគជ័យ (Created)',
+        text: 'បានបង្កើតកម្ចីបុគ្គលិកដោយជោគជ័យ!',
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (err: any) {
-      alert(err.message || 'Error occurred');
+      Swal.fire({
+        icon: 'error',
+        title: 'បរាជ័យ (Failed)',
+        text: err.message || 'Error occurred',
+        confirmButtonColor: '#ef4444'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -241,9 +292,16 @@ export default function LoansClient({
       setSelectedLoan(updated);
       setIsPaymentModalOpen(false);
       setPaymentAmount('');
-      alert('បានកត់ត្រាការសងប្រាក់ជោគជ័យ! (Repayment recorded successfully!)');
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ជោគជ័យ (Paid)',
+        text: 'បានកត់ត្រាការសងប្រាក់រំលស់រួចរាល់!',
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (err: any) {
-      alert(err.message || 'Payment error');
+      Swal.fire('Error', err.message || 'Payment error', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -251,7 +309,18 @@ export default function LoansClient({
 
   // Handle Delete Loan
   const handleDeleteLoan = async (id: string) => {
-    if (!confirm('តើអ្នកពិតជាចង់លុបកម្ចីនេះមែនទេ? (Are you sure you want to delete this loan?)')) return;
+    const confirm = await Swal.fire({
+      title: 'តើអ្នកប្រាកដទេ?',
+      text: 'តើអ្នកពិតជាចង់លុបកំណត់ត្រាកម្ចីនេះមែនទេ?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'បាទ/ចាស លុបចេញ',
+      cancelButtonText: 'បោះបង់'
+    });
+
+    if (!confirm.isConfirmed) return;
 
     try {
       const res = await fetch(`/api/loans?id=${id}`, { method: 'DELETE' });
@@ -260,48 +329,49 @@ export default function LoansClient({
         throw new Error(err.error || 'Delete failed');
       }
       setLoans((prev) => prev.filter((l) => l.id !== id));
-      alert('បានលុបកម្ចីជោគជ័យ! (Loan deleted successfully!)');
+      Swal.fire({
+        icon: 'success',
+        title: 'បានលុបជោគជ័យ',
+        timer: 1200,
+        showConfirmButton: false
+      });
     } catch (err: any) {
-      alert(err.message || 'Delete error');
+      Swal.fire('Error', err.message || 'Delete error', 'error');
     }
   };
 
   // Excel Export with 3 languages stacked and autoFitColumns
   const handleExportExcel = () => {
     if (filteredLoans.length === 0) {
-      alert('គ្មានទិន្នន័យសម្រាប់ទាញយកទេ (No data to export)');
+      Swal.fire('Info', 'គ្មានទិន្នន័យសម្រាប់ទាញយកទេ (No data to export)', 'info');
       return;
     }
 
     const exportData = filteredLoans.map((l, index) => {
       const empNameKh = `${l.employee.lastNameKh || ''} ${l.employee.firstNameKh || ''}`.trim();
       const empNameEn = `${l.employee.firstNameEn || ''} ${l.employee.lastNameEn || ''}`.trim();
+      const statusConf = STATUS_CONFIG[l.status] || { labelKh: l.status, labelEn: l.status, labelZh: l.status };
 
       return {
-        'ល.រ / No / 序号': index + 1,
-        'កូដកម្ចី / Loan Code / 借款编号': l.loanCode,
-        'អត្តលេខ / Emp ID / 工号': l.employee.employeeId,
-        'ឈ្មោះខ្មែរ / Khmer Name / 柬文姓名': empNameKh || 'N/A',
-        'ឈ្មោះអង់គ្លេស / English Name / 英文姓名': empNameEn,
-        'នាយកដ្ឋាន / Department / 部门': l.employee.department,
-        'មុខតំណែង / Position / 职位': l.employee.position,
-        'ប្រាក់កម្ចីសរុប / Loan Amount ($) / 借款本金': l.loanAmount,
-        'អត្រាការប្រាក់ / Interest Rate (%) / 年利率': `${l.interestRate}%`,
-        'រយៈពេល (ខែ) / Term (Months) / 还款期限': l.termMonths,
-        'កាត់ប្រចាំខែ / Monthly Deduction ($) / 每月扣除': l.monthlyDeduction,
-        'បានសងសរុប / Total Repaid ($) / 已还金额': l.totalRepaid,
-        'សមតុល្យនៅសល់ / Remaining Balance ($) / 剩余欠款': l.remainingBalance,
-        'ខែចាប់ផ្តើមកាត់ / Start Deduction Month / 开始扣款月份': l.startDeductionMonth,
-        'គោលបំណង / Purpose / 借款用途': l.purpose,
-        'អ្នកធានា / Guarantor / 担保人': l.guarantorName || 'N/A',
-        'លេខទូរស័ព្ទអ្នកធានា / Guarantor Phone / 担保人电话': l.guarantorPhone || 'N/A',
-        'ស្ថានភាព / Status / 状态':
-          l.status === 'ACTIVE'
-            ? 'កំពុងកាត់រំលស់ (ACTIVE)'
-            : l.status === 'PAID_OFF'
-            ? 'បានសងរួចរាល់ (PAID OFF)'
-            : l.status,
-        'កាលបរិច្ឆេទបើក / Disbursement Date / 放款日期': new Date(l.disbursementDate).toLocaleDateString(),
+        'ល.រ\nNo.\n序号': index + 1,
+        'កូដកម្ចី\nLoan Code\n借款单号': l.loanCode,
+        'អត្តលេខ\nEmp ID\n工号': l.employee.employeeId,
+        'ឈ្មោះខ្មែរ\nKhmer Name\n柬文姓名': empNameKh || '-',
+        'ឈ្មោះអង់គ្លេស\nEnglish Name\n英文姓名': empNameEn,
+        'នាយកដ្ឋាន\nDepartment\n部门': l.employee.department,
+        'មុខតំណែង\nPosition\n职位': l.employee.position,
+        'ប្រាក់កម្ចីសរុប ($)\nLoan Principal\n借款本金': l.loanAmount,
+        'អត្រាការប្រាក់ (%)\nInterest Rate\n年利率': `${l.interestRate}%`,
+        'រយៈពេល (ខែ)\nTerm (Months)\n还款期数': l.termMonths,
+        'កាត់ប្រចាំខែ ($)\nMonthly Deduction\n每月扣款': l.monthlyDeduction,
+        'បានសង ($)\nTotal Repaid\n已还本息': l.totalRepaid,
+        'នៅជំពាក់ ($)\nRemaining Balance\n剩余欠款': l.remainingBalance,
+        'ខែចាប់ផ្តើមកាត់\nStart Month\n首扣月份': l.startDeductionMonth,
+        'គោលបំណង\nPurpose\n借款用途': l.purpose,
+        'អ្នកធានា\nGuarantor\n担保人': l.guarantorName || '-',
+        'លេខទូរស័ព្ទ\nPhone\n电话': l.guarantorPhone || '-',
+        'ស្ថានភាព\nStatus\n还款状态': `${statusConf.labelKh} (${statusConf.labelEn} / ${statusConf.labelZh})`,
+        'កាលបរិច្ឆេទបើក\nDisbursement Date\n放款日期': new Date(l.disbursementDate).toISOString().split('T')[0],
       };
     });
 
@@ -322,331 +392,520 @@ export default function LoansClient({
     ws['!cols'] = autoFitColumns(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Employee_Loans');
-    XLSX.writeFile(wb, `Employee_Loans_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
-  };
+    XLSX.writeFile(wb, `Employee_Loans_${new Date().toISOString().split('T')[0]}.xlsx`);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'ACTIVE':
-        return (
-          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-            កំពុងកាត់រំលស់ / Active / 还款中
-          </span>
-        );
-      case 'PAID_OFF':
-        return (
-          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-            <span>✓</span> បានសងរួច / Paid Off / 已结清
-          </span>
-        );
-      case 'DEFAULTED':
-        return (
-          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-            ខកខានសង / Defaulted / 违约
-          </span>
-        );
-      case 'REJECTED':
-        return (
-          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-            បដិសេធ / Rejected / 已拒绝
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-            {status}
-          </span>
-        );
-    }
+    Swal.fire({
+      icon: 'success',
+      title: 'ទាញយកជោគជ័យ (Exported)',
+      text: 'ឯកសារ Excel ត្រូវបានទាញយករួចរាល់!',
+      timer: 1500,
+      showConfirmButton: false,
+    });
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-      {/* Top Banner / Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-6 rounded-2xl shadow-xl text-white">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl">💳</span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* 1. Page Header Banner */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '16px',
+          background: '#ffffff',
+          padding: '24px',
+          borderRadius: '16px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+          border: '1px solid #f1f5f9',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+              color: '#2563eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '28px',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+            }}
+          >
+            💳
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
               ប្រព័ន្ធគ្រប់គ្រងប្រាក់កម្ចីបុគ្គលិក និងការកាត់រំលស់ប្រចាំខែ
             </h1>
+            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.86rem', fontWeight: 500 }}>
+              Employee Loan & Monthly Installment Deduction Management • 员工借款与分期还款扣发管理系统
+            </p>
           </div>
-          <p className="text-sm font-medium text-blue-200">
-            Employee Loan & Monthly Installment Deduction Management System
-          </p>
-          <p className="text-xs text-indigo-300">
-            员工借款与分期还款扣发管理系统
-          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={handleExportExcel}
-            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-md transition-all active:scale-95 text-sm"
-          >
-            <span>📥</span>
-            <div className="text-left leading-tight">
-              <span className="block font-bold">ទាញយកជា Excel</span>
-              <span className="text-[10px] text-emerald-100 block">Export Excel / 导出表格</span>
-            </div>
-          </button>
-
-          {['ADMIN', 'HR_MANAGER', 'PAYROLL_ADMIN'].includes(currentUserRole) && (
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {isHR && (
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-md transition-all active:scale-95 text-sm"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '10px 18px',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+                transition: 'all 0.2s ease',
+              }}
             >
-              <span className="text-lg">➕</span>
-              <div className="text-left leading-tight">
-                <span className="block font-bold">បង្កើតកម្ចីថ្មី</span>
-                <span className="text-[10px] text-blue-100 block">New Loan / 新增借款</span>
+              <span>➕</span>
+              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                <div>បង្កើតកម្ចីថ្មី</div>
+                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>New Loan • 新增借款</div>
               </div>
             </button>
           )}
+
+          <button
+            onClick={handleExportExcel}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '10px 18px',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span>📥</span>
+            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+              <div>ទាញយកជា Excel</div>
+              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* Metrics Cards - 3 languages stacked */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1 */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl p-2.5 rounded-lg bg-blue-50 text-blue-600">💵</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-bold">Total</span>
+      {/* 2. Metrics Cards (3 languages stacked) */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '16px',
+        }}
+      >
+        {/* Metric 1: Total Loans */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '20px',
+            border: '1px solid #f1f5f9',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <div
+            style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '12px',
+              background: '#eff6ff',
+              color: '#2563eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}
+          >
+            💵
           </div>
-          <div className="mt-3">
-            <div className="text-xs text-slate-500 font-semibold leading-tight">
-              <p className="font-bold text-slate-800">សរុបប្រាក់កម្ចីផ្តល់ជូន</p>
-              <p className="text-[11px] text-slate-500">Total Loan Amount</p>
-              <p className="text-[10px] text-slate-400">借款总额</p>
-            </div>
-            <p className="text-2xl font-black text-slate-900 mt-1">
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សរុបប្រាក់កម្ចី</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Loan Amount • 借款总额</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563eb', marginTop: '2px' }}>
               ${metrics.totalPrincipal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* Metric 2 */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl p-2.5 rounded-lg bg-amber-50 text-amber-600">⚖️</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold">Outstanding</span>
+        {/* Metric 2: Active Outstanding Balance */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '20px',
+            border: '1px solid #f1f5f9',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <div
+            style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '12px',
+              background: '#fffbeb',
+              color: '#d97706',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}
+          >
+            ⚖️
           </div>
-          <div className="mt-3">
-            <div className="text-xs text-slate-500 font-semibold leading-tight">
-              <p className="font-bold text-slate-800">សមតុល្យជំពាក់នៅសល់</p>
-              <p className="text-[11px] text-slate-500">Active Balance</p>
-              <p className="text-[10px] text-slate-400">剩余未还本息</p>
-            </div>
-            <p className="text-2xl font-black text-amber-600 mt-1">
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សមតុល្យជំពាក់នៅសល់</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Active Balance • 剩余未还本息</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
               ${metrics.totalActiveBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* Metric 3 */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl p-2.5 rounded-lg bg-indigo-50 text-indigo-600">📅</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 font-bold">Monthly</span>
+        {/* Metric 3: Total Monthly Deductions */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '20px',
+            border: '1px solid #f1f5f9',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <div
+            style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '12px',
+              background: '#f5f3ff',
+              color: '#7c3aed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}
+          >
+            📅
           </div>
-          <div className="mt-3">
-            <div className="text-xs text-slate-500 font-semibold leading-tight">
-              <p className="font-bold text-slate-800">កាត់រំលស់សរុបប្រចាំខែ</p>
-              <p className="text-[11px] text-slate-500">Monthly Deductions</p>
-              <p className="text-[10px] text-slate-400">每月计划扣除额</p>
-            </div>
-            <p className="text-2xl font-black text-indigo-600 mt-1">
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>កាត់រំលស់ប្រចាំខែ</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Monthly Deductions • 每月扣款总额</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#7c3aed', marginTop: '2px' }}>
               ${metrics.totalMonthlyDeductions.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* Metric 4 */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl p-2.5 rounded-lg bg-emerald-50 text-emerald-600">✅</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold">Completed</span>
+        {/* Metric 4: Paid Off Count */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '20px',
+            border: '1px solid #f1f5f9',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <div
+            style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '12px',
+              background: '#f0fdf4',
+              color: '#16a34a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+            }}
+          >
+            ✅
           </div>
-          <div className="mt-3">
-            <div className="text-xs text-slate-500 font-semibold leading-tight">
-              <p className="font-bold text-slate-800">បានសងរួចរាល់ទាំងស្រុង</p>
-              <p className="text-[11px] text-slate-500">Fully Paid Off Loans</p>
-              <p className="text-[10px] text-slate-400">已全额结清笔数</p>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បានសងរួចរាល់ទាំងស្រុង</div>
+            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Paid Off Loans • 已结清笔数</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
+              {metrics.paidOffCount} <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>ករណី</span>
             </div>
-            <p className="text-2xl font-black text-emerald-600 mt-1">
-              {metrics.paidOffCount}{' '}
-              <span className="text-xs font-normal text-slate-500">នាក់ (Cases)</span>
-            </p>
           </div>
         </div>
       </div>
 
-      {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="w-full md:w-1/3 relative">
+      {/* 3. Search and Filters Toolbar */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '14px',
+          alignItems: 'center',
+          background: '#ffffff',
+          padding: '16px 20px',
+          borderRadius: '14px',
+          border: '1px solid #f1f5f9',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+        }}
+      >
+        {/* Search Input */}
+        <div style={{ flex: '1 1 260px', position: 'relative' }}>
           <input
             type="text"
+            placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ, កូដកម្ចី... (Search)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ, កូដកម្ចី... / Search by name, ID, loan code..."
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{
+              width: '100%',
+              padding: '10px 14px 10px 38px',
+              borderRadius: '10px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.88rem',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
           />
-          <span className="absolute left-3 top-2.5 text-slate-400">🔍</span>
+          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Status Filter */}
-          <div className="flex items-center gap-1.5 text-sm">
-            <span className="text-xs text-slate-500 font-medium">ស្ថានភាព:</span>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">ទាំងអស់ (All Status)</option>
-              <option value="ACTIVE">កំពុងកាត់រំលស់ (Active)</option>
-              <option value="PAID_OFF">បានសងរួច (Paid Off)</option>
-              <option value="DEFAULTED">ខកខានសង (Defaulted)</option>
-            </select>
-          </div>
+        {/* Status Filter */}
+        <div style={{ minWidth: '180px' }}>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: '10px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.88rem',
+              background: '#ffffff',
+              outline: 'none',
+              fontWeight: 600,
+            }}
+          >
+            <option value="ALL">📊 គ្រប់ស្ថានភាព (All Status)</option>
+            <option value="ACTIVE">🔵 កំពុងកាត់រំលស់ (Active)</option>
+            <option value="PAID_OFF">🟢 បានសងរួច (Paid Off)</option>
+            <option value="DEFAULTED">🔴 ខកខានសង (Defaulted)</option>
+          </select>
+        </div>
 
-          {/* Department Filter */}
-          <div className="flex items-center gap-1.5 text-sm">
-            <span className="text-xs text-slate-500 font-medium">នាយកដ្ឋាន:</span>
-            <select
-              value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">គ្រប់នាយកដ្ឋាន (All Depts)</option>
-              {departments.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Department Filter */}
+        <div style={{ minWidth: '180px' }}>
+          <select
+            value={departmentFilter}
+            onChange={(e) => setDepartmentFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: '10px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.88rem',
+              background: '#ffffff',
+              outline: 'none',
+              fontWeight: 600,
+            }}
+          >
+            <option value="ALL">🏢 គ្រប់នាយកដ្ឋាន (All Depts)</option>
+            {departments.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Main Table with 3 languages stacked in headers */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-sm text-left">
-            <thead className="bg-slate-50 text-slate-700">
-              <tr>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">កូដកម្ចី</span>
-                    <span className="block text-[11px] text-slate-600">Loan Code</span>
-                    <span className="block text-[10px] text-slate-400">借款单号</span>
-                  </div>
+      {/* 4. Main Loans Table with 3-Languages Stacked on TH */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                {/* 1: Loan Code */}
+                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>កូដកម្ចី</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Loan Code</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>借款单号</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">បុគ្គលិកស្នើសុំ</span>
-                    <span className="block text-[11px] text-slate-600">Employee</span>
-                    <span className="block text-[10px] text-slate-400">借款员工</span>
-                  </div>
+
+                {/* 2: Employee */}
+                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ព័ត៌មានបុគ្គលិក</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">នាយកដ្ឋាន / មុខតំណែង</span>
-                    <span className="block text-[11px] text-slate-600">Dept / Position</span>
-                    <span className="block text-[10px] text-slate-400">部门 / 职位</span>
-                  </div>
+
+                {/* 3: Dept / Position */}
+                <th style={{ padding: '14px 16px', minWidth: '160px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>នាយកដ្ឋាន / មុខតំណែង</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Dept / Position</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>部门 / 职位</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">ប្រាក់កម្ចីដើម</span>
-                    <span className="block text-[11px] text-slate-600">Loan Principal</span>
-                    <span className="block text-[10px] text-slate-400">借款本金</span>
-                  </div>
+
+                {/* 4: Loan Principal */}
+                <th style={{ padding: '14px 16px', minWidth: '140px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ប្រាក់កម្ចីដើម ($)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Loan Principal</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>借款本金</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">កាត់ប្រចាំខែ (រយៈពេល)</span>
-                    <span className="block text-[11px] text-slate-600">Monthly / Term</span>
-                    <span className="block text-[10px] text-slate-400">月扣 / 期限</span>
-                  </div>
+
+                {/* 5: Monthly / Term */}
+                <th style={{ padding: '14px 16px', minWidth: '150px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>កាត់ប្រចាំខែ (រយៈពេល)</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Monthly / Term</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>月扣 / 期限</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">បានសង / សមតុល្យ</span>
-                    <span className="block text-[11px] text-slate-600">Repaid / Balance</span>
-                    <span className="block text-[10px] text-slate-400">已还 / 剩余</span>
-                  </div>
+
+                {/* 6: Repaid / Balance */}
+                <th style={{ padding: '14px 16px', minWidth: '170px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>បានសង / សមតុល្យនៅសល់</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Repaid / Balance</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>已还 / 剩余未还</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">ស្ថានភាព</span>
-                    <span className="block text-[11px] text-slate-600">Status</span>
-                    <span className="block text-[10px] text-slate-400">状态</span>
-                  </div>
+
+                {/* 7: Status */}
+                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ស្ថានភាព</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>状态</div>
                 </th>
-                <th scope="col" className="px-4 py-3 border-b border-slate-200 font-semibold text-center">
-                  <div className="leading-tight">
-                    <span className="block font-bold text-slate-900">សកម្មភាព</span>
-                    <span className="block text-[11px] text-slate-600">Actions</span>
-                    <span className="block text-[10px] text-slate-400">操作</span>
-                  </div>
+
+                {/* 8: Actions */}
+                <th style={{ padding: '14px 16px', minWidth: '140px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
+                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody>
               {filteredLoans.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <span className="text-4xl">📂</span>
-                      <p className="font-semibold text-slate-600">មិនមានទិន្នន័យកម្ចីបុគ្គលិកទេ (No Loans Found)</p>
-                      <p className="text-xs text-slate-400">សូមចុច "បង្កើតកម្ចីថ្មី" ដើម្បីបញ្ចូលកម្ចីដំបូង</p>
+                  <td colSpan={8} style={{ padding: '48px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '40px', marginBottom: '8px' }}>📂</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#475569' }}>
+                      មិនមានកំណត់ត្រាកម្ចីបុគ្គលិកទេ (No Loans Found)
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>
+                      សូមចុចប៊ូតុង "បង្កើតកម្ចីថ្មី" ដើម្បីបញ្ចូលកម្ចីបុគ្គលិក
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredLoans.map((loan) => {
+                filteredLoans.map((loan, idx) => {
                   const empNameKh = `${loan.employee.lastNameKh || ''} ${loan.employee.firstNameKh || ''}`.trim();
                   const empNameEn = `${loan.employee.firstNameEn || ''} ${loan.employee.lastNameEn || ''}`.trim();
+                  const statusConf = STATUS_CONFIG[loan.status] || {
+                    labelKh: loan.status,
+                    labelEn: loan.status,
+                    labelZh: loan.status,
+                    bg: '#f1f5f9',
+                    text: '#475569',
+                  };
                   const progressPct =
                     loan.loanAmount > 0
                       ? Math.min(100, Math.round((loan.totalRepaid / loan.loanAmount) * 100))
                       : 0;
 
                   return (
-                    <tr key={loan.id} className="hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={loan.id}
+                      style={{
+                        borderBottom: '1px solid #f1f5f9',
+                        background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
+                        transition: 'background 0.15s ease',
+                      }}
+                    >
                       {/* Loan Code */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">
+                      <td style={{ padding: '14px 16px' }}>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            background: '#eff6ff',
+                            color: '#1d4ed8',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            fontSize: '0.8rem',
+                            border: '1px solid #bfdbfe',
+                          }}
+                        >
                           {loan.loanCode}
                         </span>
-                        <div className="text-[11px] text-slate-400 mt-0.5">
-                          {new Date(loan.disbursementDate).toLocaleDateString()}
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>
+                          📅 {new Date(loan.disbursementDate).toLocaleDateString()}
                         </div>
                       </td>
 
                       {/* Employee Info */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           {loan.employee.photoUrl ? (
                             <img
                               src={loan.employee.photoUrl}
                               alt=""
-                              className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                              style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
                             />
                           ) : (
-                            <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                            <div
+                              style={{
+                                width: '38px',
+                                height: '38px',
+                                borderRadius: '50%',
+                                background: '#e0e7ff',
+                                color: '#4338ca',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
+                              }}
+                            >
                               {(loan.employee.firstNameEn?.[0] || 'E')}
                             </div>
                           )}
                           <div>
-                            <div className="font-bold text-slate-900 leading-tight">
+                            <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem', lineHeight: 1.2 }}>
                               {empNameKh || empNameEn}
                             </div>
-                            <div className="text-xs text-slate-500">{empNameEn}</div>
-                            <div className="text-[11px] font-mono text-indigo-600">
+                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{empNameEn}</div>
+                            <div style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#4f46e5' }}>
                               ID: {loan.employee.employeeId}
                             </div>
                           </div>
@@ -654,114 +913,185 @@ export default function LoansClient({
                       </td>
 
                       {/* Dept / Position */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="font-medium text-slate-800">{loan.employee.department}</div>
-                        <div className="text-xs text-slate-500">{loan.employee.position}</div>
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.85rem' }}>
+                          {loan.employee.department}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{loan.employee.position}</div>
                         {loan.employee.phone && (
-                          <div className="text-[11px] text-slate-400">📞 {loan.employee.phone}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>
+                            📞 {loan.employee.phone}
+                          </div>
                         )}
                       </td>
 
                       {/* Principal Loan Amount */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="font-black text-slate-900 text-base">
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ fontWeight: 900, color: '#0f172a', fontSize: '1.05rem' }}>
                           ${loan.loanAmount.toFixed(2)}
                         </div>
-                        <div className="text-[11px] text-slate-500">
-                          ការប្រាក់ (Interest): {loan.interestRate}%
+                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                          ការប្រាក់: {loan.interestRate}%
                         </div>
-                        <div className="text-[10px] text-slate-400 truncate max-w-[150px]">
+                        <div
+                          style={{
+                            fontSize: '0.7rem',
+                            color: '#94a3b8',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '140px',
+                          }}
+                        >
                           {loan.purpose}
                         </div>
                       </td>
 
                       {/* Monthly & Term */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="font-bold text-indigo-700">
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ fontWeight: 800, color: '#4338ca', fontSize: '0.92rem' }}>
                           ${loan.monthlyDeduction.toFixed(2)} / ខែ
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                           រយៈពេល: {loan.termMonths} ខែ ({loan.startDeductionMonth})
                         </div>
                       </td>
 
-                      {/* Repaid & Remaining */}
-                      <td className="px-4 py-3 whitespace-nowrap min-w-[160px]">
-                        <div className="flex justify-between items-center text-xs mb-1">
-                          <span className="text-emerald-700 font-bold">
+                      {/* Repaid & Balance Progress */}
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
+                          <span style={{ color: '#16a34a', fontWeight: 700 }}>
                             សង: ${loan.totalRepaid.toFixed(2)}
                           </span>
-                          <span className="text-amber-700 font-bold">
+                          <span style={{ color: '#d97706', fontWeight: 700 }}>
                             នៅសល់: ${loan.remainingBalance.toFixed(2)}
                           </span>
                         </div>
-                        <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '6px',
+                            background: '#e2e8f0',
+                            borderRadius: '999px',
+                            overflow: 'hidden',
+                          }}
+                        >
                           <div
-                            className={`h-full ${
-                              progressPct === 100 ? 'bg-emerald-500' : 'bg-blue-600'
-                            }`}
-                            style={{ width: `${progressPct}%` }}
-                          ></div>
+                            style={{
+                              width: `${progressPct}%`,
+                              height: '100%',
+                              background: progressPct === 100 ? '#10b981' : '#3b82f6',
+                              transition: 'width 0.3s ease',
+                            }}
+                          />
                         </div>
-                        <div className="text-right text-[10px] text-slate-400 mt-0.5">
+                        <div style={{ textAlign: 'right', fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
                           {progressPct}% រួចរាល់
                         </div>
                       </td>
 
-                      {/* Status */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        {getStatusBadge(loan.status)}
+                      {/* Status Badge */}
+                      <td style={{ padding: '14px 16px' }}>
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            background: statusConf.bg,
+                            color: statusConf.text,
+                            padding: '4px 10px',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            fontSize: '0.78rem',
+                            lineHeight: 1.2,
+                            border: `1px solid ${statusConf.text}33`,
+                          }}
+                        >
+                          <span>{statusConf.labelKh}</span>
+                          <span style={{ fontSize: '0.65rem', opacity: 0.85 }}>{statusConf.labelEn}</span>
+                        </span>
                       </td>
 
                       {/* Actions */}
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {/* Schedule / Detail Button */}
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                          {/* Schedule Button */}
                           <button
-                            title="មើលកាលវិភាគបង់ប្រាក់ / View Schedule"
+                            title="មើលកាលវិភាគបង់ប្រាក់ (Schedule)"
                             onClick={() => {
                               setSelectedLoan(loan);
                               setIsScheduleModalOpen(true);
                             }}
-                            className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition-colors"
+                            style={{
+                              background: '#eff6ff',
+                              border: '1px solid #bfdbfe',
+                              color: '#1d4ed8',
+                              padding: '6px 8px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                            }}
                           >
                             📅
                           </button>
 
-                          {/* Print Loan Agreement Button */}
+                          {/* Print Slip Button */}
                           <button
-                            title="បោះពុម្ពកិច្ចសន្យាខ្ចីប្រាក់ / Print Agreement"
+                            title="បោះពុម្ពកិច្ចសន្យាខ្ចីប្រាក់ (Print Agreement)"
                             onClick={() => {
                               setSelectedLoan(loan);
                               setIsPrintModalOpen(true);
                             }}
-                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-colors"
+                            style={{
+                              background: '#f0fdf4',
+                              border: '1px solid #bbf7d0',
+                              color: '#16a34a',
+                              padding: '6px 8px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                            }}
                           >
                             🖨️
                           </button>
 
-                          {/* Record Payment Button (only for active loans) */}
-                          {loan.status === 'ACTIVE' &&
-                            ['ADMIN', 'HR_MANAGER', 'PAYROLL_ADMIN'].includes(currentUserRole) && (
-                              <button
-                                title="កត់ត្រាការសងប្រាក់ / Record Repayment"
-                                onClick={() => {
-                                  setSelectedLoan(loan);
-                                  setPaymentAmount(String(loan.monthlyDeduction));
-                                  setIsPaymentModalOpen(true);
-                                }}
-                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 border border-blue-200 transition-colors"
-                              >
-                                💰
-                              </button>
-                            )}
+                          {/* Quick Repayment Button */}
+                          {loan.status === 'ACTIVE' && isHR && (
+                            <button
+                              title="កត់ត្រាការសងប្រាក់រំលស់ (Record Repayment)"
+                              onClick={() => {
+                                setSelectedLoan(loan);
+                                setPaymentAmount(String(loan.monthlyDeduction));
+                                setIsPaymentModalOpen(true);
+                              }}
+                              style={{
+                                background: '#fdf4ff',
+                                border: '1px solid #f5d0fe',
+                                color: '#a21caf',
+                                padding: '6px 8px',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem',
+                              }}
+                            >
+                              💰
+                            </button>
+                          )}
 
-                          {/* Delete Loan */}
+                          {/* Delete */}
                           {['ADMIN'].includes(currentUserRole) && (
                             <button
-                              title="លុបកម្ចី / Delete Loan"
+                              title="លុបកម្ចី (Delete)"
                               onClick={() => handleDeleteLoan(loan.id)}
-                              className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors"
+                              style={{
+                                background: '#fef2f2',
+                                border: '1px solid #fecaca',
+                                color: '#dc2626',
+                                padding: '6px 8px',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem',
+                              }}
                             >
                               🗑️
                             </button>
@@ -777,38 +1107,88 @@ export default function LoansClient({
         </div>
       </div>
 
-      {/* MODAL 1: Create New Loan */}
+      {/* MODAL 1: Create New Loan Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-6 my-8">
-            <div className="flex justify-between items-center border-b pb-3">
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            overflowY: 'auto',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              maxWidth: '680px',
+              width: '100%',
+              padding: '28px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              border: '1px solid #e2e8f0',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #e2e8f0',
+                paddingBottom: '14px',
+                marginBottom: '20px',
+              }}
+            >
               <div>
-                <h3 className="text-xl font-black text-slate-900">
-                  ពាក្យស្នើសុំ និងបង្កើតកម្ចីបុគ្គលិកថ្មី
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
+                  បង្កើតកម្ចីបុគ្គលិក និងកំណត់កាត់រំលស់
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Create Employee Loan Application & Installment Deduction
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.78rem', color: '#64748b' }}>
+                  Create Employee Loan & Set Monthly Installment Deduction
                 </p>
               </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                }}
               >
                 &times;
               </button>
             </div>
 
-            <form onSubmit={handleCreateLoan} className="space-y-4">
+            <form onSubmit={handleCreateLoan} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Employee Selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                   ជ្រើសរើសបុគ្គលិកខ្ចីប្រាក់ (Select Employee) *
                 </label>
                 <select
                   required
                   value={formEmployeeId}
                   onChange={(e) => setFormEmployeeId(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.88rem',
+                    background: '#ffffff',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
                 >
                   <option value="">-- សូមជ្រើសរើសបុគ្គលិក --</option>
                   {employees.map((emp) => {
@@ -823,32 +1203,43 @@ export default function LoansClient({
                 </select>
               </div>
 
-              {/* Show selected employee summary */}
+              {/* Selected Employee Info Box */}
               {selectedEmp && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div
+                  style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '10px',
+                    padding: '12px 16px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                    gap: '10px',
+                    fontSize: '0.78rem',
+                  }}
+                >
                   <div>
-                    <span className="text-slate-500 block">នាយកដ្ឋាន:</span>
-                    <span className="font-bold text-slate-800">{selectedEmp.department}</span>
+                    <span style={{ color: '#64748b', display: 'block' }}>នាយកដ្ឋាន:</span>
+                    <strong style={{ color: '#0f172a' }}>{selectedEmp.department}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">មុខតំណែង:</span>
-                    <span className="font-bold text-slate-800">{selectedEmp.position}</span>
+                    <span style={{ color: '#64748b', display: 'block' }}>មុខតំណែង:</span>
+                    <strong style={{ color: '#0f172a' }}>{selectedEmp.position}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">ប្រាក់ខែមូលដ្ឋាន:</span>
-                    <span className="font-bold text-blue-700">${selectedEmp.basicSalary || 0}</span>
+                    <span style={{ color: '#64748b', display: 'block' }}>ប្រាក់ខែមូលដ្ឋាន:</span>
+                    <strong style={{ color: '#2563eb' }}>${selectedEmp.basicSalary || 0}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">ទូរស័ព្ទ:</span>
-                    <span className="font-bold text-slate-800">{selectedEmp.phone || 'N/A'}</span>
+                    <span style={{ color: '#64748b', display: 'block' }}>ទូរស័ព្ទ:</span>
+                    <strong style={{ color: '#0f172a' }}>{selectedEmp.phone || '-'}</strong>
                   </div>
                 </div>
               )}
 
-              {/* Loan Details Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Loan Parameters (Amount, Interest, Term) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px' }}>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                     ចំនួនទឹកប្រាក់កម្ចី ($) *
                   </label>
                   <input
@@ -858,13 +1249,22 @@ export default function LoansClient({
                     required
                     value={formAmount}
                     onChange={(e) => setFormAmount(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm font-black text-slate-900 focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.95rem',
+                      fontWeight: 800,
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    អត្រាការប្រាក់ (% ក្នុងមួយឆ្នាំ)
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    អត្រាការប្រាក់ (%)
                   </label>
                   <input
                     type="number"
@@ -872,22 +1272,38 @@ export default function LoansClient({
                     min="0"
                     value={formInterestRate}
                     onChange={(e) => setFormInterestRate(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                     placeholder="0% (គ្មានការប្រាក់)"
                   />
-                  <span className="text-[10px] text-slate-400">0% = កម្ចីបុគ្គលិកផ្ទៃក្នុង</span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    រយៈពេលរំលស់ (ខែ) *
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    រយៈពេល (ខែ) *
                   </label>
                   <select
                     value={formTermMonths}
                     onChange={(e) => setFormTermMonths(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      background: '#ffffff',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   >
-                    <option value="1">1 ខែ (សងផ្ដាច់ខែក្រោយ)</option>
+                    <option value="1">1 ខែ (សងផ្ដាច់)</option>
                     <option value="2">2 ខែ</option>
                     <option value="3">3 ខែ</option>
                     <option value="6">6 ខែ (កន្លះឆ្នាំ)</option>
@@ -898,47 +1314,74 @@ export default function LoansClient({
                 </div>
               </div>
 
-              {/* Simulation Result Banner */}
-              <div className="p-3.5 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl flex items-center justify-between">
+              {/* Calculation Preview Banner */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+                  border: '1px solid #bfdbfe',
+                  borderRadius: '12px',
+                  padding: '14px 18px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <div>
-                  <span className="text-xs text-indigo-800 font-bold block">
-                    ការកាត់រំលស់ប្រចាំខែប៉ាន់ស្មាន (Estimated Monthly Deduction):
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    ស្មើនឹង: ${formAmount} ÷ {formTermMonths} ខែ
-                  </span>
+                  <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e3a8a' }}>
+                    ការកាត់រំលស់ប្រចាំខែប៉ាន់ស្មាន (Monthly Deduction):
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#3b82f6' }}>
+                    រូបមន្ត: ${formAmount} ÷ {formTermMonths} ខែ
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-2xl font-black text-indigo-700">
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#1d4ed8' }}>
                     ${calculatedInstallment.toFixed(2)}
-                  </span>
-                  <span className="text-xs text-indigo-600 font-semibold block">/ ខែ (Per Month)</span>
+                  </div>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#2563eb' }}>/ ខែ (Per Month)</div>
                 </div>
               </div>
 
               {/* Start Deduction Month & Purpose */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ខែចាប់ផ្តើមកាត់ប្រាក់ (Start Deduction Month) *
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    ខែចាប់ផ្តើមកាត់ប្រាក់ *
                   </label>
                   <input
                     type="month"
                     required
                     value={formStartMonth}
                     onChange={(e) => setFormStartMonth(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    គោលបំណងកម្ចី (Loan Purpose) *
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    គោលបំណងកម្ចី *
                   </label>
                   <select
                     value={formPurpose}
                     onChange={(e) => setFormPurpose(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      background: '#ffffff',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   >
                     <option value="បន្ទាន់ផ្ទាល់ខ្លួន (Personal Emergency)">បន្ទាន់ផ្ទាល់ខ្លួន (Personal Emergency)</option>
                     <option value="ព្យាបាលជំងឺ / សុខភាព (Medical / Healthcare)">ព្យាបាលជំងឺ / សុខភាព (Medical / Healthcare)</option>
@@ -950,78 +1393,139 @@ export default function LoansClient({
                 </div>
               </div>
 
-              {/* Guarantor Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Guarantor Info */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                     ឈ្មោះអ្នកធានា (Guarantor Name)
                   </label>
                   <input
                     type="text"
                     value={formGuarantorName}
                     onChange={(e) => setFormGuarantorName(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-                    placeholder="ឈ្មោះបុគ្គលិក ឬសាច់ញាតិអ្នកធានា"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                    placeholder="ឈ្មោះអ្នកធានា..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    លេខទូរស័ព្ទអ្នកធានា (Guarantor Phone)
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    លេខទូរស័ព្ទអ្នកធានា (Phone)
                   </label>
                   <input
                     type="text"
                     value={formGuarantorPhone}
                     onChange={(e) => setFormGuarantorPhone(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                     placeholder="012 xxx xxx"
                   />
                 </div>
               </div>
 
               {/* Disbursed by & Notes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                     អ្នកអនុម័ត និងបើកប្រាក់ (Disbursed By)
                   </label>
                   <input
                     type="text"
                     value={formDisbursedBy}
                     onChange={(e) => setFormDisbursedBy(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    កំណត់សម្គាល់បន្ថែម (Remarks / Notes)
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                    កំណត់សម្គាល់បន្ថែម (Remarks)
                   </label>
                   <input
                     type="text"
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                     placeholder="សម្គាល់ផ្សេងៗ..."
                   />
                 </div>
               </div>
 
-              {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              {/* Buttons */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '12px',
+                  paddingTop: '16px',
+                  borderTop: '1px solid #e2e8f0',
+                  marginTop: '6px',
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-semibold"
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#475569',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.88rem',
+                  }}
                 >
                   បោះបង់ (Cancel)
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md transition-all active:scale-95 disabled:opacity-50"
+                  style={{
+                    padding: '10px 22px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.88rem',
+                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+                    opacity: isSubmitting ? 0.7 : 1,
+                  }}
                 >
-                  {isSubmitting ? 'កំពុងបង្កើត... (Saving...)' : 'យល់ព្រមបង្កើតកម្ចី (Approve & Create Loan)'}
+                  {isSubmitting ? 'កំពុងរក្សាទុក...' : 'យល់ព្រមបង្កើតកម្ចី (Approve & Create)'}
                 </button>
               </div>
             </form>
@@ -1031,83 +1535,144 @@ export default function LoansClient({
 
       {/* MODAL 2: View Repayment Schedule */}
       {isScheduleModalOpen && selectedLoan && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-5 my-8">
-            <div className="flex justify-between items-center border-b pb-3">
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              maxWidth: '640px',
+              width: '100%',
+              padding: '28px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              border: '1px solid #e2e8f0',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #e2e8f0',
+                paddingBottom: '14px',
+                marginBottom: '18px',
+              }}
+            >
               <div>
-                <h3 className="text-lg font-black text-slate-900">
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
                   កាលវិភាគកាត់រំលស់ប្រាក់កម្ចី (Repayment Schedule)
                 </h3>
-                <p className="text-xs text-indigo-600 font-mono font-bold">
-                  {selectedLoan.loanCode} - {selectedLoan.employee.firstNameEn} {selectedLoan.employee.lastNameEn} ({selectedLoan.employee.employeeId})
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.78rem', color: '#2563eb', fontFamily: 'monospace', fontWeight: 700 }}>
+                  {selectedLoan.loanCode} • {selectedLoan.employee.firstNameEn} {selectedLoan.employee.lastNameEn} ({selectedLoan.employee.employeeId})
                 </p>
               </div>
               <button
                 onClick={() => setIsScheduleModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                }}
               >
                 &times;
               </button>
             </div>
 
-            {/* Quick Summary Cards */}
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="p-3 bg-slate-50 border rounded-lg">
-                <span className="text-xs text-slate-500 block">ប្រាក់កម្ចីដើម</span>
-                <span className="text-base font-black text-slate-900">${selectedLoan.loanAmount.toFixed(2)}</span>
+            {/* Quick Stat Pill */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr',
+                gap: '10px',
+                marginBottom: '16px',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.72rem', color: '#64748b' }}>ប្រាក់ដើមសរុប</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a' }}>
+                  ${selectedLoan.loanAmount.toFixed(2)}
+                </div>
               </div>
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <span className="text-xs text-emerald-700 block">បានសងរួច</span>
-                <span className="text-base font-black text-emerald-700">${selectedLoan.totalRepaid.toFixed(2)}</span>
+              <div style={{ background: '#f0fdf4', padding: '10px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                <div style={{ fontSize: '0.72rem', color: '#16a34a' }}>បានសងរួច</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#16a34a' }}>
+                  ${selectedLoan.totalRepaid.toFixed(2)}
+                </div>
               </div>
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <span className="text-xs text-amber-700 block">សមតុល្យនៅជំពាក់</span>
-                <span className="text-base font-black text-amber-700">${selectedLoan.remainingBalance.toFixed(2)}</span>
+              <div style={{ background: '#fffbeb', padding: '10px', borderRadius: '10px', border: '1px solid #fde68a' }}>
+                <div style={{ fontSize: '0.72rem', color: '#d97706' }}>សមតុល្យនៅសល់</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#d97706' }}>
+                  ${selectedLoan.remainingBalance.toFixed(2)}
+                </div>
               </div>
             </div>
 
-            {/* Schedule Table */}
-            <div className="border rounded-xl overflow-hidden max-h-80 overflow-y-auto">
-              <table className="min-w-full text-xs text-left divide-y divide-slate-200">
-                <thead className="bg-slate-100 text-slate-700 font-semibold sticky top-0">
+            {/* Table */}
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', maxHeight: '320px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
+                <thead style={{ background: '#f8fafc', position: 'sticky', top: 0, borderBottom: '1px solid #e2e8f0' }}>
                   <tr>
-                    <th className="px-3 py-2">ដំណាក់កាល / Installment</th>
-                    <th className="px-3 py-2">ខែកាត់ប្រាក់ / Due Month</th>
-                    <th className="px-3 py-2">ចំនួនទឹកប្រាក់ / Amount</th>
-                    <th className="px-3 py-2">ស្ថានភាព / Status</th>
-                    <th className="px-3 py-2">ថ្ងៃសង / Paid Date</th>
+                    <th style={{ padding: '10px 12px', fontWeight: 700 }}>លើកទី</th>
+                    <th style={{ padding: '10px 12px', fontWeight: 700 }}>ខែកាត់ប្រាក់</th>
+                    <th style={{ padding: '10px 12px', fontWeight: 700 }}>ចំនួនប្រាក់</th>
+                    <th style={{ padding: '10px 12px', fontWeight: 700 }}>ស្ថានភាព</th>
+                    <th style={{ padding: '10px 12px', fontWeight: 700 }}>កាលបរិច្ឆេទសង</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {Array.isArray(selectedLoan.repaymentSchedule) &&
-                  selectedLoan.repaymentSchedule.length > 0 ? (
-                    selectedLoan.repaymentSchedule.map((inst: any, idx: number) => (
-                      <tr key={idx} className={inst.status === 'PAID' ? 'bg-emerald-50/50' : ''}>
-                        <td className="px-3 py-2 font-bold text-slate-700">
+                <tbody>
+                  {Array.isArray(selectedLoan.repaymentSchedule) && selectedLoan.repaymentSchedule.length > 0 ? (
+                    selectedLoan.repaymentSchedule.map((inst, i) => (
+                      <tr
+                        key={i}
+                        style={{
+                          borderBottom: '1px solid #f1f5f9',
+                          background: inst.status === 'PAID' ? '#f0fdf4' : '#ffffff',
+                        }}
+                      >
+                        <td style={{ padding: '10px 12px', fontWeight: 700, color: '#0f172a' }}>
                           លើកទី {inst.installmentNo}
                         </td>
-                        <td className="px-3 py-2 font-mono">{inst.dueMonth}</td>
-                        <td className="px-3 py-2 font-bold text-slate-900">${inst.amount.toFixed(2)}</td>
-                        <td className="px-3 py-2">
+                        <td style={{ padding: '10px 12px', fontFamily: 'monospace' }}>{inst.dueMonth}</td>
+                        <td style={{ padding: '10px 12px', fontWeight: 800, color: '#0f172a' }}>
+                          ${inst.amount.toFixed(2)}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
                           {inst.status === 'PAID' ? (
-                            <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
+                            <span style={{ background: '#dcfce7', color: '#15803d', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
                               ✓ បានកាត់រួច
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">
+                            <span style={{ background: '#fef3c7', color: '#b45309', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700 }}>
                               ⏳ មិនទាន់កាត់
                             </span>
                           )}
                         </td>
-                        <td className="px-3 py-2 text-slate-500 font-mono">
+                        <td style={{ padding: '10px 12px', color: '#64748b', fontFamily: 'monospace' }}>
                           {inst.paidDate || '-'}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="text-center py-6 text-slate-400">
-                        គ្មានតារាងកាលវិភាគលម្អិតទេ
+                      <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
+                        គ្មានកាលវិភាគលម្អិតទេ
                       </td>
                     </tr>
                   )}
@@ -1115,10 +1680,19 @@ export default function LoansClient({
               </table>
             </div>
 
-            <div className="flex justify-end">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '18px' }}>
               <button
                 onClick={() => setIsScheduleModalOpen(false)}
-                className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold"
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#475569',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
               >
                 បិទផ្ទាំង (Close)
               </button>
@@ -1127,32 +1701,70 @@ export default function LoansClient({
         </div>
       )}
 
-      {/* MODAL 3: Record Manual Payment */}
+      {/* MODAL 3: Record Manual Payment Modal */}
       {isPaymentModalOpen && selectedLoan && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-lg font-black text-slate-900">
-                កត់ត្រាការទូទាត់សងកម្ចី
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              maxWidth: '460px',
+              width: '100%',
+              padding: '26px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              border: '1px solid #e2e8f0',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #e2e8f0',
+                paddingBottom: '12px',
+                marginBottom: '16px',
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+                កត់ត្រាការសងប្រាក់រំលស់
               </h3>
               <button
                 onClick={() => setIsPaymentModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                }}
               >
                 &times;
               </button>
             </div>
 
-            <p className="text-xs text-slate-600">
-              កត់ត្រាការកាត់ប្រាក់រំលស់ ឬសងមុនកាលកំណត់សម្រាប់បុគ្គលិក:{' '}
-              <strong className="text-slate-900">
+            <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 16px 0' }}>
+              បុគ្គលិក:{' '}
+              <strong style={{ color: '#0f172a' }}>
                 {selectedLoan.employee.firstNameEn} {selectedLoan.employee.lastNameEn}
-              </strong>
+              </strong>{' '}
+              ({selectedLoan.loanCode})
             </p>
 
-            <form onSubmit={handleRecordPayment} className="space-y-4">
+            <form onSubmit={handleRecordPayment} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                   ចំនួនទឹកប្រាក់សង ($) *
                 </label>
                 <input
@@ -1163,26 +1775,55 @@ export default function LoansClient({
                   required
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg p-2.5 text-base font-black text-indigo-700 focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '1.2rem',
+                    fontWeight: 900,
+                    color: '#2563eb',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
                 />
-                <div className="flex justify-between text-[11px] text-slate-400 mt-1">
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#64748b', marginTop: '6px' }}>
                   <span>កាត់តាមវេន: ${selectedLoan.monthlyDeduction}</span>
-                  <span>ជំពាក់នៅសល់: ${selectedLoan.remainingBalance}</span>
+                  <span>នៅជំពាក់សរុប: ${selectedLoan.remainingBalance}</span>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button
                   type="button"
                   onClick={() => setIsPaymentModalOpen(false)}
-                  className="px-3 py-1.5 border rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#64748b',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
                 >
                   បោះបង់
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold"
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 10px rgba(16, 185, 129, 0.25)',
+                  }}
                 >
                   {isSubmitting ? 'កំពុងកត់ត្រា...' : 'បញ្ជាក់ការសងប្រាក់'}
                 </button>
@@ -1194,23 +1835,79 @@ export default function LoansClient({
 
       {/* MODAL 4: Printable Official Cambodian Loan Agreement & Promissory Note */}
       {isPrintModalOpen && selectedLoan && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 space-y-6 my-8 print:p-0 print:m-0 print:shadow-none">
-            {/* Header toolbar for print */}
-            <div className="flex justify-between items-center border-b pb-3 print:hidden">
-              <span className="text-sm font-bold text-slate-700">
-                មើលទម្រង់បោះពុម្ពកិច្ចសន្យាខ្ចីប្រាក់ (Print Preview)
-              </span>
-              <div className="flex gap-2">
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            overflowY: 'auto',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              maxWidth: '820px',
+              width: '100%',
+              padding: '36px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+              border: '1px solid #e2e8f0',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+            }}
+          >
+            {/* Toolbar */}
+            <div
+              className="no-print"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #e2e8f0',
+                paddingBottom: '14px',
+                marginBottom: '24px',
+              }}
+            >
+              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#334155' }}>
+                ទម្រង់បោះពុម្ពកិច្ចសន្យាខ្ចីប្រាក់ផ្លូវការ (Official Printable Agreement)
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 18px',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                  }}
                 >
                   <span>🖨️</span> បោះពុម្ពឥឡូវនេះ (Print Now)
                 </button>
                 <button
                   onClick={() => setIsPrintModalOpen(false)}
-                  className="px-3 py-1.5 border border-slate-300 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#64748b',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
                 >
                   បិទ (Close)
                 </button>
@@ -1218,125 +1915,146 @@ export default function LoansClient({
             </div>
 
             {/* Official Slip Content */}
-            <div className="space-y-6 text-slate-900 font-serif leading-relaxed px-4 py-2">
-              {/* Royal Letterhead */}
-              <div className="text-center space-y-1">
-                <h2 className="text-base font-bold tracking-wide">ព្រះរាជាណាចក្រកម្ពុជា</h2>
-                <h3 className="text-sm font-bold tracking-wider">ជាតិ សាសនា ព្រះមហាក្សត្រ</h3>
-                <div className="text-xs font-serif italic text-slate-500">3 3 3</div>
+            <div style={{ color: '#0f172a', lineHeight: 1.7 }}>
+              {/* Royal Kingdom Letterhead */}
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <div style={{ fontSize: '1.1rem', fontWeight: 900 }}>ព្រះរាជាណាចក្រកម្ពុជា</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+                <div style={{ fontSize: '0.75rem', fontStyle: 'italic', color: '#64748b' }}>3 3 3</div>
               </div>
 
               {/* Title */}
-              <div className="text-center pt-2">
-                <h1 className="text-xl font-bold uppercase tracking-tight text-slate-950 font-sans">
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>
                   កិច្ចសន្យាខ្ចីប្រាក់ និងបង្កាន់ដៃសន្យាសង
                 </h1>
-                <p className="text-xs font-sans text-slate-600 font-semibold">
-                  EMPLOYEE LOAN AGREEMENT & PROMISSORY NOTE / 员工借款合同
-                </p>
-                <p className="text-xs font-mono font-bold text-indigo-700 mt-1">
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>
+                  EMPLOYEE LOAN AGREEMENT & PROMISSORY NOTE • 员工借款合同与借据
+                </div>
+                <div style={{ fontSize: '0.82rem', fontFamily: 'monospace', fontWeight: 700, color: '#2563eb', marginTop: '4px' }}>
                   លេខកូដកិច្ចសន្យា: {selectedLoan.loanCode}
-                </p>
+                </div>
               </div>
 
-              {/* Body clauses */}
-              <div className="text-xs space-y-3 font-sans">
-                <p>
-                  ថ្ងៃនេះ ត្រូវនឹងថ្ងៃទី{' '}
-                  <strong>{new Date(selectedLoan.disbursementDate).getDate()}</strong> ខែ{' '}
-                  <strong>{new Date(selectedLoan.disbursementDate).getMonth() + 1}</strong> ឆ្នាំ{' '}
-                  <strong>{new Date(selectedLoan.disbursementDate).getFullYear()}</strong>, ភាគីទាំងពីរបានព្រមព្រៀងគ្នាដូចខាងក្រោម៖
-                </p>
+              {/* Intro Body */}
+              <div style={{ fontSize: '0.85rem', marginBottom: '14px' }}>
+                ថ្ងៃនេះ ត្រូវនឹងថ្ងៃទី{' '}
+                <strong>{new Date(selectedLoan.disbursementDate).getDate()}</strong> ខែ{' '}
+                <strong>{new Date(selectedLoan.disbursementDate).getMonth() + 1}</strong> ឆ្នាំ{' '}
+                <strong>{new Date(selectedLoan.disbursementDate).getFullYear()}</strong>, ភាគីទាំងពីរបានព្រមព្រៀងគ្នាចុះកិច្ចសន្យាដូចខាងក្រោម៖
+              </div>
 
-                {/* Parties Table */}
-                <div className="border border-slate-300 rounded-lg p-3 bg-slate-50 grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-bold text-slate-900 border-b pb-1 mb-2">
-                      ភាគី (ក) ក្រុមហ៊ុន / ស្ថាប័នផ្តល់កម្ចី (Lender):
-                    </h4>
-                    <p className="text-slate-700">តំណាងដោយ: <strong>{selectedLoan.disbursedBy || 'Finance & HR'}</strong></p>
-                    <p className="text-slate-700">ស្ថាប័ន: <strong>HRM Enterprise Organization</strong></p>
+              {/* Parties Box */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '16px',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  marginBottom: '16px',
+                  fontSize: '0.82rem',
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 800, borderBottom: '1px solid #cbd5e1', paddingBottom: '4px', marginBottom: '8px' }}>
+                    ភាគី (ក) ក្រុមហ៊ុនផ្តល់កម្ចី (Lender):
                   </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 border-b pb-1 mb-2">
-                      ភាគី (ខ) បុគ្គលិកអ្នកខ្ចីប្រាក់ (Borrower):
-                    </h4>
-                    <p className="text-slate-700">
-                      ឈ្មោះ: <strong>{selectedLoan.employee.lastNameKh || ''} {selectedLoan.employee.firstNameKh || ''} ({selectedLoan.employee.firstNameEn} {selectedLoan.employee.lastNameEn})</strong>
-                    </p>
-                    <p className="text-slate-700">អត្តលេខ: <strong>{selectedLoan.employee.employeeId}</strong></p>
-                    <p className="text-slate-700">
-                      នាយកដ្ឋាន: <strong>{selectedLoan.employee.department}</strong> | មុខតំណែង: <strong>{selectedLoan.employee.position}</strong>
-                    </p>
-                    <p className="text-slate-700">ទូរស័ព្ទ: <strong>{selectedLoan.employee.phone || 'N/A'}</strong></p>
-                  </div>
+                  <div>តំណាងដោយ: <strong>{selectedLoan.disbursedBy || 'Finance & HR Management'}</strong></div>
+                  <div>ស្ថាប័ន: <strong>HRM Enterprise Organization</strong></div>
                 </div>
 
-                {/* Terms */}
-                <div className="space-y-1.5 pt-2">
-                  <h4 className="font-bold text-slate-900">ប្រការ ១: ចំនួនទឹកប្រាក់កម្ចី និងអត្រាការប្រាក់ (Loan Amount & Interest)</h4>
-                  <p className="text-slate-700 pl-4">
-                    ភាគី (ក) យល់ព្រមផ្តល់កម្ចីជាប្រាក់សុទ្ធចំនួន <strong>${selectedLoan.loanAmount.toFixed(2)}</strong> (ដុល្លារអាមេរិក) ជូនភាគី (ខ) ក្នុងគោលបំណង: <strong>{selectedLoan.purpose}</strong> ដោយមានអត្រាការប្រាក់ <strong>{selectedLoan.interestRate}%</strong>។
+                <div>
+                  <div style={{ fontWeight: 800, borderBottom: '1px solid #cbd5e1', paddingBottom: '4px', marginBottom: '8px' }}>
+                    ភាគី (ខ) បុគ្គលិកអ្នកខ្ចីប្រាក់ (Borrower):
+                  </div>
+                  <div>
+                    ឈ្មោះ: <strong>{selectedLoan.employee.lastNameKh || ''} {selectedLoan.employee.firstNameKh || ''} ({selectedLoan.employee.firstNameEn} {selectedLoan.employee.lastNameEn})</strong>
+                  </div>
+                  <div>អត្តលេខ: <strong>{selectedLoan.employee.employeeId}</strong></div>
+                  <div>នាយកដ្ឋាន: <strong>{selectedLoan.employee.department}</strong> | មុខតំណែង: <strong>{selectedLoan.employee.position}</strong></div>
+                  <div>ទូរស័ព្ទ: <strong>{selectedLoan.employee.phone || '-'}</strong></div>
+                </div>
+              </div>
+
+              {/* Terms & Articles */}
+              <div style={{ fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div>
+                  <strong>ប្រការ ១: ចំនួនទឹកប្រាក់កម្ចី និងអត្រាការប្រាក់ (Loan Amount & Interest)</strong>
+                  <p style={{ margin: '2px 0 0 16px', color: '#334155' }}>
+                    ភាគី (ក) យល់ព្រមផ្តល់កម្ចីជាប្រាក់សុទ្ធចំនួន <strong>${selectedLoan.loanAmount.toFixed(2)}</strong> (ដុល្លារអាមេរិក) ជូនភាគី (ខ) ក្នុងគោលបំណង <strong>{selectedLoan.purpose}</strong> ដោយមានអត្រាការប្រាក់ <strong>{selectedLoan.interestRate}%</strong>។
                   </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h4 className="font-bold text-slate-900">ប្រការ ២: លក្ខខណ្ឌនៃការសងរំលស់ (Repayment Terms)</h4>
-                  <p className="text-slate-700 pl-4">
-                    ភាគី (ខ) យល់ព្រមឱ្យក្រុមហ៊ុនកាត់កងប្រាក់រំលស់ដោយស្វ័យប្រវត្តិចេញពីប្រាក់បៀវត្សប្រចាំខែចំនួន <strong>${selectedLoan.monthlyDeduction.toFixed(2)}</strong> ក្នុងមួយខែ សម្រាប់រយៈពេល <strong>{selectedLoan.termMonths} ខែ</strong> ដោយចាប់ផ្តើមគិតចាប់ពីខែ <strong>{selectedLoan.startDeductionMonth}</strong> រហូតដល់ទូទាត់រួចរាល់។
+                <div>
+                  <strong>ប្រការ ២: លក្ខខណ្ឌនៃការសងរំលស់ (Repayment Terms)</strong>
+                  <p style={{ margin: '2px 0 0 16px', color: '#334155' }}>
+                    ភាគី (ខ) យល់ព្រមឱ្យក្រុមហ៊ុនកាត់កងប្រាក់រំលស់ដោយស្វ័យប្រវត្តិចេញពីប្រាក់បៀវត្សប្រចាំខែចំនួន <strong>${selectedLoan.monthlyDeduction.toFixed(2)}</strong> ក្នុងមួយខែ សម្រាប់រយៈពេល <strong>{selectedLoan.termMonths} ខែ</strong> ដោយចាប់ផ្តើមកាត់ចាប់ពីខែ <strong>{selectedLoan.startDeductionMonth}</strong> រហូតដល់ទូទាត់រួចរាល់។
                   </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <h4 className="font-bold text-slate-900">ប្រការ ៣: ករណីបញ្ចប់កិច្ចសន្យាការងារ ឬលាលែង (Termination / Resignation)</h4>
-                  <p className="text-slate-700 pl-4">
-                    ក្នុងករណីដែលភាគី (ខ) លាលែងពីការងារ ឬត្រូវបញ្ឈប់ការងារមុនពេលកម្ចីនេះត្រូវបានសងរួចរាល់ សមតុល្យប្រាក់កម្ចីដែលនៅសេសសល់ទាំងអស់ នឹងត្រូវកាត់កងទូទាត់ចេញពីប្រាក់ឈ្នួលចុងក្រោយ (Final Settlement) ឬប្រាក់បំណាច់អតីតភាពការងារ។ ប្រសិនបើនៅខ្វះ ភាគី (ខ) និងអ្នកធានាត្រូវសងបង្គ្រប់ភ្លាមៗ។
+                <div>
+                  <strong>ប្រការ ៣: ករណីបញ្ចប់កិច្ចសន្យាការងារ ឬលាលែង (Termination / Resignation)</strong>
+                  <p style={{ margin: '2px 0 0 16px', color: '#334155' }}>
+                    ក្នុងករណីដែលភាគី (ខ) លាលែង ឬត្រូវបញ្ឈប់ការងារមុនពេលកម្ចីត្រូវបានសងរួច សមតុល្យដែលនៅសេសសល់ទាំងអស់ នឹងត្រូវកាត់កងចេញពីប្រាក់ឈ្នួលចុងក្រោយ (Final Settlement) ឬប្រាក់បំណាច់អតីតភាព។ ប្រសិនបើនៅខ្វះ ភាគី (ខ) និងអ្នកធានាត្រូវសងបង្គ្រប់ភ្លាមៗ។
                   </p>
                 </div>
 
                 {selectedLoan.guarantorName && (
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-slate-900">ប្រការ ៤: អ្នកធានា (Guarantor)</h4>
-                    <p className="text-slate-700 pl-4">
-                      កម្ចីនេះត្រូវបានធានាដោយលោក/លោកស្រី: <strong>{selectedLoan.guarantorName}</strong> (ទូរស័ព្ទ: <strong>{selectedLoan.guarantorPhone || 'N/A'}</strong>)។
+                  <div>
+                    <strong>ប្រការ ៤: អ្នកធានា (Guarantor)</strong>
+                    <p style={{ margin: '2px 0 0 16px', color: '#334155' }}>
+                      កម្ចីនេះត្រូវបានធានាដោយ: <strong>{selectedLoan.guarantorName}</strong> (ទូរស័ព្ទ: <strong>{selectedLoan.guarantorPhone || '-'}</strong>)។
                     </p>
                   </div>
                 )}
               </div>
 
-              {/* 3 Signature Blocks */}
-              <div className="grid grid-cols-3 gap-6 text-center pt-8 font-sans">
+              {/* 3 Signatures */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr',
+                  gap: '16px',
+                  textAlign: 'center',
+                  marginTop: '40px',
+                  paddingTop: '16px',
+                  fontSize: '0.8rem',
+                }}
+              >
                 <div>
-                  <p className="text-xs font-bold text-slate-900">ហត្ថលេខាអ្នកខ្ចី (Borrower)</p>
-                  <p className="text-[10px] text-slate-500">ស្នាមមេដៃស្តាំ</p>
-                  <div className="h-20 flex items-end justify-center">
-                    <span className="text-xs text-slate-400 italic">..................................</span>
+                  <div style={{ fontWeight: 800 }}>ហត្ថលេខាអ្នកខ្ចី (Borrower)</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>ស្នាមមេដៃស្តាំ</div>
+                  <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                    <span style={{ color: '#cbd5e1' }}>..................................</span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-800">
+                  <div style={{ fontWeight: 700, marginTop: '4px' }}>
                     {selectedLoan.employee.lastNameKh || ''} {selectedLoan.employee.firstNameKh || ''}
-                  </p>
+                  </div>
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold text-slate-900">ហត្ថលេខាអ្នកធានា (Guarantor)</p>
-                  <p className="text-[10px] text-slate-500">ប្រសិនបើមាន</p>
-                  <div className="h-20 flex items-end justify-center">
-                    <span className="text-xs text-slate-400 italic">..................................</span>
+                  <div style={{ fontWeight: 800 }}>ហត្ថលេខាអ្នកធានា (Guarantor)</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>ប្រសិនបើមាន</div>
+                  <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                    <span style={{ color: '#cbd5e1' }}>..................................</span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-800">
+                  <div style={{ fontWeight: 700, marginTop: '4px' }}>
                     {selectedLoan.guarantorName || '..................................'}
-                  </p>
+                  </div>
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold text-slate-900">អ្នកអនុម័ត និងបើកប្រាក់ (Approver)</p>
-                  <p className="text-[10px] text-slate-500">ប្រធានផ្នែកហិរញ្ញវត្ថុ / ធនធានមនុស្ស</p>
-                  <div className="h-20 flex items-end justify-center">
-                    <span className="text-xs text-slate-400 italic">..................................</span>
+                  <div style={{ fontWeight: 800 }}>អ្នកអនុម័ត និងបើកប្រាក់ (Approver)</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>ប្រធានផ្នែកហិរញ្ញវត្ថុ / HR</div>
+                  <div style={{ height: '70px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+                    <span style={{ color: '#cbd5e1' }}>..................................</span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-800">
+                  <div style={{ fontWeight: 700, marginTop: '4px' }}>
                     {selectedLoan.disbursedBy || 'HR & Finance Director'}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>

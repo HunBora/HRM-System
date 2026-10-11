@@ -711,3 +711,20 @@ model BiometricPunchLog {
   updatedAt       DateTime         @updatedAt
 }
 
+// --- Enterprise System Audit Trail & Security Activity Log ---
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String   // CREATE, UPDATE, DELETE, LOGIN, EXPORT_EXCEL, PAYROLL_RUN, APPROVE, REJECT
+  module      String   // EMPLOYEES, PAYROLL, LOANS, ATTENDANCE, LEAVE, DISCIPLINARY, USERS, SETTINGS
+  userId      String?
+  userName    String?  // e.g. "Admin / HR Manager"
+  userRole    String?  // ADMIN, HR_MANAGER, PAYROLL_ADMIN, etc.
+  targetId    String?  // Target record identifier
+  targetName  String?  // Target employee or record name
+  details     String?  @db.Text // Description or details
+  ipAddress   String?  // Client IP address
+  userAgent   String?  // Browser or Client
+  status      String   @default("SUCCESS") // SUCCESS, WARNING, FAILED
+  createdAt   DateTime @default(now())
+}

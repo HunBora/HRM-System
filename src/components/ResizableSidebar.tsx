@@ -77,6 +77,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     { href: '/dashboard/payroll', icon: '💰', label: t.sidebar.payroll, roles: ['ADMIN', 'PAYROLL_ADMIN'] },
     { href: '/dashboard/exports', icon: '📥', label: t.sidebar.exports, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'] },
     { href: '/dashboard/kpi', icon: '📈', label: t.sidebar.kpi, roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
+    { href: '/dashboard/performance', icon: '🎯', label: 'វាយតម្លៃការងារ (Appraisal)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'] },
     { href: '/dashboard/trainings', icon: '🎓', label: 'វគ្គបណ្តុះបណ្តាល (Training)', roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },
     { href: '/dashboard/disciplinary', icon: '⚖️', label: 'វិធានការវិន័យ (Disciplinary)', roles: ['ADMIN', 'HR_MANAGER', 'HR'] },
     { href: '/dashboard/documents', icon: '📁', label: t.sidebar.documents || (t.sidebar.dashboard === 'Dashboard' ? 'Documents' : t.sidebar.dashboard === '仪表板' ? '公司文件' : 'ឯកសារក្រុមហ៊ុន'), roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'] },

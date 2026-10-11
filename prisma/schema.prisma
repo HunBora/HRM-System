@@ -93,6 +93,7 @@ model Employee {
   assets           CompanyAsset[]
   expenseClaims    ExpenseClaim[]
   trainings        TrainingEnrollment[]
+  rosters          ShiftRoster[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -454,5 +455,23 @@ model TrainingEnrollment {
   updatedAt       DateTime        @updatedAt
 
   @@unique([trainingId, employeeId])
+}
+
+// --- Shift Rostering & Scheduling Models ---
+
+model ShiftRoster {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime
+  shiftType   String   @default("MORNING") // MORNING, AFTERNOON, NIGHT, OFF
+  startTime   String?
+  endTime     String?
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([employeeId, date])
 }
 

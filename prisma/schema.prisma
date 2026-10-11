@@ -619,6 +619,28 @@ model CertificateRequest {
   updatedAt       DateTime  @updatedAt
 }
 
+// --- Company Announcements & Broadcast Models ---
+
+model CompanyAnnouncement {
+  id              String    @id @default(uuid())
+  title           String
+  content         String    @db.Text
+  category        String    @default("GENERAL") // GENERAL, HOLIDAY, URGENT, EVENT, POLICY
+  targetDept      String    @default("ALL") // ALL or Department name
+  priority        String    @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  isPinned        Boolean   @default(false)
+  effectiveDate   DateTime  @default(now())
+  expiryDate      DateTime?
+  authorName      String    @default("Management / HR")
+  attachmentUrl   String?   @db.Text
+  viewsCount      Int       @default(0)
+  status          String    @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+
 
 
 

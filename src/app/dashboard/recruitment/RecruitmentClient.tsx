@@ -336,17 +336,17 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
     }
 
     const exportData = filteredCandidates.map((c, index) => ({
-      'ល.រ (No.)': index + 1,
-      'នាមខ្លួន (First Name)': c.firstName,
-      'គោត្តនាម (Last Name)': c.lastName,
-      'មុខតំណែង (Job Title)': c.jobPosting?.title || 'N/A',
-      'ផ្នែក (Department)': c.jobPosting?.department || 'N/A',
-      'អ៊ីមែល (Email)': c.email,
-      'លេខទូរស័ព្ទ (Phone)': c.phone || 'N/A',
-      'ស្ថានភាព (Status)': STATUS_COLORS[c.status]?.labelKh || c.status,
-      'ពិន្ទុ (Rating)': `${c.rating || 5} ផ្កាយ`,
-      'កាលបរិច្ឆេទដាក់ពាក្យ (Applied Date)': new Date(c.appliedAt).toLocaleDateString(),
-      'កំណត់ចំណាំ (Notes)': c.notes || '',
+      'ល.រ (No. / 序号)': index + 1,
+      'នាមខ្លួន (First Name / 名字)': c.firstName,
+      'គោត្តនាម (Last Name / 姓氏)': c.lastName,
+      'មុខតំណែង (Job Title / 职位)': c.jobPosting?.title || 'N/A',
+      'ផ្នែក (Department / 部门)': c.jobPosting?.department || 'N/A',
+      'អ៊ីមែល (Email / 邮箱)': c.email,
+      'លេខទូរស័ព្ទ (Phone / 电话)': c.phone || 'N/A',
+      'ស្ថានភាព (Status / 状态)': STATUS_COLORS[c.status]?.labelKh || c.status,
+      'ពិន្ទុ (Rating / 评分)': `${c.rating || 5} ផ្កាយ`,
+      'កាលបរិច្ឆេទដាក់ពាក្យ (Applied Date / 申请日期)': new Date(c.appliedAt).toLocaleDateString(),
+      'កំណត់ចំណាំ (Notes / 备注)': c.notes || '',
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -366,14 +366,14 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
     }
 
     const exportData = filteredJobs.map((j, index) => ({
-      'ល.រ (No.)': index + 1,
-      'ចំណងជើងការងារ (Job Title)': j.title,
-      'ផ្នែក (Department)': j.department,
-      'ទីតាំង (Location)': j.location,
-      'ប្រភេទ (Type)': j.type,
-      'ស្ថានភាព (Status)': STATUS_COLORS[j.status]?.labelKh || j.status,
-      'ចំនួនបេក្ខជន (Applicants)': j._count?.candidates || 0,
-      'ថ្ងៃផុតកំណត់ (Closing Date)': j.closingDate ? new Date(j.closingDate).toLocaleDateString() : 'N/A',
+      'ល.រ (No. / 序号)': index + 1,
+      'ចំណងជើងការងារ (Job Title / 招聘职位)': j.title,
+      'ផ្នែក (Department / 部门)': j.department,
+      'ទីតាំង (Location / 工作地点)': j.location,
+      'ប្រភេទ (Type / 职位类型)': j.type,
+      'ស្ថានភាព (Status / 状态)': STATUS_COLORS[j.status]?.labelKh || j.status,
+      'ចំនួនបេក្ខជន (Applicants / 应聘人数)': j._count?.candidates || 0,
+      'ថ្ងៃផុតកំណត់ (Closing Date / 截止日期)': j.closingDate ? new Date(j.closingDate).toLocaleDateString() : 'N/A',
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -520,20 +520,39 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
 
       {/* Stats Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>ការប្រកាសសរុប (Total Jobs)</div>
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#1e293b', fontSize: '0.85rem', fontWeight: 700 }}>ការប្រកាសសរុប</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Total Jobs</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>招聘总数</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1e293b', marginTop: '6px' }}>{totalJobs}</div>
         </div>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>កំពុងបើកទទួល (Active Openings)</div>
+
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 700 }}>កំពុងបើកទទួល</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Active Openings</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>正在招聘</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d', marginTop: '6px' }}>{openJobs}</div>
         </div>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#0284c7', fontSize: '0.85rem', fontWeight: 600 }}>បេក្ខជនសរុប (Total Candidates)</div>
+
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#0284c7', fontSize: '0.85rem', fontWeight: 700 }}>បេក្ខជនសរុប</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Total Candidates</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>应聘总数</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0284c7', marginTop: '6px' }}>{totalCandidates}</div>
         </div>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#7c3aed', fontSize: '0.85rem', fontWeight: 600 }}>ជាប់ជាស្ថាពរ (Hired)</div>
+
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#7c3aed', fontSize: '0.85rem', fontWeight: 700 }}>ជាប់ជាស្ថាពរ</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Hired</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>已录用</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#7c3aed', marginTop: '6px' }}>{hiredCandidates}</div>
         </div>
       </div>
@@ -781,13 +800,49 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '850px' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '0.85rem' }}>
-                  <th style={{ padding: '14px 18px' }}>បេក្ខជន (Candidate)</th>
-                  <th style={{ padding: '14px 18px' }}>មុខតំណែង (Job Applied)</th>
-                  <th style={{ padding: '14px 18px' }}>ទំនាក់ទំនង (Contact)</th>
-                  <th style={{ padding: '14px 18px' }}>ស្ថានភាព (Status)</th>
-                  <th style={{ padding: '14px 18px' }}>ពិន្ទុ (Rating)</th>
-                  <th style={{ padding: '14px 18px', textAlign: 'right' }}>សកម្មភាព (Actions)</th>
+                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>បេក្ខជន</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Candidate</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>应聘者</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>មុខតំណែង</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Job Applied</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>应聘职位</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ទំនាក់ទំនង</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Contact</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>联系方式</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ស្ថានភាព</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Status</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>状态</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ពិន្ទុ</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Rating</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>评分</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>សកម្មភាព</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Actions</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>操作</span>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>

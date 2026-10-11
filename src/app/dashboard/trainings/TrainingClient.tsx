@@ -333,15 +333,15 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
     }
 
     const exportData = filteredTrainings.map((t, index) => ({
-      'ល.រ (No.)': index + 1,
-      'វគ្គបណ្តុះបណ្តាល (Training Title)': t.title,
-      'គ្រូបង្ហាត់ (Trainer)': t.trainer || 'N/A',
-      'ទីតាំង (Location)': t.location || 'N/A',
-      'ថ្ងៃចាប់ផ្តើម (Start Date)': new Date(t.startDate).toLocaleDateString(),
-      'ថ្ងៃបញ្ចប់ (End Date)': new Date(t.endDate).toLocaleDateString(),
-      'ថវិកាចំណាយ (Cost USD)': `$${t.cost || 0}`,
-      'ស្ថានភាព (Status)': STATUS_COLORS[t.status]?.labelKh || t.status,
-      'ចំនួនសិក្ខាកាម (Trainees)': t._count?.enrollments || 0,
+      'ល.រ (No. / 序号)': index + 1,
+      'វគ្គបណ្តុះបណ្តាល (Training Title / 培训课程)': t.title,
+      'គ្រូបង្ហាត់ (Trainer / 讲师)': t.trainer || 'N/A',
+      'ទីតាំង (Location / 地点)': t.location || 'N/A',
+      'ថ្ងៃចាប់ផ្តើម (Start Date / 开始日期)': new Date(t.startDate).toLocaleDateString(),
+      'ថ្ងៃបញ្ចប់ (End Date / 结束日期)': new Date(t.endDate).toLocaleDateString(),
+      'ថវិកាចំណាយ (Cost USD / 费用)': `$${t.cost || 0}`,
+      'ស្ថានភាព (Status / 状态)': STATUS_COLORS[t.status]?.labelKh || t.status,
+      'ចំនួនសិក្ខាកាម (Trainees / 学员人数)': t._count?.enrollments || 0,
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -360,16 +360,16 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
     }
 
     const exportData = filteredEnrollments.map((e, index) => ({
-      'ល.រ (No.)': index + 1,
-      'អត្តលេខ (Emp ID)': e.employee.employeeId,
-      'ឈ្មោះបុគ្គលិក (Employee Name)': `${e.employee.firstNameEn} ${e.employee.lastNameEn}`,
-      'មុខតំណែង (Position)': e.employee.position,
-      'ផ្នែក (Department)': e.employee.department,
-      'វគ្គបណ្តុះបណ្តាល (Training)': e.training?.title || 'N/A',
-      'ស្ថានភាព (Status)': STATUS_COLORS[e.status]?.labelKh || e.status,
-      'ពិន្ទុ (Score)': e.score !== null && e.score !== undefined ? `${e.score}/100` : 'N/A',
-      'វិញ្ញាបនបត្រ (Certificate)': e.certificateUrl || 'N/A',
-      'កាលបរិច្ឆេទចុះឈ្មោះ (Enrolled Date)': new Date(e.enrolledAt).toLocaleDateString(),
+      'ល.រ (No. / 序号)': index + 1,
+      'អត្តលេខ (Emp ID / 员工编号)': e.employee.employeeId,
+      'ឈ្មោះបុគ្គលិក (Employee Name / 员工姓名)': `${e.employee.firstNameEn} ${e.employee.lastNameEn}`,
+      'មុខតំណែង (Position / 职务)': e.employee.position,
+      'ផ្នែក (Department / 部门)': e.employee.department,
+      'វគ្គបណ្តុះបណ្តាល (Training / 培训课程)': e.training?.title || 'N/A',
+      'ស្ថានភាព (Status / 状态)': STATUS_COLORS[e.status]?.labelKh || e.status,
+      'ពិន្ទុ (Score / 成绩)': e.score !== null && e.score !== undefined ? `${e.score}/100` : 'N/A',
+      'វិញ្ញាបនបត្រ (Certificate / 证书)': e.certificateUrl || 'N/A',
+      'កាលបរិច្ឆេទចុះឈ្មោះ (Enrolled Date / 报名日期)': new Date(e.enrolledAt).toLocaleDateString(),
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -515,20 +515,39 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
 
       {/* Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>វគ្គសិក្សាសរុប (Total Programs)</div>
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#1e293b', fontSize: '0.85rem', fontWeight: 700 }}>វគ្គសិក្សាសរុប</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Total Programs</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>培训总数</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1e293b', marginTop: '6px' }}>{totalTrainings}</div>
         </div>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#d97706', fontSize: '0.85rem', fontWeight: 600 }}>កំពុងដំណើរការ (Ongoing Courses)</div>
+
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#d97706', fontSize: '0.85rem', fontWeight: 700 }}>កំពុងដំណើរការ</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Ongoing Courses</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>正在进行</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#d97706', marginTop: '6px' }}>{ongoingTrainings}</div>
         </div>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#0284c7', fontSize: '0.85rem', fontWeight: 600 }}>សិក្ខាកាមសរុប (Enrolled Trainees)</div>
+
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#0284c7', fontSize: '0.85rem', fontWeight: 700 }}>សិក្ខាកាមសរុប</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Enrolled Trainees</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>学员总数</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0284c7', marginTop: '6px' }}>{totalTrainees}</div>
         </div>
-        <div style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 600 }}>បានបញ្ចប់ជោគជ័យ (Completed)</div>
+
+        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
+            <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 700 }}>បានបញ្ចប់ជោគជ័យ</span>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Completed</span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>结业人数</span>
+          </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d', marginTop: '6px' }}>{completedTrainees}</div>
         </div>
       </div>
@@ -778,13 +797,51 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '850px' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontSize: '0.85rem' }}>
-                  <th style={{ padding: '14px 18px' }}>បុគ្គលិក (Employee)</th>
-                  <th style={{ padding: '14px 18px' }}>វគ្គសិក្សា (Training Course)</th>
-                  <th style={{ padding: '14px 18px' }}>ស្ថានភាព (Status)</th>
-                  <th style={{ padding: '14px 18px' }}>ពិន្ទុ (Score)</th>
-                  <th style={{ padding: '14px 18px' }}>វិញ្ញាបនបត្រ (Certificate)</th>
-                  {isHR && <th style={{ padding: '14px 18px', textAlign: 'right' }}>សកម្មភាព (Actions)</th>}
+                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>បុគ្គលិក</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Employee</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>员工</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>វគ្គសិក្សា</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Training Course</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>培训课程</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ស្ថានភាព</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Status</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>状态</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ពិន្ទុ</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Score</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>成绩</span>
+                    </div>
+                  </th>
+                  <th style={{ padding: '12px 18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>វិញ្ញាបនបត្រ</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Certificate</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>结业证书</span>
+                    </div>
+                  </th>
+                  {isHR && (
+                    <th style={{ padding: '12px 18px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end', lineHeight: '1.2' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>សកម្មភាព</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Actions</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>操作</span>
+                      </div>
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>

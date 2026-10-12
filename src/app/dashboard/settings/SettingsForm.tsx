@@ -1,14 +1,39 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { updateSettings, testTelegramBotAction } from './actions';
 import Image from 'next/image';
+import { SIDEBAR_THEMES, SidebarThemeId } from '@/components/ResizableSidebar';
 
 export default function SettingsForm({ settings }: { settings: any }) {
   const [loading, setLoading] = useState(false);
   const [testingBot, setTestingBot] = useState(false);
   const [preview, setPreview] = useState<string | null>(settings?.logoUrl || null);
+  const [currentThemeId, setCurrentThemeId] = useState<SidebarThemeId>('dark');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
+    if (saved && SIDEBAR_THEMES[saved]) {
+      setCurrentThemeId(saved);
+    }
+    const handleSync = () => {
+      const s = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
+      if (s && SIDEBAR_THEMES[s]) setCurrentThemeId(s);
+    };
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('sidebar-theme-changed', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('sidebar-theme-changed', handleSync);
+    };
+  }, []);
+
+  const handlePickTheme = (tId: SidebarThemeId) => {
+    setCurrentThemeId(tId);
+    localStorage.setItem('sidebar_theme_v2', tId);
+    window.dispatchEvent(new Event('sidebar-theme-changed'));
+  };
 
   const handleTestTelegram = async () => {
     const tokenInput = document.querySelector('input[name="telegramBotToken"]') as HTMLInputElement;
@@ -103,6 +128,86 @@ export default function SettingsForm({ settings }: { settings: any }) {
           onChange={handleImageChange}
           style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-color)' }}
         />
+      </div>
+
+      {/* ស្បែកពណ៌ Sidebar (Sidebar Glassmorphism Theme) */}
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h3 className="kh-text" style={{ fontSize: '1.05rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>🎨</span> រូបរាង & ស្បែកពណ៌ Sidebar (Sidebar Theme & Glassmorphism)
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+              ជ្រើសរើសពណ៌ផ្ទៃខាងក្រោយ និងពន្លឺកញ្ចក់ Glassmorphism សម្រាប់ផ្ទាំងចំហៀង (Sidebar) របស់អ្នក
+            </p>
+          </div>
+          <span style={{
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            padding: '4px 12px',
+            borderRadius: '20px',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            color: '#2563eb',
+            border: '1px solid rgba(59, 130, 246, 0.25)',
+          }}>
+            {SIDEBAR_THEMES[currentThemeId]?.nameKh} ({SIDEBAR_THEMES[currentThemeId]?.nameEn})
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '10px' }}>
+          {Object.values(SIDEBAR_THEMES).map((th) => {
+            const isSelected = th.id === currentThemeId;
+            return (
+              <button
+                key={th.id}
+                type="button"
+                onClick={() => handlePickTheme(th.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 12px',
+                  borderRadius: '10px',
+                  border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                  background: th.bgColor,
+                  backgroundImage: th.bgImage,
+                  color: th.textColor,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  boxShadow: isSelected ? '0 0 0 3px rgba(37, 99, 235, 0.25), 0 4px 12px rgba(0,0,0,0.15)' : '0 2px 6px rgba(0,0,0,0.04)',
+                  transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: th.cardBg,
+                  border: `1px solid ${th.cardBorder}`,
+                  fontSize: '1.1rem',
+                  flexShrink: 0,
+                }}>
+                  {th.icon}
+                </div>
+                <div style={{ overflow: 'hidden', flex: 1 }}>
+                  <div className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {th.nameKh}
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: th.textMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {th.nameEn}
+                  </div>
+                </div>
+                {isSelected && (
+                  <span style={{ color: th.accent, fontSize: '0.95rem', fontWeight: 900 }}>✓</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>

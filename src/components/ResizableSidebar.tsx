@@ -259,17 +259,27 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
   const sidebarRef = useRef<HTMLElement>(null);
 
-  // Load saved theme on client mount
+  // Load saved theme on client mount and listen for changes
   useEffect(() => {
-    const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
-    if (saved && SIDEBAR_THEMES[saved]) {
-      setSidebarTheme(saved);
-    }
+    const handleThemeSync = () => {
+      const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
+      if (saved && SIDEBAR_THEMES[saved]) {
+        setSidebarTheme(saved);
+      }
+    };
+    handleThemeSync();
+    window.addEventListener('storage', handleThemeSync);
+    window.addEventListener('sidebar-theme-changed', handleThemeSync);
+    return () => {
+      window.removeEventListener('storage', handleThemeSync);
+      window.removeEventListener('sidebar-theme-changed', handleThemeSync);
+    };
   }, []);
 
   const changeTheme = (newTheme: SidebarThemeId) => {
     setSidebarTheme(newTheme);
     localStorage.setItem('sidebar_theme_v2', newTheme);
+    window.dispatchEvent(new Event('sidebar-theme-changed'));
   };
 
   const currentTheme = SIDEBAR_THEMES[sidebarTheme] || SIDEBAR_THEMES.dark;
@@ -1223,21 +1233,110 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                           (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
                         return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`sub-item-link ${isActive ? 'active' : ''}`}
-                          >
-                            <span style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
-                            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
-                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500 }}>
-                                {item.labelKh}
-                              </span>
-                              <span style={{ fontSize: '0.65rem', color: isActive ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
-                                {item.labelEn}
-                              </span>
-                            </div>
-                          </Link>
+                          <React.Fragment key={item.href}>
+                            <Link
+                              href={item.href}
+                              className={`sub-item-link ${isActive ? 'active' : ''}`}
+                            >
+                              <span style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
+                              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
+                                <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500 }}>
+                                  {item.labelKh}
+                                </span>
+                                <span style={{ fontSize: '0.65rem', color: isActive ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
+                                  {item.labelEn}
+                                </span>
+                              </div>
+                            </Link>
+
+                            {/* Integrated Theme Switcher Card directly under System & Bot Settings */}
+                            {group.id === 'admin' && item.href === '/dashboard/settings' && !isCollapsed && (
+                              <div
+                                style={{
+                                  margin: '6px 4px 8px 12px',
+                                  backgroundColor: currentTheme.cardBg,
+                                  border: `1px solid ${currentTheme.cardBorder}`,
+                                  borderRadius: '10px',
+                                  padding: '8px 10px',
+                                  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.12)',
+                                  backdropFilter: 'blur(8px)',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <span style={{ fontSize: '0.85rem' }}>🎨</span>
+                                    <span className="kh-text" style={{ fontSize: '0.74rem', fontWeight: 700, color: currentTheme.textColor }}>
+                                      ពណ៌ Sidebar (Theme)
+                                    </span>
+                                  </div>
+                                  <span
+                                    style={{
+                                      fontSize: '0.58rem',
+                                      color: currentTheme.accent,
+                                      fontWeight: 700,
+                                      backgroundColor: currentTheme.itemHover,
+                                      padding: '1px 6px',
+                                      borderRadius: '4px',
+                                      border: `1px solid ${currentTheme.cardBorder}`,
+                                    }}
+                                  >
+                                    {currentTheme.nameKh}
+                                  </span>
+                                </div>
+
+                                {/* Grid of 8 theme swatches */}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
+                                  {Object.values(SIDEBAR_THEMES).map((th) => {
+                                    const isSelected = th.id === sidebarTheme;
+                                    return (
+                                      <button
+                                        key={th.id}
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          changeTheme(th.id);
+                                        }}
+                                        title={`${th.nameKh} (${th.nameEn})`}
+                                        style={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          gap: '1px',
+                                          padding: '4px 2px',
+                                          borderRadius: '6px',
+                                          border: isSelected ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
+                                          background: th.colorSwatch,
+                                          cursor: 'pointer',
+                                          boxShadow: isSelected ? `0 0 8px ${th.accent}88` : 'none',
+                                          transition: 'all 0.15s ease',
+                                          transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                                          outline: 'none',
+                                        }}
+                                      >
+                                        <span style={{ fontSize: '0.78rem', lineHeight: 1 }}>{th.icon}</span>
+                                        <span
+                                          style={{
+                                            fontSize: '0.52rem',
+                                            fontWeight: 700,
+                                            color: th.textColor,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            maxWidth: '44px',
+                                            lineHeight: 1.1,
+                                          }}
+                                        >
+                                          {th.nameKh.split(' ')[0]}
+                                        </span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </React.Fragment>
                         );
                       })}
                     </div>
@@ -1247,122 +1346,6 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             );
           })}
         </nav>
-
-        {/* ========================================================
-            SIDEBAR THEME SWITCHER (8 GLASSMORPHISM PRESETS)
-           ======================================================== */}
-        <div
-          style={{
-            padding: isCollapsed ? '8px 4px' : '10px 10px',
-            borderTop: `1px solid ${currentTheme.borderRight}`,
-            backgroundColor: currentTheme.isLight ? 'rgba(0, 0, 0, 0.02)' : 'rgba(0, 0, 0, 0.22)',
-          }}
-        >
-          {isCollapsed ? (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button
-                type="button"
-                onClick={() => setIsThemePickerOpen(!isThemePickerOpen)}
-                title={`ស្បែកពណ៌ Sidebar (${currentTheme.nameKh})`}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  border: `1px solid ${currentTheme.cardBorder}`,
-                  background: currentTheme.colorSwatch,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1rem',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                }}
-              >
-                {currentTheme.icon}
-              </button>
-            </div>
-          ) : (
-            <div
-              style={{
-                backgroundColor: currentTheme.cardBg,
-                border: `1px solid ${currentTheme.cardBorder}`,
-                borderRadius: '12px',
-                padding: '9px 10px',
-                boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)',
-                backdropFilter: 'blur(8px)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '0.92rem' }}>🎨</span>
-                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: currentTheme.textColor }}>
-                    ពណ៌ Sidebar (Theme)
-                  </span>
-                </div>
-                <span
-                  style={{
-                    fontSize: '0.62rem',
-                    color: currentTheme.accent,
-                    fontWeight: 700,
-                    backgroundColor: currentTheme.itemHover,
-                    padding: '2px 7px',
-                    borderRadius: '6px',
-                    border: `1px solid ${currentTheme.cardBorder}`,
-                  }}
-                >
-                  {currentTheme.nameKh}
-                </span>
-              </div>
-
-              {/* Grid of 8 theme swatches with icons and names */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                {Object.values(SIDEBAR_THEMES).map((th) => {
-                  const isActive = th.id === sidebarTheme;
-                  return (
-                    <button
-                      key={th.id}
-                      type="button"
-                      onClick={() => changeTheme(th.id)}
-                      title={`${th.nameKh} (${th.nameEn})`}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '2px',
-                        padding: '5px 2px',
-                        borderRadius: '8px',
-                        border: isActive ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
-                        background: th.colorSwatch,
-                        cursor: 'pointer',
-                        boxShadow: isActive ? `0 0 10px ${th.accent}88` : 'none',
-                        transition: 'all 0.18s ease',
-                        transform: isActive ? 'scale(1.04)' : 'scale(1)',
-                        outline: 'none',
-                      }}
-                    >
-                      <span style={{ fontSize: '0.85rem', lineHeight: 1 }}>{th.icon}</span>
-                      <span
-                        style={{
-                          fontSize: '0.56rem',
-                          fontWeight: 700,
-                          color: th.textColor,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: '46px',
-                          lineHeight: 1.1,
-                        }}
-                      >
-                        {th.nameKh.split(' ')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* ========================================================
             ENTERPRISE BACKUP & RESTORE DATABASE CONTROLS (TWO BUTTONS)

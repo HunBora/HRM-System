@@ -9,8 +9,9 @@ export default function ClearAllDataButton() {
   const [error, setError] = useState('');
 
   const handleClearData = async () => {
-    if (password !== 'admin123' && password !== 'developer' && password !== '8083' && password !== '123456') {
-      setError('លេខសម្ងាត់មិនត្រឹមត្រូវទេ (Incorrect password)');
+    const cleanPass = password.trim();
+    if (cleanPass !== 'admin123' && cleanPass !== 'developer' && cleanPass !== '8083' && cleanPass !== '123456') {
+      setError('លេខសម្ងាត់មិនត្រឹមត្រូវទេ (Incorrect password: សូមប្រើ developer ឬ 8083 ឬ 123456)');
       return;
     }
     
@@ -20,8 +21,9 @@ export default function ClearAllDataButton() {
       await clearAllData();
       setShowModal(false);
       setPassword('');
-    } catch (err) {
-      setError('មានបញ្ហាក្នុងការលុបទិន្នន័យ');
+      window.location.reload();
+    } catch (err: any) {
+      setError(err?.message || 'មានបញ្ហាក្នុងការលុបទិន្នន័យ');
     } finally {
       setIsDeleting(false);
     }

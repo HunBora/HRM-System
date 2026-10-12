@@ -147,6 +147,17 @@ export async function deleteEmployee(formData: FormData) {
 
 export async function clearAllData() {
   await prisma.$transaction([
+    prisma.termination.deleteMany({}),
+    prisma.exitInterview.deleteMany({}),
+    prisma.expenseClaim.deleteMany({}),
+    prisma.trainingEnrollment.deleteMany({}),
+    prisma.shiftRoster.deleteMany({}),
+    prisma.disciplinaryAction.deleteMany({}),
+    prisma.performanceAppraisal.deleteMany({}),
+    prisma.overtimeRequest.deleteMany({}),
+    prisma.certificateRequest.deleteMany({}),
+    prisma.employeeLoan.deleteMany({}),
+    prisma.biometricPunchLog.deleteMany({}),
     prisma.dailyAttendance.deleteMany({}),
     prisma.monthlyAttendance.deleteMany({}),
     prisma.payroll.deleteMany({}),

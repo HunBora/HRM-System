@@ -907,6 +907,9 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         .folder-accordion-inner {
           overflow: hidden;
         }
+        .folder-accordion.open .folder-accordion-inner {
+          overflow: visible;
+        }
 
         /* Tree Guide Line & Sub Items */
         .sub-items-tree {
@@ -917,9 +920,15 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           margin-left: 14px;
           border-left: 2px solid var(--sb-tree-line);
           background: rgba(0, 0, 0, 0.08);
+          overflow: visible;
         }
         .folder-card.active-parent .sub-items-tree {
           border-left-color: var(--sb-accent);
+        }
+
+        .sub-item-row {
+          position: relative;
+          margin-top: 3px;
         }
 
         /* Sub Item Link */
@@ -930,18 +939,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           align-items: center;
           gap: 10px;
           border-radius: 8px;
-          transition: all 0.16s ease;
+          transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.18s ease, color 0.18s ease;
           color: var(--sb-text-muted);
           text-decoration: none;
           white-space: nowrap;
-          overflow: hidden;
-          margin-top: 3px;
+          overflow: visible;
           position: relative;
+          transform-origin: left center;
         }
         .sub-item-link:hover {
           color: var(--sb-text-color);
           background: var(--sb-item-hover);
-          transform: translateX(3px);
         }
         .sub-item-link.active {
           color: #ffffff;
@@ -1031,20 +1039,58 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
         }
 
-        /* Expanded Mode: Option Rows Magnification */
-        .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link {
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.16s ease, color 0.16s ease !important;
+        /* ========================================================
+           FULL DOCK MAGNIFICATION (EXPANDED FOLDER SUB-ITEMS)
+           ======================================================== */
+        /* 1. Hovered Sub-Item Magnification */
+        .dock-magnify-active .sub-item-row:hover .sub-item-link {
+          transform: scale(calc(1 + (var(--dock-scale, 1.4) - 1) * 0.28)) translateX(8px) !important;
+          background: var(--sb-item-hover) !important;
+          color: #ffffff !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 16px var(--sb-accent) !important;
+          z-index: 35 !important;
+          border-left: 3px solid var(--sb-accent) !important;
+        }
+        .dock-magnify-active .sub-item-row:hover .sub-item-emoji {
+          transform: scale(var(--dock-scale, 1.4)) rotate(4deg) !important;
+          filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)) !important;
+        }
+        .dock-magnify-active .sub-item-row:hover .kh-text {
+          color: #ffffff !important;
+          font-weight: 800 !important;
+        }
+
+        /* 2. Direct Sibling Neighbors (macOS wave inside folder) */
+        .dock-magnify-active .sub-item-row:has(+ .sub-item-row:hover) .sub-item-link,
+        .dock-magnify-active .sub-item-row:hover + .sub-item-row .sub-item-link {
+          transform: scale(calc(1 + (var(--dock-scale, 1.4) - 1) * 0.13)) translateX(4px) !important;
+          z-index: 25 !important;
+        }
+        .dock-magnify-active .sub-item-row:has(+ .sub-item-row:hover) .sub-item-emoji,
+        .dock-magnify-active .sub-item-row:hover + .sub-item-row .sub-item-emoji {
+          transform: scale(calc(1 + (var(--dock-scale, 1.4) - 1) * 0.55)) !important;
+        }
+
+        /* 3. Secondary Sibling Neighbors */
+        .dock-magnify-active .sub-item-row:has(+ .sub-item-row + .sub-item-row:hover) .sub-item-link,
+        .dock-magnify-active .sub-item-row:hover + .sub-item-row + .sub-item-row .sub-item-link {
+          transform: scale(calc(1 + (var(--dock-scale, 1.4) - 1) * 0.05)) translateX(2px) !important;
+          z-index: 18 !important;
+        }
+
+        /* ========================================================
+           FULL DOCK MAGNIFICATION (FOLDER HEADER TRIGGERS)
+           ======================================================== */
+        .dock-magnify-active .folder-trigger {
+          transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease !important;
           transform-origin: left center;
         }
-        .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link:hover {
-          transform: translateX(6px) scale(1.03) !important;
-          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
-          z-index: 10;
+        .dock-magnify-active .folder-card:hover .folder-trigger {
+          transform: translateX(4px) !important;
         }
-        .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link:hover .sub-item-emoji {
-          transform: scale(var(--dock-scale, 1.35)) rotate(4deg) !important;
-          display: inline-block;
-          filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+        .dock-magnify-active .folder-card:hover .folder-icon-badge {
+          transform: scale(calc(var(--dock-scale, 1.4) * 0.88)) !important;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 12px var(--sb-accent) !important;
         }
 
         /* Toggle switch component styling */
@@ -1621,7 +1667,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                           (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
                         return (
-                          <React.Fragment key={item.href}>
+                          <div key={item.href} className="sub-item-row">
                             <Link
                               href={item.href}
                               className={`sub-item-link ${isActive ? 'active' : ''}`}
@@ -1636,9 +1682,9 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                               }
                               onMouseLeave={handleMouseLeaveItem}
                             >
-                              <span className="sub-item-emoji" style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
+                              <span className="sub-item-emoji">{item.icon}</span>
                               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
-                                <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500 }}>
+                                <span className="kh-text sub-item-text-kh" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500, transition: 'all 0.18s ease' }}>
                                   {item.labelKh}
                                 </span>
                                 <span style={{ fontSize: '0.65rem', color: isActive ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
@@ -1919,7 +1965,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                 )}
                               </div>
                             )}
-                          </React.Fragment>
+                          </div>
                         );
                       })}
                     </div>

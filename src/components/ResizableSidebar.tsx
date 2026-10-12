@@ -20,22 +20,259 @@ interface SubMenuItem {
   roles: string[];
 }
 
-interface MenuGroup {
+export interface MenuGroup {
   id: string;
   titleKh: string;
   titleEn: string;
   icon: string;
-  primaryHref?: string; // If single direct link
   roles: string[];
-  items?: SubMenuItem[]; // If multi-item dropdown/accordion
+  items: SubMenuItem[];
 }
+
+export type SidebarThemeId = 
+  | 'dark' 
+  | 'light' 
+  | 'grey' 
+  | 'green' 
+  | 'indigo' 
+  | 'ocean' 
+  | 'oled' 
+  | 'crimson';
+
+export interface SidebarTheme {
+  id: SidebarThemeId;
+  nameKh: string;
+  nameEn: string;
+  icon: string;
+  colorSwatch: string;
+  bgColor: string;
+  bgImage: string;
+  textColor: string;
+  textMuted: string;
+  cardBg: string;
+  cardBorder: string;
+  cardHoverBg: string;
+  itemHover: string;
+  accent: string;
+  borderRight: string;
+  treeLine: string;
+  pillBg: string;
+  pillColor: string;
+  activeBg: string;
+  footerBg: string;
+  isLight: boolean;
+}
+
+export const SIDEBAR_THEMES: Record<SidebarThemeId, SidebarTheme> = {
+  dark: {
+    id: 'dark',
+    nameKh: 'Dark Glass',
+    nameEn: 'Dark Glassmorphism',
+    icon: '🌌',
+    colorSwatch: 'linear-gradient(135deg, #101c36, #0c1426)',
+    bgColor: '#0f172a',
+    bgImage: 'radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.24) 0%, transparent 65%), linear-gradient(180deg, #101c36 0%, #0c1426 100%)',
+    textColor: '#f8fafc',
+    textMuted: '#94a3b8',
+    cardBg: 'rgba(26, 38, 65, 0.65)',
+    cardBorder: 'rgba(255, 255, 255, 0.1)',
+    cardHoverBg: 'rgba(30, 48, 82, 0.8)',
+    itemHover: 'rgba(255, 255, 255, 0.08)',
+    accent: '#38bdf8',
+    borderRight: 'rgba(255, 255, 255, 0.12)',
+    treeLine: 'rgba(148, 163, 184, 0.25)',
+    pillBg: 'rgba(255, 255, 255, 0.12)',
+    pillColor: '#e2e8f0',
+    activeBg: 'linear-gradient(90deg, rgba(37, 99, 235, 0.45) 0%, rgba(37, 99, 235, 0.18) 100%)',
+    footerBg: 'rgba(0, 0, 0, 0.28)',
+    isLight: false,
+  },
+  light: {
+    id: 'light',
+    nameKh: 'Lighting Frost',
+    nameEn: 'Light Glassmorphism',
+    icon: '💡',
+    colorSwatch: 'linear-gradient(135deg, #ffffff, #e2e8f0)',
+    bgColor: '#ffffff',
+    bgImage: 'radial-gradient(circle at 15% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 70%), linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)',
+    textColor: '#0f172a',
+    textMuted: '#475569',
+    cardBg: 'rgba(255, 255, 255, 0.82)',
+    cardBorder: 'rgba(203, 213, 225, 0.85)',
+    cardHoverBg: 'rgba(255, 255, 255, 0.98)',
+    itemHover: 'rgba(99, 102, 241, 0.1)',
+    accent: '#4f46e5',
+    borderRight: 'rgba(203, 213, 225, 0.85)',
+    treeLine: 'rgba(148, 163, 184, 0.45)',
+    pillBg: 'rgba(0, 0, 0, 0.07)',
+    pillColor: '#334155',
+    activeBg: 'linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.08) 100%)',
+    footerBg: 'rgba(241, 245, 249, 0.95)',
+    isLight: true,
+  },
+  grey: {
+    id: 'grey',
+    nameKh: 'Grey Slate',
+    nameEn: 'Charcoal Grey Glass',
+    icon: '🪨',
+    colorSwatch: 'linear-gradient(135deg, #475569, #1e293b)',
+    bgColor: '#1e293b',
+    bgImage: 'radial-gradient(circle at 20% 10%, rgba(148, 163, 184, 0.22) 0%, transparent 65%), linear-gradient(180deg, #334155 0%, #1e293b 100%)',
+    textColor: '#f8fafc',
+    textMuted: '#94a3b8',
+    cardBg: 'rgba(255, 255, 255, 0.06)',
+    cardBorder: 'rgba(255, 255, 255, 0.12)',
+    cardHoverBg: 'rgba(255, 255, 255, 0.1)',
+    itemHover: 'rgba(255, 255, 255, 0.08)',
+    accent: '#cbd5e1',
+    borderRight: 'rgba(255, 255, 255, 0.12)',
+    treeLine: 'rgba(148, 163, 184, 0.3)',
+    pillBg: 'rgba(255, 255, 255, 0.12)',
+    pillColor: '#e2e8f0',
+    activeBg: 'linear-gradient(90deg, rgba(148, 163, 184, 0.35) 0%, rgba(148, 163, 184, 0.12) 100%)',
+    footerBg: 'rgba(0, 0, 0, 0.25)',
+    isLight: false,
+  },
+  green: {
+    id: 'green',
+    nameKh: 'Emerald Green',
+    nameEn: 'Forest Emerald Glass',
+    icon: '🌲',
+    colorSwatch: 'linear-gradient(135deg, #065f46, #022c22)',
+    bgColor: '#022c22',
+    bgImage: 'radial-gradient(circle at 15% 10%, rgba(16, 185, 129, 0.32) 0%, transparent 65%), linear-gradient(180deg, #064e3b 0%, #022c22 100%)',
+    textColor: '#f0fdf4',
+    textMuted: '#a7f3d0',
+    cardBg: 'rgba(255, 255, 255, 0.05)',
+    cardBorder: 'rgba(52, 211, 153, 0.22)',
+    cardHoverBg: 'rgba(16, 185, 129, 0.18)',
+    itemHover: 'rgba(52, 211, 153, 0.14)',
+    accent: '#34d399',
+    borderRight: 'rgba(52, 211, 153, 0.2)',
+    treeLine: 'rgba(52, 211, 153, 0.3)',
+    pillBg: 'rgba(52, 211, 153, 0.2)',
+    pillColor: '#a7f3d0',
+    activeBg: 'linear-gradient(90deg, rgba(16, 185, 129, 0.45) 0%, rgba(16, 185, 129, 0.15) 100%)',
+    footerBg: 'rgba(2, 44, 34, 0.9)',
+    isLight: false,
+  },
+  indigo: {
+    id: 'indigo',
+    nameKh: 'Royal Indigo',
+    nameEn: 'Velvet Purple Glass',
+    icon: '🔮',
+    colorSwatch: 'linear-gradient(135deg, #4338ca, #1e1b4b)',
+    bgColor: '#1e1b4b',
+    bgImage: 'radial-gradient(circle at 15% 10%, rgba(168, 85, 247, 0.32) 0%, transparent 65%), linear-gradient(180deg, #312e81 0%, #17143f 100%)',
+    textColor: '#faf5ff',
+    textMuted: '#c4b5fd',
+    cardBg: 'rgba(255, 255, 255, 0.05)',
+    cardBorder: 'rgba(192, 132, 252, 0.22)',
+    cardHoverBg: 'rgba(168, 85, 247, 0.18)',
+    itemHover: 'rgba(192, 132, 252, 0.14)',
+    accent: '#c084fc',
+    borderRight: 'rgba(192, 132, 252, 0.2)',
+    treeLine: 'rgba(192, 132, 252, 0.3)',
+    pillBg: 'rgba(192, 132, 252, 0.2)',
+    pillColor: '#e9d5ff',
+    activeBg: 'linear-gradient(90deg, rgba(168, 85, 247, 0.45) 0%, rgba(168, 85, 247, 0.15) 100%)',
+    footerBg: 'rgba(23, 20, 63, 0.9)',
+    isLight: false,
+  },
+  ocean: {
+    id: 'ocean',
+    nameKh: 'Ocean Sapphire',
+    nameEn: 'Deep Ocean Blue Glass',
+    icon: '🌊',
+    colorSwatch: 'linear-gradient(135deg, #0369a1, #082f49)',
+    bgColor: '#082f49',
+    bgImage: 'radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.32) 0%, transparent 65%), linear-gradient(180deg, #075985 0%, #082f49 100%)',
+    textColor: '#f0f9ff',
+    textMuted: '#bae6fd',
+    cardBg: 'rgba(255, 255, 255, 0.05)',
+    cardBorder: 'rgba(56, 189, 248, 0.22)',
+    cardHoverBg: 'rgba(14, 165, 233, 0.18)',
+    itemHover: 'rgba(56, 189, 248, 0.14)',
+    accent: '#38bdf8',
+    borderRight: 'rgba(56, 189, 248, 0.2)',
+    treeLine: 'rgba(56, 189, 248, 0.3)',
+    pillBg: 'rgba(56, 189, 248, 0.2)',
+    pillColor: '#bae6fd',
+    activeBg: 'linear-gradient(90deg, rgba(14, 165, 233, 0.45) 0%, rgba(14, 165, 233, 0.15) 100%)',
+    footerBg: 'rgba(8, 47, 73, 0.9)',
+    isLight: false,
+  },
+  oled: {
+    id: 'oled',
+    nameKh: 'Obsidian OLED',
+    nameEn: 'Midnight Pure Black',
+    icon: '🖤',
+    colorSwatch: 'linear-gradient(135deg, #18181b, #000000)',
+    bgColor: '#000000',
+    bgImage: 'radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.08) 0%, transparent 60%), linear-gradient(180deg, #09090b 0%, #000000 100%)',
+    textColor: '#ffffff',
+    textMuted: '#a1a1aa',
+    cardBg: 'rgba(255, 255, 255, 0.04)',
+    cardBorder: 'rgba(255, 255, 255, 0.1)',
+    cardHoverBg: 'rgba(255, 255, 255, 0.1)',
+    itemHover: 'rgba(255, 255, 255, 0.08)',
+    accent: '#f4f4f5',
+    borderRight: 'rgba(255, 255, 255, 0.14)',
+    treeLine: 'rgba(255, 255, 255, 0.2)',
+    pillBg: 'rgba(255, 255, 255, 0.12)',
+    pillColor: '#f4f4f5',
+    activeBg: 'linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.06) 100%)',
+    footerBg: 'rgba(0, 0, 0, 0.95)',
+    isLight: false,
+  },
+  crimson: {
+    id: 'crimson',
+    nameKh: 'Sunset Crimson',
+    nameEn: 'Burgundy Crimson Glass',
+    icon: '🍷',
+    colorSwatch: 'linear-gradient(135deg, #881337, #1f020a)',
+    bgColor: '#1f020a',
+    bgImage: 'radial-gradient(circle at 15% 10%, rgba(244, 63, 94, 0.3) 0%, transparent 65%), linear-gradient(180deg, #4c0519 0%, #1f020a 100%)',
+    textColor: '#fff1f2',
+    textMuted: '#fecdd3',
+    cardBg: 'rgba(255, 255, 255, 0.05)',
+    cardBorder: 'rgba(251, 113, 133, 0.22)',
+    cardHoverBg: 'rgba(244, 63, 94, 0.18)',
+    itemHover: 'rgba(251, 113, 133, 0.14)',
+    accent: '#fb7185',
+    borderRight: 'rgba(251, 113, 133, 0.2)',
+    treeLine: 'rgba(251, 113, 133, 0.3)',
+    pillBg: 'rgba(251, 113, 133, 0.2)',
+    pillColor: '#fecdd3',
+    activeBg: 'linear-gradient(90deg, rgba(244, 63, 94, 0.45) 0%, rgba(244, 63, 94, 0.15) 100%)',
+    footerBg: 'rgba(31, 2, 10, 0.9)',
+    isLight: false,
+  },
+};
 
 export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPLOYEE' }: SidebarProps) {
   const pathname = usePathname();
   const [width, setWidth] = useState<number>(275);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isResizing, setIsResizing] = useState<boolean>(false);
+  const [sidebarTheme, setSidebarTheme] = useState<SidebarThemeId>('dark');
+  const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
   const sidebarRef = useRef<HTMLElement>(null);
+
+  // Load saved theme on client mount
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
+    if (saved && SIDEBAR_THEMES[saved]) {
+      setSidebarTheme(saved);
+    }
+  }, []);
+
+  const changeTheme = (newTheme: SidebarThemeId) => {
+    setSidebarTheme(newTheme);
+    localStorage.setItem('sidebar_theme_v2', newTheme);
+  };
+
+  const currentTheme = SIDEBAR_THEMES[sidebarTheme] || SIDEBAR_THEMES.dark;
 
   // Accordion open/close state for collapsed/expanded folders
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
@@ -476,24 +713,24 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           background: rgba(255, 255, 255, 0.28);
         }
 
-        /* Folder Card Container with Crisp Contrast */
+        /* Dynamic Theme Folder Card Container */
         .folder-card {
-          background: rgba(26, 38, 65, 0.65);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--sb-card-bg);
+          border: 1px solid var(--sb-card-border);
           border-radius: 12px;
           overflow: hidden;
           transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
           backdrop-filter: blur(8px);
         }
         .folder-card:hover {
-          border-color: rgba(96, 165, 250, 0.35);
-          background: rgba(30, 48, 82, 0.8);
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+          background: var(--sb-card-hover-bg);
+          border-color: var(--sb-accent);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
         }
         .folder-card.active-parent {
-          border-color: rgba(96, 165, 250, 0.5);
-          background: rgba(27, 44, 78, 0.92);
+          background: var(--sb-card-hover-bg);
+          border-color: var(--sb-accent);
           box-shadow: 0 6px 20px rgba(37, 99, 235, 0.18);
         }
 
@@ -506,7 +743,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           padding: 10px 12px;
           background: transparent;
           border: none;
-          color: #f8fafc;
+          color: var(--sb-text-color);
           cursor: pointer;
           font-weight: 700;
           font-size: 0.88rem;
@@ -515,8 +752,8 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           user-select: none;
         }
         .folder-trigger:hover {
-          background: rgba(255, 255, 255, 0.06);
-          color: #ffffff;
+          background: var(--sb-item-hover);
+          color: var(--sb-text-color);
         }
 
         /* Folder Icon Badge */
@@ -529,7 +766,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           justify-content: center;
           font-size: 1.05rem;
           flex-shrink: 0;
-          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
           transition: transform 0.2s ease;
         }
         .folder-trigger:hover .folder-icon-badge {
@@ -542,15 +779,15 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           font-weight: 800;
           padding: 2px 7px;
           border-radius: 10px;
-          background: rgba(255, 255, 255, 0.12);
-          color: #e2e8f0;
-          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: var(--sb-pill-bg);
+          color: var(--sb-pill-color);
+          border: 1px solid var(--sb-card-border);
           transition: all 0.15s ease;
         }
         .folder-card.active-parent .count-pill {
-          background: rgba(59, 130, 246, 0.3);
-          color: #bfdbfe;
-          border-color: rgba(96, 165, 250, 0.45);
+          background: var(--sb-accent);
+          color: #ffffff;
+          border-color: var(--sb-accent);
         }
 
         /* Smooth CSS Grid List-Down Animation */
@@ -573,11 +810,11 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           flex-direction: column;
           padding: 6px 8px 8px 14px;
           margin-left: 14px;
-          border-left: 2px solid rgba(148, 163, 184, 0.22);
-          background: rgba(10, 16, 30, 0.25);
+          border-left: 2px solid var(--sb-tree-line);
+          background: rgba(0, 0, 0, 0.08);
         }
         .folder-card.active-parent .sub-items-tree {
-          border-left-color: rgba(96, 165, 250, 0.45);
+          border-left-color: var(--sb-accent);
         }
 
         /* Sub Item Link */
@@ -589,7 +826,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           gap: 10px;
           border-radius: 8px;
           transition: all 0.16s ease;
-          color: #cbd5e1;
+          color: var(--sb-text-muted);
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
@@ -597,16 +834,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           position: relative;
         }
         .sub-item-link:hover {
-          color: #ffffff;
-          background: rgba(255, 255, 255, 0.1);
+          color: var(--sb-text-color);
+          background: var(--sb-item-hover);
           transform: translateX(3px);
         }
         .sub-item-link.active {
           color: #ffffff;
-          background: linear-gradient(90deg, rgba(37, 99, 235, 0.45) 0%, rgba(37, 99, 235, 0.18) 100%);
-          border-left: 3px solid #38bdf8;
+          background: var(--sb-active-bg);
+          border-left: 3px solid var(--sb-accent);
           font-weight: 700;
-          box-shadow: 0 2px 12px rgba(37, 99, 235, 0.28);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
         }
 
         /* Resize Handle */
@@ -625,14 +862,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         }
         .resize-handle:hover,
         .resize-handle.active {
-          background-color: rgba(59, 130, 246, 0.6);
+          background-color: var(--sb-accent);
         }
         .resize-indicator {
           width: 3px;
           height: 36px;
-          background-color: rgba(255, 255, 255, 0.3);
+          background-color: var(--sb-text-muted);
           border-radius: 2px;
-          opacity: 0;
+          opacity: 0.5;
           transition: opacity 0.2s ease;
         }
         .resize-handle:hover .resize-indicator,
@@ -648,74 +885,194 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           width: `${currentWidth}px`,
           minWidth: `${currentWidth}px`,
           maxWidth: `${currentWidth}px`,
-          backgroundColor: '#0f172a',
-          backgroundImage: 'radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.22) 0%, transparent 65%), linear-gradient(180deg, #101c36 0%, #0c1426 100%)',
-          color: '#f8fafc',
+          backgroundColor: currentTheme.bgColor,
+          backgroundImage: currentTheme.bgImage,
+          color: currentTheme.textColor,
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '4px 0 25px rgba(0,0,0,0.45)',
+          boxShadow: currentTheme.isLight
+            ? '4px 0 20px rgba(0,0,0,0.06)'
+            : '4px 0 25px rgba(0,0,0,0.45)',
           zIndex: 40,
           position: 'relative',
-          transition: isResizing ? 'none' : 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: isResizing ? 'none' : 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, color 0.3s ease',
           userSelect: isResizing ? 'none' : 'auto',
-          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRight: `1px solid ${currentTheme.borderRight}`,
+          ['--sb-bg-color' as any]: currentTheme.bgColor,
+          ['--sb-text-color' as any]: currentTheme.textColor,
+          ['--sb-text-muted' as any]: currentTheme.textMuted,
+          ['--sb-card-bg' as any]: currentTheme.cardBg,
+          ['--sb-card-border' as any]: currentTheme.cardBorder,
+          ['--sb-card-hover-bg' as any]: currentTheme.cardHoverBg,
+          ['--sb-item-hover' as any]: currentTheme.itemHover,
+          ['--sb-accent' as any]: currentTheme.accent,
+          ['--sb-tree-line' as any]: currentTheme.treeLine,
+          ['--sb-pill-bg' as any]: currentTheme.pillBg,
+          ['--sb-pill-color' as any]: currentTheme.pillColor,
+          ['--sb-active-bg' as any]: currentTheme.activeBg,
+          ['--sb-footer-bg' as any]: currentTheme.footerBg,
         }}
       >
         {/* Header / Logo Area */}
         <div
           style={{
-            padding: isCollapsed ? '18px 8px' : '18px 16px',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            padding: isCollapsed ? '16px 6px' : '16px 14px',
+            borderBottom: `1px solid ${currentTheme.borderRight}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: isCollapsed ? 'center' : 'space-between',
-            gap: '10px',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)',
+            gap: '8px',
+            background: currentTheme.isLight
+              ? 'linear-gradient(180deg, rgba(0,0,0,0.02) 0%, transparent 100%)'
+              : 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)',
             minHeight: '68px',
+            position: 'relative',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
             {logoUrl ? (
               <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
                 <Image src={logoUrl} alt="Logo" fill style={{ objectFit: 'contain' }} />
               </div>
             ) : (
-              <span className="kh-text" style={{ color: '#60a5fa', fontWeight: 'bold', fontSize: '1.2rem', flexShrink: 0 }}>
+              <span className="kh-text" style={{ color: currentTheme.accent, fontWeight: 'bold', fontSize: '1.2rem', flexShrink: 0 }}>
                 {isCollapsed ? 'HR' : (t.sidebar.system || 'HRM System')}
               </span>
             )}
             {!isCollapsed && (
-              <span style={{ fontSize: '0.92rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#f1f5f9' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: currentTheme.textColor }}>
                 {companyName}
               </span>
             )}
           </div>
 
-          {/* Collapse Toggle Button */}
-          <button
-            onClick={toggleCollapse}
-            title={isCollapsed ? 'ពង្រីក (Expand)' : 'បង្រួម (Collapse)'}
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              color: '#94a3b8',
-              border: 'none',
-              borderRadius: '6px',
-              width: '26px',
-              height: '26px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              flexShrink: 0,
-              fontSize: '0.8rem',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.color = '#ffffff')}
-            onMouseOut={(e) => (e.currentTarget.style.color = '#94a3b8')}
-          >
-            {isCollapsed ? '»' : '«'}
-          </button>
+          {/* Action Buttons: Theme Picker & Collapse Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={() => setIsThemePickerOpen(!isThemePickerOpen)}
+              title={`ប្តូរពណ៌ Sidebar (${currentTheme.nameKh})`}
+              style={{
+                background: isThemePickerOpen ? currentTheme.accent : currentTheme.cardBg,
+                color: isThemePickerOpen ? '#ffffff' : currentTheme.textColor,
+                border: `1px solid ${currentTheme.cardBorder}`,
+                borderRadius: '6px',
+                width: '26px',
+                height: '26px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                transition: 'all 0.18s ease',
+              }}
+            >
+              🎨
+            </button>
+
+            <button
+              onClick={toggleCollapse}
+              title={isCollapsed ? 'ពង្រីក (Expand)' : 'បង្រួម (Collapse)'}
+              style={{
+                background: currentTheme.cardBg,
+                color: currentTheme.textMuted,
+                border: `1px solid ${currentTheme.cardBorder}`,
+                borderRadius: '6px',
+                width: '26px',
+                height: '26px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+                fontSize: '0.8rem',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.color = currentTheme.textColor)}
+              onMouseOut={(e) => (e.currentTarget.style.color = currentTheme.textMuted)}
+            >
+              {isCollapsed ? '»' : '«'}
+            </button>
+          </div>
         </div>
+
+        {/* Quick Theme Dropdown Popover */}
+        {isThemePickerOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '68px',
+              left: isCollapsed ? '60px' : '10px',
+              right: isCollapsed ? 'auto' : '10px',
+              width: isCollapsed ? '250px' : 'auto',
+              backgroundColor: currentTheme.bgColor,
+              backgroundImage: currentTheme.bgImage,
+              border: `1px solid ${currentTheme.borderRight}`,
+              borderRadius: '12px',
+              padding: '12px',
+              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45)',
+              zIndex: 100,
+              backdropFilter: 'blur(20px)',
+              animation: 'fadeIn 0.18s ease-out',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: currentTheme.textColor }}>
+                🎨 ជ្រើសរើសស្បែក Sidebar
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsThemePickerOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: currentTheme.textMuted,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+              {Object.values(SIDEBAR_THEMES).map((th) => {
+                const isActive = th.id === sidebarTheme;
+                return (
+                  <button
+                    key={th.id}
+                    type="button"
+                    onClick={() => {
+                      changeTheme(th.id);
+                      setIsThemePickerOpen(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '7px 8px',
+                      borderRadius: '8px',
+                      border: isActive ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
+                      background: th.colorSwatch,
+                      color: th.textColor,
+                      cursor: 'pointer',
+                      fontSize: '0.74rem',
+                      fontWeight: 600,
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isActive ? `0 0 10px ${th.accent}77` : 'none',
+                    }}
+                  >
+                    <span style={{ fontSize: '1rem' }}>{th.icon}</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {th.nameKh}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Navigation Menu (Scrollable Accordion Folders) */}
         <nav
@@ -892,14 +1249,129 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         </nav>
 
         {/* ========================================================
+            SIDEBAR THEME SWITCHER (8 GLASSMORPHISM PRESETS)
+           ======================================================== */}
+        <div
+          style={{
+            padding: isCollapsed ? '8px 4px' : '10px 10px',
+            borderTop: `1px solid ${currentTheme.borderRight}`,
+            backgroundColor: currentTheme.isLight ? 'rgba(0, 0, 0, 0.02)' : 'rgba(0, 0, 0, 0.22)',
+          }}
+        >
+          {isCollapsed ? (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setIsThemePickerOpen(!isThemePickerOpen)}
+                title={`ស្បែកពណ៌ Sidebar (${currentTheme.nameKh})`}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  border: `1px solid ${currentTheme.cardBorder}`,
+                  background: currentTheme.colorSwatch,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1rem',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                }}
+              >
+                {currentTheme.icon}
+              </button>
+            </div>
+          ) : (
+            <div
+              style={{
+                backgroundColor: currentTheme.cardBg,
+                border: `1px solid ${currentTheme.cardBorder}`,
+                borderRadius: '12px',
+                padding: '9px 10px',
+                boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '0.92rem' }}>🎨</span>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: currentTheme.textColor }}>
+                    ពណ៌ Sidebar (Theme)
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontSize: '0.62rem',
+                    color: currentTheme.accent,
+                    fontWeight: 700,
+                    backgroundColor: currentTheme.itemHover,
+                    padding: '2px 7px',
+                    borderRadius: '6px',
+                    border: `1px solid ${currentTheme.cardBorder}`,
+                  }}
+                >
+                  {currentTheme.nameKh}
+                </span>
+              </div>
+
+              {/* Grid of 8 theme swatches with icons and names */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                {Object.values(SIDEBAR_THEMES).map((th) => {
+                  const isActive = th.id === sidebarTheme;
+                  return (
+                    <button
+                      key={th.id}
+                      type="button"
+                      onClick={() => changeTheme(th.id)}
+                      title={`${th.nameKh} (${th.nameEn})`}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '2px',
+                        padding: '5px 2px',
+                        borderRadius: '8px',
+                        border: isActive ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
+                        background: th.colorSwatch,
+                        cursor: 'pointer',
+                        boxShadow: isActive ? `0 0 10px ${th.accent}88` : 'none',
+                        transition: 'all 0.18s ease',
+                        transform: isActive ? 'scale(1.04)' : 'scale(1)',
+                        outline: 'none',
+                      }}
+                    >
+                      <span style={{ fontSize: '0.85rem', lineHeight: 1 }}>{th.icon}</span>
+                      <span
+                        style={{
+                          fontSize: '0.56rem',
+                          fontWeight: 700,
+                          color: th.textColor,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          maxWidth: '46px',
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {th.nameKh.split(' ')[0]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ========================================================
             ENTERPRISE BACKUP & RESTORE DATABASE CONTROLS (TWO BUTTONS)
            ======================================================== */}
         {role === 'ADMIN' && (
           <div
             style={{
-              padding: isCollapsed ? '10px 4px' : '10px 10px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              backgroundColor: 'rgba(15, 23, 42, 0.55)',
+              padding: isCollapsed ? '8px 4px' : '8px 10px 10px',
+              backgroundColor: currentTheme.isLight ? 'rgba(0, 0, 0, 0.02)' : 'rgba(0, 0, 0, 0.22)',
             }}
           >
             {isCollapsed ? (
@@ -949,17 +1421,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             ) : (
               <div
                 style={{
-                  backgroundColor: 'rgba(26, 38, 65, 0.65)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: currentTheme.cardBg,
+                  border: `1px solid ${currentTheme.cardBorder}`,
                   borderRadius: '12px',
-                  padding: '10px 10px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                  padding: '9px 10px',
+                  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '0.95rem' }}>🗄️</span>
-                    <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f8fafc' }}>
+                    <span style={{ fontSize: '0.92rem' }}>🗄️</span>
+                    <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: currentTheme.textColor }}>
                       មូលដ្ឋានទិន្នន័យ (Database)
                     </span>
                   </div>
@@ -1320,18 +1792,18 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         <div
           style={{
             padding: isCollapsed ? '12px 4px' : '12px 10px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: `1px solid ${currentTheme.borderRight}`,
             fontSize: '0.7rem',
-            color: '#64748b',
+            color: currentTheme.textMuted,
             textAlign: 'center',
-            background: 'rgba(0,0,0,0.22)',
+            background: currentTheme.footerBg,
           }}
         >
           {isCollapsed ? (
             <div style={{ fontWeight: 'bold', fontSize: '0.65rem' }}>v1.0</div>
           ) : (
             <>
-              <div style={{ marginBottom: '2px', fontWeight: 700, color: '#94a3b8' }}>HRM Enterprise Portal</div>
+              <div style={{ marginBottom: '2px', fontWeight: 700, color: currentTheme.textColor }}>HRM Enterprise Portal</div>
               <div className="kh-text" style={{ fontSize: '0.65rem', opacity: 0.8 }}>រក្សាសិទ្ធិដោយ Mr.Hun Bora</div>
             </>
           )}

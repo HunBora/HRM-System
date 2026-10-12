@@ -260,6 +260,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
   const [isThemeAccordionOpen, setIsThemeAccordionOpen] = useState<boolean>(false);
   const [isDockMagnify, setIsDockMagnify] = useState<boolean>(true);
+  const [dockScale, setDockScale] = useState<number>(1.4);
   const sidebarRef = useRef<HTMLElement>(null);
 
   // Hover Pop-up Preview state
@@ -309,6 +310,13 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       if (savedDock !== null) {
         setIsDockMagnify(savedDock === 'true');
       }
+      const savedScale = localStorage.getItem('sidebar_dock_scale');
+      if (savedScale !== null) {
+        const parsed = parseFloat(savedScale);
+        if (!isNaN(parsed) && parsed >= 1.15 && parsed <= 1.85) {
+          setDockScale(parsed);
+        }
+      }
     };
     handleThemeSync();
     window.addEventListener('storage', handleThemeSync);
@@ -331,6 +339,13 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     const nextVal = typeof val === 'boolean' ? val : !isDockMagnify;
     setIsDockMagnify(nextVal);
     localStorage.setItem('sidebar_dock_magnification', String(nextVal));
+    window.dispatchEvent(new Event('sidebar-dock-changed'));
+  };
+
+  const changeDockScale = (newScale: number) => {
+    const clamped = Math.max(1.15, Math.min(1.85, Number(newScale.toFixed(2))));
+    setDockScale(clamped);
+    localStorage.setItem('sidebar_dock_scale', String(clamped));
     window.dispatchEvent(new Event('sidebar-dock-changed'));
   };
 
@@ -989,7 +1004,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
         /* Collapsed Mode: Hovered Item Magnification */
         .dock-magnify-active.is-collapsed-mode .dock-option-btn:hover {
-          transform: scale(1.42) translateX(4px) !important;
+          transform: scale(var(--dock-scale, 1.4)) translateX(4px) !important;
           z-index: 35 !important;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px var(--sb-accent) !important;
           filter: brightness(1.2);
@@ -998,20 +1013,20 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         /* Direct Neighbor Siblings in Collapsed Dock (macOS Wave) */
         .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:has(+ .dock-item-wrapper:hover) .dock-option-btn,
         .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:hover + .dock-item-wrapper .dock-option-btn {
-          transform: scale(1.18) translateX(2px) !important;
+          transform: scale(var(--dock-near-scale, 1.18)) translateX(2px) !important;
           z-index: 20 !important;
         }
 
         /* Secondary Neighbor Siblings in Collapsed Dock */
         .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:has(+ .dock-item-wrapper + .dock-item-wrapper:hover) .dock-option-btn,
         .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:hover + .dock-item-wrapper + .dock-item-wrapper .dock-option-btn {
-          transform: scale(1.08) translateX(1px) !important;
+          transform: scale(var(--dock-far-scale, 1.08)) translateX(1px) !important;
           z-index: 15 !important;
         }
 
         /* Collapsed Folder Header Icons Magnification */
         .dock-magnify-active.is-collapsed-mode .group-icon-wrapper:hover .group-icon-badge {
-          transform: scale(1.32) translateX(3px) !important;
+          transform: scale(calc(var(--dock-scale, 1.4) * 0.94)) translateX(3px) !important;
           z-index: 30 !important;
           box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
         }
@@ -1027,7 +1042,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           z-index: 10;
         }
         .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link:hover .sub-item-emoji {
-          transform: scale(1.35) rotate(4deg) !important;
+          transform: scale(var(--dock-scale, 1.35)) rotate(4deg) !important;
           display: inline-block;
           filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
         }
@@ -1059,6 +1074,55 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         }
         .dock-switch-track.active .dock-switch-thumb {
           transform: translateX(16px);
+        }
+
+        /* Range Slider & Preset Buttons for Custom Scale */
+        .dock-scale-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100%;
+          height: 5px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.16);
+          outline: none;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+        .dock-scale-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: var(--sb-accent);
+          box-shadow: 0 0 10px var(--sb-accent), 0 2px 6px rgba(0, 0, 0, 0.4);
+          cursor: pointer;
+          border: 2px solid #ffffff;
+          transition: transform 0.15s ease;
+        }
+        .dock-scale-slider::-webkit-slider-thumb:hover {
+          transform: scale(1.25);
+        }
+        .dock-preset-chip {
+          padding: 3px 8px;
+          border-radius: 6px;
+          font-size: 0.65rem;
+          font-weight: 700;
+          cursor: pointer;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.06);
+          color: var(--sb-text-muted);
+          transition: all 0.15s ease;
+        }
+        .dock-preset-chip:hover {
+          background: rgba(255, 255, 255, 0.15);
+          color: var(--sb-text-color);
+        }
+        .dock-preset-chip.active {
+          background: var(--sb-accent);
+          color: #ffffff;
+          border-color: var(--sb-accent);
+          box-shadow: 0 0 8px var(--sb-accent);
         }
       `}</style>
 
@@ -1095,6 +1159,9 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           ['--sb-pill-color' as any]: currentTheme.pillColor,
           ['--sb-active-bg' as any]: currentTheme.activeBg,
           ['--sb-footer-bg' as any]: currentTheme.footerBg,
+          ['--dock-scale' as any]: `${dockScale}`,
+          ['--dock-near-scale' as any]: `${(1 + (dockScale - 1) * 0.45).toFixed(3)}`,
+          ['--dock-far-scale' as any]: `${(1 + (dockScale - 1) * 0.2).toFixed(3)}`,
         }}
       >
         {/* Header / Logo Area */}
@@ -1188,7 +1255,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               top: '68px',
               left: isCollapsed ? '60px' : '10px',
               right: isCollapsed ? 'auto' : '10px',
-              width: isCollapsed ? '250px' : 'auto',
+              width: isCollapsed ? '280px' : 'auto',
               backgroundColor: currentTheme.bgColor,
               backgroundImage: currentTheme.bgImage,
               border: `1px solid ${currentTheme.borderRight}`,
@@ -1304,6 +1371,79 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                 <div className="dock-switch-thumb" />
               </div>
             </div>
+
+            {/* DOCK SCALE CONTROLLER (Slider + Presets) */}
+            {isDockMagnify && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  backgroundColor: currentTheme.isLight
+                    ? 'rgba(0, 0, 0, 0.04)'
+                    : 'rgba(255, 255, 255, 0.05)',
+                  border: `1px solid ${currentTheme.cardBorder}`,
+                  borderRadius: '10px',
+                  padding: '9px 10px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span className="kh-text" style={{ fontSize: '0.68rem', fontWeight: 700, color: currentTheme.textColor }}>
+                    ទំហំពង្រីក (Scale)
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 800,
+                      color: currentTheme.accent,
+                      background: currentTheme.itemHover,
+                      padding: '1px 6px',
+                      borderRadius: '5px',
+                      border: `1px solid ${currentTheme.cardBorder}`,
+                    }}
+                  >
+                    {dockScale.toFixed(2)}x
+                  </span>
+                </div>
+
+                {/* Range Slider */}
+                <input
+                  type="range"
+                  min="1.15"
+                  max="1.85"
+                  step="0.05"
+                  value={dockScale}
+                  onChange={(e) => changeDockScale(parseFloat(e.target.value))}
+                  className="dock-scale-slider"
+                  title={`ទំហំពង្រីកបច្ចុប្បន្ន៖ ${dockScale.toFixed(2)}x`}
+                />
+
+                {/* Quick Presets */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginTop: '2px' }}>
+                  {[
+                    { label: 'ស្រាល', val: 1.2 },
+                    { label: 'លំនាំដើម', val: 1.4 },
+                    { label: 'មធ្យម', val: 1.6 },
+                    { label: 'ធំ', val: 1.8 },
+                  ].map((p) => {
+                    const isActive = Math.abs(dockScale - p.val) < 0.04;
+                    return (
+                      <button
+                        key={p.val}
+                        type="button"
+                        onClick={() => changeDockScale(p.val)}
+                        className={`dock-preset-chip ${isActive ? 'active' : ''}`}
+                        title={`${p.label} (${p.val}x)`}
+                        style={{ textAlign: 'center', whiteSpace: 'nowrap' }}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1698,6 +1838,83 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                         <div className="dock-switch-thumb" />
                                       </div>
                                     </div>
+
+                                    {/* Dock Scale Slider & Presets within Admin Settings */}
+                                    {isDockMagnify && (
+                                      <div
+                                        style={{
+                                          marginTop: '6px',
+                                          backgroundColor: currentTheme.isLight
+                                            ? 'rgba(0, 0, 0, 0.04)'
+                                            : 'rgba(255, 255, 255, 0.04)',
+                                          border: `1px solid ${currentTheme.cardBorder}`,
+                                          borderRadius: '8px',
+                                          padding: '7px 8px',
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          gap: '5px',
+                                        }}
+                                      >
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                          <span className="kh-text" style={{ fontSize: '0.64rem', fontWeight: 700, color: currentTheme.textColor }}>
+                                            ទំហំពង្រីក (Scale)
+                                          </span>
+                                          <span
+                                            style={{
+                                              fontSize: '0.64rem',
+                                              fontWeight: 800,
+                                              color: currentTheme.accent,
+                                              background: currentTheme.itemHover,
+                                              padding: '1px 5px',
+                                              borderRadius: '4px',
+                                              border: `1px solid ${currentTheme.cardBorder}`,
+                                            }}
+                                          >
+                                            {dockScale.toFixed(2)}x
+                                          </span>
+                                        </div>
+
+                                        <input
+                                          type="range"
+                                          min="1.15"
+                                          max="1.85"
+                                          step="0.05"
+                                          value={dockScale}
+                                          onChange={(e) => {
+                                            e.stopPropagation();
+                                            changeDockScale(parseFloat(e.target.value));
+                                          }}
+                                          className="dock-scale-slider"
+                                          title={`ទំហំពង្រីក៖ ${dockScale.toFixed(2)}x`}
+                                        />
+
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '3px', marginTop: '1px' }}>
+                                          {[
+                                            { label: 'ស្រាល', val: 1.2 },
+                                            { label: 'ធម្មតា', val: 1.4 },
+                                            { label: 'មធ្យម', val: 1.6 },
+                                            { label: 'ធំ', val: 1.8 },
+                                          ].map((p) => {
+                                            const isActive = Math.abs(dockScale - p.val) < 0.04;
+                                            return (
+                                              <button
+                                                key={p.val}
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.preventDefault();
+                                                  e.stopPropagation();
+                                                  changeDockScale(p.val);
+                                                }}
+                                                className={`dock-preset-chip ${isActive ? 'active' : ''}`}
+                                                style={{ textAlign: 'center', fontSize: '0.6rem', padding: '2px 4px', whiteSpace: 'nowrap' }}
+                                              >
+                                                {p.label}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>

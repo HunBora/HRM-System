@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
-import SettingsForm from './SettingsForm';
+import UnifiedSettingsHub from './UnifiedSettingsHub';
 
 export default async function SettingsPage() {
   const session = await getSession();
@@ -14,8 +14,7 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h1 className="title kh-text">ការកំណត់ប្រព័ន្ធ (System Settings)</h1>
-      <SettingsForm settings={settings} />
+      <UnifiedSettingsHub settings={settings} />
     </div>
   );
 }

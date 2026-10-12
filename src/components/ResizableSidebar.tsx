@@ -18,6 +18,7 @@ interface SubMenuItem {
   labelEn: string;
   icon: string;
   roles: string[];
+  desc?: string;
 }
 
 export interface MenuGroup {
@@ -260,6 +261,42 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   const [isThemeAccordionOpen, setIsThemeAccordionOpen] = useState<boolean>(false);
   const sidebarRef = useRef<HTMLElement>(null);
 
+  // Hover Pop-up Preview state
+  interface HoverPopupInfo {
+    icon: string;
+    titleKh: string;
+    titleEn: string;
+    desc?: string;
+    category?: string;
+    top: number;
+    left: number;
+  }
+  const [hoverPopup, setHoverPopup] = useState<HoverPopupInfo | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnterItem = (
+    e: React.MouseEvent<HTMLElement>,
+    info: { icon: string; titleKh: string; titleEn: string; desc?: string; category?: string }
+  ) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const top = rect.top + rect.height / 2;
+    const left = rect.right + 12;
+
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoverPopup({
+        ...info,
+        top,
+        left,
+      });
+    }, 110);
+  };
+
+  const handleMouseLeaveItem = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoverPopup(null);
+  };
+
   // Load saved theme on client mount and listen for changes
   useEffect(() => {
     const handleThemeSync = () => {
@@ -441,6 +478,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📊',
           labelKh: 'ផ្ទាំងគ្រប់គ្រងមេ',
           labelEn: 'Main Dashboard',
+          desc: 'ទិដ្ឋភាពទូទៅនៃប្រព័ន្ធ ស្ថិតិបុគ្គលិក និង KPI សរុប',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -448,6 +486,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📱',
           labelKh: 'ផតថលស្វ័យសេវាបុគ្គលិក',
           labelEn: 'Employee Self-Service',
+          desc: 'ផ្ទាំងផ្ទាល់ខ្លួនបុគ្គលិក មើលវត្តមាន ស្នើសុំច្បាប់ និងបើកប្រាក់ខែ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -455,6 +494,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📣',
           labelKh: 'សេចក្តីជូនដំណឹងក្រុមហ៊ុន',
           labelEn: 'Company News & Notices',
+          desc: 'ផ្សព្វផ្សាយដំណឹង ព្រឹត្តិការណ៍ និងសេចក្តីប្រកាសផ្ទៃក្នុង',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
@@ -473,6 +513,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📋',
           labelKh: 'បញ្ជីបុគ្គលិកមេ',
           labelEn: 'Employee Directory',
+          desc: 'គ្រប់គ្រងប្រវត្តិរូប កិច្ចសន្យា ប្រាក់ខែគោល និងព័ត៌មានលម្អិត',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -480,6 +521,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📢',
           labelKh: 'ជ្រើសរើសបុគ្គលិក & ATS',
           labelEn: 'Recruitment & Candidates',
+          desc: 'គ្រប់គ្រងការជ្រើសរើស ដំណើរការសម្ភាសន៍ និងបេក្ខជនការងារ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -487,6 +529,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🚪',
           labelKh: 'បញ្ចប់ការងារ & ទូទាត់',
           labelEn: 'Offboarding & Settlement',
+          desc: 'ទូទាត់ប្រាក់ដំណាច់កិច្ចសន្យា FDC/UDC និងប្រគល់សម្ភារៈ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -494,6 +537,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📝',
           labelKh: 'លាលែង & សម្ភាសន៍ចាកចេញ',
           labelEn: 'Resignation & Clearance',
+          desc: 'ដំណើរការលាលែង ការសម្ភាសន៍ Exit Interview និងបញ្ជាក់ឯកសារ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
       ],
@@ -512,6 +556,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📅',
           labelKh: 'តារាងវត្តមានប្រចាំខែ',
           labelEn: 'Attendance Timesheet',
+          desc: 'វត្តមានប្រចាំថ្ងៃ ម៉ោងធ្វើការ ចំនួនថ្ងៃធ្វើការ និងអវត្តមាន',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
         {
@@ -519,6 +564,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📲',
           labelKh: 'ម៉ាស៊ីនស្កេនមេដៃផ្ទាល់',
           labelEn: 'Biometric Terminals',
+          desc: 'តភ្ជាប់ និង Sync ទិន្នន័យពីម៉ាស៊ីនស្កេនក្រយៅដៃ និងផ្ទៃមុខ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
         {
@@ -526,6 +572,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🗓️',
           labelKh: 'កាលវិភាគវេនការងារ',
           labelEn: 'Shift Rostering & Plans',
+          desc: 'រៀបចំវេនការងារវេនថ្ងៃ វេនយប់ និងបែងចែកវេនប្រចាំសប្តាហ៍',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -533,6 +580,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🌴',
           labelKh: 'ច្បាប់ឈប់សម្រាក',
           labelEn: 'Leave Management',
+          desc: 'ស្នើសុំ និងអនុម័តច្បាប់ប្រចាំឆ្នាំ ច្បាប់ឈឺ និងច្បាប់ពិសេស',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -540,6 +588,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '⏰',
           labelKh: 'ស្នើសុំថែមម៉ោង (OT)',
           labelEn: 'Overtime Requests',
+          desc: 'ស្នើសុំ OT ម៉ោងធម្មតា ម៉ោងថ្ងៃអាទិត្យ និងម៉ោងយប់',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
@@ -558,6 +607,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💰',
           labelKh: 'តារាងបើកប្រាក់ខែ',
           labelEn: 'Monthly Payroll Run',
+          desc: 'គណនាប្រាក់ខែស្វ័យប្រវត្តិតាមច្បាប់ការងារ ប្រាក់រៀល និងប័ណ្ណបើកប្រាក់ខែ',
           roles: ['ADMIN', 'PAYROLL_ADMIN'],
         },
         {
@@ -565,6 +615,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💳',
           labelKh: 'ប្រាក់កម្ចីបុគ្គលិក',
           labelEn: 'Employee Loans',
+          desc: 'គ្រប់គ្រងកម្ចីបុគ្គលិកផ្លូវការ និងតារាងកាលវិភាគបង់រំលស់ប្រចាំខែ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
         {
@@ -572,6 +623,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💵',
           labelKh: 'ប្រាក់បុរេប្រទាន',
           labelEn: 'Salary Advances',
+          desc: 'បើកប្រាក់ខែមុនកាលកំណត់ និងកាត់ទូទាត់ក្នុងប្រាក់ខែបន្ទាប់',
           roles: ['ADMIN', 'PAYROLL_ADMIN'],
         },
         {
@@ -579,6 +631,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💸',
           labelKh: 'ចំណាយ & ទូទាត់សំណង',
           labelEn: 'Expense Claims',
+          desc: 'ស្នើសុំទូទាត់វិក្កយបត្រ ចំណាយបេសកកម្ម និងប្រាក់ឧបត្ថម្ភ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -586,6 +639,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📥',
           labelKh: 'នាំចេញរបាយការណ៍មេ (Excel)',
           labelEn: 'Master Excel Reports',
+          desc: 'នាំចេញរបាយការណ៍បុគ្គលិក វត្តមាន ប្រាក់ខែ និងផ្ទេរធនាគារ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
       ],
@@ -604,6 +658,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🎯',
           labelKh: 'វាយតម្លៃការងារ 360°',
           labelEn: 'Performance Appraisal',
+          desc: 'វាយតម្លៃសមត្ថភាពបុគ្គលិកប្រចាំឆ្នាំ និងពិន្ទុការងារ 360 ដឺក្រេ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
@@ -611,6 +666,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📈',
           labelKh: 'ផែនការ KPI តាមផ្នែក',
           labelEn: 'Department KPIs',
+          desc: 'តាមដានសន្ទស្សន៍សមិទ្ធកម្មការងារ KPI តាមនាយកដ្ឋាន',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
@@ -618,6 +674,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🎓',
           labelKh: 'វគ្គបណ្តុះបណ្តាល LMS',
           labelEn: 'Training & Courses',
+          desc: 'គ្រប់គ្រងវគ្គបណ្តុះបណ្តាល វគ្គសិក្សាផ្ទៃក្នុង និងចុះឈ្មោះ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -625,6 +682,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '⚖️',
           labelKh: 'វិធានការវិន័យ & ព្រមាន',
           labelEn: 'Disciplinary Actions',
+          desc: 'កត់ត្រាលិខិតព្រមាន ការដាស់តឿន និងវិធានការវិន័យ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -632,6 +690,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📜',
           labelKh: 'លិខិតបញ្ជាក់ផ្លូវការ',
           labelEn: 'Official Certificates',
+          desc: 'ចេញលិខិតបញ្ជាក់ការងារ បញ្ជាក់ប្រាក់បៀវត្សរ៍ និងលិខិតផ្លូវការ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -639,6 +698,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📁',
           labelKh: 'ឯកសារគោលការណ៍ក្រុមហ៊ុន',
           labelEn: 'Company Policies',
+          desc: 'ផ្ទុក និងគ្រប់គ្រងឯកសារបទបញ្ជាផ្ទៃក្នុង និងគោលការណ៍ក្រុមហ៊ុន',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -646,6 +706,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💻',
           labelKh: 'សម្ភារៈ & ឧបករណ៍ក្រុមហ៊ុន',
           labelEn: 'Asset Inventory',
+          desc: 'គ្រប់គ្រងការប្រគល់-ទទួលកុំព្យូទ័រ សម្ភារៈ និងឧបករណ៍ការងារ',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
       ],
@@ -664,6 +725,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🔐',
           labelKh: 'គណនី & សិទ្ធិប្រើប្រាស់',
           labelEn: 'Users & Roles Matrix',
+          desc: 'គ្រប់គ្រងគណនីអ្នកប្រើប្រាស់ និងកំណត់សិទ្ធិ Role & Permissions',
           roles: ['ADMIN'],
         },
         {
@@ -671,6 +733,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🛡️',
           labelKh: 'កំណត់ត្រាសវនកម្មសុវត្ថិភាព',
           labelEn: 'Security Audit Trail',
+          desc: 'តាមដានសកម្មភាព Log របស់អ្នកប្រើប្រាស់ក្នុងប្រព័ន្ធទាំងអស់',
           roles: ['ADMIN'],
         },
         {
@@ -678,6 +741,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '⚙️',
           labelKh: 'ការកំណត់ទូទៅ & Telegram',
           labelEn: 'System & Bot Settings',
+          desc: 'កំណត់ឈ្មោះក្រុមហ៊ុន Logo វេនម៉ោង Bot Telegram និង Exchange Rate',
           roles: ['ADMIN'],
         },
         {
@@ -685,6 +749,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: 'ℹ️',
           labelKh: 'អំពីប្រព័ន្ធ HRM & កំណែ',
           labelEn: 'About System & Version',
+          desc: 'ព័ត៌មានលម្អិតអំពីប្រព័ន្ធ HRM កំណែ Version និងអ្នកអភិវឌ្ឍន៍',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
@@ -886,6 +951,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         .resize-handle:hover .resize-indicator,
         .resize-handle.active .resize-indicator {
           opacity: 1;
+        }
+
+        @keyframes hoverPopIn {
+          0% {
+            opacity: 0;
+            transform: translateY(-50%) translateX(-8px) scale(0.96);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0) scale(1);
+          }
         }
       `}</style>
 
@@ -1115,12 +1191,22 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               return (
                 <div key={group.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div
-                    title={`${group.titleKh} (${group.titleEn})`}
+                    onMouseEnter={(e) =>
+                      handleMouseEnterItem(e, {
+                        icon: group.icon,
+                        titleKh: group.titleKh,
+                        titleEn: group.titleEn,
+                        desc: `${visibleItems.length} មុខងាររង៖ ${visibleItems.map((i) => i.labelKh).join(', ')}`,
+                        category: 'ក្រុមធំ',
+                      })
+                    }
+                    onMouseLeave={handleMouseLeaveItem}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       padding: '6px 0',
+                      cursor: 'pointer',
                     }}
                   >
                     <span
@@ -1145,7 +1231,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                       <Link
                         key={item.href}
                         href={item.href}
-                        title={`${item.labelKh} (${item.labelEn})`}
+                        onMouseEnter={(e) =>
+                          handleMouseEnterItem(e, {
+                            icon: item.icon,
+                            titleKh: item.labelKh,
+                            titleEn: item.labelEn,
+                            desc: item.desc,
+                            category: group.titleKh,
+                          })
+                        }
+                        onMouseLeave={handleMouseLeaveItem}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -1238,6 +1333,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                             <Link
                               href={item.href}
                               className={`sub-item-link ${isActive ? 'active' : ''}`}
+                              onMouseEnter={(e) =>
+                                handleMouseEnterItem(e, {
+                                  icon: item.icon,
+                                  titleKh: item.labelKh,
+                                  titleEn: item.labelEn,
+                                  desc: item.desc,
+                                  category: group.titleKh,
+                                })
+                              }
+                              onMouseLeave={handleMouseLeaveItem}
                             >
                               <span style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
                               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
@@ -1260,6 +1365,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                     e.stopPropagation();
                                     setIsThemeAccordionOpen(!isThemeAccordionOpen);
                                   }}
+                                  onMouseEnter={(e) =>
+                                    handleMouseEnterItem(e, {
+                                      icon: '🎨',
+                                      titleKh: 'ស្បែកពណ៌ Sidebar',
+                                      titleEn: 'Sidebar Theme & Color',
+                                      desc: `ស្បែកបច្ចុប្បន្ន៖ ${currentTheme.nameKh} (${currentTheme.nameEn})។ ចុចដើម្បីពន្លាតជ្រើសរើសស្បែកពណ៌ Glassmorphism ទាំង ៨ ជម្រើស។`,
+                                      category: 'ការរចនា',
+                                    })
+                                  }
+                                  onMouseLeave={handleMouseLeaveItem}
                                   className={`sub-item-link ${isThemeAccordionOpen ? 'active' : ''}`}
                                   style={{
                                     width: '100%',
@@ -1426,6 +1541,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   type="button"
                   onClick={handleDownloadBackup}
                   disabled={isBackupLoading}
+                  onMouseEnter={(e) =>
+                    handleMouseEnterItem(e, {
+                      icon: '💾',
+                      titleKh: 'Backup មូលដ្ឋានទិន្នន័យ',
+                      titleEn: 'Full Database Backup (JSON)',
+                      desc: 'ទាញយកឯកសារបម្រុងទុកទិន្នន័យពេញលេញ រួមមានបុគ្គលិក វត្តមាន និងប្រាក់ខែទាំងអស់។',
+                      category: 'ទិន្នន័យ',
+                    })
+                  }
+                  onMouseLeave={handleMouseLeaveItem}
                   title="Backup Database (ទាញយកទិន្នន័យទុក)"
                   style={{
                     width: '32px',
@@ -1446,6 +1571,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                 <button
                   type="button"
                   onClick={() => setIsRestoreModalOpen(true)}
+                  onMouseEnter={(e) =>
+                    handleMouseEnterItem(e, {
+                      icon: '🔄',
+                      titleKh: 'Restore មូលដ្ឋានទិន្នន័យ',
+                      titleEn: 'Database Restore (JSON)',
+                      desc: 'បញ្ចូលឯកសារទិន្នន័យបម្រុងទុក JSON ចូលទៅក្នុង Database វិញដោយសុវត្ថិភាព។',
+                      category: 'ទិន្នន័យ',
+                    })
+                  }
+                  onMouseLeave={handleMouseLeaveItem}
                   title="Restore Database (បញ្ចូលទិន្នន័យត្រឡប់មកវិញ)"
                   style={{
                     width: '32px',
@@ -1492,6 +1627,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     type="button"
                     onClick={handleDownloadBackup}
                     disabled={isBackupLoading}
+                    onMouseEnter={(e) =>
+                      handleMouseEnterItem(e, {
+                        icon: '💾',
+                        titleKh: 'Backup មូលដ្ឋានទិន្នន័យ',
+                        titleEn: 'Full Database Backup (JSON)',
+                        desc: 'ទាញយកឯកសារបម្រុងទុកទិន្នន័យពេញលេញ រួមមានបុគ្គលិក វត្តមាន និងប្រាក់ខែទាំងអស់។',
+                        category: 'ទិន្នន័យ',
+                      })
+                    }
+                    onMouseLeave={handleMouseLeaveItem}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1519,6 +1664,16 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   <button
                     type="button"
                     onClick={() => setIsRestoreModalOpen(true)}
+                    onMouseEnter={(e) =>
+                      handleMouseEnterItem(e, {
+                        icon: '🔄',
+                        titleKh: 'Restore មូលដ្ឋានទិន្នន័យ',
+                        titleEn: 'Database Restore (JSON)',
+                        desc: 'បញ្ចូលឯកសារទិន្នន័យបម្រុងទុក JSON ចូលទៅក្នុង Database វិញដោយសុវត្ថិភាព។',
+                        category: 'ទិន្នន័យ',
+                      })
+                    }
+                    onMouseLeave={handleMouseLeaveItem}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1863,6 +2018,161 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             title="អូសដើម្បីពង្រីក ឬបង្រួម (Drag to Resize)"
           >
             <div className="resize-indicator" />
+          </div>
+        )}
+
+        {/* FLOATING HOVER POP-UP CARD (Glassmorphism Preview) */}
+        {hoverPopup && (
+          <div
+            style={{
+              position: 'fixed',
+              top: `${hoverPopup.top}px`,
+              left: `${hoverPopup.left}px`,
+              transform: 'translateY(-50%)',
+              zIndex: 9999,
+              pointerEvents: 'none',
+              width: '280px',
+              animation: 'hoverPopIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              backgroundColor: currentTheme.isLight
+                ? 'rgba(255, 255, 255, 0.96)'
+                : 'rgba(15, 23, 42, 0.92)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: currentTheme.isLight
+                ? '1px solid rgba(0, 0, 0, 0.1)'
+                : '1px solid rgba(255, 255, 255, 0.16)',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              boxShadow: currentTheme.isLight
+                ? '0 20px 45px -8px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+                : '0 24px 50px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+              color: currentTheme.isLight ? '#0f172a' : '#f8fafc',
+            }}
+          >
+            {/* Left pointer notch/arrow */}
+            <div
+              style={{
+                position: 'absolute',
+                left: '-6px',
+                top: '50%',
+                transform: 'translateY(-50%) rotate(45deg)',
+                width: '12px',
+                height: '12px',
+                backgroundColor: currentTheme.isLight
+                  ? 'rgba(255, 255, 255, 0.96)'
+                  : 'rgba(15, 23, 42, 0.92)',
+                borderLeft: currentTheme.isLight
+                  ? '1px solid rgba(0, 0, 0, 0.1)'
+                  : '1px solid rgba(255, 255, 255, 0.16)',
+                borderBottom: currentTheme.isLight
+                  ? '1px solid rgba(0, 0, 0, 0.1)'
+                  : '1px solid rgba(255, 255, 255, 0.16)',
+              }}
+            />
+
+            {/* Header: Icon + Category + Title */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '8px' }}>
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.25rem',
+                  flexShrink: 0,
+                  background: currentTheme.isLight
+                    ? 'rgba(59, 130, 246, 0.12)'
+                    : 'rgba(59, 130, 246, 0.22)',
+                  border: currentTheme.isLight
+                    ? '1px solid rgba(59, 130, 246, 0.25)'
+                    : '1px solid rgba(59, 130, 246, 0.35)',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+                }}
+              >
+                {hoverPopup.icon}
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {hoverPopup.category && (
+                  <div
+                    style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      color: currentTheme.accent,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      marginBottom: '2px',
+                    }}
+                  >
+                    {hoverPopup.category}
+                  </div>
+                )}
+                <div
+                  className="kh-text"
+                  style={{
+                    fontSize: '0.88rem',
+                    fontWeight: 700,
+                    lineHeight: 1.3,
+                    color: currentTheme.isLight ? '#0f172a' : '#ffffff',
+                  }}
+                >
+                  {hoverPopup.titleKh}
+                </div>
+                {hoverPopup.titleEn && (
+                  <div
+                    style={{
+                      fontSize: '0.72rem',
+                      color: currentTheme.isLight ? '#64748b' : '#94a3b8',
+                      fontWeight: 500,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {hoverPopup.titleEn}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Khmer Description */}
+            {hoverPopup.desc && (
+              <div
+                className="kh-text"
+                style={{
+                  fontSize: '0.78rem',
+                  lineHeight: 1.45,
+                  color: currentTheme.isLight ? '#334155' : '#cbd5e1',
+                  backgroundColor: currentTheme.isLight
+                    ? 'rgba(0, 0, 0, 0.03)'
+                    : 'rgba(255, 255, 255, 0.04)',
+                  padding: '7px 10px',
+                  borderRadius: '8px',
+                  border: currentTheme.isLight
+                    ? '1px solid rgba(0, 0, 0, 0.05)'
+                    : '1px solid rgba(255, 255, 255, 0.06)',
+                  marginBottom: '8px',
+                }}
+              >
+                {hoverPopup.desc}
+              </div>
+            )}
+
+            {/* Action hint pill */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.68rem',
+                color: currentTheme.accent,
+                fontWeight: 600,
+                opacity: 0.9,
+              }}
+            >
+              <span>✨</span>
+              <span className="kh-text">ចុចដើម្បីដំណើរការមុខងារនេះ</span>
+            </div>
           </div>
         )}
       </aside>

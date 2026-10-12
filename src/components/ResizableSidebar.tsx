@@ -259,6 +259,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   const [sidebarTheme, setSidebarTheme] = useState<SidebarThemeId>('dark');
   const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
   const [isThemeAccordionOpen, setIsThemeAccordionOpen] = useState<boolean>(false);
+  const [isDockMagnify, setIsDockMagnify] = useState<boolean>(true);
   const sidebarRef = useRef<HTMLElement>(null);
 
   // Hover Pop-up Preview state
@@ -297,20 +298,26 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     setHoverPopup(null);
   };
 
-  // Load saved theme on client mount and listen for changes
+  // Load saved theme and dock magnification on client mount
   useEffect(() => {
     const handleThemeSync = () => {
       const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
       if (saved && SIDEBAR_THEMES[saved]) {
         setSidebarTheme(saved);
       }
+      const savedDock = localStorage.getItem('sidebar_dock_magnification');
+      if (savedDock !== null) {
+        setIsDockMagnify(savedDock === 'true');
+      }
     };
     handleThemeSync();
     window.addEventListener('storage', handleThemeSync);
     window.addEventListener('sidebar-theme-changed', handleThemeSync);
+    window.addEventListener('sidebar-dock-changed', handleThemeSync);
     return () => {
       window.removeEventListener('storage', handleThemeSync);
       window.removeEventListener('sidebar-theme-changed', handleThemeSync);
+      window.removeEventListener('sidebar-dock-changed', handleThemeSync);
     };
   }, []);
 
@@ -318,6 +325,13 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
     setSidebarTheme(newTheme);
     localStorage.setItem('sidebar_theme_v2', newTheme);
     window.dispatchEvent(new Event('sidebar-theme-changed'));
+  };
+
+  const toggleDockMagnify = (val?: boolean) => {
+    const nextVal = typeof val === 'boolean' ? val : !isDockMagnify;
+    setIsDockMagnify(nextVal);
+    localStorage.setItem('sidebar_dock_magnification', String(nextVal));
+    window.dispatchEvent(new Event('sidebar-dock-changed'));
   };
 
   const currentTheme = SIDEBAR_THEMES[sidebarTheme] || SIDEBAR_THEMES.dark;
@@ -963,6 +977,89 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             transform: translateY(-50%) translateX(0) scale(1);
           }
         }
+
+        /* ========================================================
+           macOS DOCK MAGNIFICATION EFFECT FOR SIDEBAR OPTIONS
+           ======================================================== */
+        .dock-magnify-active .dock-option-btn {
+          transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease !important;
+          transform-origin: center center;
+          position: relative;
+        }
+
+        /* Collapsed Mode: Hovered Item Magnification */
+        .dock-magnify-active.is-collapsed-mode .dock-option-btn:hover {
+          transform: scale(1.42) translateX(4px) !important;
+          z-index: 35 !important;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px var(--sb-accent) !important;
+          filter: brightness(1.2);
+        }
+
+        /* Direct Neighbor Siblings in Collapsed Dock (macOS Wave) */
+        .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:has(+ .dock-item-wrapper:hover) .dock-option-btn,
+        .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:hover + .dock-item-wrapper .dock-option-btn {
+          transform: scale(1.18) translateX(2px) !important;
+          z-index: 20 !important;
+        }
+
+        /* Secondary Neighbor Siblings in Collapsed Dock */
+        .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:has(+ .dock-item-wrapper + .dock-item-wrapper:hover) .dock-option-btn,
+        .dock-magnify-active.is-collapsed-mode .dock-item-wrapper:hover + .dock-item-wrapper + .dock-item-wrapper .dock-option-btn {
+          transform: scale(1.08) translateX(1px) !important;
+          z-index: 15 !important;
+        }
+
+        /* Collapsed Folder Header Icons Magnification */
+        .dock-magnify-active.is-collapsed-mode .group-icon-wrapper:hover .group-icon-badge {
+          transform: scale(1.32) translateX(3px) !important;
+          z-index: 30 !important;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+        }
+
+        /* Expanded Mode: Option Rows Magnification */
+        .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link {
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.16s ease, color 0.16s ease !important;
+          transform-origin: left center;
+        }
+        .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link:hover {
+          transform: translateX(6px) scale(1.03) !important;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+          z-index: 10;
+        }
+        .dock-magnify-active:not(.is-collapsed-mode) .sub-item-link:hover .sub-item-emoji {
+          transform: scale(1.35) rotate(4deg) !important;
+          display: inline-block;
+          filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Toggle switch component styling */
+        .dock-switch-track {
+          width: 36px;
+          height: 20px;
+          background: rgba(255, 255, 255, 0.18);
+          border-radius: 999px;
+          padding: 2px;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          display: flex;
+          align-items: center;
+          position: relative;
+        }
+        .dock-switch-track.active {
+          background: var(--sb-accent);
+          box-shadow: 0 0 10px var(--sb-accent);
+        }
+        .dock-switch-thumb {
+          width: 16px;
+          height: 16px;
+          background: #ffffff;
+          border-radius: 50%;
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .dock-switch-track.active .dock-switch-thumb {
+          transform: translateX(16px);
+        }
       `}</style>
 
       <aside
@@ -1158,12 +1255,61 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                 );
               })}
             </div>
+
+            {/* DOCK MAGNIFICATION TOGGLE SWITCH (macOS Dock Magnification Option) */}
+            <div
+              style={{
+                marginTop: '10px',
+                paddingTop: '9px',
+                borderTop: `1px solid ${currentTheme.cardBorder}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '8px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <span style={{ fontSize: '1rem' }}>🔍</span>
+                <div style={{ overflow: 'hidden' }}>
+                  <div
+                    className="kh-text"
+                    style={{
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      color: currentTheme.textColor,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Dock Magnification
+                  </div>
+                  <div
+                    className="kh-text"
+                    style={{
+                      fontSize: '0.62rem',
+                      color: currentTheme.textMuted,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    ពង្រីកគ្រាប់ Option បែប macOS
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={`dock-switch-track ${isDockMagnify ? 'active' : ''}`}
+                onClick={() => toggleDockMagnify()}
+                title={isDockMagnify ? 'ចុចដើម្បីបិទ Dock Magnification' : 'ចុចដើម្បីបើក Dock Magnification'}
+                style={{ flexShrink: 0 }}
+              >
+                <div className="dock-switch-thumb" />
+              </div>
+            </div>
           </div>
         )}
 
         {/* Navigation Menu (Scrollable Accordion Folders) */}
         <nav
-          className="sidebar-nav-scroll"
+          className={`sidebar-nav-scroll ${isDockMagnify ? 'dock-magnify-active' : ''} ${isCollapsed ? 'is-collapsed-mode' : ''}`}
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -1186,11 +1332,12 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               (item) => pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
             );
 
-            // Collapsed icon-only mode with stylish tooltip
+            // Collapsed icon-only mode with stylish tooltip & Dock Magnification
             if (isCollapsed) {
               return (
-                <div key={group.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div key={group.id} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                   <div
+                    className="dock-item-wrapper group-icon-wrapper"
                     onMouseEnter={(e) =>
                       handleMouseEnterItem(e, {
                         icon: group.icon,
@@ -1205,11 +1352,12 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      padding: '6px 0',
+                      padding: '4px 0',
                       cursor: 'pointer',
                     }}
                   >
                     <span
+                      className="group-icon-badge"
                       style={{
                         width: '28px',
                         height: '28px',
@@ -1220,6 +1368,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                         fontSize: '0.95rem',
                         background: group.bgGlow,
                         border: `1px solid ${group.badgeColor}40`,
+                        transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
                       }}
                     >
                       {group.icon}
@@ -1228,34 +1377,37 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   {visibleItems.map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
                     return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onMouseEnter={(e) =>
-                          handleMouseEnterItem(e, {
-                            icon: item.icon,
-                            titleKh: item.labelKh,
-                            titleEn: item.labelEn,
-                            desc: item.desc,
-                            category: group.titleKh,
-                          })
-                        }
-                        onMouseLeave={handleMouseLeaveItem}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '8px 0',
-                          borderRadius: '8px',
-                          textDecoration: 'none',
-                          color: isActive ? '#60a5fa' : '#94a3b8',
-                          background: isActive ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                          fontSize: '1.1rem',
-                          transition: 'all 0.15s ease',
-                        }}
-                      >
-                        <span>{item.icon}</span>
-                      </Link>
+                      <div key={item.href} className="dock-item-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Link
+                          href={item.href}
+                          className={`dock-option-btn ${isActive ? 'active' : ''}`}
+                          onMouseEnter={(e) =>
+                            handleMouseEnterItem(e, {
+                              icon: item.icon,
+                              titleKh: item.labelKh,
+                              titleEn: item.labelEn,
+                              desc: item.desc,
+                              category: group.titleKh,
+                            })
+                          }
+                          onMouseLeave={handleMouseLeaveItem}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '10px',
+                            textDecoration: 'none',
+                            color: isActive ? '#60a5fa' : '#94a3b8',
+                            background: isActive ? 'rgba(59, 130, 246, 0.25)' : currentTheme.cardBg,
+                            border: isActive ? '1px solid rgba(59, 130, 246, 0.4)' : `1px solid ${currentTheme.cardBorder}`,
+                            fontSize: '1.15rem',
+                          }}
+                        >
+                          <span className="dock-icon">{item.icon}</span>
+                        </Link>
+                      </div>
                     );
                   })}
                 </div>
@@ -1344,7 +1496,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                               }
                               onMouseLeave={handleMouseLeaveItem}
                             >
-                              <span style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
+                              <span className="sub-item-emoji" style={{ fontSize: '1rem', flexShrink: 0 }}>{item.icon}</span>
                               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
                                 <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500 }}>
                                   {item.labelKh}
@@ -1509,6 +1661,42 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                           </button>
                                         );
                                       })}
+                                    </div>
+
+                                    {/* Dock Magnification Switch within Admin Settings */}
+                                    <div
+                                      style={{
+                                        marginTop: '8px',
+                                        paddingTop: '6px',
+                                        borderTop: `1px solid ${currentTheme.cardBorder}`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        gap: '6px',
+                                      }}
+                                    >
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span style={{ fontSize: '0.85rem' }}>🔍</span>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                          <span className="kh-text" style={{ fontSize: '0.68rem', fontWeight: 700, color: currentTheme.textColor }}>
+                                            Dock Magnification
+                                          </span>
+                                          <span className="kh-text" style={{ fontSize: '0.58rem', color: currentTheme.textMuted }}>
+                                            ពង្រីកគ្រាប់ Option បែប macOS
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div
+                                        className={`dock-switch-track ${isDockMagnify ? 'active' : ''}`}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          toggleDockMagnify();
+                                        }}
+                                        title={isDockMagnify ? 'បិទ Dock Magnification' : 'បើក Dock Magnification'}
+                                      >
+                                        <div className="dock-switch-thumb" />
+                                      </div>
                                     </div>
                                   </div>
                                 )}

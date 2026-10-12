@@ -5,7 +5,11 @@ import { revalidatePath } from 'next/cache';
 
 export async function generatePayroll(month: number, year: number) {
   try {
-    const employees = await prisma.employee.findMany();
+    const [employees, companySettings] = await Promise.all([
+      prisma.employee.findMany(),
+      prisma.companySettings.findUnique({ where: { id: 'default' } })
+    ]);
+    const defaultExchangeRate = companySettings?.exchangeRate || 4000;
     
     // Create draft payrolls for all employees who don't have one for this month
     for (const emp of employees) {
@@ -118,7 +122,7 @@ export async function generatePayroll(month: number, year: number) {
         const basicSalary1 = emp.basicSalary1 || 0;
         
         const netSalaryUsd = totalSalary + severancePay - loanPension - nssf - taxPayment - unionDeduction - basicSalary1;
-        const exchangeRate = 4000;
+        const exchangeRate = defaultExchangeRate;
         
         // Auto-calculate Paid USD and Riel based on Factory Logic
         let paidSalaryUsd = 0;
@@ -221,5 +225,56 @@ export async function updatePayrollRecord(id: string, data: any) {
   } catch (error) {
     console.error('Error updating payroll:', error);
     return { success: false, error: 'Failed to update payroll' };
+  }
+}
+
+export async function updateExchangeRateAndRecalculate(newRate: number, month?: number, year?: number) {
+  try {
+    const rate = Math.max(1000, Number(newRate) || 4000);
+    // 1. Update company settings
+    await prisma.companySettings.upsert({
+      where: { id: 'default' },
+      update: { exchangeRate: rate },
+      create: { id: 'default', exchangeRate: rate }
+    });
+
+    // 2. If month and year provided, update all DRAFT payrolls for that month/year
+    const whereClause: any = { status: 'DRAFT' };
+    if (month && year) {
+      whereClause.month = month;
+      whereClause.year = year;
+    }
+
+    const draftPayrolls = await prisma.payroll.findMany({ where: whereClause });
+    for (const p of draftPayrolls) {
+      const netSalaryUsd = p.netSalaryUsd;
+      let paidSalaryUsd = 0;
+      let netSalaryRiel = 0;
+      if (netSalaryUsd > 0) {
+        paidSalaryUsd = Math.floor(netSalaryUsd / 10) * 10;
+        let remainder = netSalaryUsd - paidSalaryUsd;
+        if (remainder < 7.50 && paidSalaryUsd > 0) {
+          paidSalaryUsd -= 10;
+          remainder = netSalaryUsd - paidSalaryUsd;
+        }
+        netSalaryRiel = remainder * rate;
+        netSalaryRiel = Math.floor(netSalaryRiel / 100) * 100;
+      }
+      await prisma.payroll.update({
+        where: { id: p.id },
+        data: {
+          exchangeRate: rate,
+          paidSalaryUsd,
+          netSalaryRiel
+        }
+      });
+    }
+
+    revalidatePath('/dashboard/payroll');
+    revalidatePath('/dashboard/settings');
+    return { success: true, count: draftPayrolls.length, rate };
+  } catch (err: any) {
+    console.error('Error updating exchange rate:', err);
+    return { success: false, error: err.message };
   }
 }

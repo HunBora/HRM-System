@@ -23,6 +23,8 @@ export async function updateSettings(formData: FormData) {
   const contactPhone = formData.get('contactPhone') as string;
   const telegramLink = formData.get('telegramLink') as string;
   const telegramQrUrl = formData.get('telegramQrUrl') as string;
+  const exchangeRateRaw = formData.get('exchangeRate') as string;
+  const exchangeRate = exchangeRateRaw ? parseFloat(exchangeRateRaw) : 4000;
   
   let logoUrl = undefined;
   
@@ -47,6 +49,7 @@ export async function updateSettings(formData: FormData) {
     nightShiftAftIn,
     nightShiftAftOut,
     nightOtStart,
+    exchangeRate,
     telegramBotToken,
     telegramChatId,
     contactPhone,

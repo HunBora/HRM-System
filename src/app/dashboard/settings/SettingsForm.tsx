@@ -11,6 +11,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
   const [testingBot, setTestingBot] = useState(false);
   const [preview, setPreview] = useState<string | null>(settings?.logoUrl || null);
   const [currentThemeId, setCurrentThemeId] = useState<SidebarThemeId>('dark');
+  const [rateValue, setRateValue] = useState<number>(settings?.exchangeRate || 4000);
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
@@ -207,6 +208,91 @@ export default function SettingsForm({ settings }: { settings: any }) {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* អត្រាប្តូរប្រាក់ទីផ្សារ (Market Exchange Rate: USD ➔ KHR) */}
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h3 className="kh-text" style={{ fontSize: '1.05rem', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>💱</span> អត្រាប្តូរប្រាក់ទីផ្សារ (Market Exchange Rate: USD ➔ KHR)
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+              កំណត់អត្រាប្តូរប្រាក់ទីផ្សារជាក់ស្តែង (1$ = ? ៛)។ អត្រានេះនឹងត្រូវយកទៅគណនាប្រាក់ខែជាប្រាក់រៀល (Net Salary Riel) ដោយស្វ័យប្រវត្តិក្នងតារាង Payroll ទាំងអស់។
+            </p>
+          </div>
+          <span style={{
+            fontSize: '0.88rem',
+            fontWeight: 800,
+            padding: '4px 14px',
+            borderRadius: '20px',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            color: '#059669',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+          }}>
+            1 USD = {rateValue.toLocaleString()} ៛
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap', marginTop: '10px' }}>
+          <div style={{ flex: '1 1 240px', position: 'relative' }}>
+            <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+              តម្លៃប្តូរប្រាក់ (Exchange Rate ក្នុង 1$)
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="number"
+                name="exchangeRate"
+                value={rateValue}
+                onChange={(e) => setRateValue(parseFloat(e.target.value) || 0)}
+                step="1"
+                min="1000"
+                max="10000"
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: '2px solid #10b981',
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  outline: 'none',
+                }}
+                required
+              />
+              <span style={{ marginLeft: '-42px', fontWeight: 800, color: '#10b981', fontSize: '1rem', pointerEvents: 'none' }}>
+                ៛
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Preset Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>ជ្រើសរើសអត្រារហ័ស (Quick Presets)៖</span>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {[4000, 4050, 4100, 4120, 4150].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setRateValue(preset)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '6px',
+                    border: rateValue === preset ? '1.5px solid #10b981' : '1px solid var(--border-color)',
+                    backgroundColor: rateValue === preset ? '#d1fae5' : 'var(--surface-color)',
+                    color: rateValue === preset ? '#065f46' : '#334155',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {preset.toLocaleString()} ៛
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

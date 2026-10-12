@@ -247,6 +247,7 @@ model CompanySettings {
   payment2EndDate   Int      @default(31)
   fontSize          String   @default("14px")
   fontFamily        String   @default("Khmer OS Siemreap")
+  exchangeRate      Float    @default(4000)
   
   telegramBotToken  String?
   telegramChatId    String?

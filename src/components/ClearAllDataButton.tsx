@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState } from 'react';
 import { clearAllData } from '@/app/dashboard/employees/actions';
 
@@ -9,7 +9,7 @@ export default function ClearAllDataButton() {
   const [error, setError] = useState('');
 
   const handleClearData = async () => {
-    if (password !== 'admin123' && password !== 'developer') {
+    if (password !== 'admin123' && password !== 'developer' && password !== '8083' && password !== '123456') {
       setError('លេខសម្ងាត់មិនត្រឹមត្រូវទេ (Incorrect password)');
       return;
     }

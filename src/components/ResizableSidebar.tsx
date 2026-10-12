@@ -257,6 +257,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [sidebarTheme, setSidebarTheme] = useState<SidebarThemeId>('dark');
   const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
+  const [isThemeAccordionOpen, setIsThemeAccordionOpen] = useState<boolean>(false);
   const sidebarRef = useRef<HTMLElement>(null);
 
   // Load saved theme on client mount and listen for changes
@@ -1249,91 +1250,153 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                               </div>
                             </Link>
 
-                            {/* Integrated Theme Switcher Card directly under System & Bot Settings */}
+                            {/* Collapsible Folder-Style Theme Item under System & Bot Settings */}
                             {group.id === 'admin' && item.href === '/dashboard/settings' && !isCollapsed && (
-                              <div
-                                style={{
-                                  margin: '6px 4px 8px 12px',
-                                  backgroundColor: currentTheme.cardBg,
-                                  border: `1px solid ${currentTheme.cardBorder}`,
-                                  borderRadius: '10px',
-                                  padding: '8px 10px',
-                                  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.12)',
-                                  backdropFilter: 'blur(8px)',
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <span style={{ fontSize: '0.85rem' }}>🎨</span>
-                                    <span className="kh-text" style={{ fontSize: '0.74rem', fontWeight: 700, color: currentTheme.textColor }}>
-                                      ពណ៌ Sidebar (Theme)
-                                    </span>
-                                  </div>
-                                  <span
-                                    style={{
-                                      fontSize: '0.58rem',
-                                      color: currentTheme.accent,
-                                      fontWeight: 700,
-                                      backgroundColor: currentTheme.itemHover,
-                                      padding: '1px 6px',
-                                      borderRadius: '4px',
-                                      border: `1px solid ${currentTheme.cardBorder}`,
-                                    }}
-                                  >
-                                    {currentTheme.nameKh}
-                                  </span>
-                                </div>
-
-                                {/* Grid of 8 theme swatches */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
-                                  {Object.values(SIDEBAR_THEMES).map((th) => {
-                                    const isSelected = th.id === sidebarTheme;
-                                    return (
-                                      <button
-                                        key={th.id}
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          changeTheme(th.id);
-                                        }}
-                                        title={`${th.nameKh} (${th.nameEn})`}
+                              <div style={{ margin: '2px 0 4px 0' }}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setIsThemeAccordionOpen(!isThemeAccordionOpen);
+                                  }}
+                                  className={`sub-item-link ${isThemeAccordionOpen ? 'active' : ''}`}
+                                  style={{
+                                    width: '100%',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    textAlign: 'left',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '6px 8px 6px 10px',
+                                    borderRadius: '8px',
+                                    background: isThemeAccordionOpen ? currentTheme.itemHover : 'transparent',
+                                    transition: 'all 0.18s ease',
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                                    <span style={{ fontSize: '1rem', flexShrink: 0 }}>🎨</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
+                                      <span
+                                        className="kh-text"
                                         style={{
-                                          display: 'flex',
-                                          flexDirection: 'column',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          gap: '1px',
-                                          padding: '4px 2px',
-                                          borderRadius: '6px',
-                                          border: isSelected ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
-                                          background: th.colorSwatch,
-                                          cursor: 'pointer',
-                                          boxShadow: isSelected ? `0 0 8px ${th.accent}88` : 'none',
-                                          transition: 'all 0.15s ease',
-                                          transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                                          outline: 'none',
+                                          overflow: 'hidden',
+                                          textOverflow: 'ellipsis',
+                                          fontSize: '0.82rem',
+                                          color: isThemeAccordionOpen ? '#ffffff' : '#f1f5f9',
+                                          fontWeight: isThemeAccordionOpen ? 700 : 500,
                                         }}
                                       >
-                                        <span style={{ fontSize: '0.78rem', lineHeight: 1 }}>{th.icon}</span>
-                                        <span
-                                          style={{
-                                            fontSize: '0.52rem',
-                                            fontWeight: 700,
-                                            color: th.textColor,
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            maxWidth: '44px',
-                                            lineHeight: 1.1,
-                                          }}
-                                        >
-                                          {th.nameKh.split(' ')[0]}
-                                        </span>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
+                                        ស្បែកពណ៌ Sidebar
+                                      </span>
+                                      <span style={{ fontSize: '0.65rem', color: isThemeAccordionOpen ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
+                                        Theme & Colors
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <span
+                                      style={{
+                                        fontSize: '0.62rem',
+                                        color: currentTheme.accent,
+                                        fontWeight: 700,
+                                        backgroundColor: currentTheme.itemHover,
+                                        padding: '2px 6px',
+                                        borderRadius: '5px',
+                                        border: `1px solid ${currentTheme.cardBorder}`,
+                                        whiteSpace: 'nowrap',
+                                      }}
+                                    >
+                                      {currentTheme.nameKh.split(' ')[0]}
+                                    </span>
+                                    <svg
+                                      width="12"
+                                      height="12"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      style={{
+                                        color: isThemeAccordionOpen ? currentTheme.accent : '#94a3b8',
+                                        transform: isThemeAccordionOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.22s ease',
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                  </div>
+                                </button>
+
+                                {/* Smooth Animated List-down Swatches (Only when clicked) */}
+                                {isThemeAccordionOpen && (
+                                  <div
+                                    style={{
+                                      margin: '4px 2px 6px 14px',
+                                      backgroundColor: currentTheme.cardBg,
+                                      border: `1px solid ${currentTheme.cardBorder}`,
+                                      borderRadius: '10px',
+                                      padding: '8px 8px',
+                                      boxShadow: '0 3px 10px rgba(0, 0, 0, 0.15)',
+                                      backdropFilter: 'blur(8px)',
+                                    }}
+                                  >
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
+                                      {Object.values(SIDEBAR_THEMES).map((th) => {
+                                        const isSelected = th.id === sidebarTheme;
+                                        return (
+                                          <button
+                                            key={th.id}
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              changeTheme(th.id);
+                                            }}
+                                            title={`${th.nameKh} (${th.nameEn})`}
+                                            style={{
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              gap: '1px',
+                                              padding: '4px 2px',
+                                              borderRadius: '6px',
+                                              border: isSelected ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
+                                              background: th.colorSwatch,
+                                              cursor: 'pointer',
+                                              boxShadow: isSelected ? `0 0 8px ${th.accent}88` : 'none',
+                                              transition: 'all 0.15s ease',
+                                              transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                                              outline: 'none',
+                                            }}
+                                          >
+                                            <span style={{ fontSize: '0.78rem', lineHeight: 1 }}>{th.icon}</span>
+                                            <span
+                                              style={{
+                                                fontSize: '0.52rem',
+                                                fontWeight: 700,
+                                                color: th.textColor,
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                maxWidth: '44px',
+                                                lineHeight: 1.1,
+                                                marginTop: '2px',
+                                              }}
+                                            >
+                                              {th.nameKh.split(' ')[0]}
+                                            </span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </React.Fragment>

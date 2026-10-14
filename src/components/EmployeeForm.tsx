@@ -206,6 +206,10 @@ export default function EmployeeForm({ employee, t }: { employee?: any, t: any }
       </h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         <div>
+          <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>លេខកាតសម្គាល់ (Card No / 编号)</label>
+          <input type="text" name="cardNo" defaultValue={employee?.cardNo} className="input-field" />
+        </div>
+        <div>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>លេខអត្តសញ្ញាណប័ណ្ណ (National ID)</label>
           <input type="text" name="nationalId" defaultValue={employee?.nationalId} className="input-field" />
         </div>

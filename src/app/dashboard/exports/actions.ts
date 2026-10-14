@@ -4,22 +4,42 @@ import { prisma } from '@/lib/prisma';
 
 export async function fetchEmployeeReport() {
   const employees = await prisma.employee.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { employeeId: 'asc' }
   });
   
-  return employees.map(emp => ({
+  return employees.map((emp, index) => ({
+    no: index + 1,
     employeeId: emp.employeeId,
+    nameKh: `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim(),
+    nameEn: `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim(),
     firstNameEn: emp.firstNameEn,
     lastNameEn: emp.lastNameEn,
     firstNameKh: emp.firstNameKh,
     lastNameKh: emp.lastNameKh,
-    gender: emp.gender,
+    gender: emp.gender === 'ប្រុស' || emp.gender === 'MALE' ? 'ប្រុស' : 'ស្រី',
     dob: emp.dob ? new Date(emp.dob).toLocaleDateString('en-GB') : '',
+    placeOfBirth: emp.placeOfBirth || '-',
+    address: emp.address || '-',
+    phone: emp.phone || '-',
+    telegramChatId: emp.telegramChatId || '-',
+    maritalStatus: emp.maritalStatus === 'MARRIED' || emp.maritalStatus === 'រៀបការរួច' ? 'រៀបការរួច' : 'នៅលីវ',
+    spouseName: emp.spouseName || '-',
+    numberOfChildren: emp.numberOfChildren || 0,
     hireDate: new Date(emp.hireDate).toLocaleDateString('en-GB'),
-    position: emp.position,
     department: emp.department,
-    basicSalary: emp.basicSalary,
-    phone: emp.phone || ''
+    position: emp.position,
+    probationStart: emp.probationStart ? new Date(emp.probationStart).toLocaleDateString('en-GB') : '-',
+    probationEnd: emp.probationEnd ? new Date(emp.probationEnd).toLocaleDateString('en-GB') : '-',
+    basicSalary: (emp.basicSalary1 ?? emp.basicSalary) || 0,
+    skillAllowance: emp.skillAllowance1 || 0,
+    positionAllowance: emp.positionAllowance1 || 0,
+    nationalId: emp.nationalId || '-',
+    bankCardNo: emp.bankCardNo || '-',
+    nssfNo: emp.nssfNo || '-',
+    education: emp.education || '-',
+    healthBook: emp.healthBook || '-',
+    healthCertificate: emp.healthCertificate || '-',
+    remark: emp.remark || '-'
   }));
 }
 

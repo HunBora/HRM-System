@@ -76,8 +76,10 @@ const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDr
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select
             onChange={(e) => {
-              if (e.target.value === 'export') {
-                handleExportMaster();
+              if (e.target.value === 'export_system') {
+                window.location.href = `/api/export/master-employee?format=system&t=${Date.now()}`;
+              } else if (e.target.value === 'export_factory') {
+                window.location.href = `/api/export/master-employee?format=factory&t=${Date.now()}`;
               } else if (e.target.value === 'import') {
                 setIsOpen(true);
               }
@@ -97,7 +99,8 @@ const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDr
             }}
           >
             <option value="">⚙️ Excel (Import/Export)</option>
-            <option value="export">📊 ទាញយក Excel ដើម (Export)</option>
+            <option value="export_system">📊 ទាញយក Excel តាមទម្រង់ប្រព័ន្ធ (System Format)</option>
+            <option value="export_factory">📑 ទាញយក Excel តាមទម្រង់រោងចក្រ ៣៦ ជួរឈរ (Factory Template)</option>
             <option value="import">📥 នាំចូល Excel (Import)</option>
           </select>
         </div>
@@ -121,7 +124,7 @@ const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDr
           <div
             className="card"
             style={{
-              width: '500px',
+              width: '520px',
               maxWidth: '90vw',
               backgroundColor: 'var(--bg-color)',
               padding: '25px',
@@ -152,7 +155,7 @@ const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDr
               }}
             >
               <p className="kh-text" style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.6, margin: 0 }}>
-                💡 <strong>គន្លឹះ៖</strong> អ្នកអាចទាញយក <strong>Export Master Excel (ហ្វាលដើម)</strong> រួចកែសម្រួល ឬបន្ថែមទិន្នន័យបុគ្គលិក ហើយ <strong>Import ហ្វាលដដែលនោះចូលវិញ (Original Format)</strong>។ ប្រព័ន្ធនឹងរក្សាទុកអក្សរខ្មែរ (UTF-8) និងអាប់ដេតទិន្នន័យស្វ័យប្រវត្តិ។
+                💡 <strong>គន្លឹះ៖</strong> អ្នកអាចនាំចូលឯកសារ Excel បានទាំង <strong>ទម្រង់ប្រព័ន្ធ (System Format)</strong> ឬ <strong>ទម្រង់ដើមរោងចក្រ ៣៦ ជួរឈរ (Factory Template)</strong>។ ប្រព័ន្ធនឹងរក្សាទុកព័ត៌មានគ្រប់យ៉ាង ១០០% ដោយស្វ័យប្រវត្តិតាមទម្រង់ប្រព័ន្ធ។
               </p>
             </div>
 

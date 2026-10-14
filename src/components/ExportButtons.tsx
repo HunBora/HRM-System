@@ -204,7 +204,8 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
           if (val === 'excel') exportToExcel();
           else if (val === 'pdf') exportToPDF();
           else if (val === 'word') exportToWord();
-          else if (val === 'export_master') window.location.href = `/api/export/master-employee?t=${Date.now()}`;
+          else if (val === 'export_master_system') window.location.href = `/api/export/master-employee?format=system&t=${Date.now()}`;
+          else if (val === 'export_master_factory') window.location.href = `/api/export/master-employee?format=factory&t=${Date.now()}`;
           else if (val === 'import_master' && onImportEmployee) onImportEmployee();
           
           e.target.value = ''; // Reset after click
@@ -219,8 +220,9 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
         {showEmployeeMaster && (
           <>
             <option disabled>──────────</option>
-            <option value="export_master">📊 ទាញយក Excel ដើម (Export Master)</option>
-            <option value="import_master">📥 នាំចូល Excel (Import Master)</option>
+            <option value="export_master_system">📊 ទាញយក Excel តាមទម្រង់ប្រព័ន្ធ (System Format)</option>
+            <option value="export_master_factory">📑 ទាញយក Excel តាមទម្រង់រោងចក្រ ៣៦ ជួរឈរ (Factory)</option>
+            <option value="import_master">📥 នាំចូល Excel (Import)</option>
           </>
         )}
       </select>

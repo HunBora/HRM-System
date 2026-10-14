@@ -56,9 +56,11 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
               <Th en="Position Allowance" cn="岗位补贴" kh="ប្រាក់មុខងារ" minW="90px" />
               <Th en="National ID" cn="身份证号" kh="អត្តសញ្ញាណប័ណ្ណ" minW="105px" />
               <Th en="Place of Birth" cn="出生地" kh="ទីកន្លែងកំណើត" minW="125px" />
+              <Th en="Address" cn="地址" kh="អាស័យដ្ឋាន" minW="135px" />
               <Th en="Education" cn="学历" kh="កម្រិតវប្បធម៌" minW="90px" />
               <Th en="Child Q'ty" cn="子女" kh="កូន" minW="48px" />
               <Th en="Marital Status" cn="婚姻状况" kh="ស្ថានភាពគ្រួសារ" minW="90px" />
+              <Th en="Spouse Name" cn="配偶" kh="ឈ្មោះប្តី/ប្រពន្ធ" minW="110px" />
               <Th en="Work Book" cn="健康证" kh="សៀវភៅសុខភាព" minW="105px" />
               <Th en="Health Cert." cn="体检单" kh="សំបុត្រពេទ្យ" minW="105px" />
               <Th en="Phone No" cn="电话号码" kh="លេខទូរស័ព្ទ" minW="105px" />
@@ -77,7 +79,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
           <tbody>
             {employees.length === 0 ? (
               <tr>
-                <td colSpan={28} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
+                <td colSpan={30} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
                   {t.employee.noData}
                 </td>
               </tr>
@@ -127,14 +129,16 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
                   <td style={tdStyle} className="kh-text">{emp.position}</td>
                   <td style={tdStyle}>{formatDate(emp.probationStart)}</td>
                   <td style={tdStyle}>{formatDate(emp.probationEnd)}</td>
-                  <td style={{ ...tdStyle, fontWeight: 'bold', color: 'var(--primary-color)' }}>${emp.basicSalary?.toFixed(2) || '0.00'}</td>
-                  <td style={tdStyle}>${emp.skillAllowance1?.toFixed(2) || '0.00'}</td>
-                  <td style={tdStyle}>${emp.positionAllowance1?.toFixed(2) || '0.00'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 'bold', color: 'var(--primary-color)' }}>${Number((emp.basicSalary1 ?? emp.basicSalary) || 0).toFixed(2)}</td>
+                  <td style={tdStyle}>${Number(emp.skillAllowance1 || 0).toFixed(2)}</td>
+                  <td style={tdStyle}>${Number(emp.positionAllowance1 || 0).toFixed(2)}</td>
                   <td style={tdStyle}>{emp.nationalId || '-'}</td>
                   <td style={tdStyle} className="kh-text">{emp.placeOfBirth || '-'}</td>
+                  <td style={tdStyle} className="kh-text">{emp.address || '-'}</td>
                   <td style={tdStyle} className="kh-text">{emp.education || '-'}</td>
                   <td style={tdStyle}>{emp.numberOfChildren || 0}</td>
-                  <td style={tdStyle}>{emp.maritalStatus}</td>
+                  <td style={tdStyle}>{emp.maritalStatus === 'MARRIED' || emp.maritalStatus === 'រៀបការរួច' ? 'រៀបការរួច' : (emp.maritalStatus === 'SINGLE' || emp.maritalStatus === 'នៅលីវ' ? 'នៅលីវ' : (emp.maritalStatus || '-'))}</td>
+                  <td style={tdStyle} className="kh-text">{emp.spouseName || '-'}</td>
                   <td style={tdStyle} className="kh-text">{emp.healthBook || '-'}</td>
                   <td style={tdStyle} className="kh-text">{emp.healthCertificate || '-'}</td>
                   <td style={tdStyle}>{emp.phone || '-'}</td>

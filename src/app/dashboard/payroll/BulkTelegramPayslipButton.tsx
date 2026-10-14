@@ -24,6 +24,21 @@ export default function BulkTelegramPayslipButton({
           <div style="background: #f1f5f9; padding: 10px 14px; border-radius: 6px; border-left: 4px solid #0284c7; margin-top: 10px;">
             <span>ℹ️ បុគ្គលិកដែលមាន Telegram ID ក្នុងខែនេះ: <b>${eligibleCount !== undefined ? eligibleCount : 'ទាំងអស់'}</b> នាក់</span>
           </div>
+          ${eligibleCount === 0 ? `
+            <div style="margin-top: 14px; font-size: 0.88rem; color: #92400e; background: #fef3c7; padding: 12px 14px; border-radius: 8px; border: 1px solid #fde68a; line-height: 1.5;">
+              <div style="font-weight: bold; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                💡 របៀបដាក់បញ្ចូល Telegram Chat ID ឱ្យបុគ្គលិក៖
+              </div>
+              <ol style="margin: 0; padding-left: 18px;">
+                <li>ចូលទៅកាន់ម៉ឺនុយ <b>"បុគ្គលិក (Employees)"</b></li>
+                <li>ចុច <b>កែប្រែ (✏️ Edit)</b> លើបុគ្គលិកណាម្នាក់</li>
+                <li>បំពេញលេខ <b>Telegram Chat ID</b> (ឧ. <code>123456789</code>) រួចចុច <b>រក្សាទុក</b></li>
+              </ol>
+              <div style="margin-top: 8px; font-size: 0.82rem; color: #78350f;">
+                <i>* បុគ្គលិកអាចឆែកមើល Chat ID របស់ខ្លួនដោយផ្ញើសារទៅកាន់ Bot <code>@userinfobot</code> ក្នុង Telegram។</i>
+              </div>
+            </div>
+          ` : ''}
         </div>
       `,
       icon: 'question',

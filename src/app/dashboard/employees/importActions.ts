@@ -80,6 +80,7 @@ export async function importEmployeeExcel(formData: FormData) {
                 else if (text.includes('dob') || text.includes('birth') || text.includes('កំណើត') || text.includes('出生')) headersMap['dob'] = colNumber;
                 else if (text.includes('bank') || text.includes('ធនាគារ') || text.includes('银行')) headersMap['bankCardNo'] = colNumber;
                 else if (text.includes('national') || text.includes('អត្តសញ្ញាណប័ណ្ណ') || text.includes('身份证')) headersMap['nationalId'] = colNumber;
+                else if (text.includes('telegram') || text.includes('chat id') || text.includes('telegram id')) headersMap['telegramChatId'] = colNumber;
                 else if (text.includes('card') || text.includes('កាត') || text.includes('卡号')) headersMap['cardNo'] = colNumber;
               });
               
@@ -114,6 +115,7 @@ export async function importEmployeeExcel(formData: FormData) {
           let department = 'General';
           let basicSalary = 0;
           let phone = '';
+          let telegramChatId = '';
           let cardNo = '';
           let bankCardNo = '';
           let nationalId = '';
@@ -145,6 +147,7 @@ export async function importEmployeeExcel(formData: FormData) {
           if (headersMap['position']) position = row.getCell(headersMap['position']).text?.trim() || 'Staff';
           if (headersMap['department']) department = row.getCell(headersMap['department']).text?.trim() || 'General';
           if (headersMap['phone']) phone = row.getCell(headersMap['phone']).text?.trim();
+          if (headersMap['telegramChatId']) telegramChatId = row.getCell(headersMap['telegramChatId']).text?.trim();
           if (headersMap['cardNo']) cardNo = row.getCell(headersMap['cardNo']).text?.trim();
           if (headersMap['bankCardNo']) bankCardNo = row.getCell(headersMap['bankCardNo']).text?.trim();
           if (headersMap['nationalId']) nationalId = row.getCell(headersMap['nationalId']).text?.trim();
@@ -207,7 +210,7 @@ export async function importEmployeeExcel(formData: FormData) {
           const nameEnLower = nameEn?.toLowerCase() || '';
           if (idLower.includes('total') || idLower.includes('សរុប') || nameKhLower.includes('total') || nameEnLower.includes('total')) return;
           rowsData.push({
-            employeeId, nameKh, nameEn, genderStr, hireDateVal, dobVal, position, department, basicSalary, phone, cardNo, bankCardNo, nationalId, address, placeOfBirth, education, maritalStatus, nssfNo, remark
+            employeeId, nameKh, nameEn, genderStr, hireDateVal, dobVal, position, department, basicSalary, phone, telegramChatId, cardNo, bankCardNo, nationalId, address, placeOfBirth, education, maritalStatus, nssfNo, remark
           });
         }
       });
@@ -358,6 +361,7 @@ export async function importEmployeeExcel(formData: FormData) {
         basicSalary: item.basicSalary || 0,
         basicSalary1: item.basicSalary || null,
         phone: item.phone || null,
+        ...(item.telegramChatId ? { telegramChatId: item.telegramChatId } : {}),
         cardNo: item.cardNo || null,
         bankCardNo: item.bankCardNo || null,
         nationalId: item.nationalId || null,

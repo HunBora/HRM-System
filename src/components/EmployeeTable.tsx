@@ -62,6 +62,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
               <Th en="Work Book" cn="健康证" kh="សៀវភៅសុខភាព" minW="105px" />
               <Th en="Health Cert." cn="体检单" kh="សំបុត្រពេទ្យ" minW="105px" />
               <Th en="Phone No" cn="电话号码" kh="លេខទូរស័ព្ទ" minW="105px" />
+              <Th en="Telegram" cn="飞机" kh="តេឡេក្រាម" minW="110px" />
               <Th en="NSSF No" cn="社保" kh="ប.ស.ស" minW="105px" />
               <Th en="Remark" cn="备注" kh="ផ្សេងៗ" minW="120px" />
               <th style={{ padding: '6px 8px', borderBottom: '1px dashed var(--border-color)', verticalAlign: 'middle', position: 'sticky', top: 0, backgroundColor: 'var(--surface-color)', zIndex: 10, boxShadow: '0 1px 0 var(--border-color)' }}>
@@ -76,7 +77,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
           <tbody>
             {employees.length === 0 ? (
               <tr>
-                <td colSpan={27} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
+                <td colSpan={28} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
                   {t.employee.noData}
                 </td>
               </tr>
@@ -137,6 +138,15 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
                   <td style={tdStyle} className="kh-text">{emp.healthBook || '-'}</td>
                   <td style={tdStyle} className="kh-text">{emp.healthCertificate || '-'}</td>
                   <td style={tdStyle}>{emp.phone || '-'}</td>
+                  <td style={tdStyle}>
+                    {emp.telegramChatId ? (
+                      <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600 }}>
+                        ✈️ {emp.telegramChatId}
+                      </span>
+                    ) : (
+                      <span style={{ color: '#94a3b8' }}>-</span>
+                    )}
+                  </td>
                   <td style={tdStyle}>{emp.nssfNo || '-'}</td>
                   <td style={tdStyle} className="kh-text">{emp.remark || '-'}</td>
                   <td style={{ ...tdStyle, borderRight: 'none', padding: '2px 6px' }}>

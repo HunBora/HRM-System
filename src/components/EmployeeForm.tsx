@@ -56,6 +56,18 @@ export default function EmployeeForm({ employee, t }: { employee?: any, t: any }
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>លេខទូរស័ព្ទ (Phone)</label>
           <input type="tel" name="phone" defaultValue={employee?.phone} className="input-field" />
         </div>
+        <div>
+          <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>
+            Telegram Chat ID (ផ្ញើវិក្កយបត្រ)
+          </label>
+          <input 
+            type="text" 
+            name="telegramChatId" 
+            defaultValue={employee?.telegramChatId || ''} 
+            placeholder="ឧ. 123456789 (User ID)" 
+            className="input-field" 
+          />
+        </div>
       </div>
 
       {/* 2. ព័ត៌មានគ្រួសារ (Family Information) */}

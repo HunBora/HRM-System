@@ -933,19 +933,31 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
         /* Sub Item Link */
         .sub-item-link {
-          padding: 8px 10px;
+          padding: 7px 10px;
           font-size: 0.83rem;
-          display: flex;
-          align-items: center;
-          gap: 10px;
+          display: flex !important;
+          flex-direction: row !important;
+          align-items: center !important;
+          flex-wrap: nowrap !important;
+          gap: 9px;
           border-radius: 8px;
           transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.18s ease, color 0.18s ease;
           color: var(--sb-text-muted);
           text-decoration: none;
-          white-space: nowrap;
-          overflow: visible;
+          white-space: nowrap !important;
+          overflow: hidden;
           position: relative;
           transform-origin: left center;
+          min-height: 36px;
+        }
+        .sub-item-emoji {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          flex-shrink: 0 !important;
+          width: 22px;
+          font-size: 1.05rem;
+          line-height: 1;
         }
         .sub-item-link:hover {
           color: var(--sb-text-color);
@@ -1671,6 +1683,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                             <Link
                               href={item.href}
                               className={`sub-item-link ${isActive ? 'active' : ''}`}
+                              title={`${item.labelKh} (${item.labelEn})`}
                               onMouseEnter={(e) =>
                                 handleMouseEnterItem(e, {
                                   icon: item.icon,
@@ -1683,14 +1696,21 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                               onMouseLeave={handleMouseLeaveItem}
                             >
                               <span className="sub-item-emoji">{item.icon}</span>
-                              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
-                                <span className="kh-text sub-item-text-kh" style={{ overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.82rem', color: isActive ? '#ffffff' : '#f1f5f9', fontWeight: isActive ? 700 : 500, transition: 'all 0.18s ease' }}>
-                                  {item.labelKh}
-                                </span>
-                                <span style={{ fontSize: '0.65rem', color: isActive ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
-                                  {item.labelEn}
-                                </span>
-                              </div>
+                              <span
+                                className="kh-text sub-item-text-kh"
+                                style={{
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  fontSize: '0.84rem',
+                                  color: isActive ? '#ffffff' : '#f1f5f9',
+                                  fontWeight: isActive ? 700 : 500,
+                                  transition: 'all 0.18s ease',
+                                  flex: 1,
+                                }}
+                              >
+                                {item.labelKh}
+                              </span>
                             </Link>
 
                             {/* Collapsible Folder-Style Theme Item under System & Bot Settings */}
@@ -1728,25 +1748,21 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                     transition: 'all 0.18s ease',
                                   }}
                                 >
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                                    <span style={{ fontSize: '1rem', flexShrink: 0 }}>🎨</span>
-                                    <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, overflow: 'hidden' }}>
-                                      <span
-                                        className="kh-text"
-                                        style={{
-                                          overflow: 'hidden',
-                                          textOverflow: 'ellipsis',
-                                          fontSize: '0.82rem',
-                                          color: isThemeAccordionOpen ? '#ffffff' : '#f1f5f9',
-                                          fontWeight: isThemeAccordionOpen ? 700 : 500,
-                                        }}
-                                      >
-                                        ស្បែកពណ៌ Sidebar
-                                      </span>
-                                      <span style={{ fontSize: '0.65rem', color: isThemeAccordionOpen ? '#bae6fd' : '#94a3b8', fontWeight: 500 }}>
-                                        Theme & Colors
-                                      </span>
-                                    </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
+                                    <span className="sub-item-emoji">🎨</span>
+                                    <span
+                                      className="kh-text"
+                                      style={{
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        fontSize: '0.84rem',
+                                        color: isThemeAccordionOpen ? '#ffffff' : '#f1f5f9',
+                                        fontWeight: isThemeAccordionOpen ? 700 : 500,
+                                      }}
+                                    >
+                                      ស្បែកពណ៌ Sidebar
+                                    </span>
                                   </div>
 
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>

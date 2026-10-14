@@ -286,7 +286,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
               </tr>
             ) : (
               payrolls.map((p, index) => {
-                const firstPayment = (p.employee.basicSalary1 || 0);
+                const firstPayment = (p.loanPension || 0);
                 const secondPayment = p.netSalaryUsd;
                 return (
                   <tr 
@@ -389,7 +389,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
                 <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.severancePay, 0).toFixed(2)}</td>
                 <td style={tdStyle}>${totalTax.toFixed(2)}</td>
                 <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.loanPension, 0).toFixed(2)}</td>
-                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + (p.employee.basicSalary1 || 0), 0).toFixed(2)}</td>
+                <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.loanPension, 0).toFixed(2)}</td>
                 <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.unionDeduction, 0).toFixed(2)}</td>
                 <td style={tdStyle}>${payrolls.reduce((sum, p) => sum + p.netSalaryUsd, 0).toFixed(2)}</td>
                 <td style={{ ...tdStyle, color: '#166534', fontWeight: '900' }}>${totalUsd.toFixed(2)}</td>

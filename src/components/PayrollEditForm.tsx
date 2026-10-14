@@ -94,9 +94,8 @@ export default function PayrollEditForm({ payroll }: { payroll: any }) {
     const loanPension = parseFloat(formData.loanPension) || 0;
     const unionDeduction = parseFloat(formData.unionDeduction) || 0;
     const nssf = parseFloat(formData.nssf) || 0;
-    const basicSalary1 = parseFloat(formData.employee?.basicSalary1) || 0;
 
-    const netSalaryUsd = totalSalary + severancePay - taxPayment - loanPension - unionDeduction - nssf - basicSalary1;
+    const netSalaryUsd = totalSalary + severancePay - taxPayment - loanPension - unionDeduction - nssf;
     
     const paidUsd = parseFloat(formData.paidSalaryUsd) || 0;
     const exchangeRate = parseFloat(formData.exchangeRate) || 4000;

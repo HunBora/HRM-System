@@ -135,7 +135,7 @@ export async function GET(request: Request) {
       const row = sheet.getRow(currentRow);
       row.height = 20;
       
-      const firstPayment = emp.basicSalary1 || 0;
+      const firstPayment = p.loanPension || 0;
       const secondPayment = p.netSalaryUsd;
 
       row.getCell(colMap['no']).value = index + 1;

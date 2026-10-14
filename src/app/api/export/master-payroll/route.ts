@@ -154,7 +154,7 @@ export async function GET(request: Request) {
       const emp = p.employee;
       const row = sheet.getRow(currentRow);
       
-      const firstPayment = emp.basicSalary1 || 0;
+      const firstPayment = p.loanPension || 0;
       const secondPayment = p.netSalaryUsd;
 
       row.getCell(colMap['no']).value = index + 1;

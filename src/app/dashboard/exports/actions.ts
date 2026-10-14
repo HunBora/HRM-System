@@ -111,7 +111,7 @@ export async function fetchPayrollReport(month: number, year: number) {
       severancePay: p.severancePay,
       taxPayment: p.taxPayment,
       loanPension: p.loanPension,
-      firstSalary: emp.basicSalary1 || 0,
+      firstSalary: p.loanPension || 0,
       unionDeduction: p.unionDeduction,
       secondSalary: p.netSalaryUsd,
       paidSalaryUsd: p.paidSalaryUsd,

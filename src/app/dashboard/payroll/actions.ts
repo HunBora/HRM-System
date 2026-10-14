@@ -119,9 +119,8 @@ export async function generatePayroll(month: number, year: number) {
         const taxPayment = 0; 
         const unionDeduction = 0;
         const loanPension = totalAdvance;
-        const basicSalary1 = emp.basicSalary1 || 0;
         
-        const netSalaryUsd = totalSalary + severancePay - loanPension - nssf - taxPayment - unionDeduction - basicSalary1;
+        const netSalaryUsd = totalSalary + severancePay - loanPension - nssf - taxPayment - unionDeduction;
         const exchangeRate = defaultExchangeRate;
         
         // Auto-calculate Paid USD and Riel based on Factory Logic

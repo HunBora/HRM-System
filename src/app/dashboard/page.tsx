@@ -324,7 +324,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     
     filterTotalTax = 0; // Tax is projected at 0 until finalized
     filterTotalNSSF = 0; // NSSF is projected at 0 until finalized
-    filterGrandNetSalary = (filterGrandTotalSalary + projectedSeverance) - filterTotalAdvance - filterTotalTax - filterTotalNSSF - filterTotalBasicSalary1;
+    filterGrandNetSalary = (filterGrandTotalSalary + projectedSeverance) - filterTotalAdvance - filterTotalTax - filterTotalNSSF;
   }
 
   const date1Start = settings.payment1StartDate.toString().padStart(2, '0');
@@ -601,7 +601,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           {
             id: 'advance',
             title: `ប្រាក់ខែបើកទី១ (${date1})`,
-            amount: filterTotalBasicSalary1 === 0 ? '$-' : `$${filterTotalBasicSalary1.toFixed(2)}`,
+            amount: filterTotalAdvance === 0 ? '$-' : `$${filterTotalAdvance.toFixed(2)}`,
             gradient: 'linear-gradient(135deg, #6ee7b7, #3b82f6)',
             icon: <svg key="adv-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path key="p1" d="M21 12V7H5a2 0 0 1 0-4h14v4"/><path key="p2" d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path key="p3" d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>,
             href: '/dashboard/payroll'

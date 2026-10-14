@@ -63,7 +63,7 @@ export default async function MasterSalarySummaryPage({ searchParams }: { search
     sum.headcount++;
     
     // Add net salary and first payment to totals
-    const firstPayment = p.employee.basicSalary1 || 0;
+    const firstPayment = p.loanPension || 0;
     sum.totalNetUsd += p.netSalaryUsd + firstPayment; // Total Net USD
     sum.totalFirstPayment += firstPayment; // 1st Payment
 

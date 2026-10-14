@@ -38,6 +38,7 @@ export default function PayslipCard({
   const bonus = payroll.attendanceBonus || 0;
   const mealAndTransp = (payroll.lunchAllowance || 0) + (payroll.transportation || 0) + (payroll.otMealAllowance || 0);
   const seniorityTotal = (payroll.seniority || 0) + (payroll.seniorityIndemnity || 0);
+  const severance = payroll.severancePay || 0;
   const otherEarnings = (payroll.payScaleIncentive || 0) + (payroll.productionIncentive || 0) + (payroll.adjustmentSkill || 0) + (payroll.otherAllowance || 0);
 
   // Deductions
@@ -214,6 +215,12 @@ export default function PayslipCard({
             <span>ប្រាក់អតីតភាពការងារ (Seniority)</span>
             <span>${seniorityTotal.toFixed(2)}</span>
           </div>
+          {severance > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span>ប្រាក់បំណាច់កិច្ចសន្យា (Severance 5%)</span>
+              <span>${severance.toFixed(2)}</span>
+            </div>
+          )}
           {otherEarnings > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
               <span>ប្រាក់បន្ថែមផ្សេងៗ (Other)</span>

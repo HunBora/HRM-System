@@ -280,54 +280,50 @@ export default function PayslipCard({
         }}
       >
         <div style={{ minWidth: compact ? '250px' : '310px' }}>
+          {/* Total Net calculation reference */}
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               marginBottom: '4px',
+              fontSize: compact ? '0.78rem' : '0.86rem',
+              color: '#64748b',
+              borderBottom: '1px dashed #cbd5e1',
+              paddingBottom: '3px',
+            }}
+          >
+            <span className="kh-text">ប្រាក់ខែសុទ្ធសរុប (Total Net):</span>
+            <span style={{ fontWeight: 600 }}>${payroll.netSalaryUsd.toFixed(2)}</span>
+          </div>
+
+          {/* Actual Cash Payout in USD: $1,327.50 - $7.50 = $1,320.00 */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: '3px',
               fontSize: compact ? '0.88rem' : '1.05rem',
               fontWeight: 'bold',
             }}
           >
-            <span className="kh-text">ប្រាក់ត្រូវបើកសរុប (NET PAY):</span>
-            <span style={{ color: '#15803d' }}>${payroll.netSalaryUsd.toFixed(2)}</span>
+            <span className="kh-text">ប្រាក់ត្រូវបើក (NET PAY USD):</span>
+            <span style={{ color: '#15803d' }}>
+              ${((payroll.paidSalaryUsd > 0 || payroll.netSalaryRiel > 0) ? payroll.paidSalaryUsd : payroll.netSalaryUsd).toFixed(2)}
+            </span>
           </div>
 
-          {(payroll.paidSalaryUsd > 0 || payroll.netSalaryRiel > 0) && (
-            <div
-              style={{
-                borderTop: '1px dashed #cbd5e1',
-                paddingTop: '4px',
-                marginTop: '4px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: compact ? '0.78rem' : '0.90rem',
-                  color: '#334155',
-                }}
-              >
-                <span className="kh-text">💵 បើកជាដុល្លារ (Paid USD):</span>
-                <strong style={{ color: '#0f172a' }}>${(payroll.paidSalaryUsd || 0).toFixed(2)}</strong>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: compact ? '0.78rem' : '0.90rem',
-                  color: '#334155',
-                }}
-              >
-                <span className="kh-text">🇰🇭 បើកជាប្រាក់រៀល (Paid Riel):</span>
-                <strong style={{ color: '#15803d' }}>{(payroll.netSalaryRiel || 0).toLocaleString()} ៛</strong>
-              </div>
-            </div>
-          )}
+          {/* Actual Cash Payout in Riel: 30,300 Riel */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: compact ? '0.84rem' : '0.98rem',
+              fontWeight: 'bold',
+            }}
+          >
+            <span className="kh-text">ប្រាក់រៀល (NET PAY RIEL):</span>
+            <span style={{ color: '#15803d' }}>{(payroll.netSalaryRiel || 0).toLocaleString()} ៛</span>
+          </div>
         </div>
       </div>
 

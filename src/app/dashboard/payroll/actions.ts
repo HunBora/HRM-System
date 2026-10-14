@@ -31,12 +31,29 @@ export async function generatePayroll(month: number, year: number) {
 
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59);
-        const dailyRecords = await prisma.dailyAttendance.findMany({
-          where: {
-            employeeId: emp.id,
-            date: { gte: startDate, lte: endDate }
-          }
-        });
+        const [dailyRecords, approvedOtRequests, approvedLeaveRequests] = await Promise.all([
+          prisma.dailyAttendance.findMany({
+            where: {
+              employeeId: emp.id,
+              date: { gte: startDate, lte: endDate }
+            }
+          }),
+          prisma.overtimeRequest.findMany({
+            where: {
+              employeeId: emp.id,
+              status: 'APPROVED',
+              otDate: { gte: startDate, lte: endDate }
+            }
+          }),
+          prisma.leaveRequest.findMany({
+            where: {
+              employeeId: emp.id,
+              status: 'APPROVED',
+              startDate: { lte: endDate },
+              endDate: { gte: startDate }
+            }
+          })
+        ]);
 
         let workingDays = 26;
         let absentDays = 0;
@@ -52,19 +69,42 @@ export async function generatePayroll(month: number, year: number) {
           nightOtHours = dailyRecords.reduce((sum, r) => sum + (r.nightOtHrs || 0), 0);
           sunOtHours = dailyRecords.reduce((sum, r) => sum + (r.holidayOtHrs || 0), 0);
           absentDays = Math.max(0, 26 - workingDays);
-
-          // Keep MonthlyAttendance table in sync with daily records
-          await prisma.monthlyAttendance.upsert({
-            where: { employeeId_month_year: { employeeId: emp.id, month, year } },
-            update: { daysWorked: workingDays, absentDays, leaveDays, otHours },
-            create: { employeeId: emp.id, month, year, daysWorked: workingDays, absentDays, leaveDays, otHours }
-          });
         } else if (attendance) {
           workingDays = attendance.daysWorked;
           absentDays = attendance.absentDays;
           leaveDays = attendance.leaveDays;
           otHours = attendance.otHours;
         }
+
+        // Merge approved Overtime Requests if any exist
+        let reqNormalOt = 0;
+        let reqNightOt = 0;
+        let reqSunOt = 0;
+        approvedOtRequests.forEach((ot) => {
+          if (ot.otType === 'NIGHT_OT') {
+            reqNightOt += ot.totalHours;
+          } else if (ot.otType === 'SUNDAY_OT' || ot.otType === 'HOLIDAY_OT') {
+            reqSunOt += ot.totalHours;
+          } else {
+            reqNormalOt += ot.totalHours;
+          }
+        });
+
+        // Add approved OT to the totals
+        otHours += reqNormalOt;
+        nightOtHours += reqNightOt;
+        sunOtHours += reqSunOt;
+
+        // Merge approved Leave Requests if any exist
+        const reqLeaveDays = approvedLeaveRequests.reduce((sum, lv) => sum + (lv.duration || 1), 0);
+        leaveDays += reqLeaveDays;
+
+        // Keep MonthlyAttendance table in sync
+        await prisma.monthlyAttendance.upsert({
+          where: { employeeId_month_year: { employeeId: emp.id, month, year } },
+          update: { daysWorked: workingDays, absentDays, leaveDays, otHours },
+          create: { employeeId: emp.id, month, year, daysWorked: workingDays, absentDays, leaveDays, otHours }
+        });
 
         const basicSalary = emp.basicSalary || 0;
         

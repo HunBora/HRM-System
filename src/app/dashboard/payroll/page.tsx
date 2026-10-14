@@ -170,7 +170,14 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
 
         {/* Buttons and Small Summary Boxes aligned to the right */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1, minWidth: '400px' }}>
-          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px' }}>
+          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <Link 
+              href={`/dashboard/payroll/batch-payslips?month=${month}&year=${year}${department ? `&department=${encodeURIComponent(department)}` : ''}`}
+              className="btn-secondary flex items-center justify-center kh-text hover:bg-emerald-600 transition-colors" 
+              style={{ padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', backgroundColor: '#059669', color: '#ffffff', border: '1px solid #047857', fontWeight: 600 }}
+            >
+              🖨️ បោះពុម្ពវិក្កយបត្រ (Batch Payslips)
+            </Link>
             <Link 
               href="/dashboard/payroll/summary" 
               className="btn-secondary flex items-center justify-center kh-text hover:bg-slate-200 transition-colors" 

@@ -10,21 +10,26 @@ interface SidebarProps {
   logoUrl?: string | null;
   t: any;
   role?: string;
+  locale?: string;
 }
 
 interface SubMenuItem {
   href: string;
   labelKh: string;
   labelEn: string;
+  labelZh?: string;
   icon: string;
   roles: string[];
   desc?: string;
+  descEn?: string;
+  descZh?: string;
 }
 
 export interface MenuGroup {
   id: string;
   titleKh: string;
   titleEn: string;
+  titleZh?: string;
   icon: string;
   roles: string[];
   items: SubMenuItem[];
@@ -251,8 +256,44 @@ export const SIDEBAR_THEMES: Record<SidebarThemeId, SidebarTheme> = {
   },
 };
 
-export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPLOYEE' }: SidebarProps) {
+export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPLOYEE', locale = 'kh' }: SidebarProps) {
   const pathname = usePathname();
+  const [currentLocale, setCurrentLocale] = useState<string>(locale);
+
+  useEffect(() => {
+    if (locale) setCurrentLocale(locale);
+    const cookies = document.cookie.split(';');
+    const localeCookie = cookies.find((c) => c.trim().startsWith('NEXT_LOCALE='));
+    if (localeCookie) {
+      const val = localeCookie.split('=')[1]?.trim();
+      if (val) setCurrentLocale(val);
+    }
+  }, [locale]);
+
+  const getGroupTitle = (group: { titleKh: string; titleEn: string; titleZh?: string }) => {
+    if (currentLocale === 'en') return group.titleEn || group.titleKh;
+    if (currentLocale === 'zh') return group.titleZh || group.titleEn || group.titleKh;
+    return group.titleKh;
+  };
+
+  const getGroupSubtitle = (group: { titleKh: string; titleEn: string; titleZh?: string }) => {
+    if (currentLocale === 'en') return group.titleKh;
+    if (currentLocale === 'zh') return group.titleEn;
+    return group.titleEn;
+  };
+
+  const getItemLabel = (item: { labelKh: string; labelEn: string; labelZh?: string }) => {
+    if (currentLocale === 'en') return item.labelEn || item.labelKh;
+    if (currentLocale === 'zh') return item.labelZh || item.labelEn || item.labelKh;
+    return item.labelKh;
+  };
+
+  const getItemDesc = (item: { desc?: string; descEn?: string; descZh?: string }) => {
+    if (currentLocale === 'en') return item.descEn || item.desc;
+    if (currentLocale === 'zh') return item.descZh || item.descEn || item.desc;
+    return item.desc;
+  };
+
   const [width, setWidth] = useState<number>(275);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -497,6 +538,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       id: 'general',
       titleKh: 'មជ្ឈមណ្ឌលទូទៅ',
       titleEn: 'General Hub',
+      titleZh: '通用综合中心',
       icon: '🏢',
       badgeColor: '#3b82f6',
       bgGlow: 'rgba(59, 130, 246, 0.28)',
@@ -507,7 +549,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📊',
           labelKh: 'ផ្ទាំងគ្រប់គ្រងមេ',
           labelEn: 'Main Dashboard',
+          labelZh: '系统主仪表板',
           desc: 'ទិដ្ឋភាពទូទៅនៃប្រព័ន្ធ ស្ថិតិបុគ្គលិក និង KPI សរុប',
+          descEn: 'System overview, employee statistics, and total KPIs',
+          descZh: '系统总览、员工统计数据与综合KPI',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -515,7 +560,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📱',
           labelKh: 'ផតថលស្វ័យសេវាបុគ្គលិក',
           labelEn: 'Employee Self-Service',
+          labelZh: '员工自助门户',
           desc: 'ផ្ទាំងផ្ទាល់ខ្លួនបុគ្គលិក មើលវត្តមាន ស្នើសុំច្បាប់ និងបើកប្រាក់ខែ',
+          descEn: 'Personal employee portal to check attendance, leave, and payslips',
+          descZh: '员工个人门户，查看考勤、申请请假及工资单',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -523,7 +571,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📣',
           labelKh: 'សេចក្តីជូនដំណឹងក្រុមហ៊ុន',
           labelEn: 'Company News & Notices',
+          labelZh: '公司通知与公告',
           desc: 'ផ្សព្វផ្សាយដំណឹង ព្រឹត្តិការណ៍ និងសេចក្តីប្រកាសផ្ទៃក្នុង',
+          descEn: 'Company announcements, corporate events, and internal circulars',
+          descZh: '发布公司新闻、活动公告与内部通知',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
@@ -532,6 +583,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       id: 'workforce',
       titleKh: 'គ្រប់គ្រងកម្លាំងពលកម្ម',
       titleEn: 'Workforce Hub',
+      titleZh: '人力资源与员工管理',
       icon: '👥',
       badgeColor: '#6366f1',
       bgGlow: 'rgba(99, 102, 241, 0.28)',
@@ -542,7 +594,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📋',
           labelKh: 'បញ្ជីបុគ្គលិកមេ',
           labelEn: 'Employee Directory',
+          labelZh: '员工花名册',
           desc: 'គ្រប់គ្រងប្រវត្តិរូប កិច្ចសន្យា ប្រាក់ខែគោល និងព័ត៌មានលម្អិត',
+          descEn: 'Manage employee profiles, contracts, base salary, and records',
+          descZh: '管理员工档案、合同信息、基本工资及详细资料',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -550,7 +605,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📢',
           labelKh: 'ជ្រើសរើសបុគ្គលិក & ATS',
           labelEn: 'Recruitment & Candidates',
+          labelZh: '招聘管理与ATS',
           desc: 'គ្រប់គ្រងការជ្រើសរើស ដំណើរការសម្ភាសន៍ និងបេក្ខជនការងារ',
+          descEn: 'Recruitment pipeline, interview workflows, and candidate tracking',
+          descZh: '招聘流程、面试安排与候选人简历跟踪',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -558,7 +616,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🚪',
           labelKh: 'បញ្ចប់ការងារ & ទូទាត់',
           labelEn: 'Offboarding & Settlement',
+          labelZh: '离职与交接结算',
           desc: 'ទូទាត់ប្រាក់ដំណាច់កិច្ចសន្យា FDC/UDC និងប្រគល់សម្ភារៈ',
+          descEn: 'Severance payment settlement (FDC/UDC) and asset handover',
+          descZh: '劳动合同终止结算(FDC/UDC)与资产归还交接',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -566,7 +627,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📝',
           labelKh: 'លាលែង & សម្ភាសន៍ចាកចេញ',
           labelEn: 'Resignation & Clearance',
+          labelZh: '辞职与离职面谈',
           desc: 'ដំណើរការលាលែង ការសម្ភាសន៍ Exit Interview និងបញ្ជាក់ឯកសារ',
+          descEn: 'Resignation workflow, exit interviews, and final clearance',
+          descZh: '员工辞职流程、离职面谈与离职证明签发',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
       ],
@@ -575,6 +639,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       id: 'time',
       titleKh: 'វត្តមាន & កាលវិភាគ',
       titleEn: 'Time & Shifts',
+      titleZh: '考勤排班与休假',
       icon: '⏱️',
       badgeColor: '#0284c7',
       bgGlow: 'rgba(2, 132, 199, 0.28)',
@@ -585,7 +650,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📅',
           labelKh: 'តារាងវត្តមានប្រចាំខែ',
           labelEn: 'Attendance Timesheet',
+          labelZh: '考勤打卡月报',
           desc: 'វត្តមានប្រចាំថ្ងៃ ម៉ោងធ្វើការ ចំនួនថ្ងៃធ្វើការ និងអវត្តមាន',
+          descEn: 'Daily check-ins, work hours, total work days, and absences',
+          descZh: '每日考勤记录、工作工时、出勤天数与缺勤统计',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
         {
@@ -593,7 +661,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📲',
           labelKh: 'ម៉ាស៊ីនស្កេនមេដៃផ្ទាល់',
           labelEn: 'Biometric Terminals',
+          labelZh: '生物指纹考勤机',
           desc: 'តភ្ជាប់ និង Sync ទិន្នន័យពីម៉ាស៊ីនស្កេនក្រយៅដៃ និងផ្ទៃមុខ',
+          descEn: 'Connect and sync data from fingerprint and facial terminals',
+          descZh: '连接与同步指纹及人脸识别考勤机设备数据',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
         {
@@ -601,7 +672,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🗓️',
           labelKh: 'កាលវិភាគវេនការងារ',
           labelEn: 'Shift Rostering & Plans',
+          labelZh: '排班计划与轮班',
           desc: 'រៀបចំវេនការងារវេនថ្ងៃ វេនយប់ និងបែងចែកវេនប្រចាំសប្តាហ៍',
+          descEn: 'Manage day/night shifts, shift rotation, and weekly rosters',
+          descZh: '安排白班夜班班次、轮班制度与每周排班计划',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -609,7 +683,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🌴',
           labelKh: 'ច្បាប់ឈប់សម្រាក',
           labelEn: 'Leave Management',
+          labelZh: '请假与休假管理',
           desc: 'ស្នើសុំ និងអនុម័តច្បាប់ប្រចាំឆ្នាំ ច្បាប់ឈឺ និងច្បាប់ពិសេស',
+          descEn: 'Request and approve annual leave, sick leave, and special leave',
+          descZh: '申请与审批年假、病假、事假及法定特别假期',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -617,7 +694,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '⏰',
           labelKh: 'ស្នើសុំថែមម៉ោង (OT)',
           labelEn: 'Overtime Requests',
+          labelZh: '加班申请与统计 (OT)',
           desc: 'ស្នើសុំ OT ម៉ោងធម្មតា ម៉ោងថ្ងៃអាទិត្យ និងម៉ោងយប់',
+          descEn: 'Overtime requests: normal, Sunday, and night shift rates',
+          descZh: '正常加班、周日公休日加班与夜间加班申请',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
@@ -626,6 +706,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       id: 'finance',
       titleKh: 'ប្រាក់បៀវត្សរ៍ & ហិរញ្ញវត្ថុ',
       titleEn: 'Payroll & Finance',
+      titleZh: '薪酬核算与财务',
       icon: '💳',
       badgeColor: '#10b981',
       bgGlow: 'rgba(16, 185, 129, 0.28)',
@@ -636,7 +717,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💰',
           labelKh: 'តារាងបើកប្រាក់ខែ',
           labelEn: 'Monthly Payroll Run',
+          labelZh: '月度薪资发放表',
           desc: 'គណនាប្រាក់ខែស្វ័យប្រវត្តិតាមច្បាប់ការងារ ប្រាក់រៀល និងប័ណ្ណបើកប្រាក់ខែ',
+          descEn: 'Automated labor law payroll calculations, KHR conversion, and payslips',
+          descZh: '依据劳工法自动计算薪资、瑞尔货币折算及工资条生成',
           roles: ['ADMIN', 'PAYROLL_ADMIN'],
         },
         {
@@ -644,7 +728,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💳',
           labelKh: 'ប្រាក់កម្ចីបុគ្គលិក',
           labelEn: 'Employee Loans',
+          labelZh: '员工借款管理',
           desc: 'គ្រប់គ្រងកម្ចីបុគ្គលិកផ្លូវការ និងតារាងកាលវិភាគបង់រំលស់ប្រចាំខែ',
+          descEn: 'Company staff loans and monthly repayment amortization schedules',
+          descZh: '公司员工借款管理及月度还款分期计划表',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
         {
@@ -652,7 +739,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💵',
           labelKh: 'ប្រាក់បុរេប្រទាន',
           labelEn: 'Salary Advances',
+          labelZh: '工资预支申请',
           desc: 'បើកប្រាក់ខែមុនកាលកំណត់ និងកាត់ទូទាត់ក្នុងប្រាក់ខែបន្ទាប់',
+          descEn: 'Early wage access advance requests and next-payroll deductions',
+          descZh: '员工提前预支薪金申请及下月工资抵扣',
           roles: ['ADMIN', 'PAYROLL_ADMIN'],
         },
         {
@@ -660,7 +750,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💸',
           labelKh: 'ចំណាយ & ទូទាត់សំណង',
           labelEn: 'Expense Claims',
+          labelZh: '费用报销申请',
           desc: 'ស្នើសុំទូទាត់វិក្កយបត្រ ចំណាយបេសកកម្ម និងប្រាក់ឧបត្ថម្ភ',
+          descEn: 'Expense reimbursements, mission travel allowances, and receipts',
+          descZh: '差旅报销、日常公用支出与发票报销审批',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
@@ -668,7 +761,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📥',
           labelKh: 'នាំចេញរបាយការណ៍មេ (Excel)',
           labelEn: 'Master Excel Reports',
+          labelZh: '主数据Excel报表导出',
           desc: 'នាំចេញរបាយការណ៍បុគ្គលិក វត្តមាន ប្រាក់ខែ និងផ្ទេរធនាគារ',
+          descEn: 'Export staff, attendance, payroll, and bank transfer reports',
+          descZh: '导出员工、考勤、薪资明细及银行转账汇总报表',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN'],
         },
       ],
@@ -677,6 +773,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       id: 'operations',
       titleKh: 'ការអភិវឌ្ឍន៍ & ប្រតិបត្តិការ',
       titleEn: 'Talent & Operations',
+      titleZh: '人才发展与综合运营',
       icon: '🎯',
       badgeColor: '#f59e0b',
       bgGlow: 'rgba(245, 158, 11, 0.28)',
@@ -687,7 +784,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🎯',
           labelKh: 'វាយតម្លៃការងារ 360°',
           labelEn: 'Performance Appraisal',
+          labelZh: '360°绩效考核',
           desc: 'វាយតម្លៃសមត្ថភាពបុគ្គលិកប្រចាំឆ្នាំ និងពិន្ទុការងារ 360 ដឺក្រេ',
+          descEn: 'Annual performance appraisal, competencies, and 360-degree feedback',
+          descZh: '年度员工能力评估与360度全方位绩效打分',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
@@ -695,7 +795,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📈',
           labelKh: 'ផែនការ KPI តាមផ្នែក',
           labelEn: 'Department KPIs',
+          labelZh: '部门KPI目标管理',
           desc: 'តាមដានសន្ទស្សន៍សមិទ្ធកម្មការងារ KPI តាមនាយកដ្ឋាន',
+          descEn: 'Track Key Performance Indicators by department and team',
+          descZh: '各部门关键绩效指标KPI进度与目标达成跟踪',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
@@ -703,7 +806,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🎓',
           labelKh: 'វគ្គបណ្តុះបណ្តាល LMS',
           labelEn: 'Training & Courses',
+          labelZh: '员工培训与课程(LMS)',
           desc: 'គ្រប់គ្រងវគ្គបណ្តុះបណ្តាល វគ្គសិក្សាផ្ទៃក្នុង និងចុះឈ្មោះ',
+          descEn: 'Manage training modules, internal courses, and enrollment',
+          descZh: '管理员工培训计划、内部课程与学员报名记录',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -711,7 +817,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '⚖️',
           labelKh: 'វិធានការវិន័យ & ព្រមាន',
           labelEn: 'Disciplinary Actions',
+          labelZh: '纪律处分与警告信',
           desc: 'កត់ត្រាលិខិតព្រមាន ការដាស់តឿន និងវិធានការវិន័យ',
+          descEn: 'Warning letters, disciplinary records, and compliance tracking',
+          descZh: '员工书面警告信、违纪处分与合规记录管理',
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
@@ -719,7 +828,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📜',
           labelKh: 'លិខិតបញ្ជាក់ផ្លូវការ',
           labelEn: 'Official Certificates',
+          labelZh: '在职与官方证明信',
           desc: 'ចេញលិខិតបញ្ជាក់ការងារ បញ្ជាក់ប្រាក់បៀវត្សរ៍ និងលិខិតផ្លូវការ',
+          descEn: 'Employment verification letters, salary certificates, and testimonials',
+          descZh: '开具在职证明、收入证明与官方人事公函',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -727,7 +839,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '📁',
           labelKh: 'ឯកសារគោលការណ៍ក្រុមហ៊ុន',
           labelEn: 'Company Policies',
+          labelZh: '公司规章与政策制度',
           desc: 'ផ្ទុក និងគ្រប់គ្រងឯកសារបទបញ្ជាផ្ទៃក្នុង និងគោលការណ៍ក្រុមហ៊ុន',
+          descEn: 'Internal rules, standard operating procedures (SOP), and policy archive',
+          descZh: '上传与查阅内部员工手册、企业规章制度及SOP文件',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
@@ -735,7 +850,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '💻',
           labelKh: 'សម្ភារៈ & ឧបករណ៍ក្រុមហ៊ុន',
           labelEn: 'Asset Inventory',
+          labelZh: '公司固定资产清单',
           desc: 'គ្រប់គ្រងការប្រគល់-ទទួលកុំព្យូទ័រ សម្ភារៈ និងឧបករណ៍ការងារ',
+          descEn: 'Company IT hardware, laptops, phones, and equipment distribution',
+          descZh: '公司电脑设备、手机办公用品领用归还与资产盘点',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
       ],
@@ -744,6 +862,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       id: 'admin',
       titleKh: 'រដ្ឋបាល & សុវត្ថិភាព',
       titleEn: 'System Administration',
+      titleZh: '系统管理与安全中心',
       icon: '🛡️',
       badgeColor: '#8b5cf6',
       bgGlow: 'rgba(139, 92, 246, 0.28)',
@@ -754,7 +873,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🔐',
           labelKh: 'គណនី & សិទ្ធិប្រើប្រាស់',
           labelEn: 'Users & Roles Matrix',
+          labelZh: '用户与权限分配',
           desc: 'គ្រប់គ្រងគណនីអ្នកប្រើប្រាស់ និងកំណត់សិទ្ធិ Role & Permissions',
+          descEn: 'Manage user accounts, roles, access levels, and permissions matrix',
+          descZh: '系统账号管理、角色分配与权限矩阵设置',
           roles: ['ADMIN'],
         },
         {
@@ -762,7 +884,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '🛡️',
           labelKh: 'កំណត់ត្រាសវនកម្មសុវត្ថិភាព',
           labelEn: 'Security Audit Trail',
+          labelZh: '安全审计与操作日志',
           desc: 'តាមដានសកម្មភាព Log របស់អ្នកប្រើប្រាស់ក្នុងប្រព័ន្ធទាំងអស់',
+          descEn: 'Detailed user activity logs, login history, and security audit trails',
+          descZh: '全量系统操作审计日志、登录历史与安全监控',
           roles: ['ADMIN'],
         },
         {
@@ -770,7 +895,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: '⚙️',
           labelKh: 'ការកំណត់ទូទៅ & Telegram',
           labelEn: 'System & Bot Settings',
+          labelZh: '系统配置与Telegram机器人',
           desc: 'កំណត់ឈ្មោះក្រុមហ៊ុន Logo វេនម៉ោង Bot Telegram និង Exchange Rate',
+          descEn: 'Company name, logo, shifts, Telegram bot credentials, and exchange rate',
+          descZh: '配置公司名称、Logo、工作班次、Telegram机器人与汇率',
           roles: ['ADMIN'],
         },
         {
@@ -778,7 +906,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           icon: 'ℹ️',
           labelKh: 'អំពីប្រព័ន្ធ HRM & កំណែ',
           labelEn: 'About System & Version',
+          labelZh: '关于HRM系统与版本',
           desc: 'ព័ត៌មានលម្អិតអំពីប្រព័ន្ធ HRM កំណែ Version និងអ្នកអភិវឌ្ឍន៍',
+          descEn: 'HRM system specifications, release version, and developer credits',
+          descZh: 'HRM系统详细规格、版本信息与开发者鸣谢',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
         },
       ],
@@ -1539,10 +1670,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     onMouseEnter={(e) =>
                       handleMouseEnterItem(e, {
                         icon: group.icon,
-                        titleKh: group.titleKh,
-                        titleEn: group.titleEn,
-                        desc: `${visibleItems.length} មុខងាររង៖ ${visibleItems.map((i) => i.labelKh).join(', ')}`,
-                        category: 'ក្រុមធំ',
+                        titleKh: getGroupTitle(group),
+                        titleEn: getGroupSubtitle(group),
+                        desc: currentLocale === 'en'
+                          ? `${visibleItems.length} modules: ${visibleItems.map((i) => getItemLabel(i)).join(', ')}`
+                          : currentLocale === 'zh'
+                          ? `${visibleItems.length}个子模块：${visibleItems.map((i) => getItemLabel(i)).join('、')}`
+                          : `${visibleItems.length} មុខងាររង៖ ${visibleItems.map((i) => i.labelKh).join(', ')}`,
+                        category: currentLocale === 'en' ? 'Category' : (currentLocale === 'zh' ? '主分类' : 'ក្រុមធំ'),
                       })
                     }
                     onMouseLeave={handleMouseLeaveItem}
@@ -1582,10 +1717,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                           onMouseEnter={(e) =>
                             handleMouseEnterItem(e, {
                               icon: item.icon,
-                              titleKh: item.labelKh,
-                              titleEn: item.labelEn,
-                              desc: item.desc,
-                              category: group.titleKh,
+                              titleKh: getItemLabel(item),
+                              titleEn: currentLocale === 'kh' ? item.labelEn : (currentLocale === 'en' ? item.labelKh : item.labelEn),
+                              desc: getItemDesc(item),
+                              category: getGroupTitle(group),
                             })
                           }
                           onMouseLeave={handleMouseLeaveItem}
@@ -1640,10 +1775,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
                     <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: 1.25 }}>
                       <span className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700, color: hasActiveChild ? '#ffffff' : '#f8fafc' }}>
-                        {group.titleKh}
+                        {getGroupTitle(group)}
                       </span>
                       <span style={{ fontSize: '0.66rem', color: hasActiveChild ? '#93c5fd' : '#94a3b8', fontWeight: 600 }}>
-                        {group.titleEn}
+                        {getGroupSubtitle(group)}
                       </span>
                     </div>
                   </div>
@@ -1683,14 +1818,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                             <Link
                               href={item.href}
                               className={`sub-item-link ${isActive ? 'active' : ''}`}
-                              title={`${item.labelKh} (${item.labelEn})`}
+                              title={`${getItemLabel(item)}`}
                               onMouseEnter={(e) =>
                                 handleMouseEnterItem(e, {
                                   icon: item.icon,
-                                  titleKh: item.labelKh,
-                                  titleEn: item.labelEn,
-                                  desc: item.desc,
-                                  category: group.titleKh,
+                                  titleKh: getItemLabel(item),
+                                  titleEn: currentLocale === 'kh' ? item.labelEn : (currentLocale === 'en' ? item.labelKh : item.labelEn),
+                                  desc: getItemDesc(item),
+                                  category: getGroupTitle(group),
                                 })
                               }
                               onMouseLeave={handleMouseLeaveItem}
@@ -1709,7 +1844,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                   flex: 1,
                                 }}
                               >
-                                {item.labelKh}
+                                {getItemLabel(item)}
                               </span>
                             </Link>
 
@@ -1726,10 +1861,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                   onMouseEnter={(e) =>
                                     handleMouseEnterItem(e, {
                                       icon: '🎨',
-                                      titleKh: 'ស្បែកពណ៌ Sidebar',
-                                      titleEn: 'Sidebar Theme & Color',
-                                      desc: `ស្បែកបច្ចុប្បន្ន៖ ${currentTheme.nameKh} (${currentTheme.nameEn})។ ចុចដើម្បីពន្លាតជ្រើសរើសស្បែកពណ៌ Glassmorphism ទាំង ៨ ជម្រើស។`,
-                                      category: 'ការរចនា',
+                                      titleKh: currentLocale === 'en' ? 'Sidebar Theme' : (currentLocale === 'zh' ? '侧边栏主题颜色' : 'ស្បែកពណ៌ Sidebar'),
+                                      titleEn: currentLocale === 'en' ? 'Appearance' : (currentLocale === 'zh' ? '主题风格' : 'Sidebar Theme & Color'),
+                                      desc: currentLocale === 'en'
+                                        ? `Active theme: ${currentTheme.nameEn}. Click to expand and choose from 8 Glassmorphism styles.`
+                                        : currentLocale === 'zh'
+                                        ? `当前主题：${currentTheme.nameEn}。点击展开并从8种毛玻璃主题中自由选择。`
+                                        : `ស្បែកបច្ចុប្បន្ន៖ ${currentTheme.nameKh} (${currentTheme.nameEn})។ ចុចដើម្បីពន្លាតជ្រើសរើសស្បែកពណ៌ Glassmorphism ទាំង ៨ ជម្រើស។`,
+                                      category: currentLocale === 'en' ? 'Appearance' : (currentLocale === 'zh' ? '外观设计' : 'ការរចនា'),
                                     })
                                   }
                                   onMouseLeave={handleMouseLeaveItem}
@@ -1761,7 +1900,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                         fontWeight: isThemeAccordionOpen ? 700 : 500,
                                       }}
                                     >
-                                      ស្បែកពណ៌ Sidebar
+                                      {currentLocale === 'en' ? 'Sidebar Theme' : (currentLocale === 'zh' ? '侧边栏主题' : 'ស្បែកពណ៌ Sidebar')}
                                     </span>
                                   </div>
 
@@ -1778,7 +1917,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                                         whiteSpace: 'nowrap',
                                       }}
                                     >
-                                      {currentTheme.nameKh.split(' ')[0]}
+                                      {currentLocale === 'en' ? currentTheme.nameEn.split(' ')[0] : currentTheme.nameKh.split(' ')[0]}
                                     </span>
                                     <svg
                                       width="12"
@@ -2080,7 +2219,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ fontSize: '0.92rem' }}>🗄️</span>
                     <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: currentTheme.textColor }}>
-                      មូលដ្ឋានទិន្នន័យ (Database)
+                      {currentLocale === 'en' ? 'Database Backup' : (currentLocale === 'zh' ? '数据库备份与还原' : 'មូលដ្ឋានទិន្នន័យ (Database)')}
                     </span>
                   </div>
                   <span style={{ fontSize: '0.62rem', color: '#10b981', fontWeight: 700, backgroundColor: 'rgba(16, 185, 129, 0.15)', padding: '1px 6px', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
@@ -2097,10 +2236,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     onMouseEnter={(e) =>
                       handleMouseEnterItem(e, {
                         icon: '💾',
-                        titleKh: 'Backup មូលដ្ឋានទិន្នន័យ',
-                        titleEn: 'Full Database Backup (JSON)',
-                        desc: 'ទាញយកឯកសារបម្រុងទុកទិន្នន័យពេញលេញ រួមមានបុគ្គលិក វត្តមាន និងប្រាក់ខែទាំងអស់។',
-                        category: 'ទិន្នន័យ',
+                        titleKh: currentLocale === 'en' ? 'Database Backup' : (currentLocale === 'zh' ? '完整数据库备份' : 'Backup មូលដ្ឋានទិន្នន័យ'),
+                        titleEn: currentLocale === 'en' ? 'Full JSON Export' : (currentLocale === 'zh' ? 'JSON数据导出' : 'Full Database Backup (JSON)'),
+                        desc: currentLocale === 'en'
+                          ? 'Download complete database backup including employees, attendance, and payroll.'
+                          : currentLocale === 'zh'
+                          ? '下载包含员工、考勤与薪资等全部系统数据的完整JSON备份。'
+                          : 'ទាញយកឯកសារបម្រុងទុកទិន្នន័យពេញលេញ រួមមានបុគ្គលិក វត្តមាន និងប្រាក់ខែទាំងអស់។',
+                        category: currentLocale === 'en' ? 'Data Management' : (currentLocale === 'zh' ? '数据维护' : 'ទិន្នន័យ'),
                       })
                     }
                     onMouseLeave={handleMouseLeaveItem}
@@ -2124,7 +2267,11 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
                   >
                     <span>{isBackupLoading ? '⏳' : '📥'}</span>
-                    <span className="kh-text">{isBackupLoading ? 'កំពុង...' : 'Backup'}</span>
+                    <span className="kh-text">
+                      {isBackupLoading
+                        ? (currentLocale === 'en' ? 'Saving...' : currentLocale === 'zh' ? '导出中...' : 'កំពុង...')
+                        : (currentLocale === 'zh' ? '备份' : 'Backup')}
+                    </span>
                   </button>
 
                   {/* Restore Button */}
@@ -2134,10 +2281,14 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     onMouseEnter={(e) =>
                       handleMouseEnterItem(e, {
                         icon: '🔄',
-                        titleKh: 'Restore មូលដ្ឋានទិន្នន័យ',
-                        titleEn: 'Database Restore (JSON)',
-                        desc: 'បញ្ចូលឯកសារទិន្នន័យបម្រុងទុក JSON ចូលទៅក្នុង Database វិញដោយសុវត្ថិភាព។',
-                        category: 'ទិន្នន័យ',
+                        titleKh: currentLocale === 'en' ? 'Database Restore' : (currentLocale === 'zh' ? '数据库安全还原' : 'Restore មូលដ្ឋានទិន្នន័យ'),
+                        titleEn: currentLocale === 'en' ? 'Import Backup JSON' : (currentLocale === 'zh' ? '导入备份数据' : 'Database Restore (JSON)'),
+                        desc: currentLocale === 'en'
+                          ? 'Restore database state safely from a previously exported JSON backup file.'
+                          : currentLocale === 'zh'
+                          ? '安全地将先前导出的JSON备份文件导入恢复到数据库中。'
+                          : 'បញ្ចូលឯកសារទិន្នន័យបម្រុងទុក JSON ចូលទៅក្នុង Database វិញដោយសុវត្ថិភាព។',
+                        category: currentLocale === 'en' ? 'Data Management' : (currentLocale === 'zh' ? '数据维护' : 'ទិន្នន័យ'),
                       })
                     }
                     onMouseLeave={handleMouseLeaveItem}
@@ -2161,7 +2312,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
                   >
                     <span>🔄</span>
-                    <span className="kh-text">Restore</span>
+                    <span className="kh-text">{currentLocale === 'zh' ? '还原' : 'Restore'}</span>
                   </button>
                 </div>
               </div>
@@ -2472,7 +2623,9 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           ) : (
             <>
               <div style={{ marginBottom: '2px', fontWeight: 700, color: currentTheme.textColor }}>HRM Enterprise Portal</div>
-              <div className="kh-text" style={{ fontSize: '0.65rem', opacity: 0.8 }}>រក្សាសិទ្ធិដោយ Mr.Hun Bora</div>
+              <div className="kh-text" style={{ fontSize: '0.65rem', opacity: 0.8 }}>
+                {currentLocale === 'en' ? 'Copyright by Mr.Hun Bora' : (currentLocale === 'zh' ? '版权所有 Mr.Hun Bora' : 'រក្សាសិទ្ធិដោយ Mr.Hun Bora')}
+              </div>
             </>
           )}
         </div>
@@ -2482,7 +2635,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           <div
             className={`resize-handle ${isResizing ? 'active' : ''}`}
             onMouseDown={startResizing}
-            title="អូសដើម្បីពង្រីក ឬបង្រួម (Drag to Resize)"
+            title={currentLocale === 'en' ? 'Drag to resize sidebar' : (currentLocale === 'zh' ? '拖拽调整侧边栏宽度' : 'អូសដើម្បីពង្រីក ឬបង្រួម (Drag to Resize)')}
           >
             <div className="resize-indicator" />
           </div>
@@ -2638,7 +2791,13 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
               }}
             >
               <span>✨</span>
-              <span className="kh-text">ចុចដើម្បីដំណើរការមុខងារនេះ</span>
+              <span className="kh-text">
+                {currentLocale === 'en'
+                  ? 'Click to open this section'
+                  : currentLocale === 'zh'
+                  ? '点击进入此功能'
+                  : 'ចុចដើម្បីដំណើរការមុខងារនេះ'}
+              </span>
             </div>
           </div>
         )}

@@ -14,7 +14,7 @@ export default async function OffboardingPage() {
   const employees = await getActiveEmployees();
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div>
       <OffboardingClient initialTerminations={terminations} employees={employees} />
     </div>
   );

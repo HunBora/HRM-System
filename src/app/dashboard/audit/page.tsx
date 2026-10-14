@@ -21,7 +21,7 @@ export default async function AuditPage() {
   });
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <AuditClient
         initialLogs={JSON.parse(JSON.stringify(initialLogs))}
         currentUserRole={session.role}

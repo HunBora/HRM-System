@@ -32,7 +32,7 @@ export default async function AnnouncementsPage() {
     .sort();
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <AnnouncementClient
         initialAnnouncements={JSON.parse(JSON.stringify(initialAnnouncements))}
         departments={departmentList}

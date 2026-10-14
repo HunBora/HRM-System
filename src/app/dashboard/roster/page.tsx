@@ -56,7 +56,7 @@ export default async function RosterPage() {
     .sort();
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <RosterClient
         initialEmployees={JSON.parse(JSON.stringify(employees))}
         initialRosters={JSON.parse(JSON.stringify(initialRosters))}

@@ -46,7 +46,7 @@ export default async function ExpensesPage() {
   const t = await getDictionary();
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div>
       <ExpenseClient 
         role={role} 
         currentEmployeeId={session.employeeId} 

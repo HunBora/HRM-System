@@ -61,7 +61,7 @@ export default async function ResignationPage() {
     .sort();
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <ResignationClient
         initialRecords={JSON.parse(JSON.stringify(initialRecords))}
         employees={JSON.parse(JSON.stringify(employees))}

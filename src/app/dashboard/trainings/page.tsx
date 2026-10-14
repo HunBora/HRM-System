@@ -59,7 +59,7 @@ export default async function TrainingsPage() {
   ]);
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <TrainingClient
         initialTrainings={JSON.parse(JSON.stringify(initialTrainings))}
         initialEnrollments={JSON.parse(JSON.stringify(initialEnrollments))}

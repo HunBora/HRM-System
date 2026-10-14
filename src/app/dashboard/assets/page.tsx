@@ -52,7 +52,7 @@ export default async function AssetsPage() {
   });
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div>
       <AssetClient 
         role={session.role} 
         assets={assets} 

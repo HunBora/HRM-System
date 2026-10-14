@@ -59,7 +59,7 @@ export default async function DisciplinaryPage() {
     .sort();
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <DisciplinaryClient
         initialActions={JSON.parse(JSON.stringify(initialActions))}
         employees={JSON.parse(JSON.stringify(employees))}

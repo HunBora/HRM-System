@@ -149,45 +149,133 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
       {activeTab === 'daily' && (
         <>
           {/* Summary Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
-            <div onClick={() => setFilter('all')} style={{ cursor: 'pointer', padding: '15px', borderRadius: '12px', background: filter === 'all' ? '#e2e8f0' : '#f8fafc', border: '1px solid #cbd5e1' }}>
-              <div className="kh-text" style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '5px' }}>បុគ្គលិកសរុប (Total)</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#0f172a' }}>{totalEmployees}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+            <div 
+              onClick={() => setFilter('all')} 
+              style={{ 
+                cursor: 'pointer', 
+                padding: '16px 20px', 
+                borderRadius: '12px', 
+                background: filter === 'all' ? '#eff6ff' : '#ffffff', 
+                border: `1.5px solid ${filter === 'all' ? '#3b82f6' : '#e2e8f0'}`,
+                boxShadow: filter === 'all' ? '0 4px 12px rgba(59, 130, 246, 0.12)' : '0 1px 2px rgba(0,0,0,0.04)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div>
+                <div className="kh-text" style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '4px' }}>បុគ្គលិកសរុប (Total)</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a' }}>{totalEmployees}</div>
+              </div>
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>👥</div>
             </div>
-            <div onClick={() => setFilter('present')} style={{ cursor: 'pointer', padding: '15px', borderRadius: '12px', background: filter === 'present' ? '#dcfce7' : '#f0fdf4', border: '1px solid #bbf7d0' }}>
-              <div className="kh-text" style={{ color: '#166534', fontSize: '0.9rem', marginBottom: '5px' }}>មកទាន់ម៉ោង (On Time)</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#15803d' }}>{presentCount}</div>
+
+            <div 
+              onClick={() => setFilter('present')} 
+              style={{ 
+                cursor: 'pointer', 
+                padding: '16px 20px', 
+                borderRadius: '12px', 
+                background: filter === 'present' ? '#f0fdf4' : '#ffffff', 
+                border: `1.5px solid ${filter === 'present' ? '#10b981' : '#e2e8f0'}`,
+                boxShadow: filter === 'present' ? '0 4px 12px rgba(16, 185, 129, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div>
+                <div className="kh-text" style={{ color: '#166534', fontSize: '0.85rem', marginBottom: '4px' }}>មកទាន់ម៉ោង (On Time)</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#16a34a' }}>{presentCount}</div>
+              </div>
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>⏱️</div>
             </div>
-            <div onClick={() => setFilter('late')} style={{ cursor: 'pointer', padding: '15px', borderRadius: '12px', background: filter === 'late' ? '#fef08a' : '#fef9c3', border: '1px solid #fde047' }}>
-              <div className="kh-text" style={{ color: '#854d0e', fontSize: '0.9rem', marginBottom: '5px' }}>មកយឺត (Late)</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#ca8a04' }}>{lateCount}</div>
+
+            <div 
+              onClick={() => setFilter('late')} 
+              style={{ 
+                cursor: 'pointer', 
+                padding: '16px 20px', 
+                borderRadius: '12px', 
+                background: filter === 'late' ? '#fffbeb' : '#ffffff', 
+                border: `1.5px solid ${filter === 'late' ? '#f59e0b' : '#e2e8f0'}`,
+                boxShadow: filter === 'late' ? '0 4px 12px rgba(245, 158, 11, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div>
+                <div className="kh-text" style={{ color: '#854d0e', fontSize: '0.85rem', marginBottom: '4px' }}>មកយឺត (Late)</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#d97706' }}>{lateCount}</div>
+              </div>
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>⚠️</div>
             </div>
-            <div onClick={() => setFilter('absent')} style={{ cursor: 'pointer', padding: '15px', borderRadius: '12px', background: filter === 'absent' ? '#fee2e2' : '#fef2f2', border: '1px solid #fecaca' }}>
-              <div className="kh-text" style={{ color: '#991b1b', fontSize: '0.9rem', marginBottom: '5px' }}>អវត្តមាន (Absent)</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#b91c1c' }}>{absentCount}</div>
+
+            <div 
+              onClick={() => setFilter('absent')} 
+              style={{ 
+                cursor: 'pointer', 
+                padding: '16px 20px', 
+                borderRadius: '12px', 
+                background: filter === 'absent' ? '#fef2f2' : '#ffffff', 
+                border: `1.5px solid ${filter === 'absent' ? '#ef4444' : '#e2e8f0'}`,
+                boxShadow: filter === 'absent' ? '0 4px 12px rgba(239, 68, 68, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div>
+                <div className="kh-text" style={{ color: '#991b1b', fontSize: '0.85rem', marginBottom: '4px' }}>អវត្តមាន (Absent)</div>
+                <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#dc2626' }}>{absentCount}</div>
+              </div>
+              <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>🚫</div>
             </div>
           </div>
 
           {/* Daily Table */}
-          <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 350px)', padding: 0 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
-              <thead>
-                <tr>
-                  <th style={thStyle} className="kh-text">អត្តលេខ<br/>ID</th>
-                  <th style={thStyle} className="kh-text">ឈ្មោះខ្មែរ<br/>Name Khmer</th>
-                  <th style={thStyle} className="kh-text">ឈ្មោះឡាតាំង<br/>Name English</th>
-                  <th style={thStyle} className="kh-text">ម៉ោងចូល<br/>Check In</th>
-                  <th style={thStyle} className="kh-text">ម៉ោងចេញ<br/>Check Out</th>
-                  <th style={thStyle} className="kh-text">ស្ថានភាព<br/>Status</th>
-                  <th style={thStyle} className="kh-text">មកយឺត (នាទី)<br/>Late (Mins)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} style={{ padding: '20px', textAlign: 'center' }} className="kh-text">គ្មានទិន្នន័យ (No Data)</td>
+          <div style={{ 
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
+            overflow: 'hidden',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+          }}>
+            <div style={{ overflowX: 'auto', maxHeight: 'calc(100vh - 380px)', minHeight: filteredData.length === 0 ? '250px' : 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '850px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f8fafc', position: 'sticky', top: 0, zIndex: 10 }}>
+                    <th style={thStyle} className="kh-text">អត្តលេខ (ID)</th>
+                    <th style={thStyle} className="kh-text">ឈ្មោះខ្មែរ (Name Kh)</th>
+                    <th style={thStyle} className="kh-text">ឈ្មោះឡាតាំង (Name En)</th>
+                    <th style={thStyle} className="kh-text">ម៉ោងចូល (Check In)</th>
+                    <th style={thStyle} className="kh-text">ម៉ោងចេញ (Check Out)</th>
+                    <th style={thStyle} className="kh-text">ស្ថានភាព (Status)</th>
+                    <th style={thStyle} className="kh-text">មកយឺត (Late Mins)</th>
                   </tr>
-                ) : (
+                </thead>
+                <tbody>
+                  {filteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '60px 20px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '1.8rem' }}>🕒</span>
+                          <div className="kh-text" style={{ fontSize: '1rem', fontWeight: 600, color: '#334155' }}>
+                            មិនមានទិន្នន័យវត្តមានសម្រាប់លក្ខខណ្ឌនេះទេ
+                          </div>
+                          <div className="kh-text" style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                            សូមជ្រើសរើសផ្ទាំង ឬតម្រងផ្សេងទៀតដើម្បីមើលទិន្នន័យ
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
                   filteredData.map((emp: any) => (
                     <tr key={emp.id} style={{ backgroundColor: '#fff', transition: 'background-color 0.2s', fontSize: '0.9rem' }}>
                       <td style={tdStyle}>{emp.employeeId}</td>
@@ -223,8 +311,9 @@ export default function LiveAttendanceTable({ employees, todayAttendances, searc
               </tbody>
             </table>
           </div>
-        </>
-      )}
+        </div>
+      </>
+    )}
 
       {activeTab === 'monthly' && (
         <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)', padding: 0 }}>

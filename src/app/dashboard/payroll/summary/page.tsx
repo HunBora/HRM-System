@@ -108,7 +108,7 @@ export default async function MasterSalarySummaryPage({ searchParams }: { search
   const companyName = company?.companyName || "GS ELETECH CAMBODIA .CO.,LTE";
 
   return (
-    <div className="p-6">
+    <div>
       <div className="mb-6 flex justify-between items-end">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 kh-text">Master Salary Summary</h2>

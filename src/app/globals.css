@@ -434,4 +434,32 @@ table tbody tr:hover {
   transform: none !important;
 }
 
+/* Custom sleek scrollbar for table containers and panels */
+.card::-webkit-scrollbar,
+div[style*="overflow"]::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.card::-webkit-scrollbar-track,
+div[style*="overflow"]::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.6);
+  border-radius: 4px;
+}
+.card::-webkit-scrollbar-thumb,
+div[style*="overflow"]::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+.card::-webkit-scrollbar-thumb:hover,
+div[style*="overflow"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+.fit-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+
 

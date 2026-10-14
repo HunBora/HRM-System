@@ -65,7 +65,7 @@ export default async function CertificatesPage() {
     .sort();
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1500px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <CertificateClient
         initialCertificates={JSON.parse(JSON.stringify(initialCertificates))}
         employees={JSON.parse(JSON.stringify(employees))}

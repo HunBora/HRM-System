@@ -35,7 +35,7 @@ export default async function RecruitmentPage() {
   ]);
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
       <RecruitmentClient 
         initialJobs={JSON.parse(JSON.stringify(initialJobs))} 
         initialCandidates={JSON.parse(JSON.stringify(initialCandidates))} 

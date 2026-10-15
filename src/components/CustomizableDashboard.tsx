@@ -19,6 +19,8 @@ import {
   CartesianGrid,
   AreaChart,
   Area,
+  Line,
+  ComposedChart,
 } from 'recharts';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -77,6 +79,44 @@ type Props = {
   filterMonth?: number;
   filterYear?: number;
   todayAttendancesCount?: number;
+  annualPayrollData?: Array<{
+    month: number;
+    monthKh: string;
+    monthEn: string;
+    label: string;
+    empCount: number;
+    grossSalary: number;
+    netSalary: number;
+    allowances: number;
+    otWage: number;
+    deductions: number;
+    isProjected: boolean;
+    hasData: boolean;
+    status?: string;
+    momDiffAmount?: number;
+    momDiffPercent?: number;
+  }>;
+  annualEmployeeData?: Array<{
+    month: number;
+    monthKh: string;
+    monthEn: string;
+    label: string;
+    totalHeadcount: number;
+    femaleCount: number;
+    maleCount: number;
+    newHiresCount: number;
+    exitsCount: number;
+    netChange: number;
+    turnoverRate: number;
+    hiresList?: Array<{
+      id: string;
+      empId: string;
+      name: string;
+      dept: string;
+      position: string;
+      hireDate: string;
+    }>;
+  }>;
 };
 
 // Enterprise Standard Default Layout (Compact, Fit-Content, High-Readability Grid)
@@ -89,6 +129,8 @@ const DEFAULT_LAYOUTS = {
     { i: 'employees_role', x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 3 },
     { i: 'employees_location', x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 3 },
     { i: 'contract_alerts', x: 0, y: 9, w: 12, h: 3, minW: 6, minH: 3 },
+    { i: 'annual_employee_trends', x: 0, y: 12, w: 6, h: 4, minW: 4, minH: 3 },
+    { i: 'annual_payroll_trends', x: 6, y: 12, w: 6, h: 4, minW: 4, minH: 3 },
   ],
   md: [
     { i: 'daily_attendance', x: 0, y: 0, w: 6, h: 3, minW: 4, minH: 3 },
@@ -98,6 +140,8 @@ const DEFAULT_LAYOUTS = {
     { i: 'employees_role', x: 0, y: 6, w: 5, h: 3, minW: 4, minH: 3 },
     { i: 'employees_location', x: 5, y: 6, w: 5, h: 3, minW: 4, minH: 3 },
     { i: 'contract_alerts', x: 0, y: 9, w: 10, h: 3, minW: 5, minH: 3 },
+    { i: 'annual_employee_trends', x: 0, y: 12, w: 10, h: 4, minW: 5, minH: 3 },
+    { i: 'annual_payroll_trends', x: 0, y: 16, w: 10, h: 4, minW: 5, minH: 3 },
   ],
   sm: [
     { i: 'daily_attendance', x: 0, y: 0, w: 6, h: 3, minW: 3, minH: 3 },
@@ -107,6 +151,8 @@ const DEFAULT_LAYOUTS = {
     { i: 'employees_role', x: 0, y: 12, w: 6, h: 3, minW: 3, minH: 3 },
     { i: 'employees_location', x: 0, y: 15, w: 6, h: 3, minW: 3, minH: 3 },
     { i: 'contract_alerts', x: 0, y: 18, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'annual_employee_trends', x: 0, y: 21, w: 6, h: 4, minW: 3, minH: 3 },
+    { i: 'annual_payroll_trends', x: 0, y: 25, w: 6, h: 4, minW: 3, minH: 3 },
   ],
 };
 
@@ -171,6 +217,8 @@ export default function CustomizableDashboard({
   filterMonth = new Date().getMonth() + 1,
   filterYear = new Date().getFullYear(),
   todayAttendancesCount = 0,
+  annualPayrollData = [],
+  annualEmployeeData = [],
 }: Props) {
   const [layouts, setLayouts] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
@@ -180,6 +228,8 @@ export default function CustomizableDashboard({
   const [departmentView, setDepartmentView] = useState<'leaderboard' | 'donut'>('leaderboard');
   const [loanView, setLoanView] = useState<'health' | 'portfolio'>('health');
   const [contractView, setContractView] = useState<'contracts' | 'birthdays'>('contracts');
+  const [annualEmpView, setAnnualEmpView] = useState<'chart' | 'table' | 'hires'>('chart');
+  const [annualPayrollView, setAnnualPayrollView] = useState<'chart' | 'table'>('chart');
 
   // Compute Demographics
   const provinceMap: Record<string, { current: number; prev: number }> = {};
@@ -359,12 +409,12 @@ export default function CustomizableDashboard({
   useEffect(() => {
     setIsClient(true);
     // Automatically purge old layout keys
-    ['dashboard_layout_v9', 'dashboard_layout_v10', 'dashboard_layout_v11', 'dashboard_layout_v12', 'dashboard_layout_v13'].forEach((k) => {
+    ['dashboard_layout_v9', 'dashboard_layout_v10', 'dashboard_layout_v11', 'dashboard_layout_v12', 'dashboard_layout_v13', 'dashboard_layout_v14'].forEach((k) => {
       try {
         localStorage.removeItem(k);
       } catch (e) {}
     });
-    const saved = localStorage.getItem('dashboard_layout_v14');
+    const saved = localStorage.getItem('dashboard_layout_v15');
     if (saved) {
       try {
         setLayouts(JSON.parse(saved));
@@ -378,11 +428,11 @@ export default function CustomizableDashboard({
 
   const onLayoutChange = (layout: Layout[], allLayouts: any) => {
     setLayouts(allLayouts);
-    localStorage.setItem('dashboard_layout_v14', JSON.stringify(allLayouts));
+    localStorage.setItem('dashboard_layout_v15', JSON.stringify(allLayouts));
   };
 
   const handleResetLayout = () => {
-    localStorage.removeItem('dashboard_layout_v14');
+    localStorage.removeItem('dashboard_layout_v15');
     setLayouts(DEFAULT_LAYOUTS);
     window.location.reload();
   };
@@ -3236,6 +3286,702 @@ export default function CustomizableDashboard({
                         })}
                       </div>
                     )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* 9. 12-MONTH EMPLOYEE HEADCOUNT & GROWTH TRENDS (ប្រៀបធៀបបុគ្គលិកប្រចាំឆ្នាំ ១២ខែ) */}
+          {(() => {
+            const data = (annualEmployeeData && annualEmployeeData.length === 12)
+              ? annualEmployeeData
+              : [];
+            
+            const totalHiresYear = data.reduce((sum, d) => sum + (d.newHiresCount || 0), 0);
+            const totalExitsYear = data.reduce((sum, d) => sum + (d.exitsCount || 0), 0);
+            const netGrowthYear = totalHiresYear - totalExitsYear;
+            const currentHeadcount = allEmployees.length;
+
+            const allHiresList = data.flatMap(d => d.hiresList || []);
+
+            return (
+              <div
+                key="annual_employee_trends"
+                data-grid={{ x: 0, y: 12, w: 6, h: 4, minW: 4, minH: 3 }}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Header */}
+                <div
+                  className="card-drag-handle"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '8px',
+                    cursor: 'grab',
+                    flexWrap: 'wrap',
+                    gap: '6px',
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                    <h3
+                      className="kh-text"
+                      style={{
+                        margin: 0,
+                        fontSize: '0.92rem',
+                        color: '#0f172a',
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      <span>👥</span>
+                      <span>ប្រៀបធៀបបុគ្គលិក ១២ ខែ (Employee Trends)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', lineHeight: 1.4, whiteSpace: 'nowrap' }}>
+                      តាមដានចំនួនបុគ្គលិកសរុប ចូលថ្មី និងចាកចេញ ឆ្នាំ {filterYear}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAnnualEmpView('chart');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: annualEmpView === 'chart' ? '#ffffff' : 'transparent',
+                          color: annualEmpView === 'chart' ? '#2563eb' : '#64748b',
+                          boxShadow: annualEmpView === 'chart' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        📈 ក្រាប
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAnnualEmpView('table');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: annualEmpView === 'table' ? '#ffffff' : 'transparent',
+                          color: annualEmpView === 'table' ? '#2563eb' : '#64748b',
+                          boxShadow: annualEmpView === 'table' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        📋 តារាង
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAnnualEmpView('hires');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: annualEmpView === 'hires' ? '#ffffff' : 'transparent',
+                          color: annualEmpView === 'hires' ? '#16a34a' : '#64748b',
+                          boxShadow: annualEmpView === 'hires' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        🌟 ចូលថ្មី ({totalHiresYear})
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/employees"
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        color: '#2563eb',
+                        textDecoration: 'none',
+                        backgroundColor: '#eff6ff',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #bfdbfe',
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      ចូលមើល ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* KPI Ribbon */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '5px 10px',
+                    marginBottom: '8px',
+                    fontSize: '0.7rem',
+                    flexWrap: 'wrap',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ color: '#475569', lineHeight: 1.35 }}>
+                    សរុបបច្ចុប្បន្ន: <strong style={{ color: '#0f172a' }}>{currentHeadcount}</strong> នាក់
+                  </span>
+                  <span style={{ color: '#16a34a', fontWeight: 700, lineHeight: 1.35 }}>
+                    🟢 ចូលថ្មី: +{totalHiresYear} នាក់
+                  </span>
+                  <span style={{ color: '#dc2626', fontWeight: 700, lineHeight: 1.35 }}>
+                    🔴 ចាកចេញ: -{totalExitsYear} នាក់
+                  </span>
+                  <span
+                    style={{
+                      padding: '1px 6px',
+                      borderRadius: '4px',
+                      backgroundColor: netGrowthYear >= 0 ? '#dcfce7' : '#fee2e2',
+                      color: netGrowthYear >= 0 ? '#15803d' : '#b91c1c',
+                      fontWeight: 800,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    កំណើនសុទ្ធ: {netGrowthYear >= 0 ? `+${netGrowthYear}` : netGrowthYear} នាក់
+                  </span>
+                </div>
+
+                {/* Content View */}
+                {annualEmpView === 'chart' ? (
+                  <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis
+                          dataKey="monthKh"
+                          tick={{ fill: '#64748b', fontSize: 10 }}
+                          axisLine={{ stroke: '#cbd5e1' }}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fill: '#64748b', fontSize: 10 }}
+                          axisLine={false}
+                          tickLine={false}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          content={({ active, payload, label }) => {
+                            if (!active || !payload || !payload.length) return null;
+                            const item = payload[0].payload;
+                            return (
+                              <div
+                                style={{
+                                  backgroundColor: '#ffffff',
+                                  padding: '8px 12px',
+                                  borderRadius: '8px',
+                                  border: '1px solid #e2e8f0',
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                  fontSize: '0.74rem',
+                                  lineHeight: 1.45,
+                                }}
+                              >
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                                  📅 ខែ {item.label} ឆ្នាំ {filterYear}
+                                </div>
+                                <div style={{ color: '#2563eb', fontWeight: 700 }}>
+                                  👥 បុគ្គលិកសកម្ម: {item.totalHeadcount} នាក់ (ស្រី {item.femaleCount} / ប្រុស {item.maleCount})
+                                </div>
+                                <div style={{ color: '#16a34a' }}>
+                                  🟢 ចូលថ្មី: +{item.newHiresCount} នាក់
+                                </div>
+                                <div style={{ color: '#dc2626' }}>
+                                  🔴 ចាកចេញ: -{item.exitsCount} នាក់
+                                </div>
+                                <div style={{ color: item.netChange >= 0 ? '#15803d' : '#b91c1c', fontWeight: 700, borderTop: '1px dashed #e2e8f0', paddingTop: '3px', marginTop: '3px' }}>
+                                  🚀 កំណើនសុទ្ធ: {item.netChange >= 0 ? `+${item.netChange}` : item.netChange} នាក់
+                                </div>
+                              </div>
+                            );
+                          }}
+                        />
+                        <Bar dataKey="newHiresCount" name="ចូលថ្មី" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={14} />
+                        <Bar dataKey="exitsCount" name="ចាកចេញ" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={14} />
+                        <Line type="monotone" dataKey="totalHeadcount" name="សរុប" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 3, fill: '#4f46e5' }} />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : annualEmpView === 'table' ? (
+                  <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.72rem', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f8fafc', color: '#475569', borderBottom: '1px solid #e2e8f0' }}>
+                          <th style={{ padding: '5px 8px', fontWeight: 700 }}>ខែ</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'center' }}>សរុប</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'center' }}>ស្រី/ប្រុស</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'center' }}>ចូលថ្មី</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'center' }}>ចាកចេញ</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'center' }}>កំណើនសុទ្ធ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.map((item) => (
+                          <tr key={item.month} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '5px 8px', fontWeight: 700, color: '#1e293b' }}>
+                              {item.monthKh} ({item.monthEn})
+                            </td>
+                            <td style={{ padding: '5px 8px', textAlign: 'center', fontWeight: 800, color: '#2563eb' }}>
+                              {item.totalHeadcount}
+                            </td>
+                            <td style={{ padding: '5px 8px', textAlign: 'center', color: '#64748b' }}>
+                              {item.femaleCount}/{item.maleCount}
+                            </td>
+                            <td style={{ padding: '5px 8px', textAlign: 'center' }}>
+                              <span style={{ backgroundColor: item.newHiresCount > 0 ? '#dcfce7' : '#f1f5f9', color: item.newHiresCount > 0 ? '#15803d' : '#94a3b8', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                                +{item.newHiresCount}
+                              </span>
+                            </td>
+                            <td style={{ padding: '5px 8px', textAlign: 'center' }}>
+                              <span style={{ backgroundColor: item.exitsCount > 0 ? '#fee2e2' : '#f1f5f9', color: item.exitsCount > 0 ? '#b91c1c' : '#94a3b8', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                                -{item.exitsCount}
+                              </span>
+                            </td>
+                            <td style={{ padding: '5px 8px', textAlign: 'center' }}>
+                              <span style={{ color: item.netChange > 0 ? '#16a34a' : item.netChange < 0 ? '#dc2626' : '#64748b', fontWeight: 800 }}>
+                                {item.netChange > 0 ? `+${item.netChange}` : item.netChange}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  /* Hires directory view */
+                  <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {allHiresList.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
+                        ពុំមានបុគ្គលិកចូលថ្មីក្នុងឆ្នាំ {filterYear} នេះទេ
+                      </div>
+                    ) : (
+                      allHiresList.map((emp) => (
+                        <div
+                          key={emp.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            backgroundColor: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px',
+                            padding: '6px 10px',
+                            fontSize: '0.72rem',
+                          }}
+                        >
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, color: '#0f172a' }}>{emp.name}</div>
+                            <div style={{ color: '#64748b', fontSize: '0.66rem' }}>
+                              ID: {emp.empId} • {emp.dept} ({emp.position})
+                            </div>
+                          </div>
+                          <span style={{ backgroundColor: '#dcfce7', color: '#15803d', padding: '2px 7px', borderRadius: '4px', fontWeight: 700, fontSize: '0.66rem', whiteSpace: 'nowrap' }}>
+                            📅 {emp.hireDate}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* 10. 12-MONTH PAYROLL TRENDS & MOM GROWTH (តាមដាន Payroll ប្រចាំឆ្នាំ ១២ខែ) */}
+          {(() => {
+            const data = (annualPayrollData && annualPayrollData.length === 12)
+              ? annualPayrollData
+              : [];
+
+            const totalAnnualNet = data.reduce((sum, d) => sum + (d.netSalary || 0), 0);
+            const totalAnnualGross = data.reduce((sum, d) => sum + (d.grossSalary || 0), 0);
+            const activeMonths = data.filter(d => d.hasData && d.netSalary > 0);
+            const activeCount = activeMonths.length || 1;
+            const avgMonthlyNet = Math.round(totalAnnualNet / activeCount);
+
+            // Find peak growth month
+            const peakMonth = data.reduce((max, d) => (d.netSalary > max.netSalary ? d : max), data[0] || { monthKh: '---', netSalary: 0, momDiffPercent: 0 });
+
+            return (
+              <div
+                key="annual_payroll_trends"
+                data-grid={{ x: 6, y: 12, w: 6, h: 4, minW: 4, minH: 3 }}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Header */}
+                <div
+                  className="card-drag-handle"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '8px',
+                    cursor: 'grab',
+                    flexWrap: 'wrap',
+                    gap: '6px',
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                    <h3
+                      className="kh-text"
+                      style={{
+                        margin: 0,
+                        fontSize: '0.92rem',
+                        color: '#0f172a',
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      <span>💳</span>
+                      <span>តាមដានប្រាក់បៀវត្ស ១២ ខែ (Payroll Growth)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', lineHeight: 1.4, whiteSpace: 'nowrap' }}>
+                      តាមដានចំណាយប្រាក់ខែ និងអត្រាកំណើនធៀបខែមុន (MoM) ឆ្នាំ {filterYear}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAnnualPayrollView('chart');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: annualPayrollView === 'chart' ? '#ffffff' : 'transparent',
+                          color: annualPayrollView === 'chart' ? '#4f46e5' : '#64748b',
+                          boxShadow: annualPayrollView === 'chart' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        📈 ក្រាបកំណើន
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAnnualPayrollView('table');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: annualPayrollView === 'table' ? '#ffffff' : 'transparent',
+                          color: annualPayrollView === 'table' ? '#4f46e5' : '#64748b',
+                          boxShadow: annualPayrollView === 'table' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        📋 តារាងលម្អិត
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/payroll"
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        color: '#4f46e5',
+                        textDecoration: 'none',
+                        backgroundColor: '#eef2ff',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #c7d2fe',
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      បើកប្រាក់ខែ ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* KPI Ribbon */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '5px 10px',
+                    marginBottom: '8px',
+                    fontSize: '0.7rem',
+                    flexWrap: 'wrap',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ color: '#475569', lineHeight: 1.35 }}>
+                    សរុប ១២ ខែ: <strong style={{ color: '#4f46e5' }}>${totalAnnualNet.toLocaleString()}</strong>
+                  </span>
+                  <span style={{ color: '#0f172a', fontWeight: 600, lineHeight: 1.35 }}>
+                    មធ្យម/ខែ: <strong>${avgMonthlyNet.toLocaleString()}</strong>
+                  </span>
+                  <span style={{ color: '#0284c7', fontWeight: 600, lineHeight: 1.35 }}>
+                    ខែខ្ពស់បំផុត: <strong>{peakMonth?.monthKh} (${peakMonth?.netSalary.toLocaleString()})</strong>
+                  </span>
+                  <span
+                    style={{
+                      padding: '1px 6px',
+                      borderRadius: '4px',
+                      backgroundColor: '#eff6ff',
+                      color: '#2563eb',
+                      fontWeight: 800,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    Gross សរុប: ${totalAnnualGross.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Content View */}
+                {annualPayrollView === 'chart' ? (
+                  <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="grossSalaryGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#818cf8" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#818cf8" stopOpacity={0.0} />
+                          </linearGradient>
+                          <linearGradient id="netSalaryGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.5} />
+                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.05} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis
+                          dataKey="monthKh"
+                          tick={{ fill: '#64748b', fontSize: 10 }}
+                          axisLine={{ stroke: '#cbd5e1' }}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{ fill: '#64748b', fontSize: 10 }}
+                          axisLine={false}
+                          tickLine={false}
+                          tickFormatter={(v) => `$${v >= 1000 ? `${(v/1000).toFixed(1)}k` : v}`}
+                        />
+                        <Tooltip
+                          content={({ active, payload, label }) => {
+                            if (!active || !payload || !payload.length) return null;
+                            const item = payload[0].payload;
+                            const mom = item.momDiffPercent || 0;
+                            return (
+                              <div
+                                style={{
+                                  backgroundColor: '#ffffff',
+                                  padding: '8px 12px',
+                                  borderRadius: '8px',
+                                  border: '1px solid #e2e8f0',
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                  fontSize: '0.74rem',
+                                  lineHeight: 1.45,
+                                }}
+                              >
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                                  📅 ខែ {item.label} ឆ្នាំ {filterYear}
+                                </div>
+                                <div style={{ color: '#4f46e5', fontWeight: 800 }}>
+                                  💵 បើកជាក់ស្តែង (Net): ${item.netSalary.toLocaleString()}
+                                </div>
+                                <div style={{ color: '#6366f1' }}>
+                                  📋 ប្រាក់បៀវត្សសរុប (Gross): ${item.grossSalary.toLocaleString()}
+                                </div>
+                                <div style={{ color: '#16a34a', fontSize: '0.7rem' }}>
+                                  🎁 ឧបត្ថម្ភ & OT: ${item.allowances.toLocaleString()}
+                                </div>
+                                <div style={{ color: '#ef4444', fontSize: '0.7rem' }}>
+                                  ✂️ ការកាត់កង: ${item.deductions.toLocaleString()}
+                                </div>
+                                <div
+                                  style={{
+                                    borderTop: '1px dashed #e2e8f0',
+                                    paddingTop: '3px',
+                                    marginTop: '3px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                  }}
+                                >
+                                  <span style={{ color: '#64748b' }}>កំណើនធៀបខែមុន:</span>
+                                  <span
+                                    style={{
+                                      fontWeight: 800,
+                                      color: mom > 0 ? '#16a34a' : mom < 0 ? '#dc2626' : '#64748b',
+                                    }}
+                                  >
+                                    {mom > 0 ? `+${mom}% ↗` : mom < 0 ? `${mom}% ↘` : '0% —'}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="grossSalary"
+                          name="Gross Salary"
+                          stroke="#818cf8"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#grossSalaryGrad)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="netSalary"
+                          name="Net Salary"
+                          stroke="#4f46e5"
+                          strokeWidth={2.5}
+                          fillOpacity={1}
+                          fill="url(#netSalaryGrad)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.72rem', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f8fafc', color: '#475569', borderBottom: '1px solid #e2e8f0' }}>
+                          <th style={{ padding: '5px 8px', fontWeight: 700 }}>ខែ</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'right' }}>Gross ($)</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'right' }}>Net ($)</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'right' }}>ឧបត្ថម្ភ/OT</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'right' }}>កាត់កង</th>
+                          <th style={{ padding: '5px 8px', fontWeight: 700, textAlign: 'center' }}>កំណើន (MoM)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.map((item) => {
+                          const mom = item.momDiffPercent || 0;
+                          return (
+                            <tr key={item.month} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: '5px 8px', fontWeight: 700, color: '#1e293b' }}>
+                                {item.monthKh} ({item.monthEn})
+                              </td>
+                              <td style={{ padding: '5px 8px', textAlign: 'right', color: '#6366f1' }}>
+                                ${item.grossSalary.toLocaleString()}
+                              </td>
+                              <td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 800, color: '#4f46e5' }}>
+                                ${item.netSalary.toLocaleString()}
+                              </td>
+                              <td style={{ padding: '5px 8px', textAlign: 'right', color: '#16a34a' }}>
+                                ${item.allowances.toLocaleString()}
+                              </td>
+                              <td style={{ padding: '5px 8px', textAlign: 'right', color: '#dc2626' }}>
+                                ${item.deductions.toLocaleString()}
+                              </td>
+                              <td style={{ padding: '5px 8px', textAlign: 'center' }}>
+                                <span
+                                  style={{
+                                    padding: '1px 6px',
+                                    borderRadius: '4px',
+                                    fontSize: '0.66rem',
+                                    fontWeight: 800,
+                                    backgroundColor: mom > 0 ? '#dcfce7' : mom < 0 ? '#fee2e2' : '#f1f5f9',
+                                    color: mom > 0 ? '#15803d' : mom < 0 ? '#b91c1c' : '#64748b',
+                                  }}
+                                >
+                                  {mom > 0 ? `+${mom}% ↗` : mom < 0 ? `${mom}% ↘` : '0% —'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>

@@ -183,7 +183,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     weeklyAttendance,
     allJobPostings,
     allCandidates,
-    allEmployeeLoans
+    allEmployeeLoans,
+    yearPayrolls,
+    yearTerminations,
+    yearExitInterviews
   ] = await Promise.all([
     prisma.employee.count(),
     prisma.payroll.aggregate({
@@ -238,6 +241,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         placeOfBirth: true,
         nationality: true,
         photoUrl: true,
+        status: true,
       },
     }),
     prisma.departmentGroup.findMany({ orderBy: { orderIdx: 'asc' } }),
@@ -278,6 +282,60 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         }
       },
       orderBy: { createdAt: 'desc' }
+    }),
+    // 12-Month Payroll records for the filterYear
+    prisma.payroll.findMany({
+      where: { year: filterYear },
+      select: {
+        id: true,
+        month: true,
+        year: true,
+        basicSalary: true,
+        workingSalary: true,
+        totalSalary: true,
+        netSalaryUsd: true,
+        taxPayment: true,
+        nssf: true,
+        loanPension: true,
+        severancePay: true,
+        otWage: true,
+        attendanceBonus: true,
+        transportation: true,
+        lunchAllowance: true,
+        status: true,
+        employeeId: true,
+      }
+    }),
+    // Terminations for filterYear
+    prisma.termination.findMany({
+      where: {
+        terminationDate: {
+          gte: new Date(filterYear, 0, 1),
+          lte: new Date(filterYear, 11, 31, 23, 59, 59, 999)
+        }
+      },
+      select: {
+        id: true,
+        employeeId: true,
+        terminationDate: true,
+        reason: true,
+        status: true,
+      }
+    }),
+    // Exit Interviews for filterYear
+    prisma.exitInterview.findMany({
+      where: {
+        resignationDate: {
+          gte: new Date(filterYear, 0, 1),
+          lte: new Date(filterYear, 11, 31, 23, 59, 59, 999)
+        }
+      },
+      select: {
+        id: true,
+        employeeId: true,
+        resignationDate: true,
+        primaryReason: true,
+      }
     })
   ]);
 
@@ -469,6 +527,131 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   const date1 = `${date1Start}-${date1End}`;
   const date2 = `${date2Start}-${date2End}`;
+
+  // 12-Month Annual Payroll Trends calculation
+  const KHMER_MONTHS = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+  const EN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const annualPayrollData = Array.from({ length: 12 }, (_, i) => {
+    const m = i + 1;
+    const records = (yearPayrolls || []).filter(p => p.month === m);
+    const count = records.length;
+
+    let gross = 0;
+    let net = 0;
+    let allowances = 0;
+    let ot = 0;
+    let deductions = 0;
+    let isProjected = false;
+
+    if (count > 0) {
+      gross = records.reduce((sum, p) => sum + (p.totalSalary || 0), 0);
+      net = records.reduce((sum, p) => sum + (p.netSalaryUsd || 0), 0);
+      allowances = records.reduce((sum, p) => sum + (p.attendanceBonus || 0) + (p.transportation || 0) + (p.lunchAllowance || 0), 0);
+      ot = records.reduce((sum, p) => sum + (p.otWage || 0), 0);
+      deductions = records.reduce((sum, p) => sum + (p.taxPayment || 0) + (p.nssf || 0) + (p.loanPension || 0), 0);
+    } else if (m === filterMonth && filterGrandTotalSalary > 0) {
+      gross = filterGrandTotalSalary;
+      net = filterGrandNetSalary;
+      allowances = (15 + 7 + 13) * allEmployees.length;
+      deductions = filterTotalAdvance;
+      isProjected = true;
+    }
+
+    return {
+      month: m,
+      monthKh: KHMER_MONTHS[i],
+      monthEn: EN_MONTHS[i],
+      label: `${KHMER_MONTHS[i]} (${EN_MONTHS[i]})`,
+      empCount: count > 0 ? count : (isProjected ? allEmployees.length : 0),
+      grossSalary: Math.round(gross * 100) / 100,
+      netSalary: Math.round(net * 100) / 100,
+      allowances: Math.round(allowances * 100) / 100,
+      otWage: Math.round(ot * 100) / 100,
+      deductions: Math.round(deductions * 100) / 100,
+      isProjected,
+      hasData: count > 0 || (m === filterMonth && filterGrandTotalSalary > 0),
+      status: count > 0 ? (records[0]?.status || 'APPROVED') : (isProjected ? 'PROJECTED' : 'PENDING'),
+      momDiffAmount: 0,
+      momDiffPercent: 0,
+    };
+  });
+
+  // Calculate MoM Growth rates
+  for (let i = 0; i < annualPayrollData.length; i++) {
+    const cur = annualPayrollData[i];
+    const prev = i > 0 ? annualPayrollData[i - 1] : null;
+
+    if (prev && prev.hasData && cur.hasData && prev.netSalary > 0) {
+      const diffAmount = cur.netSalary - prev.netSalary;
+      const diffPercent = (diffAmount / prev.netSalary) * 100;
+      cur.momDiffAmount = Math.round(diffAmount * 100) / 100;
+      cur.momDiffPercent = Math.round(diffPercent * 10) / 10;
+    }
+  }
+
+  // 12-Month Employee Headcount & Turnover Trends calculation
+  const annualEmployeeData = Array.from({ length: 12 }, (_, i) => {
+    const m = i + 1;
+    const mEnd = new Date(filterYear, m, 0, 23, 59, 59, 999);
+
+    const newHires = allEmployees.filter(e => {
+      if (!e.hireDate) return false;
+      const h = new Date(e.hireDate);
+      return h.getFullYear() === filterYear && (h.getMonth() + 1) === m;
+    });
+
+    const departures = [
+      ...(yearTerminations || []).filter(t => {
+        const d = new Date(t.terminationDate);
+        return d.getFullYear() === filterYear && (d.getMonth() + 1) === m;
+      }),
+      ...(yearExitInterviews || []).filter(ei => {
+        const d = new Date(ei.resignationDate);
+        return d.getFullYear() === filterYear && (d.getMonth() + 1) === m;
+      })
+    ];
+    const exitEmpIds = new Set(departures.map(d => d.employeeId));
+    const exitsCount = exitEmpIds.size;
+
+    const activeAtMonthEnd = allEmployees.filter(e => {
+      if (!e.hireDate) return false;
+      const h = new Date(e.hireDate);
+      if (h > mEnd) return false;
+      const term = (yearTerminations || []).find(t => t.employeeId === e.id);
+      if (term && new Date(term.terminationDate) <= mEnd) return false;
+      return true;
+    });
+
+    const fCount = activeAtMonthEnd.filter(e => e.gender === 'Female' || e.gender === 'F' || e.gender === 'ស្រី').length;
+    const mCount = activeAtMonthEnd.length - fCount;
+    const netChange = newHires.length - exitsCount;
+    const turnoverRate = activeAtMonthEnd.length > 0
+      ? Math.round((exitsCount / activeAtMonthEnd.length) * 100 * 10) / 10
+      : 0;
+
+    return {
+      month: m,
+      monthKh: KHMER_MONTHS[i],
+      monthEn: EN_MONTHS[i],
+      label: `${KHMER_MONTHS[i]} (${EN_MONTHS[i]})`,
+      totalHeadcount: activeAtMonthEnd.length,
+      femaleCount: fCount,
+      maleCount: mCount,
+      newHiresCount: newHires.length,
+      exitsCount: exitsCount,
+      netChange: netChange,
+      turnoverRate: turnoverRate,
+      hiresList: newHires.map(e => ({
+        id: e.id,
+        empId: e.employeeId,
+        name: `${e.lastNameKh || ''} ${e.firstNameKh || ''} (${e.firstNameEn || ''})`.trim(),
+        dept: e.department || 'ទូទៅ',
+        position: e.position || 'បុគ្គលិក',
+        hireDate: e.hireDate ? new Date(e.hireDate).toISOString().slice(0, 10) : '',
+      })),
+    };
+  });
 
 
   
@@ -712,6 +895,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         filterYear={filterYear}
         todayAttendancesCount={todayAttendances.length}
         hrContactUrl={companySettings?.hrContactUrl || 'https://i.pravatar.cc/100?img=5'}
+        annualPayrollData={annualPayrollData}
+        annualEmployeeData={annualEmployeeData}
       />
 
       {/* Hidden legacy grid */}

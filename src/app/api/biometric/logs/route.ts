@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
 // GET punch logs with filter
 export async function GET(request: Request) {
@@ -205,6 +206,24 @@ export async function POST(request: Request) {
         await prisma.biometricPunchLog.createMany({ data: punchData });
       }
 
+      // Auto-calculate all metrics using standard calculation engine
+      const isSunday = dateObj.getDay() === 0;
+      const metrics = calculateDayAttendanceMetrics(fIn, fOut, sIn, sOut, otIn, otOut, isSunday);
+
+      const parsedNormalOt = parseFloat(String(normalOtHrs)) || 0;
+      const parsedNightOt = parseFloat(String(nightOtHrs)) || 0;
+      const parsedHolidayOt = parseFloat(String(holidayOtHrs)) || 0;
+      const parsedRegDay = parseFloat(String(regDay)) || 0;
+      const parsedWorkHrs = parseFloat(String(workHrs)) || 0;
+
+      const computedNormalOt = parsedNormalOt > 0 ? parsedNormalOt : metrics.normalOtHrs;
+      const computedNightOt = parsedNightOt > 0 ? parsedNightOt : metrics.nightOtHrs;
+      const computedHolidayOt = parsedHolidayOt > 0 ? parsedHolidayOt : metrics.holidayOtHrs;
+      const computedLateMins = (parseFloat(String(body.lateMins)) || 0) > 0 ? parseFloat(String(body.lateMins)) : metrics.lateMins;
+      const computedEarlyMins = (parseFloat(String(body.earlyMins)) || 0) > 0 ? parseFloat(String(body.earlyMins)) : metrics.earlyMins;
+      const computedWorkHrs = parsedWorkHrs > 0 ? parsedWorkHrs : metrics.workHrs;
+      const computedRegDay = parsedRegDay > 0 ? parsedRegDay : metrics.regDay;
+
       // 2. Direct upsert DailyAttendance so attendance report immediately reflects all hours
       const updatedAttendance = await prisma.dailyAttendance.upsert({
         where: {
@@ -220,13 +239,13 @@ export async function POST(request: Request) {
           sOut: sOut || null,
           otIn: otIn || null,
           otOut: otOut || null,
-          regDay: parseFloat(String(regDay)) || 1.0,
-          workHrs: parseFloat(String(workHrs)) || 8.0,
-          normalOtHrs: parseFloat(String(normalOtHrs)) || 0,
-          nightOtHrs: parseFloat(String(nightOtHrs)) || 0,
-          holidayOtHrs: parseFloat(String(holidayOtHrs)) || 0,
-          lateMins: 0,
-          earlyMins: 0,
+          regDay: computedRegDay,
+          workHrs: computedWorkHrs,
+          normalOtHrs: computedNormalOt,
+          nightOtHrs: computedNightOt,
+          holidayOtHrs: computedHolidayOt,
+          lateMins: computedLateMins,
+          earlyMins: computedEarlyMins,
           remarks,
         },
         create: {
@@ -238,13 +257,13 @@ export async function POST(request: Request) {
           sOut: sOut || null,
           otIn: otIn || null,
           otOut: otOut || null,
-          regDay: parseFloat(String(regDay)) || 1.0,
-          workHrs: parseFloat(String(workHrs)) || 8.0,
-          normalOtHrs: parseFloat(String(normalOtHrs)) || 0,
-          nightOtHrs: parseFloat(String(nightOtHrs)) || 0,
-          holidayOtHrs: parseFloat(String(holidayOtHrs)) || 0,
-          lateMins: 0,
-          earlyMins: 0,
+          regDay: computedRegDay,
+          workHrs: computedWorkHrs,
+          normalOtHrs: computedNormalOt,
+          nightOtHrs: computedNightOt,
+          holidayOtHrs: computedHolidayOt,
+          lateMins: computedLateMins,
+          earlyMins: computedEarlyMins,
           remarks,
         },
       });
@@ -309,6 +328,32 @@ export async function POST(request: Request) {
 
       if (notes) updateData.remarks = notes;
 
+      const combinedFIn = updateData.fIn || existingAtt?.fIn;
+      const combinedFOut = updateData.fOut || existingAtt?.fOut;
+      const combinedSIn = updateData.sIn || existingAtt?.sIn;
+      const combinedSOut = updateData.sOut || existingAtt?.sOut;
+      const combinedOtIn = updateData.otIn || existingAtt?.otIn;
+      const combinedOtOut = updateData.otOut || existingAtt?.otOut;
+      const isSunday = dateOnly.getDay() === 0;
+
+      const singleMetrics = calculateDayAttendanceMetrics(
+        combinedFIn,
+        combinedFOut,
+        combinedSIn,
+        combinedSOut,
+        combinedOtIn,
+        combinedOtOut,
+        isSunday
+      );
+
+      updateData.normalOtHrs = singleMetrics.normalOtHrs;
+      updateData.nightOtHrs = singleMetrics.nightOtHrs;
+      updateData.holidayOtHrs = singleMetrics.holidayOtHrs;
+      updateData.lateMins = singleMetrics.lateMins;
+      updateData.earlyMins = singleMetrics.earlyMins;
+      updateData.workHrs = singleMetrics.workHrs;
+      updateData.regDay = singleMetrics.regDay;
+
       if (Object.keys(updateData).length > 0) {
         await prisma.dailyAttendance.upsert({
           where: {
@@ -321,8 +366,6 @@ export async function POST(request: Request) {
           create: {
             employeeId,
             date: dateOnly,
-            regDay: 1.0,
-            workHrs: 8.0,
             ...updateData,
           },
         });

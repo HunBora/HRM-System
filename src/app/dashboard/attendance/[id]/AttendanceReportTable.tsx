@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
 interface DayRecord {
   no: number;
@@ -64,11 +65,27 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Selected Day record
+  const selectedDay = useMemo(() => {
+    return days.find((d) => d.no === selectedDayNo);
+  }, [days, selectedDayNo]);
+
+  // Live auto-calculated metrics (Work hours, OT, Night OT, Holiday OT, Late, Early)
+  const liveMetrics = useMemo(() => {
+    return calculateDayAttendanceMetrics(
+      fIn || null,
+      fOut || null,
+      sIn || null,
+      sOut || null,
+      hasOt && otIn ? otIn : null,
+      hasOt && otOut ? otOut : null,
+      selectedDay?.isOffDay || false
+    );
+  }, [fIn, fOut, sIn, sOut, otIn, otOut, hasOt, selectedDay]);
+
   // Open modal for a specific day
   const handleOpenDayModal = (d: DayRecord) => {
     setSelectedDayNo(d.no);
-    const dateObj = new Date(year, month, d.no);
-    // Format YYYY-MM-DD
     const yStr = year.toString();
     const mStr = (month + 1).toString().padStart(2, '0');
     const dStr = d.no.toString().padStart(2, '0');
@@ -78,9 +95,9 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
     setFOut(d.fOut || '11:00');
     setSIn(d.sIn || '13:00');
     setSOut(d.sOut || '17:00');
-    setOtIn(d.otIn || '');
+    setOtIn(d.otIn || (d.normalOtHrs > 0 || d.nightOtHrs > 0 ? '17:00' : ''));
     setOtOut(d.otOut || '');
-    setHasOt(!!(d.otIn || d.otOut));
+    setHasOt(!!(d.otIn || d.otOut || d.normalOtHrs > 0 || d.nightOtHrs > 0 || d.holidayOtHrs > 0));
     setRegDay(d.regDay > 0 ? d.regDay : 1.0);
     setWorkHrs(d.workHrs > 0 ? d.workHrs : 8.0);
     setReason('ភ្លេចស្កេន (Forgot to scan)');
@@ -121,6 +138,18 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
     }
   };
 
+  // OT preset applier
+  const applyOtHours = (hours: number) => {
+    setHasOt(true);
+    setOtIn('17:00');
+    const startMins = 17 * 60;
+    const endMins = startMins + Math.round(hours * 60);
+    const endH = Math.floor(endMins / 60) % 24;
+    const endM = endMins % 60;
+    const endStr = `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+    setOtOut(endStr);
+  };
+
   // Save single day attendance
   const handleSaveDay = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,8 +169,13 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
           sOut: sOut || null,
           otIn: hasOt && otIn ? otIn : null,
           otOut: hasOt && otOut ? otOut : null,
-          regDay: parseFloat(String(regDay)) || 1.0,
-          workHrs: parseFloat(String(workHrs)) || 8.0,
+          regDay: liveMetrics.regDay,
+          workHrs: liveMetrics.workHrs,
+          normalOtHrs: liveMetrics.normalOtHrs,
+          nightOtHrs: liveMetrics.nightOtHrs,
+          holidayOtHrs: liveMetrics.holidayOtHrs,
+          lateMins: liveMetrics.lateMins,
+          earlyMins: liveMetrics.earlyMins,
           remarks: fullRemark,
         }),
       });
@@ -151,7 +185,7 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
         throw new Error(err.error || 'Failed to save attendance');
       }
 
-      // Update local state immediately
+      // Update local state immediately with calculated metrics
       setDays((prev) =>
         prev.map((d) => {
           if (d.no === selectedDayNo) {
@@ -163,8 +197,13 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
               sOut: sOut || '',
               otIn: hasOt ? otIn : '',
               otOut: hasOt ? otOut : '',
-              regDay: parseFloat(String(regDay)) || 1.0,
-              workHrs: parseFloat(String(workHrs)) || 8.0,
+              regDay: liveMetrics.regDay,
+              workHrs: liveMetrics.workHrs,
+              normalOtHrs: liveMetrics.normalOtHrs,
+              nightOtHrs: liveMetrics.nightOtHrs,
+              holidayOtHrs: liveMetrics.holidayOtHrs,
+              lateMins: liveMetrics.lateMins,
+              earlyMins: liveMetrics.earlyMins,
               remarks: fullRemark,
             };
           }
@@ -373,11 +412,47 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                 <td style={tdStyle}>{d.otOut || '-'}</td>
                 <td style={{ ...tdStyle, fontWeight: 700 }}>{d.regDay}</td>
                 <td style={{ ...tdStyle, fontWeight: 700 }}>{d.workHrs}</td>
-                <td style={tdStyle}>{d.normalOtHrs}</td>
-                <td style={tdStyle}>{d.nightOtHrs}</td>
-                <td style={tdStyle}>{d.holidayOtHrs}</td>
-                <td style={tdStyle}>{d.lateMins}</td>
-                <td style={tdStyle}>{d.earlyMins}</td>
+                <td style={{ ...tdStyle, fontWeight: d.normalOtHrs > 0 ? 800 : 400 }}>
+                  {d.normalOtHrs > 0 ? (
+                    <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                      {d.normalOtHrs}
+                    </span>
+                  ) : (
+                    d.normalOtHrs
+                  )}
+                </td>
+                <td style={{ ...tdStyle, fontWeight: d.nightOtHrs > 0 ? 800 : 400 }}>
+                  {d.nightOtHrs > 0 ? (
+                    <span style={{ backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                      {d.nightOtHrs}
+                    </span>
+                  ) : (
+                    d.nightOtHrs
+                  )}
+                </td>
+                <td style={{ ...tdStyle, fontWeight: d.holidayOtHrs > 0 ? 800 : 400 }}>
+                  {d.holidayOtHrs > 0 ? (
+                    <span style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                      {d.holidayOtHrs}
+                    </span>
+                  ) : (
+                    d.holidayOtHrs
+                  )}
+                </td>
+                <td style={{ ...tdStyle, fontWeight: d.lateMins > 0 ? 700 : 400, color: d.lateMins > 0 ? '#dc2626' : 'inherit' }}>
+                  {d.lateMins > 0 ? (
+                    <span style={{ color: '#dc2626', fontWeight: 700 }}>{d.lateMins}</span>
+                  ) : (
+                    d.lateMins
+                  )}
+                </td>
+                <td style={{ ...tdStyle, fontWeight: d.earlyMins > 0 ? 700 : 400, color: d.earlyMins > 0 ? '#d97706' : 'inherit' }}>
+                  {d.earlyMins > 0 ? (
+                    <span style={{ color: '#d97706', fontWeight: 700 }}>{d.earlyMins}</span>
+                  ) : (
+                    d.earlyMins
+                  )}
+                </td>
                 <td style={{ ...tdStyle, textAlign: 'left', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {d.remarks}
                 </td>
@@ -404,13 +479,13 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
           })}
           <tr style={{ fontWeight: 'bold', borderTop: '1px solid #000' }}>
             <td colSpan={9} style={{ textAlign: 'right', padding: '10px' }}>សរុប-Total</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.regDay, 0).toFixed(1)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.workHrs, 0).toFixed(1)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.normalOtHrs, 0).toFixed(1)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.nightOtHrs, 0).toFixed(1)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.holidayOtHrs, 0).toFixed(1)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.lateMins, 0)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + d.earlyMins, 0)}</td>
+            <td style={tdStyle}>{days.reduce((sum, d) => sum + Number(d.regDay || 0), 0).toFixed(1)}</td>
+            <td style={tdStyle}>{days.reduce((sum, d) => sum + Number(d.workHrs || 0), 0).toFixed(1)}</td>
+            <td style={{ ...tdStyle, color: '#1d4ed8' }}>{days.reduce((sum, d) => sum + Number(d.normalOtHrs || 0), 0).toFixed(1)}</td>
+            <td style={{ ...tdStyle, color: '#6b21a8' }}>{days.reduce((sum, d) => sum + Number(d.nightOtHrs || 0), 0).toFixed(1)}</td>
+            <td style={{ ...tdStyle, color: '#991b1b' }}>{days.reduce((sum, d) => sum + Number(d.holidayOtHrs || 0), 0).toFixed(1)}</td>
+            <td style={{ ...tdStyle, color: '#dc2626' }}>{days.reduce((sum, d) => sum + Number(d.lateMins || 0), 0)}</td>
+            <td style={{ ...tdStyle, color: '#d97706' }}>{days.reduce((sum, d) => sum + Number(d.earlyMins || 0), 0)}</td>
             <td></td>
             <td className="no-print"></td>
           </tr>
@@ -584,34 +659,99 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                 </div>
               </div>
 
-              {/* OT Toggle */}
-              <div style={{ border: '1px dashed #cbd5e1', padding: '10px', borderRadius: '8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', fontWeight: 700, color: '#1e40af', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={hasOt} onChange={(e) => setHasOt(e.target.checked)} />
-                  <span>+ បន្ថែមម៉ោង OT (Overtime)</span>
-                </label>
+              {/* OT Toggle & Presets */}
+              <div style={{ border: '1px dashed #cbd5e1', padding: '12px', borderRadius: '10px', backgroundColor: '#fdfefe' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', fontWeight: 700, color: '#1e40af', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={hasOt} onChange={(e) => setHasOt(e.target.checked)} />
+                    <span>+ បន្ថែមម៉ោងថែម OT (Overtime)</span>
+                  </label>
+                  {hasOt && (
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#059669', backgroundColor: '#ecfdf5', padding: '2px 8px', borderRadius: '6px' }}>
+                      ⏰ គណនាឃើញ៖ {(liveMetrics.normalOtHrs + liveMetrics.nightOtHrs + liveMetrics.holidayOtHrs).toFixed(1)} ម៉ោង
+                    </span>
+                  )}
+                </div>
+
                 {hasOt && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.74rem', color: '#475569' }}>ចូល OT (OT-In)</label>
-                      <input
-                        type="time"
-                        value={otIn}
-                        onChange={(e) => setOtIn(e.target.value)}
-                        style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
-                      />
+                  <div style={{ marginTop: '10px' }}>
+                    {/* Quick OT Presets */}
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '0.74rem', color: '#64748b', alignSelf: 'center' }}>ជ្រើសរើសលឿន៖</span>
+                      <button
+                        type="button"
+                        onClick={() => applyOtHours(1.5)}
+                        style={{ padding: '3px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        +1.5h
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyOtHours(2.0)}
+                        style={{ padding: '3px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        +2.0h
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyOtHours(2.5)}
+                        style={{ padding: '3px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        +2.5h
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyOtHours(3.0)}
+                        style={{ padding: '3px 8px', borderRadius: '6px', border: '1px solid #bfdbfe', background: '#eff6ff', color: '#1d4ed8', fontSize: '0.74rem', fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        +3.0h (17:00-20:00)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyOtHours(4.0)}
+                        style={{ padding: '3px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        +4.0h
+                      </button>
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.74rem', color: '#475569' }}>ចេញ OT (OT-Out)</label>
-                      <input
-                        type="time"
-                        value={otOut}
-                        onChange={(e) => setOtOut(e.target.value)}
-                        style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
-                      />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.74rem', color: '#475569', marginBottom: '2px' }}>ចូល OT (OT-In)</label>
+                        <input
+                          type="time"
+                          value={otIn}
+                          onChange={(e) => setOtIn(e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.74rem', color: '#475569', marginBottom: '2px' }}>ចេញ OT (OT-Out)</label>
+                        <input
+                          type="time"
+                          value={otOut}
+                          onChange={(e) => setOtOut(e.target.value)}
+                          style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Live Calculation Preview Banner */}
+              <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '10px 14px', fontSize: '0.82rem', color: '#166534', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>📊 គណនាស្វ័យប្រវត្តិតាមម៉ោងស្កេន (Live Auto-Calculation):</span>
+                  <span style={{ backgroundColor: '#dcfce7', padding: '2px 8px', borderRadius: '6px' }}>{liveMetrics.workHrs}h ធ្វើការ</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', fontSize: '0.78rem', marginTop: '2px' }}>
+                  <span>ថែមម៉ោងធម្មតា: <strong style={{ color: '#1d4ed8' }}>{liveMetrics.normalOtHrs}h</strong></span>
+                  {liveMetrics.nightOtHrs > 0 && <span>ថែមយប់: <strong style={{ color: '#6b21a8' }}>{liveMetrics.nightOtHrs}h</strong></span>}
+                  {liveMetrics.holidayOtHrs > 0 && <span>ថែមថ្ងៃបុណ្យ: <strong style={{ color: '#b91c1c' }}>{liveMetrics.holidayOtHrs}h</strong></span>}
+                  {liveMetrics.lateMins > 0 && <span>យឺត: <strong style={{ color: '#dc2626' }}>{liveMetrics.lateMins} នាទី</strong></span>}
+                  {liveMetrics.earlyMins > 0 && <span>ចេញមុន: <strong style={{ color: '#d97706' }}>{liveMetrics.earlyMins} នាទី</strong></span>}
+                </div>
               </div>
 
               {/* Reason */}

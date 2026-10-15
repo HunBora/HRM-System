@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import ExcelJS from 'exceljs';
+import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
 export async function GET(request: Request) {
   try {
@@ -143,6 +144,29 @@ export async function GET(request: Request) {
         remarks = remarks ? `${remarks} | ${leaveLabel}` : leaveLabel;
       }
 
+      // Calculate live metrics based on punch times
+      const metrics = calculateDayAttendanceMetrics(fIn, fOut, sIn, sOut, otIn, otOut, isOffDay);
+
+      const finalNormalOt = normalOtHrs > 0 ? normalOtHrs : metrics.normalOtHrs;
+      const finalNightOt = nightOtHrs > 0 ? nightOtHrs : metrics.nightOtHrs;
+      const finalHolidayOt = holidayOtHrs > 0 ? holidayOtHrs : metrics.holidayOtHrs;
+
+      const finalLateMins = (hasImportedData && (attendanceRecord.lateMins || 0) > 0)
+        ? attendanceRecord.lateMins
+        : metrics.lateMins;
+
+      const finalEarlyMins = (hasImportedData && (attendanceRecord.earlyMins || 0) > 0)
+        ? attendanceRecord.earlyMins
+        : metrics.earlyMins;
+
+      const finalWorkHrs = (hasImportedData && (attendanceRecord.workHrs || 0) > 0)
+        ? attendanceRecord.workHrs
+        : metrics.workHrs;
+
+      const finalRegDay = (hasImportedData && attendanceRecord.regDay !== undefined && attendanceRecord.regDay !== null)
+        ? attendanceRecord.regDay
+        : (isOffDay ? 0 : (matchedLeave ? 0 : metrics.regDay));
+
       return {
         no: i + 1,
         dateStr: `${(i+1).toString().padStart(2, '0')}-${(month+1).toString().padStart(2, '0')}-${year.toString().slice(2)}`,
@@ -154,13 +178,13 @@ export async function GET(request: Request) {
         sOut,
         otIn,
         otOut,
-        regDay: hasImportedData ? (attendanceRecord.regDay || 0) : (isOffDay ? 0 : (matchedLeave ? 0 : 1)),
-        workHrs: hasImportedData ? (attendanceRecord.workHrs || 0) : (isOffDay ? 0 : 0),
-        normalOtHrs,
-        nightOtHrs,
-        holidayOtHrs,
-        lateMins: hasImportedData ? (attendanceRecord.lateMins || 0) : 0,
-        earlyMins: hasImportedData ? (attendanceRecord.earlyMins || 0) : 0,
+        regDay: finalRegDay,
+        workHrs: finalWorkHrs,
+        normalOtHrs: finalNormalOt,
+        nightOtHrs: finalNightOt,
+        holidayOtHrs: finalHolidayOt,
+        lateMins: finalLateMins,
+        earlyMins: finalEarlyMins,
         remarks
       };
     });

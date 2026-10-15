@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PrintAttendanceButton from './PrintAttendanceButton';
 import ExportExcelButton from './ExportExcelButton';
 import AttendanceReportTable from './AttendanceReportTable';
+import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
 export default async function EmployeeAttendancePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -144,8 +145,29 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
       remarks = remarks ? `${remarks} | ${leaveLabel}` : leaveLabel;
     }
 
-    const computedWorkHrs = hasImportedData ? (attendanceRecord.workHrs || 0) : ((fIn && sOut) ? 8.0 : (isOffDay ? 0 : 0));
-    const computedRegDay = hasImportedData ? (attendanceRecord.regDay || 0) : (isOffDay ? 0 : (matchedLeave ? 0 : 1));
+    // Calculate live metrics based on punch times (including OT, Night OT, Holiday OT, Late, Early)
+    const metrics = calculateDayAttendanceMetrics(fIn, fOut, sIn, sOut, otIn, otOut, isOffDay);
+
+    // If attendance record had 0 OT but punches had OT, auto-populate from calculated metrics!
+    const finalNormalOt = normalOtHrs > 0 ? normalOtHrs : metrics.normalOtHrs;
+    const finalNightOt = nightOtHrs > 0 ? nightOtHrs : metrics.nightOtHrs;
+    const finalHolidayOt = holidayOtHrs > 0 ? holidayOtHrs : metrics.holidayOtHrs;
+
+    const finalLateMins = (hasImportedData && (attendanceRecord.lateMins || 0) > 0)
+      ? attendanceRecord.lateMins
+      : metrics.lateMins;
+
+    const finalEarlyMins = (hasImportedData && (attendanceRecord.earlyMins || 0) > 0)
+      ? attendanceRecord.earlyMins
+      : metrics.earlyMins;
+
+    const finalWorkHrs = (hasImportedData && (attendanceRecord.workHrs || 0) > 0)
+      ? attendanceRecord.workHrs
+      : metrics.workHrs;
+
+    const finalRegDay = (hasImportedData && attendanceRecord.regDay !== undefined && attendanceRecord.regDay !== null)
+      ? attendanceRecord.regDay
+      : (isOffDay ? 0 : (matchedLeave ? 0 : metrics.regDay));
 
     return {
       no: i + 1,
@@ -158,13 +180,13 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
       sOut,
       otIn,
       otOut,
-      regDay: computedRegDay,
-      workHrs: computedWorkHrs,
-      normalOtHrs,
-      nightOtHrs,
-      holidayOtHrs,
-      lateMins: hasImportedData ? (attendanceRecord.lateMins || 0) : 0,
-      earlyMins: hasImportedData ? (attendanceRecord.earlyMins || 0) : 0,
+      regDay: finalRegDay,
+      workHrs: finalWorkHrs,
+      normalOtHrs: finalNormalOt,
+      nightOtHrs: finalNightOt,
+      holidayOtHrs: finalHolidayOt,
+      lateMins: finalLateMins,
+      earlyMins: finalEarlyMins,
       remarks
     };
   });

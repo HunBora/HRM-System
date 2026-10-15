@@ -116,6 +116,44 @@ export default function BiometricClient({
   const [fullDayWorkHrs, setFullDayWorkHrs] = useState(8.0);
   const [fullDayReason, setFullDayReason] = useState('ភ្លេចស្កេន (Forgot to scan)');
 
+  // Live calculation of OT Hours
+  const calculatedOt = useMemo(() => {
+    if (!hasOt || !fullDayOtIn || !fullDayOtOut) {
+      return { total: 0, normal: 0, night: 0, holiday: 0 };
+    }
+    const [inH, inM] = fullDayOtIn.split(':').map(Number);
+    const [outH, outM] = fullDayOtOut.split(':').map(Number);
+    if (isNaN(inH) || isNaN(inM) || isNaN(outH) || isNaN(outM)) {
+      return { total: 0, normal: 0, night: 0, holiday: 0 };
+    }
+    let inMinutes = inH * 60 + inM;
+    let outMinutes = outH * 60 + outM;
+    if (outMinutes < inMinutes) {
+      outMinutes += 24 * 60; // crossed midnight
+    }
+    const diffMins = Math.max(0, outMinutes - inMinutes);
+    const total = Math.round((diffMins / 60) * 10) / 10;
+
+    const dateObj = new Date(fullDayDate);
+    const isSunday = dateObj.getDay() === 0;
+
+    if (isSunday) {
+      return { total, normal: 0, night: 0, holiday: total };
+    }
+
+    const nightThreshold = 22 * 60;
+    if (outMinutes > nightThreshold) {
+      const nightStart = Math.max(inMinutes, nightThreshold);
+      const nightMins = outMinutes - nightStart;
+      const normMins = Math.max(0, nightStart - inMinutes);
+      const night = Math.round((nightMins / 60) * 10) / 10;
+      const normal = Math.round((normMins / 60) * 10) / 10;
+      return { total, normal, night, holiday: 0 };
+    }
+
+    return { total, normal: total, night: 0, holiday: 0 };
+  }, [hasOt, fullDayOtIn, fullDayOtOut, fullDayDate]);
+
   const applyShiftPreset = (preset: 'NORMAL' | 'HALF_MORN' | 'HALF_AFT' | 'NIGHT') => {
     if (preset === 'NORMAL') {
       setFullDayFIn('07:00');
@@ -255,9 +293,12 @@ export default function BiometricClient({
             sOut: fullDaySOut,
             otIn: hasOt ? fullDayOtIn : null,
             otOut: hasOt ? fullDayOtOut : null,
+            normalOtHrs: hasOt ? calculatedOt.normal : 0,
+            nightOtHrs: hasOt ? calculatedOt.night : 0,
+            holidayOtHrs: hasOt ? calculatedOt.holiday : 0,
             regDay: fullDayRegDay,
             workHrs: fullDayWorkHrs,
-            remarks: `${fullDayReason}${manualNotes ? ` - ${manualNotes}` : ''}`,
+            remarks: `${fullDayReason}${manualNotes ? ` - ${manualNotes}` : ''}${hasOt && calculatedOt.total > 0 ? ` (OT ${calculatedOt.total}h)` : ''}`,
           }),
         });
 
@@ -1825,39 +1866,98 @@ export default function BiometricClient({
                   </div>
 
                   {/* Overtime (OT) Toggle */}
-                  <div style={{ border: '1px dashed #cbd5e1', padding: '10px 12px', borderRadius: '8px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', fontWeight: 700, color: '#1e40af', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={hasOt}
-                        onChange={(e) => setHasOt(e.target.checked)}
-                      />
-                      <span>+ បន្ថែមម៉ោងថែម (Overtime / OT)</span>
-                    </label>
+                  <div style={{ border: '1.5px dashed #3b82f6', backgroundColor: '#f0f7ff', padding: '12px', borderRadius: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', fontWeight: 700, color: '#1e40af', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={hasOt}
+                          onChange={(e) => setHasOt(e.target.checked)}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                        <span>☑️ + បន្ថែមម៉ោងថែម (Overtime / OT)</span>
+                      </label>
+
+                      {hasOt && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '0.78rem', color: '#1e40af', fontWeight: 600 }}>ម៉ោងថែមគណនាឃើញ ៖</span>
+                          <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#ffffff', backgroundColor: '#2563eb', padding: '2px 10px', borderRadius: '12px' }}>
+                            {calculatedOt.total} ម៉ោង (h)
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
                     {hasOt && (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
-                            ចូល OT (OT-In)
-                          </label>
-                          <input
-                            type="time"
-                            value={fullDayOtIn}
-                            onChange={(e) => setFullDayOtIn(e.target.value)}
-                            style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
-                          />
+                      <div style={{ marginTop: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 700, color: '#334155', marginBottom: '3px' }}>
+                              ចូល OT (OT-In)
+                            </label>
+                            <input
+                              type="time"
+                              value={fullDayOtIn}
+                              onChange={(e) => setFullDayOtIn(e.target.value)}
+                              style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #93c5fd', fontSize: '0.86rem', background: '#ffffff', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 700, color: '#334155', marginBottom: '3px' }}>
+                              ចេញ OT (OT-Out)
+                            </label>
+                            <input
+                              type="time"
+                              value={fullDayOtOut}
+                              onChange={(e) => setFullDayOtOut(e.target.value)}
+                              style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #93c5fd', fontSize: '0.86rem', background: '#ffffff', boxSizing: 'border-box' }}
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
-                            ចេញ OT (OT-Out)
-                          </label>
-                          <input
-                            type="time"
-                            value={fullDayOtOut}
-                            onChange={(e) => setFullDayOtOut(e.target.value)}
-                            style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
-                          />
+
+                        {/* Quick OT Presets */}
+                        <div style={{ marginTop: '8px' }}>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: '4px', fontWeight: 600 }}>
+                            ⚡ កំណត់ម៉ោង OT រហ័ស (Quick OT Hours):
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                            {[
+                              { label: '⚡ 1.5h (17:30-19:00)', in: '17:30', out: '19:00' },
+                              { label: '⚡ 2.0h (17:30-19:30)', in: '17:30', out: '19:30' },
+                              { label: '⚡ 2.5h (17:30-20:00)', in: '17:30', out: '20:00' },
+                              { label: '⚡ 3.0h (17:30-20:30)', in: '17:30', out: '20:30' },
+                              { label: '⚡ 4.0h (17:30-21:30)', in: '17:30', out: '21:30' },
+                            ].map((preset, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => {
+                                  setFullDayOtIn(preset.in);
+                                  setFullDayOtOut(preset.out);
+                                }}
+                                style={{
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  border: '1px solid #bfdbfe',
+                                  backgroundColor: fullDayOtIn === preset.in && fullDayOtOut === preset.out ? '#2563eb' : '#ffffff',
+                                  color: fullDayOtIn === preset.in && fullDayOtOut === preset.out ? '#ffffff' : '#1d4ed8',
+                                  fontSize: '0.74rem',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {preset.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Breakdown description */}
+                        <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#1e40af', backgroundColor: '#dbeafe', padding: '6px 10px', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                          <span>
+                            ប្រភេទម៉ោងថែម ៖ <strong>{calculatedOt.holiday > 0 ? 'ម៉ោងថែមថ្ងៃបុណ្យ/អាទិត្យ (Holiday OT 200%)' : (calculatedOt.night > 0 ? `ធម្មតា ${calculatedOt.normal}h + យប់ ${calculatedOt.night}h` : 'ម៉ោងថែមធម្មតា (Normal OT 150%)')}</strong>
+                          </span>
+                          <span style={{ color: '#059669', fontWeight: 700 }}>✓ Auto-Sync ចូល Attendance Log ផ្ទាល់</span>
                         </div>
                       </div>
                     )}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDepartmentGroups, getMasterKpis, saveMasterKpi, deleteMasterKpi } from '@/app/dashboard/kpiSettingsActions';
+import { notify } from '@/lib/notify';
 
 type MasterKpi = {
   id: string;
@@ -62,12 +63,21 @@ export default function KpiSettingsManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('តើអ្នកពិតជាចង់លុប KPI នេះមែនទេ? (Are you sure you want to delete this KPI?)')) return;
+    const confirmed = await notify.confirm({
+      title: 'លុប KPI គោល (Delete Master KPI)',
+      text: 'តើអ្នកពិតជាចង់លុប KPI នេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonText: 'យល់ព្រមលុប',
+      confirmButtonColor: '#ef4444',
+    });
+    if (!confirmed) return;
     try {
       await deleteMasterKpi(id);
+      notify.toast('បានលុប KPI ដោយជោគជ័យ', 'success');
       fetchData();
     } catch (e) {
       console.error(e);
+      notify.error('បរាជ័យក្នុងការលុប KPI');
     }
   };
 

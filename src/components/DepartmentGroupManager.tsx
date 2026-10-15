@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { notify } from '@/lib/notify';
 
 type DeptGroup = {
   id: string;
@@ -61,12 +62,22 @@ export default function DepartmentGroupManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('តើអ្នកពិតជាចង់លុបក្រុមនេះមែនទេ?')) return;
+    const confirmed = await notify.confirm({
+      title: 'លុបក្រុមការងារ (Delete Group)',
+      text: 'តើអ្នកពិតជាចង់លុបក្រុមនេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonText: 'យល់ព្រមលុប',
+      confirmButtonColor: '#ef4444',
+    });
+    if (!confirmed) return;
+
     try {
       await fetch(`/api/department-groups?id=${id}`, { method: 'DELETE' });
+      notify.toast('បានលុបក្រុមការងារដោយជោគជ័យ', 'success');
       fetchGroups();
     } catch (e) {
       console.error(e);
+      notify.error('បរាជ័យក្នុងការលុបក្រុមការងារ');
     }
   };
 

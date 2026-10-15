@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { addAsset, updateAssetStatus, deleteAsset } from '@/app/dashboard/employees/[id]/docActions';
+import { notify } from '@/lib/notify';
 
 export default function EmployeeAssetsTab({ employeeId, assets }: { employeeId: string, assets: any[] }) {
   const [loading, setLoading] = useState(false);
@@ -13,6 +14,7 @@ export default function EmployeeAssetsTab({ employeeId, assets }: { employeeId: 
     formData.append('employeeId', employeeId);
     
     await addAsset(formData);
+    notify.toast('បានបន្ថែមសម្ភារៈដោយជោគជ័យ', 'success');
     
     setLoading(false);
     (e.target as HTMLFormElement).reset();
@@ -20,11 +22,20 @@ export default function EmployeeAssetsTab({ employeeId, assets }: { employeeId: 
 
   const handleStatusChange = async (assetId: string, newStatus: string) => {
     await updateAssetStatus(assetId, newStatus);
+    notify.toast('បានកែប្រែស្ថានភាពសម្ភារៈ', 'info');
   };
 
   const handleDelete = async (assetId: string) => {
-    if (confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យសម្ភារៈនេះមែនទេ?')) {
+    const confirmed = await notify.confirm({
+      title: 'លុបទិន្នន័យសម្ភារៈ (Delete Asset)',
+      text: 'តើអ្នកពិតជាចង់លុបទិន្នន័យសម្ភារៈនេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonText: 'យល់ព្រមលុប',
+      confirmButtonColor: '#ef4444',
+    });
+    if (confirmed) {
       await deleteAsset(assetId);
+      notify.toast('បានលុបទិន្នន័យសម្ភារៈដោយជោគជ័យ', 'success');
     }
   };
 

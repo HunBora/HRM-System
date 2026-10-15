@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { updatePayrollDates } from '@/app/dashboard/payrollSettingsActions';
 import { updateExchangeRateAndRecalculate } from '@/app/dashboard/payroll/actions';
+import { notify } from '@/lib/notify';
 
 export default function PayrollSettingsManager({ initialSettings }: { initialSettings: any }) {
   const [formData, setFormData] = useState({
@@ -28,16 +29,24 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
     try {
       await updatePayrollDates(formData);
       setMessage('ការកំណត់ត្រូវបានរក្សាទុកដោយជោគជ័យ! (Saved Successfully)');
+      notify.toast('ការកំណត់ត្រូវបានរក្សាទុកដោយជោគជ័យ!', 'success');
     } catch (error) {
       console.error(error);
       setMessage('មានបញ្ហាក្នុងការរក្សាទុក។ (Error Saving)');
+      notify.error('បរាជ័យក្នុងការរក្សាទុក');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleRecalculateDrafts = async () => {
-    if (!confirm(`តើអ្នកពិតជាចង់អនុវត្តអត្រា ${formData.exchangeRate.toLocaleString()} ៛ ទៅលើតារាងប្រាក់ខែព្រាង (Draft Payrolls) ទាំងអស់មែនទេ?`)) {
+    const confirmed = await notify.confirm({
+      title: 'គណនាឡើងវិញ (Recalculate Drafts)',
+      text: `តើអ្នកពិតជាចង់អនុវត្តអត្រា ${formData.exchangeRate.toLocaleString()} ៛ ទៅលើតារាងប្រាក់ខែព្រាង (Draft Payrolls) ទាំងអស់មែនទេ?`,
+      icon: 'question',
+      confirmButtonText: 'យល់ព្រមអនុវត្ត',
+    });
+    if (!confirmed) {
       return;
     }
     setIsRecalculating(true);
@@ -45,12 +54,16 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
     try {
       const res = await updateExchangeRateAndRecalculate(formData.exchangeRate);
       if (res.success) {
-        setMessage(`ជោគជ័យ! បានគណនាអត្រាប្តូរប្រាក់ ${formData.exchangeRate.toLocaleString()} ៛ លើតារាងប្រាក់ខែចំនួន ${res.count || 0} នាក់។`);
+        const successMsg = `ជោគជ័យ! បានគណនាអត្រាប្តូរប្រាក់ ${formData.exchangeRate.toLocaleString()} ៛ លើតារាងប្រាក់ខែចំនួន ${res.count || 0} នាក់។`;
+        setMessage(successMsg);
+        notify.success('បានគណនាឡើងវិញដោយជោគជ័យ', successMsg);
       } else {
         setMessage('កំហុស៖ ' + res.error);
+        notify.error('បរាជ័យក្នុងការគណនា', res.error);
       }
     } catch (err: any) {
       setMessage('កំហុសក្នុងការគណនា៖ ' + err.message);
+      notify.error('បរាជ័យក្នុងការគណនា', err.message);
     } finally {
       setIsRecalculating(false);
     }

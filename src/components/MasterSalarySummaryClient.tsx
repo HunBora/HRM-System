@@ -4,6 +4,7 @@ import React from 'react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { notify } from '@/lib/notify';
 
 type DeptSummary = {
   department: string;
@@ -292,7 +293,7 @@ export default function MasterSalarySummaryClient({ data, month, year, companyNa
       pdf.save(`Master_Salary_Summary_${month}_${year}.pdf`);
     } catch (e) {
       console.error('Error generating PDF', e);
-      alert('Failed to generate PDF. Please try again.');
+      notify.error('បរាជ័យក្នុងការទាញយក PDF', 'Failed to generate PDF. Please try again.');
     }
   };
 

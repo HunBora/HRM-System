@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { uploadDocument, deleteDocument } from '@/app/dashboard/employees/[id]/docActions';
+import { notify } from '@/lib/notify';
 
 export default function EmployeeDocumentsTab({ employeeId, documents }: { employeeId: string, documents: any[] }) {
   const [loading, setLoading] = useState(false);
@@ -14,18 +15,27 @@ export default function EmployeeDocumentsTab({ employeeId, documents }: { employ
     
     try {
       await uploadDocument(formData);
+      notify.toast('បានបញ្ចូលឯកសារដោយជោគជ័យ', 'success');
       (e.target as HTMLFormElement).reset();
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('មានបញ្ហាក្នុងការបញ្ចូលឯកសារ! សូមព្យាយាមម្តងទៀត។');
+      notify.error('បញ្ហាក្នុងការបញ្ចូលឯកសារ', 'មានបញ្ហាក្នុងការបញ្ចូលឯកសារ! សូមព្យាយាមម្តងទៀត។');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (docId: string) => {
-    if (confirm('តើអ្នកពិតជាចង់លុបឯកសារនេះមែនទេ?')) {
+    const confirmed = await notify.confirm({
+      title: 'លុបឯកសារ (Delete Document)',
+      text: 'តើអ្នកពិតជាចង់លុបឯកសារនេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonText: 'យល់ព្រមលុប',
+      confirmButtonColor: '#ef4444',
+    });
+    if (confirmed) {
       await deleteDocument(docId);
+      notify.toast('បានលុបឯកសារដោយជោគជ័យ', 'success');
     }
   };
 

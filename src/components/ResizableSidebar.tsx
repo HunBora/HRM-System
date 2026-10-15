@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { notify } from '@/lib/notify';
 
 interface SidebarProps {
   companyName: string;
@@ -423,7 +424,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err: any) {
-      alert('កំហុសក្នុងការ Backup: ' + err.message);
+      notify.error('កំហុសក្នុងការ Backup', err.message);
     } finally {
       setIsBackupLoading(false);
     }

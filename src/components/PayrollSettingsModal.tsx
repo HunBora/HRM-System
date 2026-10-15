@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { updatePayrollDates } from '@/app/dashboard/payrollSettingsActions';
+import { notify } from '@/lib/notify';
 
 type Settings = {
   payment1StartDate: number;
@@ -24,10 +25,11 @@ export default function PayrollSettingsModal({ initialSettings }: { initialSetti
     setIsSaving(true);
     try {
       await updatePayrollDates(formData);
+      notify.toast("បានរក្សាទុកការកំណត់ដោយជោគជ័យ", "success");
       setIsOpen(false);
     } catch (error) {
       console.error("Failed to save settings", error);
-      alert("Failed to save settings. Please try again.");
+      notify.error("បរាជ័យក្នុងការរក្សាទុក", "Failed to save settings. Please try again.");
     } finally {
       setIsSaving(false);
     }

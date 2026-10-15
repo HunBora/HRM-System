@@ -3,6 +3,7 @@ import { useState } from 'react';
 import styles from '../kpi.module.css';
 import { createMasterKpi, deleteMasterKpi } from './actions';
 import { importMasterKpiExcel } from '../importActions';
+import { notify } from '@/lib/notify';
 
 type MasterKpi = {
   id: string;
@@ -43,17 +44,29 @@ export default function MasterKpiClient({
     const result = await createMasterKpi(formData);
     setIsSubmitting(false);
     if (result.error) {
-      alert(result.error);
+      notify.error('បរាជ័យក្នុងការបង្កើត KPI', result.error);
     } else {
+      notify.toast('បានបង្កើត KPI គោលដោយជោគជ័យ', 'success');
       const form = document.getElementById('createKpiForm') as HTMLFormElement;
       form.reset();
     }
   }
 
   async function handleDelete(id: string) {
-    if (confirm('តើអ្នកពិតជាចង់លុប KPI នេះមែនទេ? (Are you sure?)')) {
-      const result = await deleteMasterKpi(id);
-      if (result.error) alert(result.error);
+    const confirmed = await notify.confirm({
+      title: 'លុប KPI គោល (Delete Master KPI)',
+      text: 'តើអ្នកពិតជាចង់លុប KPI នេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonText: 'យល់ព្រមលុប',
+      confirmButtonColor: '#ef4444',
+    });
+    if (!confirmed) return;
+
+    const result = await deleteMasterKpi(id);
+    if (result.error) {
+      notify.error('បរាជ័យក្នុងការលុប KPI', result.error);
+    } else {
+      notify.toast('បានលុប KPI ដោយជោគជ័យ', 'success');
     }
   }
 

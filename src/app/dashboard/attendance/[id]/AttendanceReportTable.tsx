@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
+import notify from '@/lib/notify';
 
 interface DayRecord {
   no: number;
@@ -57,13 +58,6 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
   const [reason, setReason] = useState('ភ្លេចស្កេន (Forgot to scan)');
   const [notes, setNotes] = useState('');
 
-  // Toast state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   // Selected Day record
   const selectedDay = useMemo(() => {
@@ -212,10 +206,10 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
       );
 
       setIsModalOpen(false);
-      showToast(`បានកត់ត្រាវត្តមានថ្ងៃទី ${selectedDayNo} ដោយជោគជ័យ!`, 'success');
+      notify.toast(`បានកត់ត្រាវត្តមានថ្ងៃទី ${selectedDayNo} ដោយជោគជ័យ!`, 'success');
       router.refresh();
     } catch (err: any) {
-      showToast(err.message, 'error');
+      notify.error('បរាជ័យក្នុងការកត់ត្រា', err.message);
     } finally {
       setIsSaving(false);
     }
@@ -223,8 +217,16 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
 
   // Auto-Fill all missing work days in the month
   const handleAutoFillMonth = async () => {
-    const confirmMsg = `តើអ្នកពិតជាចង់បំពេញម៉ោងស្វ័យប្រវត្តិ (07:00-11:00, 13:00-17:00 = 8 ម៉ោង) សម្រាប់គ្រប់ថ្ងៃធ្វើការដែលខ្វះក្នុងខែ ${month + 1}/${year} របស់បុគ្គលិក ${employee.firstNameEn} មែនទេ?`;
-    if (!window.confirm(confirmMsg)) return;
+    const confirmed = await notify.confirm({
+      title: '⚡ បញ្ជាក់ការបំពេញស្វ័យប្រវត្តិក្នងខែ',
+      html: `<div style="text-align: center; font-size: 0.95rem; line-height: 1.6; color: #334155;">
+        តើអ្នកពិតជាចង់បំពេញម៉ោងស្វ័យប្រវត្តិតាមវេន<br/><span style="color: #2563eb; font-weight: 700;">(07:00-11:00, 13:00-17:00 = 8 ម៉ោង)</span><br/>សម្រាប់គ្រប់ថ្ងៃធ្វើការដែលខ្វះក្នុងខែ <b>${month + 1}/${year}</b> របស់បុគ្គលិក <b>${employee.firstNameEn} ${employee.lastNameEn || ''}</b> មែនទេ?
+      </div>`,
+      confirmButtonText: '⚡ បំពេញស្វ័យប្រវត្តិ',
+      cancelButtonText: 'បោះបង់',
+      icon: 'question',
+    });
+    if (!confirmed) return;
 
     setIsSaving(true);
     try {
@@ -268,10 +270,10 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
         })
       );
 
-      showToast(data.message || 'បានបំពេញវត្តមានពេញមួយខែជោគជ័យ!', 'success');
+      notify.success('បានបំពេញវត្តមានពេញមួយខែជោគជ័យ!', data.message);
       router.refresh();
     } catch (err: any) {
-      showToast(err.message, 'error');
+      notify.error('បរាជ័យក្នុងការបំពេញ', err.message);
     } finally {
       setIsSaving(false);
     }
@@ -282,30 +284,6 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
 
   return (
     <div>
-      {/* Toast */}
-      {toast && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 9999999,
-            padding: '12px 20px',
-            borderRadius: '10px',
-            boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-            backgroundColor: toast.type === 'success' ? '#10b981' : '#ef4444',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '0.92rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
-          <span>{toast.type === 'success' ? '✅' : '❌'}</span>
-          <span>{toast.message}</span>
-        </div>
-      )}
 
       {/* Action Buttons Toolbar (No-Print) */}
       <div

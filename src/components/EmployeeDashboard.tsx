@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { notify } from '@/lib/notify';
 
 export default function EmployeeDashboard({ employee, recentLeaves, recentAttendances, recentPayrolls, l, locale }: any) {
   if (!employee) {
@@ -92,7 +93,7 @@ export default function EmployeeDashboard({ employee, recentLeaves, recentAttend
                 <span style={{ fontWeight: 600 }}>ខែ {payroll.month}/{payroll.year}</span>
                 <span style={{ color: '#059669', fontWeight: 'bold' }}>${payroll.netSalaryUsd.toFixed(2)}</span>
                 <button 
-                  onClick={() => alert('មុខងារទាញយកនឹងត្រូវបន្ថែមពេលក្រោយ។')}
+                  onClick={() => notify.info('ព័ត៌មាន (Information)', 'មុខងារទាញយកនឹងត្រូវបន្ថែមពេលក្រោយ។')}
                   style={{ border: 'none', background: '#e0e7ff', color: '#4f46e5', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
                 >
                   📥 ទាញយក

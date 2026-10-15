@@ -461,5 +461,33 @@ div[style*="overflow"]::-webkit-scrollbar-thumb:hover {
   margin: 0 auto;
 }
 
+/* SweetAlert2 Standard Modern Styling */
+.swal2-popup.swal2-custom-popup {
+  border-radius: 20px !important;
+  font-family: 'Noto Sans Khmer', 'Inter', sans-serif !important;
+  padding: 24px !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+.swal2-title.swal2-custom-title {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  line-height: 1.5 !important;
+}
+.swal2-confirm.swal2-custom-btn-confirm {
+  border-radius: 10px !important;
+  padding: 10px 22px !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+.swal2-cancel.swal2-custom-btn-cancel {
+  border-radius: 10px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+}
+
 
 

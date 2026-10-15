@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createUser, updateUser, deleteUser } from './actions';
+import notify from '@/lib/notify';
 
 export default function UserManagementClient({ users, employees }: { users: any[], employees: any[] }) {
   const [showModal, setShowModal] = useState(false);
@@ -44,8 +45,17 @@ export default function UserManagementClient({ users, employees }: { users: any[
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('តើអ្នកពិតជាចង់លុបគណនីនេះមែនទេ?')) {
+    const confirmed = await notify.confirm({
+      title: 'លុបគណនីអ្នកប្រើប្រាស់',
+      text: 'តើអ្នកពិតជាចង់លុបគណនីនេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: 'លុប (Delete)',
+      cancelButtonText: 'បោះបង់',
+    });
+    if (confirmed) {
       await deleteUser(id);
+      notify.toast('បានលុបគណនីដោយជោគជ័យ', 'success');
     }
   };
 

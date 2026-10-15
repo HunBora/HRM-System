@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { updateAdvanceStatus, deleteAdvanceRequest } from './actions';
+import notify from '@/lib/notify';
 
 export default function AdvanceStatusClient({ id, currentStatus, t }: { id: string, currentStatus: string, t: any }) {
   const [loading, setLoading] = useState(false);
@@ -9,13 +10,23 @@ export default function AdvanceStatusClient({ id, currentStatus, t }: { id: stri
   const handleUpdate = async (status: string) => {
     setLoading(true);
     await updateAdvanceStatus(id, status);
+    notify.toast(status === 'APPROVED' ? 'បានអនុម័តបើកប្រាក់មុនជោគជ័យ' : 'បានបដិសេធសំណើ', status === 'APPROVED' ? 'success' : 'info');
     setLoading(false);
   };
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this advance request?')) {
+    const confirmed = await notify.confirm({
+      title: 'លុបសំណើសុំបើកប្រាក់មុន',
+      text: 'តើអ្នកពិតជាចង់លុបសំណើសុំបើកប្រាក់មុននេះមែនទេ?',
+      icon: 'warning',
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: 'លុប (Delete)',
+      cancelButtonText: 'បោះបង់',
+    });
+    if (confirmed) {
       setLoading(true);
       await deleteAdvanceRequest(id);
+      notify.toast('បានលុបសំណើដោយជោគជ័យ', 'success');
       setLoading(false);
     }
   };

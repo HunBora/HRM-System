@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import PayslipCard from './PayslipCard';
 import { sendPayslipToTelegram } from '@/app/dashboard/payroll/payslipActions';
+import { notify } from '@/lib/notify';
 
 export default function PayslipView({ payroll, settings }: { payroll: any; settings: any }) {
   const [sending, setSending] = useState(false);
@@ -16,14 +17,23 @@ export default function PayslipView({ payroll, settings }: { payroll: any; setti
 
   const handleTelegram = async () => {
     if (!payroll.employee?.telegramChatId) {
-      alert('សូមបញ្ជូល Telegram Chat ID នៅក្នុងប្រវត្តិរូបបុគ្គលិកជាមុនសិន! (Please add Chat ID to employee profile)');
+      notify.warning('ខ្វះ Telegram Chat ID', 'សូមបញ្ជូល Telegram Chat ID នៅក្នុងប្រវត្តិរូបបុគ្គលិកជាមុនសិន!');
       return;
     }
 
     setSending(true);
-    const res = await sendPayslipToTelegram(payroll.id);
-    setSending(false);
-    alert(res.message);
+    try {
+      const res = await sendPayslipToTelegram(payroll.id);
+      if (res?.success) {
+        notify.success('ជោគជ័យ', res.message || 'បានផ្ញើវិក្កយបត្រប្រាក់ខែទៅ Telegram រួចរាល់');
+      } else {
+        notify.error('បរាជ័យក្នុងការផ្ញើ', res?.message || 'មិនអាចផ្ញើទៅកាន់ Telegram បានទេ');
+      }
+    } catch (err: any) {
+      notify.error('កំហុស', err.message);
+    } finally {
+      setSending(false);
+    }
   };
 
   const m = payroll.month.toString().padStart(2, '0');

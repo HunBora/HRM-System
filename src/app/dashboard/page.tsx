@@ -182,7 +182,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     recentLeaveRequests,
     weeklyAttendance,
     allJobPostings,
-    allCandidates
+    allCandidates,
+    allEmployeeLoans
   ] = await Promise.all([
     prisma.employee.count(),
     prisma.payroll.aggregate({
@@ -243,6 +244,16 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           select: { department: true, title: true }
         }
       }
+    }),
+    // Employee Loans query
+    prisma.employeeLoan.findMany({
+      where: { status: { in: ['ACTIVE', 'PENDING', 'PAID_OFF'] } },
+      include: {
+        employee: {
+          select: { firstNameKh: true, lastNameKh: true, firstNameEn: true, lastNameEn: true, department: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
     })
   ]);
 
@@ -273,6 +284,26 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     advanceSet.add(adv.employeeId);
   });
   advanceStats.count = advanceSet.size;
+
+  // Compute loanStats from EmployeeLoan table
+  const activeLoans = (allEmployeeLoans || []).filter(l => l.status === 'ACTIVE');
+  const loanStats = {
+    activeCount: activeLoans.length,
+    totalPrincipal: activeLoans.reduce((sum, l) => sum + l.loanAmount, 0),
+    totalRepaid: activeLoans.reduce((sum, l) => sum + l.totalRepaid, 0),
+    totalRemaining: activeLoans.reduce((sum, l) => sum + l.remainingBalance, 0),
+    monthlyDeduction: activeLoans.reduce((sum, l) => sum + l.monthlyDeduction, 0),
+    loans: (allEmployeeLoans || []).slice(0, 6).map(l => ({
+      id: l.id,
+      loanCode: l.loanCode,
+      empName: l.employee ? `${l.employee.lastNameKh || ''} ${l.employee.firstNameKh || ''} (${l.employee.firstNameEn || ''})`.trim() : 'បុគ្គលិក',
+      loanAmount: l.loanAmount,
+      remainingBalance: l.remainingBalance,
+      monthlyDeduction: l.monthlyDeduction,
+      purpose: l.purpose,
+      status: l.status,
+    })),
+  };
 
   // Compute rich recruitment ATS stats & pipeline
   const totalOpenJobs = allJobPostings.filter(j => j.status === 'OPEN').length;
@@ -646,6 +677,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         groupHires={groupHires}
         recentLeaveRequests={recentLeaveRequests}
         advanceStats={advanceStats}
+        loanStats={loanStats}
         recruitmentByDept={recruitmentByDept}
         recruitmentStats={recruitmentStats}
         weeklyAttendanceData={weeklyAttendanceData}

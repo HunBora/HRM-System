@@ -38,6 +38,23 @@ type Props = {
   hrContactUrl?: string;
   recentLeaveRequests?: any[];
   advanceStats?: { paid: number; remaining: number; count: number };
+  loanStats?: {
+    activeCount: number;
+    totalPrincipal: number;
+    totalRepaid: number;
+    totalRemaining: number;
+    monthlyDeduction: number;
+    loans?: Array<{
+      id: string;
+      loanCode: string;
+      empName: string;
+      loanAmount: number;
+      remainingBalance: number;
+      monthlyDeduction: number;
+      purpose: string;
+      status: string;
+    }>;
+  };
   weeklyAttendanceData?: {
     name: string;
     nameKh?: string;
@@ -125,6 +142,7 @@ export default function CustomizableDashboard({
   hrContactUrl,
   recentLeaveRequests = [],
   advanceStats = { paid: 0, remaining: 0, count: 0 },
+  loanStats = { activeCount: 0, totalPrincipal: 0, totalRepaid: 0, totalRemaining: 0, monthlyDeduction: 0, loans: [] },
   weeklyAttendanceData = [],
   recruitmentByDept = [],
   recruitmentStats,
@@ -141,6 +159,7 @@ export default function CustomizableDashboard({
   const [hometownView, setHometownView] = useState<'leaderboard' | 'donut'>('leaderboard');
   const [attendanceView, setAttendanceView] = useState<'trend' | 'bar'>('trend');
   const [departmentView, setDepartmentView] = useState<'leaderboard' | 'donut'>('leaderboard');
+  const [loanView, setLoanView] = useState<'health' | 'portfolio'>('health');
 
   // Compute Demographics
   const provinceMap: Record<string, { current: number; prev: number }> = {};
@@ -886,84 +905,364 @@ export default function CustomizableDashboard({
             );
           })()}
 
-          {/* 3. ADVANCE SALARY & LOAN HEALTH (DONUT) */}
-          <div
-            key="loan_pay"
-            data-grid={{ x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 2 }}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '14px',
-              padding: '16px 18px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
-              <div>
-                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                  💳 ស្ថានភាពប្រាក់កម្ចី & បុរេប្រទាន (Loans & Advances)
-                </h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Advance & Loan Status</span>
-              </div>
-              <Link
-                href="/dashboard/advance"
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#6366f1',
-                  textDecoration: 'none',
-                  backgroundColor: '#eef2ff',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #c7d2fe',
-                }}
-              >
-                គ្រប់គ្រង ➔
-              </Link>
-            </div>
+          {/* 3. ADVANCE SALARY & LOAN HEALTH (MODERN 2-IN-1: HEALTH DONUT & PORTFOLIO COMPARISON) */}
+          {(() => {
+            const advPaid = advanceStats?.paid || 0;
+            const advRemaining = advanceStats?.remaining || 0;
+            const advTotal = advPaid + advRemaining > 0 ? advPaid + advRemaining : totalAdvanceValue;
+            const advCount = advanceStats?.count || 0;
 
-            <div style={{ flex: 1, position: 'relative', minHeight: '130px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: 'បានសង (Paid)', value: advanceStats.paid > 0 ? advanceStats.paid : 1 },
-                      { name: 'នៅសល់ (Remaining)', value: advanceStats.remaining > 0 ? advanceStats.remaining : 0 },
-                    ]}
-                    cx="50%"
-                    cy="75%"
-                    startAngle={180}
-                    endAngle={0}
-                    innerRadius={55}
-                    outerRadius={80}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    <Cell fill="#10b981" />
-                    <Cell fill="#6366f1" />
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.8rem' }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', bottom: 0 }} />
-                </PieChart>
-              </ResponsiveContainer>
+            const loanPrincipal = loanStats?.totalPrincipal || 0;
+            const loanRepaid = loanStats?.totalRepaid || 0;
+            const loanRemaining = loanStats?.totalRemaining || 0;
+            const loanCount = loanStats?.activeCount || 0;
+            const loanMonthly = loanStats?.monthlyDeduction || 0;
+
+            const grandTotal = advTotal + loanPrincipal;
+            const grandRepaid = advPaid + loanRepaid;
+            const grandRemaining = advRemaining + loanRemaining;
+            const recoveryRate = grandTotal > 0 ? Math.round((grandRepaid / grandTotal) * 100) : (grandTotal === 0 ? 100 : 0);
+
+            const donutData = [
+              { name: 'បានទូទាត់សង (Repaid)', value: grandRepaid > 0 ? grandRepaid : (grandTotal === 0 ? 1 : 0), color: '#10b981' },
+              { name: 'នៅសល់ត្រូវទូទាត់ (Remaining)', value: grandRemaining > 0 ? grandRemaining : 0, color: '#6366f1' },
+            ];
+
+            const advPct = advTotal > 0 ? Math.round((advPaid / advTotal) * 100) : 100;
+            const loanPct = loanPrincipal > 0 ? Math.round((loanRepaid / loanPrincipal) * 100) : 100;
+
+            return (
               <div
+                key="loan_pay"
+                data-grid={{ x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 2 }}
                 style={{
-                  position: 'absolute',
-                  top: '58%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  textAlign: 'center',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
                 }}
               >
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
-                  ${(advanceStats.paid + advanceStats.remaining).toLocaleString()}
+                {/* Header with Title, Controls & Navigation */}
+                <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
+                  <div>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>💳</span>
+                      <span>ស្ថានភាពប្រាក់កម្ចី & បុរេប្រទាន (Loans & Advances)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Advances & Employee Loans Portfolio</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* View Switcher Segmented Button */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLoanView('health');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: loanView === 'health' ? '#ffffff' : 'transparent',
+                          color: loanView === 'health' ? '#6366f1' : '#64748b',
+                          boxShadow: loanView === 'health' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        🍩 សុខភាព
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLoanView('portfolio');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: loanView === 'portfolio' ? '#ffffff' : 'transparent',
+                          color: loanView === 'portfolio' ? '#6366f1' : '#64748b',
+                          boxShadow: loanView === 'portfolio' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        ⚖️ ប្រៀបធៀប
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <Link
+                        href="/dashboard/advance"
+                        title="គ្រប់គ្រងបុរេប្រទាន"
+                        style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          color: '#8b5cf6',
+                          textDecoration: 'none',
+                          backgroundColor: '#f5f3ff',
+                          padding: '3px 6px',
+                          borderRadius: '6px',
+                          border: '1px solid #ddd6fe',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        បុរេប្រទាន ➔
+                      </Link>
+                      <Link
+                        href="/dashboard/loans"
+                        title="គ្រប់គ្រងប្រាក់កម្ចី"
+                        style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          color: '#0284c7',
+                          textDecoration: 'none',
+                          backgroundColor: '#f0f9ff',
+                          padding: '3px 6px',
+                          borderRadius: '6px',
+                          border: '1px solid #bae6fd',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        កម្ចី ➔
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.68rem', color: '#64748b' }}>សរុបទាំងអស់</div>
+
+                {/* KPI Ribbon Header */}
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f5f3ff',
+                      color: '#6d28d9',
+                      border: '1px solid #ddd6fe',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>💵</span>
+                    <span>បុរេប្រទាន៖ ${advTotal.toLocaleString()} ({advCount} នាក់)</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f0f9ff',
+                      color: '#0369a1',
+                      border: '1px solid #bae6fd',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🏦</span>
+                    <span>កម្ចីសកម្ម៖ ${loanPrincipal.toLocaleString()} ({loanCount} នាក់)</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f0fdf4',
+                      color: '#15803d',
+                      border: '1px solid #bbf7d0',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🔄</span>
+                    <span>អត្រាសង៖ {recoveryRate}%</span>
+                  </span>
+                </div>
+
+                {/* Main Content: Health Donut vs Portfolio Comparison */}
+                {loanView === 'health' ? (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '135px' }}>
+                    <div style={{ flex: 1, position: 'relative', minHeight: '100px' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={donutData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={44}
+                            outerRadius={68}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            <Cell fill="#10b981" />
+                            <Cell fill="#6366f1" />
+                          </Pie>
+                          <Tooltip
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div
+                                    style={{
+                                      backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                                      color: '#ffffff',
+                                      padding: '8px 12px',
+                                      borderRadius: '8px',
+                                      fontSize: '0.75rem',
+                                      boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
+                                      backdropFilter: 'blur(8px)',
+                                    }}
+                                  >
+                                    <div style={{ fontWeight: 800, color: data.color, marginBottom: '2px' }}>{data.name}</div>
+                                    <div>ទឹកប្រាក់៖ <strong>${data.value.toLocaleString()}</strong></div>
+                                    <div>សមាមាត្រ៖ <strong>{grandTotal > 0 ? Math.round((data.value / grandTotal) * 100) : 0}%</strong></div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          textAlign: 'center',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                          ${grandTotal.toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b', marginTop: '2px' }}>
+                          សរុបទាំងអស់ ({recoveryRate}%)
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Status Breakdown Ribbon */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '4px', borderTop: '1px dashed #f1f5f9' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', flexShrink: 0 }} />
+                        <span style={{ color: '#64748b' }}>បានសង៖</span>
+                        <strong style={{ color: '#047857' }}>${grandRepaid.toLocaleString()}</strong>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', justifyContent: 'flex-end' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366f1', flexShrink: 0 }} />
+                        <span style={{ color: '#64748b' }}>នៅសល់៖</span>
+                        <strong style={{ color: '#4338ca' }}>${grandRemaining.toLocaleString()}</strong>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minHeight: '135px', overflowY: 'auto', paddingRight: '2px' }}>
+                    {/* Advance Salary Box */}
+                    <div
+                      style={{
+                        padding: '8px 10px',
+                        backgroundColor: '#faf5ff',
+                        borderRadius: '10px',
+                        border: '1px solid #e9d5ff',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '0.9rem' }}>💵</span>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#6b21a8' }}>បុរេប្រទានប្រចាំខែ (Advance)</span>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b21a8' }}>
+                          ${advTotal.toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#64748b' }}>
+                        <span>បានកាត់ចេញ៖ <strong style={{ color: '#10b981' }}>${advPaid.toLocaleString()}</strong></span>
+                        <span>នៅសល់៖ <strong style={{ color: '#8b5cf6' }}>${advRemaining.toLocaleString()}</strong> ({advCount} នាក់)</span>
+                      </div>
+
+                      {/* Mini Progress */}
+                      <div style={{ height: '4px', width: '100%', backgroundColor: '#e9d5ff', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${advPct}%`, background: 'linear-gradient(90deg, #8b5cf6, #10b981)', borderRadius: '3px' }} />
+                      </div>
+                    </div>
+
+                    {/* Employee Loans Box */}
+                    <div
+                      style={{
+                        padding: '8px 10px',
+                        backgroundColor: '#f0f9ff',
+                        borderRadius: '10px',
+                        border: '1px solid #bae6fd',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '0.9rem' }}>🏦</span>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0369a1' }}>ប្រាក់កម្ចីបុគ្គលិក (Company Loans)</span>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#0369a1' }}>
+                          ${loanPrincipal.toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#64748b' }}>
+                        <span>បានសង៖ <strong style={{ color: '#10b981' }}>${loanRepaid.toLocaleString()}</strong></span>
+                        <span>នៅសល់៖ <strong style={{ color: '#0284c7' }}>${loanRemaining.toLocaleString()}</strong> ({loanCount} កម្ចី)</span>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.65rem', color: '#0284c7', fontWeight: 600 }}>
+                        <span>រំលស់ប្រចាំខែ៖ <strong>${loanMonthly.toLocaleString()}/ខែ</strong></span>
+                        <Link href="/dashboard/loans" style={{ color: '#0284c7', textDecoration: 'none', fontWeight: 700 }}>
+                          មើលលម្អិត ➔
+                        </Link>
+                      </div>
+
+                      {/* Mini Progress */}
+                      <div style={{ height: '4px', width: '100%', backgroundColor: '#bae6fd', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${loanPct}%`, background: 'linear-gradient(90deg, #0284c7, #10b981)', borderRadius: '3px' }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* 4. RECRUITMENT PIPELINE & DEMAND (MODERN ATS CARD) */}
           {(() => {

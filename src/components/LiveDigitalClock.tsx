@@ -1,33 +1,154 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toKhmerLunarDate } from 'khmer-chhankitek-calendar';
 
-const KHMER_MONTHS = [
-  'មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា',
-  'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'
-];
-
-const MONTHS_EN = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const WEEKDAYS_HEADER = [
-  { label: 'អាទិត្យ', isWeekend: true },
-  { label: 'ច័ន្ទ', isWeekend: false },
-  { label: 'អង្គារ', isWeekend: false },
-  { label: 'ពុធ', isWeekend: false },
-  { label: 'ព្រហ', isWeekend: false },
-  { label: 'សុក្រ', isWeekend: false },
-  { label: 'សៅរ៍', isWeekend: true },
-];
-
 const toKhmerNum = (num: number | string): string => {
   const khmerDigits = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
   return String(num).replace(/[0-9]/g, (d) => khmerDigits[parseInt(d, 10)]);
+};
+
+const I18N = {
+  kh: {
+    greetings: {
+      morning: 'អរុណសួស្តី',
+      afternoon: 'ទិវាសួស្តី',
+      evening: 'សាយណ្ហសួស្តី',
+      night: 'រាត្រីសួស្តី',
+    },
+    city: 'រាជធានីភ្នំពេញ',
+    live: 'ផ្សាយផ្ទាល់',
+    filtered: 'កំពុងច្រោះ',
+    returnToLive: 'ត្រឡប់ទៅថ្ងៃជាក់ស្តែង',
+    modalTitle: 'ប្រតិទិនចន្ទគតិ និងថ្ងៃឈប់សម្រាកបុណ្យជាតិកម្ពុជា',
+    modalSubtitle: 'ព័ត៌មានលម្អិតផ្លូវការ នៃព្រះរាជាណាចក្រកម្ពុជា',
+    yearLabel: 'ឆ្នាំ',
+    weekdays: [
+      { label: 'អាទិត្យ', isWeekend: true },
+      { label: 'ច័ន្ទ', isWeekend: false },
+      { label: 'អង្គារ', isWeekend: false },
+      { label: 'ពុធ', isWeekend: false },
+      { label: 'ព្រហ', isWeekend: false },
+      { label: 'សុក្រ', isWeekend: false },
+      { label: 'សៅរ៍', isWeekend: true },
+    ],
+    months: [
+      'មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា',
+      'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'
+    ],
+    detailsTitle: 'ព័ត៌មានលម្អិតកាលបរិច្ឆេទ',
+    publicHolidayBadge: 'ថ្ងៃឈប់សម្រាកបុណ្យជាតិ',
+    silDayBadge: 'ថ្ងៃសីល',
+    workDayBadge: 'ថ្ងៃធ្វើការធម្មតា',
+    solarLabel: 'សូរិយគតិ៖',
+    lunarLabel: 'ចន្ទគតិខ្មែរ៖',
+    eraLabel: 'ពុទ្ធសករាជ៖',
+    filterDashboardBtn: 'ច្រោះទិន្នន័យថ្ងៃនេះលើ Dashboard ➔',
+    holidaysInMonthTitle: 'បញ្ជីថ្ងៃឈប់សម្រាកបុណ្យជាតិក្នុងខែ',
+    holidaysCountSuffix: 'ថ្ងៃបុណ្យ',
+    noHolidaysInMonth: 'គ្មានថ្ងៃឈប់សម្រាកបុណ្យជាតិផ្លូវការក្នុងខែនេះទេ',
+    selectBtn: 'ជ្រើសរើស ➔',
+    todayLegend: 'ថ្ងៃនេះ',
+    holidayLegend: 'ថ្ងៃឈប់សម្រាកបុណ្យជាតិ',
+    silDayLegend: 'ថ្ងៃសីល',
+    todayLiveBtn: 'ត្រឡប់ទៅថ្ងៃជាក់ស្តែង',
+    closeBtn: 'បិទ',
+    dayPrefix: 'ថ្ងៃទី',
+  },
+  en: {
+    greetings: {
+      morning: 'Good Morning',
+      afternoon: 'Good Afternoon',
+      evening: 'Good Evening',
+      night: 'Good Night',
+    },
+    city: 'Phnom Penh',
+    live: 'LIVE',
+    filtered: 'Filtered',
+    returnToLive: 'Back to Today',
+    modalTitle: 'Cambodia Calendar & Public Holidays',
+    modalSubtitle: 'Kingdom of Cambodia Official Holidays',
+    yearLabel: 'Year',
+    weekdays: [
+      { label: 'Sun', isWeekend: true },
+      { label: 'Mon', isWeekend: false },
+      { label: 'Tue', isWeekend: false },
+      { label: 'Wed', isWeekend: false },
+      { label: 'Thu', isWeekend: false },
+      { label: 'Fri', isWeekend: false },
+      { label: 'Sat', isWeekend: true },
+    ],
+    months: [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+    detailsTitle: 'Date Details',
+    publicHolidayBadge: 'Public Holiday',
+    silDayBadge: 'Sabbath Day',
+    workDayBadge: 'Working Day',
+    solarLabel: 'Solar Date:',
+    lunarLabel: 'Khmer Lunar:',
+    eraLabel: 'Buddhist Era:',
+    filterDashboardBtn: 'Filter Dashboard for this Date ➔',
+    holidaysInMonthTitle: 'Public Holidays in',
+    holidaysCountSuffix: 'Holidays',
+    noHolidaysInMonth: 'No official public holidays in this month',
+    selectBtn: 'Select ➔',
+    todayLegend: 'Today',
+    holidayLegend: 'Public Holiday',
+    silDayLegend: 'Sabbath Day',
+    todayLiveBtn: 'Back to Today',
+    closeBtn: 'Close',
+    dayPrefix: 'Day',
+  },
+  zh: {
+    greetings: {
+      morning: '早上好',
+      afternoon: '下午好',
+      evening: '晚上好',
+      night: '晚安',
+    },
+    city: '金边',
+    live: '实时',
+    filtered: '已筛选',
+    returnToLive: '返回今天',
+    modalTitle: '柬埔寨日历与法定公休日',
+    modalSubtitle: '柬埔寨王国官方公共假日资讯',
+    yearLabel: '年',
+    weekdays: [
+      { label: '日', isWeekend: true },
+      { label: '一', isWeekend: false },
+      { label: '二', isWeekend: false },
+      { label: '三', isWeekend: false },
+      { label: '四', isWeekend: false },
+      { label: '五', isWeekend: false },
+      { label: '六', isWeekend: true },
+    ],
+    months: [
+      '一月', '二月', '三月', '四月', '五月', '六月',
+      '七月', '八月', '九月', '十月', '十一月', '十二月'
+    ],
+    detailsTitle: '日期详情',
+    publicHolidayBadge: '法定公休日',
+    silDayBadge: '佛戒日',
+    workDayBadge: '正常工作日',
+    solarLabel: '公历日期：',
+    lunarLabel: '高棉农历：',
+    eraLabel: '佛历纪年：',
+    filterDashboardBtn: '以此日期筛选仪表板 ➔',
+    holidaysInMonthTitle: '本月法定节假日：',
+    holidaysCountSuffix: '天假期',
+    noHolidaysInMonth: '本月无官方公共节假日',
+    selectBtn: '选择 ➔',
+    todayLegend: '今天',
+    holidayLegend: '法定假日',
+    silDayLegend: '佛戒日',
+    todayLiveBtn: '返回今天',
+    closeBtn: '关闭',
+    dayPrefix: '',
+  },
 };
 
 export default function LiveDigitalClock({
@@ -42,11 +163,14 @@ export default function LiveDigitalClock({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Active translation set
+  const currentLocale = (locale === 'en' || locale === 'zh') ? locale : 'kh';
+  const t = I18N[currentLocale];
+
   // Live walking clock state (Real-time Date & Time)
   const [now, setNow] = useState<Date | null>(null);
-
-  // Popover / Modal state
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // Parse custom date string (YYYY-MM-DD)
   const parseDate = (str: string) => {
@@ -57,8 +181,6 @@ export default function LiveDigitalClock({
     }
     return new Date();
   };
-
-  const [mounted, setMounted] = useState(false);
 
   // Timer for walking real-time clock
   useEffect(() => {
@@ -118,7 +240,7 @@ export default function LiveDigitalClock({
         }}
       >
         <span className="kh-text" style={{ fontSize: '0.82rem', color: '#64748b' }}>
-          ⏳ កំពុងដំណើរការនាឡិកា និងប្រតិទិនជាក់ស្តែង...
+          ⏳ ...
         </span>
       </div>
     );
@@ -135,22 +257,18 @@ export default function LiveDigitalClock({
   const timeStr = `${pad(hours12)}:${pad(minutes)}:${pad(seconds)}`;
   const period = isAm ? 'AM' : 'PM';
 
-  // Greeting based on time of day
-  let greetingKh = 'អរុណសួស្តី';
-  let greetingEn = 'Good Morning';
+  // Greeting based on time of day (SINGLE LANGUAGE ONLY)
+  let greeting = t.greetings.morning;
   let greetingIcon = '☀️';
 
   if (hours >= 12 && hours < 17) {
-    greetingKh = 'ទិវាសួស្តី';
-    greetingEn = 'Good Afternoon';
+    greeting = t.greetings.afternoon;
     greetingIcon = '🌤️';
   } else if (hours >= 17 && hours < 21) {
-    greetingKh = 'សាយណ្ហសួស្តី';
-    greetingEn = 'Good Evening';
+    greeting = t.greetings.evening;
     greetingIcon = '🌆';
   } else if (hours >= 21 || hours < 5) {
-    greetingKh = 'រាត្រីសួស្តី';
-    greetingEn = 'Good Night';
+    greeting = t.greetings.night;
     greetingIcon = '🌙';
   }
 
@@ -161,22 +279,44 @@ export default function LiveDigitalClock({
   try {
     const lunar = toKhmerLunarDate(activeDate);
     if (lunar?.holidays && lunar.holidays.length > 0) {
-      activeHolidayName = lunar.holidays[0].nameKm;
+      // Pick language-specific holiday name
+      if (currentLocale === 'en') {
+        activeHolidayName = lunar.holidays[0].nameEn || lunar.holidays[0].nameKm;
+      } else {
+        activeHolidayName = lunar.holidays[0].nameKm;
+      }
     }
     if (lunar?.moonDayKhmer && lunar?.moonStatus) {
-      activeLunarShort = `${lunar.moonDayKhmer}${lunar.moonStatus} ខែ${lunar.khmerMonth || ''}`;
+      if (currentLocale === 'kh') {
+        activeLunarShort = `${lunar.moonDayKhmer}${lunar.moonStatus} ខែ${lunar.khmerMonth || ''}`;
+      } else if (currentLocale === 'en') {
+        activeLunarShort = `${lunar.moonDay} ${lunar.moonStatus === 'កើត' ? 'Waxing' : 'Waning'} ${lunar.khmerMonth || ''}`;
+      } else {
+        activeLunarShort = `农历${lunar.moonDay}${lunar.moonStatus === 'កើត' ? '初' : '望'}`;
+      }
     }
   } catch (e) {}
 
-  const activeDayFormatted = `${String(activeDate.getDate()).padStart(2, '0')}/${String(activeDate.getMonth() + 1).padStart(2, '0')}/${activeDate.getFullYear()}`;
-  const activeDayKh = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'][activeDate.getDay()];
-  const activeDateTitleKh = `ថ្ងៃ${activeDayKh} ទី${toKhmerNum(activeDate.getDate())} ${KHMER_MONTHS[activeDate.getMonth()]} ${toKhmerNum(activeDate.getFullYear())}`;
-  const activeDateEn = activeDate.toLocaleDateString('en-US', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  // Single-language Active Date formatting
+  let activeDateTitle = '';
+  let activeDateSub = '';
+
+  if (currentLocale === 'kh') {
+    const khDays = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+    activeDateTitle = `ថ្ងៃ${khDays[activeDate.getDay()]} ទី${toKhmerNum(activeDate.getDate())} ខែ${t.months[activeDate.getMonth()]} ឆ្នាំ${toKhmerNum(activeDate.getFullYear())}`;
+    activeDateSub = activeLunarShort;
+  } else if (currentLocale === 'en') {
+    activeDateTitle = activeDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    activeDateSub = `${String(activeDate.getDate()).padStart(2, '0')}/${String(activeDate.getMonth() + 1).padStart(2, '0')}/${activeDate.getFullYear()}`;
+  } else {
+    activeDateTitle = `${activeDate.getFullYear()}年${activeDate.getMonth() + 1}月${activeDate.getDate()}日`;
+    activeDateSub = activeLunarShort;
+  }
 
   // Modal month navigation
   const prevMonth = () => {
@@ -216,17 +356,13 @@ export default function LiveDigitalClock({
   const firstDayIndex = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
-  // List ALL holidays in view month with full details
+  // List ALL holidays in view month with full details (SINGLE LANGUAGE)
   const monthHolidays: Array<{
     day: number;
     dateObj: Date;
-    nameKm: string;
-    nameEn?: string;
+    name: string;
+    solarDateText: string;
     lunarText: string;
-    gregorianText: string;
-    buddhistEra: string;
-    animalYear: string;
-    sak: string;
   }> = [];
 
   for (let d = 1; d <= daysInMonth; d++) {
@@ -234,24 +370,36 @@ export default function LiveDigitalClock({
       const cellDate = new Date(viewYear, viewMonth, d);
       const lunar = toKhmerLunarDate(cellDate);
       if (lunar?.holidays && lunar.holidays.length > 0) {
+        const holidayName = currentLocale === 'en'
+          ? (lunar.holidays[0].nameEn || lunar.holidays[0].nameKm)
+          : lunar.holidays[0].nameKm;
+
+        let solarText = '';
+        let lunarDesc = '';
+        if (currentLocale === 'kh') {
+          solarText = `ថ្ងៃទី ${toKhmerNum(d)} ខែ${t.months[viewMonth]} ឆ្នាំ${toKhmerNum(viewYear)}`;
+          lunarDesc = lunar.lunarDateText || `${lunar.moonDayKhmer}${lunar.moonStatus}`;
+        } else if (currentLocale === 'en') {
+          solarText = `${d} ${t.months[viewMonth]} ${viewYear}`;
+          lunarDesc = `${lunar.moonDay} ${lunar.moonStatus === 'កើត' ? 'Waxing Moon' : 'Waning Moon'}`;
+        } else {
+          solarText = `${viewYear}年${viewMonth + 1}月${d}日`;
+          lunarDesc = `农历${lunar.moonDay}`;
+        }
+
         monthHolidays.push({
           day: d,
           dateObj: cellDate,
-          nameKm: lunar.holidays[0].nameKm,
-          nameEn: lunar.holidays[0].nameEn,
-          lunarText: lunar.lunarDateText || '',
-          gregorianText: lunar.gregorianDateText || '',
-          buddhistEra: lunar.buddhistEraYearKhmer || '',
-          animalYear: lunar.animalYear || '',
-          sak: lunar.sak || '',
+          name: holidayName,
+          solarDateText: solarText,
+          lunarText: lunarDesc,
         });
       }
     } catch (e) {}
   }
 
-  // Inspected Date details
+  // Inspected Date details (SINGLE LANGUAGE)
   let inspectedHolidayName = '';
-  let inspectedHolidayEn = '';
   let inspectedGregorianText = '';
   let inspectedLunarFullText = '';
   let inspectedAnimalYear = '';
@@ -262,23 +410,36 @@ export default function LiveDigitalClock({
   try {
     const inspectedLunar = toKhmerLunarDate(inspectedDate);
     if (inspectedLunar?.holidays && inspectedLunar.holidays.length > 0) {
-      inspectedHolidayName = inspectedLunar.holidays[0].nameKm;
-      inspectedHolidayEn = inspectedLunar.holidays[0].nameEn || '';
+      inspectedHolidayName = currentLocale === 'en'
+        ? (inspectedLunar.holidays[0].nameEn || inspectedLunar.holidays[0].nameKm)
+        : inspectedLunar.holidays[0].nameKm;
     }
-    inspectedGregorianText = inspectedLunar?.gregorianDateText || '';
-    inspectedLunarFullText = inspectedLunar?.lunarDateText || '';
-    inspectedAnimalYear = inspectedLunar?.animalYear || '';
-    inspectedSak = inspectedLunar?.sak || '';
-    inspectedBuddhistEra = inspectedLunar?.buddhistEraYearKhmer || '';
+    if (currentLocale === 'kh') {
+      inspectedGregorianText = inspectedLunar?.gregorianDateText || '';
+      inspectedLunarFullText = inspectedLunar?.lunarDateText || '';
+      inspectedAnimalYear = inspectedLunar?.animalYear || '';
+      inspectedSak = inspectedLunar?.sak || '';
+      inspectedBuddhistEra = inspectedLunar?.buddhistEraYearKhmer || '';
+    } else if (currentLocale === 'en') {
+      inspectedGregorianText = inspectedDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+      inspectedLunarFullText = `${inspectedLunar?.moonDay} ${inspectedLunar?.moonStatus === 'កើត' ? 'Waxing Moon' : 'Waning Moon'}, Month of ${inspectedLunar?.khmerMonth || ''}`;
+      inspectedAnimalYear = inspectedLunar?.animalYear || '';
+      inspectedSak = inspectedLunar?.sak || '';
+      inspectedBuddhistEra = String(inspectedLunar?.buddhistEraYear || '');
+    } else {
+      inspectedGregorianText = `${inspectedDate.getFullYear()}年${inspectedDate.getMonth() + 1}月${inspectedDate.getDate()}日`;
+      inspectedLunarFullText = `农历${inspectedLunar?.moonDay}`;
+      inspectedAnimalYear = inspectedLunar?.animalYear || '';
+      inspectedSak = inspectedLunar?.sak || '';
+      inspectedBuddhistEra = String(inspectedLunar?.buddhistEraYear || '');
+    }
     inspectedIsSilDay = !!inspectedLunar?.isSilDay;
   } catch (e) {}
-
-  const inspectedDayEn = inspectedDate.toLocaleDateString('en-US', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
 
   return (
     <>
@@ -326,7 +487,7 @@ export default function LiveDigitalClock({
           }
         `}</style>
 
-        {/* 1. Left: Greeting & Location */}
+        {/* 1. Left: Greeting & Location (SINGLE LANGUAGE) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
@@ -349,14 +510,14 @@ export default function LiveDigitalClock({
             <div
               className="kh-text"
               style={{
-                fontSize: '0.74rem',
-                fontWeight: 700,
+                fontSize: '0.78rem',
+                fontWeight: 800,
                 color: '#0369a1',
                 whiteSpace: 'nowrap',
                 lineHeight: 1.3,
               }}
             >
-              {greetingKh} ({greetingEn})
+              {greeting}
             </div>
             <div
               style={{
@@ -368,7 +529,7 @@ export default function LiveDigitalClock({
                 gap: '4px',
               }}
             >
-              <span>🇰🇭 ភ្នំពេញ (Phnom Penh)</span>
+              <span>{t.city}</span>
               <span>•</span>
               <span style={{ fontWeight: 600, color: '#0284c7' }}>GMT+7</span>
             </div>
@@ -474,7 +635,7 @@ export default function LiveDigitalClock({
               textAlign: 'left',
             }}
             className="hover-elevate"
-            title="ចុចដើម្បីបើកផ្ទាំង Pop-up ប្រតិទិន ថ្ងៃឈប់សម្រាកបុណ្យជាតិ និងព័ត៌មានលម្អិត"
+            title={t.detailsTitle}
           >
             {/* Modern Calendar Icon */}
             <div
@@ -485,171 +646,165 @@ export default function LiveDigitalClock({
                 background: activeHolidayName
                   ? 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)'
                   : 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-              border: `1px solid ${activeHolidayName ? '#fda4af' : '#bfdbfe'}`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.2rem',
-              flexShrink: 0,
-              boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
-            }}
-          >
-            🗓️
-          </div>
-
-          {/* Text Summary */}
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            {/* Top row: Date in Khmer & Mode/Holiday Pill */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span
-                className="kh-text"
-                style={{
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  color: '#0f172a',
-                  whiteSpace: 'nowrap',
-                  lineHeight: 1.25,
-                }}
-              >
-                {activeDateTitleKh}
-              </span>
-
-              {/* LIVE Badge or Filtered Badge */}
-              {!isCustomFiltered ? (
-                <span
-                  style={{
-                    fontSize: '0.62rem',
-                    fontWeight: 800,
-                    color: '#15803d',
-                    backgroundColor: '#dcfce7',
-                    border: '1px solid #bbf7d0',
-                    padding: '1px 6px',
-                    borderRadius: '999px',
-                    whiteSpace: 'nowrap',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '3px',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: '5px',
-                      height: '5px',
-                      borderRadius: '50%',
-                      backgroundColor: '#16a34a',
-                    }}
-                  />
-                  LIVE ជាក់ស្តែង
-                </span>
-              ) : (
-                <span
-                  className="kh-text"
-                  style={{
-                    fontSize: '0.62rem',
-                    fontWeight: 800,
-                    color: '#b45309',
-                    backgroundColor: '#fef3c7',
-                    border: '1px solid #fde68a',
-                    padding: '1px 6px',
-                    borderRadius: '999px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  🔍 កំពុងច្រោះ
-                </span>
-              )}
-
-              {/* Holiday Pill */}
-              {activeHolidayName && (
-                <span
-                  className="kh-text"
-                  style={{
-                    fontSize: '0.66rem',
-                    fontWeight: 800,
-                    color: '#be123c',
-                    backgroundColor: '#ffe4e6',
-                    border: '1px solid #fecdd3',
-                    padding: '1px 8px',
-                    borderRadius: '999px',
-                    whiteSpace: 'nowrap',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  🎉 {activeHolidayName}
-                </span>
-              )}
-            </div>
-
-            {/* Bottom row: English Date + Khmer Lunar Status */}
-            <div
-              style={{
+                border: `1px solid ${activeHolidayName ? '#fda4af' : '#bfdbfe'}`,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                fontSize: '0.66rem',
-                color: '#64748b',
-                whiteSpace: 'nowrap',
-                marginTop: '1px',
+                justifyContent: 'center',
+                fontSize: '1.2rem',
+                flexShrink: 0,
+                boxShadow: '0 2px 5px rgba(0,0,0,0.04)',
               }}
             >
-              <span style={{ fontWeight: 600 }}>{activeDateEn} ({activeDayFormatted})</span>
-              {activeLunarShort && (
-                <>
-                  <span>•</span>
-                  <span className="kh-text" style={{ color: '#0284c7', fontWeight: 700 }}>
-                    {activeLunarShort}
+              🗓️
+            </div>
+
+            {/* Text Summary (SINGLE LANGUAGE) */}
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              {/* Top row: Date in Active Language & Mode/Holiday Pill */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span
+                  className="kh-text"
+                  style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    color: '#0f172a',
+                    whiteSpace: 'nowrap',
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {activeDateTitle}
+                </span>
+
+                {/* LIVE Badge or Filtered Badge */}
+                {!isCustomFiltered ? (
+                  <span
+                    style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      color: '#15803d',
+                      backgroundColor: '#dcfce7',
+                      border: '1px solid #bbf7d0',
+                      padding: '1px 6px',
+                      borderRadius: '999px',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '5px',
+                        height: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: '#16a34a',
+                      }}
+                    />
+                    {t.live}
                   </span>
-                </>
+                ) : (
+                  <span
+                    className="kh-text"
+                    style={{
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      color: '#b45309',
+                      backgroundColor: '#fef3c7',
+                      border: '1px solid #fde68a',
+                      padding: '1px 6px',
+                      borderRadius: '999px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    🔍 {t.filtered}
+                  </span>
+                )}
+
+                {/* Holiday Pill */}
+                {activeHolidayName && (
+                  <span
+                    className="kh-text"
+                    style={{
+                      fontSize: '0.66rem',
+                      fontWeight: 800,
+                      color: '#be123c',
+                      backgroundColor: '#ffe4e6',
+                      border: '1px solid #fecdd3',
+                      padding: '1px 8px',
+                      borderRadius: '999px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    🎉 {activeHolidayName}
+                  </span>
+                )}
+              </div>
+
+              {/* Bottom row: Sub information */}
+              {activeDateSub && (
+                <div
+                  style={{
+                    fontSize: '0.66rem',
+                    color: '#64748b',
+                    whiteSpace: 'nowrap',
+                    marginTop: '1px',
+                    fontWeight: 600,
+                  }}
+                >
+                  <span className="kh-text" style={{ color: '#0284c7', fontWeight: 700 }}>
+                    {activeDateSub}
+                  </span>
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Dropdown Chevron */}
-          <span
-            style={{
-              fontSize: '0.7rem',
-              color: activeHolidayName ? '#be123c' : '#64748b',
-              marginLeft: '4px',
-              flexShrink: 0,
-            }}
-          >
-            ▼
-          </span>
-        </button>
-
-        {/* If custom filtered, offer instant 1-click button to reset back to LIVE */}
-        {isCustomFiltered && (
-          <button
-            type="button"
-            onClick={handleJumpToToday}
-            className="kh-text hover-elevate"
-            style={{
-              backgroundColor: '#16a34a',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '6px 12px',
-              fontSize: '0.72rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 2px 6px rgba(22, 163, 74, 0.3)',
-              height: '42px',
-            }}
-            title="ចុចដើម្បីត្រឡប់មកថ្ងៃខែឆ្នាំជាក់ស្តែង (LIVE) វិញភ្លាមៗ"
-          >
-            <span>🔴</span>
-            <span>ត្រឡប់ទៅ LIVE ថ្ងៃនេះ</span>
+            {/* Dropdown Chevron */}
+            <span
+              style={{
+                fontSize: '0.7rem',
+                color: activeHolidayName ? '#be123c' : '#64748b',
+                marginLeft: '4px',
+                flexShrink: 0,
+              }}
+            >
+              ▼
+            </span>
           </button>
-        )}
+
+          {/* If custom filtered, offer instant 1-click button to reset back to LIVE */}
+          {isCustomFiltered && (
+            <button
+              type="button"
+              onClick={handleJumpToToday}
+              className="kh-text hover-elevate"
+              style={{
+                backgroundColor: '#16a34a',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '6px 12px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 2px 6px rgba(22, 163, 74, 0.3)',
+                height: '42px',
+              }}
+              title={t.returnToLive}
+            >
+              <span>🔴</span>
+              <span>{t.returnToLive}</span>
+            </button>
+          )}
+        </div>
       </div>
-    </div>
 
       {/* =========================================================================
-          POP-UP MODAL (Rendered at root document.body via Portal to prevent any widget overlap)
+          POP-UP MODAL (Rendered at root document.body via Portal - SINGLE LANGUAGE)
           ========================================================================= */}
       {isOpen && mounted && createPortal(
         <div
@@ -683,7 +838,7 @@ export default function LiveDigitalClock({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Top Header */}
+            {/* Modal Top Header (SINGLE LANGUAGE) */}
             <div
               style={{
                 display: 'flex',
@@ -722,7 +877,7 @@ export default function LiveDigitalClock({
                       lineHeight: 1.25,
                     }}
                   >
-                    ប្រតិទិនចន្ទគតិ និងថ្ងៃឈប់សម្រាកបុណ្យជាតិកម្ពុជា
+                    {t.modalTitle}
                   </h2>
                   <p
                     className="kh-text"
@@ -732,7 +887,7 @@ export default function LiveDigitalClock({
                       color: '#64748b',
                     }}
                   >
-                    Cambodia Lunar Calendar & Official Public Holidays • ឆ្នាំ {toKhmerNum(viewYear)} ({viewYear})
+                    {t.modalSubtitle} • {t.yearLabel} {currentLocale === 'kh' ? toKhmerNum(viewYear) : viewYear}
                   </p>
                 </div>
               </div>
@@ -756,13 +911,13 @@ export default function LiveDigitalClock({
                   transition: 'all 0.15s ease',
                 }}
                 className="hover-elevate"
-                title="បិទផ្ទាំង (Close)"
+                title={t.closeBtn}
               >
                 ✕
               </button>
             </div>
 
-            {/* Modal Body: 2 Columns (Left: Calendar, Right: Full Details & Holidays List) */}
+            {/* Modal Body: 2 Columns */}
             <div
               style={{
                 display: 'grid',
@@ -788,7 +943,7 @@ export default function LiveDigitalClock({
                   boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
                 }}
               >
-                {/* Month Navigator Header */}
+                {/* Month Navigator Header (SINGLE LANGUAGE) */}
                 <div
                   style={{
                     display: 'flex',
@@ -816,7 +971,6 @@ export default function LiveDigitalClock({
                       transition: 'all 0.15s',
                     }}
                     className="hover-elevate"
-                    title="ខែមុន"
                   >
                     ◀
                   </button>
@@ -831,18 +985,9 @@ export default function LiveDigitalClock({
                         lineHeight: 1.2,
                       }}
                     >
-                      ខែ{KHMER_MONTHS[viewMonth]} ({MONTHS_EN[viewMonth]})
-                    </div>
-                    <div
-                      className="kh-text"
-                      style={{
-                        fontSize: '0.78rem',
-                        color: '#0284c7',
-                        fontWeight: 700,
-                        marginTop: '1px',
-                      }}
-                    >
-                      ឆ្នាំ {toKhmerNum(viewYear)} • {viewYear}
+                      {currentLocale === 'kh'
+                        ? `ខែ${t.months[viewMonth]} ឆ្នាំ ${toKhmerNum(viewYear)}`
+                        : `${t.months[viewMonth]} ${viewYear}`}
                     </div>
                   </div>
 
@@ -864,13 +1009,12 @@ export default function LiveDigitalClock({
                       transition: 'all 0.15s',
                     }}
                     className="hover-elevate"
-                    title="ខែបន្ទាប់"
                   >
                     ▶
                   </button>
                 </div>
 
-                {/* Weekdays Row */}
+                {/* Weekdays Row (SINGLE LANGUAGE) */}
                 <div
                   style={{
                     display: 'grid',
@@ -884,7 +1028,7 @@ export default function LiveDigitalClock({
                     border: '1px solid #f1f5f9',
                   }}
                 >
-                  {WEEKDAYS_HEADER.map((w, idx) => (
+                  {t.weekdays.map((w, idx) => (
                     <span
                       key={idx}
                       className="kh-text"
@@ -934,10 +1078,18 @@ export default function LiveDigitalClock({
                     try {
                       const lunar = toKhmerLunarDate(cellDate);
                       if (lunar?.holidays && lunar.holidays.length > 0) {
-                        holidayName = lunar.holidays[0].nameKm;
+                        holidayName = currentLocale === 'en'
+                          ? (lunar.holidays[0].nameEn || lunar.holidays[0].nameKm)
+                          : lunar.holidays[0].nameKm;
                       }
                       if (lunar?.moonDayKhmer && lunar?.moonStatus) {
-                        lunarText = `${lunar.moonDayKhmer}${lunar.moonStatus}`;
+                        if (currentLocale === 'kh') {
+                          lunarText = `${lunar.moonDayKhmer}${lunar.moonStatus}`;
+                        } else if (currentLocale === 'en') {
+                          lunarText = `${lunar.moonDay}${lunar.moonStatus === 'កើត' ? 'W' : 'R'}`;
+                        } else {
+                          lunarText = `${lunar.moonDay}`;
+                        }
                       }
                       isSilDay = !!lunar?.isSilDay;
                     } catch (e) {}
@@ -989,13 +1141,7 @@ export default function LiveDigitalClock({
                             ? '0 1px 3px rgba(244, 63, 94, 0.1)'
                             : 'none',
                         }}
-                        title={
-                          isToday
-                            ? `📍 ថ្ងៃនេះជាក់ស្តែង (${lunarText})`
-                            : holidayName
-                            ? `🎉 ${holidayName} (${lunarText})`
-                            : `ថ្ងៃទី ${toKhmerNum(dNum)} (${lunarText})`
-                        }
+                        title={holidayName || `${t.dayPrefix} ${dNum}`}
                       >
                         <span
                           style={{
@@ -1026,7 +1172,13 @@ export default function LiveDigitalClock({
                             marginTop: '1px',
                           }}
                         >
-                          {isToday ? '● ថ្ងៃនេះ' : isHoliday ? '★ បុណ្យ' : isSilDay ? '☸ សីល' : lunarText}
+                          {isToday
+                            ? `● ${t.todayLegend}`
+                            : isHoliday
+                            ? '★'
+                            : isSilDay
+                            ? '☸'
+                            : lunarText}
                         </span>
                       </button>
                     );
@@ -1047,15 +1199,15 @@ export default function LiveDigitalClock({
                 >
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16a34a' }} />
-                    ថ្ងៃនេះ (Today)
+                    {t.todayLegend}
                   </span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#e11d48' }} />
-                    ★ ថ្ងៃឈប់សម្រាកបុណ្យជាតិ
+                    ★ {t.holidayLegend}
                   </span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#d97706' }} />
-                    ☸ ថ្ងៃសីល
+                    ☸ {t.silDayLegend}
                   </span>
                 </div>
               </div>
@@ -1073,7 +1225,7 @@ export default function LiveDigitalClock({
                   paddingRight: '4px',
                 }}
               >
-                {/* 1. Inspected Day Details Card */}
+                {/* 1. Inspected Day Details Card (SINGLE LANGUAGE) */}
                 <div
                   style={{
                     backgroundColor: inspectedHolidayName ? '#fff1f2' : '#f8fafc',
@@ -1099,7 +1251,7 @@ export default function LiveDigitalClock({
                       }}
                     >
                       <span>📌</span>
-                      <span>កាលបរិច្ឆេទដែលបានចុចពិនិត្យ (Selected Date)</span>
+                      <span>{t.detailsTitle}</span>
                     </div>
 
                     {inspectedHolidayName ? (
@@ -1116,7 +1268,7 @@ export default function LiveDigitalClock({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        🎉 ថ្ងៃឈប់សម្រាកបុណ្យជាតិ
+                        🎉 {t.publicHolidayBadge}
                       </span>
                     ) : inspectedIsSilDay ? (
                       <span
@@ -1132,7 +1284,7 @@ export default function LiveDigitalClock({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        ☸️ ថ្ងៃសីល
+                        ☸️ {t.silDayBadge}
                       </span>
                     ) : (
                       <span
@@ -1148,7 +1300,7 @@ export default function LiveDigitalClock({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        💼 ថ្ងៃធ្វើការធម្មតា
+                        💼 {t.workDayBadge}
                       </span>
                     )}
                   </div>
@@ -1179,43 +1331,42 @@ export default function LiveDigitalClock({
                         >
                           {inspectedHolidayName}
                         </div>
-                        {inspectedHolidayEn && (
-                          <div style={{ fontSize: '0.72rem', color: '#be123c', fontWeight: 600 }}>
-                            {inspectedHolidayEn} • Official Public Holiday
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}
 
-                  {/* Details Field List */}
+                  {/* Details Field List (SINGLE LANGUAGE) */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px', fontSize: '0.74rem' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                       <span style={{ color: '#64748b', fontWeight: 600, minWidth: '95px' }} className="kh-text">
-                        📅 សូរិយគតិ៖
+                        {t.solarLabel}
                       </span>
                       <span style={{ color: '#0f172a', fontWeight: 700 }} className="kh-text">
-                        {inspectedGregorianText} ({inspectedDayEn})
+                        {inspectedGregorianText}
                       </span>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                       <span style={{ color: '#64748b', fontWeight: 600, minWidth: '95px' }} className="kh-text">
-                        🌙 ចន្ទគតិខ្មែរ៖
+                        {t.lunarLabel}
                       </span>
                       <span style={{ color: '#0369a1', fontWeight: 700 }} className="kh-text">
                         {inspectedLunarFullText}
                       </span>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                      <span style={{ color: '#64748b', fontWeight: 600, minWidth: '95px' }} className="kh-text">
-                        📜 ពុទ្ធសករាជ៖
-                      </span>
-                      <span style={{ color: '#475569', fontWeight: 600 }} className="kh-text">
-                        ឆ្នាំ{inspectedAnimalYear} {inspectedSak} ពុទ្ធសករាជ {inspectedBuddhistEra}
-                      </span>
-                    </div>
+                    {inspectedBuddhistEra && (
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <span style={{ color: '#64748b', fontWeight: 600, minWidth: '95px' }} className="kh-text">
+                          {t.eraLabel}
+                        </span>
+                        <span style={{ color: '#475569', fontWeight: 600 }} className="kh-text">
+                          {currentLocale === 'kh'
+                            ? `ឆ្នាំ${inspectedAnimalYear} ${inspectedSak} ពុទ្ធសករាជ ${inspectedBuddhistEra}`
+                            : `${inspectedAnimalYear} Year, Buddhist Era ${inspectedBuddhistEra}`}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Filter Action for this inspected day */}
@@ -1240,12 +1391,12 @@ export default function LiveDigitalClock({
                       }}
                     >
                       <span>🔍</span>
-                      <span>ច្រោះទិន្នន័យថ្ងៃនេះលើ Dashboard ➔</span>
+                      <span>{t.filterDashboardBtn}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* 2. Full Month Holidays List (List Down Details តាមថ្ងៃបុណ្យនីមួយៗ) */}
+                {/* 2. Full Month Holidays List (SINGLE LANGUAGE) */}
                 <div
                   style={{
                     backgroundColor: '#ffffff',
@@ -1271,7 +1422,7 @@ export default function LiveDigitalClock({
                   >
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span>🎉</span>
-                      <span>បញ្ជីថ្ងៃឈប់សម្រាកបុណ្យជាតិក្នុងខែ {KHMER_MONTHS[viewMonth]}៖</span>
+                      <span>{t.holidaysInMonthTitle} {t.months[viewMonth]}៖</span>
                     </span>
                     <span
                       style={{
@@ -1283,7 +1434,7 @@ export default function LiveDigitalClock({
                         fontWeight: 800,
                       }}
                     >
-                      {monthHolidays.length} ថ្ងៃបុណ្យ
+                      {currentLocale === 'kh' ? toKhmerNum(monthHolidays.length) : monthHolidays.length} {t.holidaysCountSuffix}
                     </span>
                   </div>
 
@@ -1299,7 +1450,7 @@ export default function LiveDigitalClock({
                         borderRadius: '8px',
                       }}
                     >
-                      គ្មានថ្ងៃឈប់សម្រាកបុណ្យជាតិផ្លូវការក្នុងខែនេះទេ
+                      {t.noHolidaysInMonth}
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1321,19 +1472,14 @@ export default function LiveDigitalClock({
                               <div
                                 className="kh-text"
                                 style={{
-                                  fontSize: '0.82rem',
+                                  fontSize: '0.84rem',
                                   fontWeight: 800,
                                   color: '#9f1239',
                                   lineHeight: 1.35,
                                 }}
                               >
-                                • {h.nameKm}
+                                • {h.name}
                               </div>
-                              {h.nameEn && (
-                                <div style={{ fontSize: '0.68rem', color: '#be123c', fontWeight: 600 }}>
-                                  {h.nameEn}
-                                </div>
-                              )}
                             </div>
 
                             <button
@@ -1354,7 +1500,7 @@ export default function LiveDigitalClock({
                                 boxShadow: '0 2px 4px rgba(190, 18, 60, 0.25)',
                               }}
                             >
-                              ជ្រើសរើស ➔
+                              {t.selectBtn}
                             </button>
                           </div>
 
@@ -1370,7 +1516,7 @@ export default function LiveDigitalClock({
                             }}
                           >
                             <span className="kh-text" style={{ fontWeight: 700, color: '#0f172a' }}>
-                              📅 ថ្ងៃទី {toKhmerNum(h.day)} {KHMER_MONTHS[viewMonth]} {toKhmerNum(viewYear)}
+                              📅 {h.solarDateText}
                             </span>
                             <span>•</span>
                             <span className="kh-text" style={{ color: '#0369a1', fontWeight: 700 }}>
@@ -1385,7 +1531,7 @@ export default function LiveDigitalClock({
               </div>
             </div>
 
-            {/* Modal Bottom Footer */}
+            {/* Modal Bottom Footer (SINGLE LANGUAGE) */}
             <div
               style={{
                 display: 'flex',
@@ -1416,7 +1562,7 @@ export default function LiveDigitalClock({
                   }}
                 >
                   <span>📍</span>
-                  <span>ត្រឡប់ទៅថ្ងៃជាក់ស្តែង (LIVE Today)</span>
+                  <span>{t.todayLiveBtn}</span>
                 </button>
               </div>
 
@@ -1435,7 +1581,7 @@ export default function LiveDigitalClock({
                   cursor: 'pointer',
                 }}
               >
-                បិទ (Close)
+                {t.closeBtn}
               </button>
             </div>
           </div>

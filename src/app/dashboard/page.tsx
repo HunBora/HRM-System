@@ -8,6 +8,7 @@ import DraggableSummaryCards from '@/components/DraggableSummaryCards';
 import DraggableBottomGrid from '@/components/DraggableBottomGrid';
 import DashboardKpiChart from '@/components/DashboardKpiChart';
 import CustomizableDashboard from '@/components/CustomizableDashboard';
+import LiveDigitalClock from '@/components/LiveDigitalClock';
 
 
 const dashT = {
@@ -811,57 +812,204 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
-        <h1 className="title kh-text animate-fade-in" style={{ marginBottom: 0 }}>{t.sidebar.dashboard}</h1>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-          {/* Khmer Calendar Section */}
+      {/* Global Executive Standard Header with Live Walking Clock */}
+      <div
+        className="animate-fade-in no-print"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+          gap: '14px',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          padding: '12px 18px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 20px -4px rgba(15, 23, 42, 0.05)',
+        }}
+      >
+        {/* Left: Global Dashboard Brand & Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #38bdf8 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.35rem',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+              flexShrink: 0,
+            }}
+          >
+            🏢
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1
+                className="kh-text"
+                style={{
+                  margin: 0,
+                  fontSize: '1.22rem',
+                  fontWeight: 800,
+                  color: '#0f172a',
+                  lineHeight: 1.25,
+                }}
+              >
+                {t.sidebar.dashboard}
+              </h1>
+              <span
+                style={{
+                  fontSize: '0.66rem',
+                  fontWeight: 800,
+                  color: '#15803d',
+                  backgroundColor: '#dcfce7',
+                  border: '1px solid #bbf7d0',
+                  padding: '2px 7px',
+                  borderRadius: '999px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  lineHeight: 1.2,
+                }}
+              >
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#16a34a',
+                    display: 'inline-block',
+                  }}
+                />
+                Global Standard
+              </span>
+            </div>
+            <div
+              style={{
+                fontSize: '0.72rem',
+                color: '#64748b',
+                marginTop: '2px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <span>Enterprise HR Management System</span>
+              <span>•</span>
+              <span style={{ color: '#0284c7', fontWeight: 600 }}>v2.5 Live</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Center: Live Walking Digital Clock (មុខម៉ោងដើរ Real-time) */}
+        <div style={{ display: 'flex', justifyContent: 'center', flex: '1 1 auto', minWidth: '280px' }}>
+          <LiveDigitalClock locale={locale} />
+        </div>
+
+        {/* Right: Actions & Date Controls */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            flexWrap: 'wrap',
+          }}
+        >
+          {/* Khmer Holiday Calendar Trigger */}
           <KhmerCalendar initialMonth={filterMonth} initialYear={filterYear} />
-          
-                      <Link href="/settings" className="btn-secondary kh-text" style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none' }} title="ការកំណត់ក្រុមផ្នែក">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-              ការកំណត់ក្រុមផ្នែក
-            </Link>
 
-          <form method="GET" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', backgroundColor: 'var(--card-bg)', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
-            
+          {/* Department Group Settings */}
+          <Link
+            href="/settings"
+            style={{
+              padding: '6px 14px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              textDecoration: 'none',
+              backgroundColor: '#f8fafc',
+              border: '1px solid #cbd5e1',
+              borderRadius: '8px',
+              color: '#334155',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              transition: 'all 0.15s ease',
+              height: '48px',
+              whiteSpace: 'nowrap',
+            }}
+            title="ការកំណត់ក្រុមផ្នែក"
+            className="hover-elevate kh-text"
+          >
+            <span style={{ fontSize: '1rem' }}>⚙️</span>
+            <span>ការកំណត់ក្រុមផ្នែក</span>
+          </Link>
 
-
-            <div style={{ position: 'relative' }}>
-              <label className="kh-text" style={{ position: 'absolute', top: '-8px', left: '8px', fontSize: '0.65rem', backgroundColor: 'var(--card-bg)', padding: '0 4px', color: '#059669', fontWeight: 'bold', zIndex: 1 }}>📅 ថ្ងៃជាក់ស្តែង</label>
-              <input 
-                type="date" 
-                name="date" 
-                defaultValue={actualDateStr} 
-                className="input-field" 
-                style={{ margin: 0, padding: '5px 10px', width: 'auto', fontWeight: 600, color: '#059669', borderColor: '#10b981', backgroundColor: 'transparent', position: 'relative', zIndex: 0 }} 
+          {/* Actual Date Filter Form */}
+          <form
+            method="GET"
+            style={{
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center',
+              backgroundColor: '#ffffff',
+              padding: '4px 8px',
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              height: '48px',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '4px' }}>
+              <span className="kh-text" style={{ fontSize: '0.62rem', color: '#0284c7', fontWeight: 700, lineHeight: 1.1 }}>
+                📅 ថ្ងៃជាក់ស្តែង
+              </span>
+              <input
+                type="date"
+                name="date"
+                defaultValue={actualDateStr}
+                style={{
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  padding: '1px 2px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  margin: 0,
+                }}
               />
             </div>
 
-            <button 
-              type="submit" 
-              className="btn kh-text" 
-              style={{ 
-                padding: '6px 16px', 
-                backgroundColor: '#2563eb', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '8px', 
-                fontWeight: 600, 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '6px', 
-                whiteSpace: 'nowrap', 
-                cursor: 'pointer', 
-                boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)', 
-                flexShrink: 0,
-                fontSize: '0.9rem',
+            <button
+              type="submit"
+              className="kh-text"
+              style={{
+                padding: '6px 14px',
+                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
+                fontSize: '0.78rem',
                 transition: 'all 0.2s ease',
-                height: '34px'
+                height: '36px',
               }}
             >
               <span>✅</span>
-              <span>បង្ហាញទិន្នន័យ</span>
+              <span>បង្ហាញ</span>
             </button>
           </form>
         </div>

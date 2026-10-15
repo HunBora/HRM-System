@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toKhmerLunarDate } from 'khmer-chhankitek-calendar';
 
@@ -57,8 +58,11 @@ export default function LiveDigitalClock({
     return new Date();
   };
 
+  const [mounted, setMounted] = useState(false);
+
   // Timer for walking real-time clock
   useEffect(() => {
+    setMounted(true);
     setNow(new Date());
     const timer = setInterval(() => {
       setNow(new Date());
@@ -645,17 +649,17 @@ export default function LiveDigitalClock({
     </div>
 
       {/* =========================================================================
-          POP-UP MODAL (លោតឡើងចំកណ្តាលអេក្រង់ មិនដាច់ និងបង្ហាញ Details លម្អិត)
+          POP-UP MODAL (Rendered at root document.body via Portal to prevent any widget overlap)
           ========================================================================= */}
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            zIndex: 999999,
+            zIndex: 99999999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1435,7 +1439,8 @@ export default function LiveDigitalClock({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

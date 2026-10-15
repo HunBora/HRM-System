@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
 export async function generatePayroll(month: number, year: number) {
   try {
@@ -55,19 +56,90 @@ export async function generatePayroll(month: number, year: number) {
           })
         ]);
 
+        const HOLIDAYS: Record<string, string> = {
+          '1-1': 'ទិវាចូលឆ្នាំសកល',
+          '1-7': 'ទិវាជ័យជម្នះលើរបបប្រល័យពូជសាសន៍',
+          '3-8': 'ទិវានារីអន្តរជាតិ',
+          '4-14': 'បុណ្យចូលឆ្នាំខ្មែរ',
+          '4-15': 'បុណ្យចូលឆ្នាំខ្មែរ',
+          '4-16': 'បុណ្យចូលឆ្នាំខ្មែរ',
+          '5-1': 'ទិវាពលកម្មអន្តរជាតិ',
+          '5-14': 'ព្រះរាជពិធីចម្រើនព្រះជន្ម ព្រះមហាក្សត្រ',
+          '5-31': 'ពិធីបុណ្យវិសាខបូជា', 
+          '6-4': 'ព្រះរាជពិធីច្រត់ព្រះនង្គ័ល',
+          '9-24': 'ទិវាប្រកាសរដ្ឋធម្មនុញ្ញ',
+          '10-9': 'ពិធីបុណ្យភ្ជុំបិណ្ឌ',
+          '10-10': 'ពិធីបុណ្យភ្ជុំបិណ្ឌ',
+          '10-11': 'ពិធីបុណ្យភ្ជុំបិណ្ឌ',
+          '10-15': 'ទិវាប្រារព្ធព្រះបរមរតនកោដ្ឋ',
+          '10-29': 'ព្រះរាជពិធីគ្រងព្រះបរមរាជសម្បត្តិ',
+          '11-9': 'ទិវាបុណ្យឯករាជ្យជាតិ',
+          '11-23': 'ព្រះរាជពិធីបុណ្យអុំទូក',
+          '11-24': 'ព្រះរាជពិធីបុណ្យអុំទូក',
+          '11-25': 'ព្រះរាជពិធីបុណ្យអុំទូក',
+        };
+
         let workingDays = 26;
         let absentDays = 0;
         let leaveDays = 0;
         let otHours = 0;
         let sunOtHours = 0;
         let nightOtHours = 0;
+        let otDaysWithMeal = 0;
 
         if (dailyRecords.length > 0) {
-          const sumRegDays = dailyRecords.reduce((sum, r) => sum + (r.regDay || 0), 0);
+          let sumRegDays = 0;
+          let sumNormOt = 0;
+          let sumNightOt = 0;
+          let sumHolidayOt = 0;
+
+          for (const r of dailyRecords) {
+            let rNormalOt = r.normalOtHrs || 0;
+            let rNightOt = r.nightOtHrs || 0;
+            let rHolidayOt = r.holidayOtHrs || 0;
+            let rRegDay = (r.regDay !== undefined && r.regDay !== null) ? r.regDay : 0;
+
+            const rDate = new Date(r.date);
+            const isSunday = rDate.getDay() === 0;
+            const isHoliday = !!HOLIDAYS[`${rDate.getMonth() + 1}-${rDate.getDate()}`];
+            const isOffDay = isSunday || isHoliday;
+
+            // Auto-calculate from punch timestamps if metrics are missing/0
+            if (rNormalOt === 0 && rNightOt === 0 && rHolidayOt === 0 && ((r.otIn && r.otOut) || (r.sOut && r.sOut > '17:00'))) {
+              const metrics = calculateDayAttendanceMetrics(r.fIn, r.fOut, r.sIn, r.sOut, r.otIn, r.otOut, isOffDay);
+              rNormalOt = metrics.normalOtHrs;
+              rNightOt = metrics.nightOtHrs;
+              rHolidayOt = metrics.holidayOtHrs;
+              if (rRegDay === 0 && metrics.regDay > 0) rRegDay = metrics.regDay;
+
+              // Save to database so dailyAttendance record is permanently accurate
+              await prisma.dailyAttendance.update({
+                where: { id: r.id },
+                data: {
+                  normalOtHrs: rNormalOt,
+                  nightOtHrs: rNightOt,
+                  holidayOtHrs: rHolidayOt,
+                  lateMins: r.lateMins > 0 ? r.lateMins : metrics.lateMins,
+                  earlyMins: r.earlyMins > 0 ? r.earlyMins : metrics.earlyMins,
+                  workHrs: r.workHrs > 0 ? r.workHrs : metrics.workHrs,
+                  regDay: rRegDay,
+                }
+              });
+            }
+
+            sumRegDays += rRegDay;
+            sumNormOt += rNormalOt;
+            sumNightOt += rNightOt;
+            sumHolidayOt += rHolidayOt;
+
+            const dayTotalOt = rNormalOt + rNightOt + rHolidayOt;
+            if (dayTotalOt >= 2) otDaysWithMeal++;
+          }
+
           workingDays = sumRegDays > 0 ? sumRegDays : dailyRecords.length;
-          otHours = dailyRecords.reduce((sum, r) => sum + (r.normalOtHrs || 0), 0);
-          nightOtHours = dailyRecords.reduce((sum, r) => sum + (r.nightOtHrs || 0), 0);
-          sunOtHours = dailyRecords.reduce((sum, r) => sum + (r.holidayOtHrs || 0), 0);
+          otHours = sumNormOt;
+          nightOtHours = sumNightOt;
+          sunOtHours = sumHolidayOt;
           absentDays = Math.max(0, 26 - workingDays);
         } else if (attendance) {
           workingDays = attendance.daysWorked;
@@ -76,24 +148,28 @@ export async function generatePayroll(month: number, year: number) {
           otHours = attendance.otHours;
         }
 
-        // Merge approved Overtime Requests if any exist
-        let reqNormalOt = 0;
-        let reqNightOt = 0;
-        let reqSunOt = 0;
+        // Merge approved Overtime Requests if any exist (avoid double counting if punches already recorded on same day)
         approvedOtRequests.forEach((ot) => {
-          if (ot.otType === 'NIGHT_OT') {
-            reqNightOt += ot.totalHours;
-          } else if (ot.otType === 'SUNDAY_OT' || ot.otType === 'HOLIDAY_OT') {
-            reqSunOt += ot.totalHours;
-          } else {
-            reqNormalOt += ot.totalHours;
+          const otDate = new Date(ot.otDate);
+          const hasPunchedOnDate = dailyRecords.some((r) => {
+            const rd = new Date(r.date);
+            return rd.getFullYear() === otDate.getFullYear() &&
+                   rd.getMonth() === otDate.getMonth() &&
+                   rd.getDate() === otDate.getDate() &&
+                   ((r.normalOtHrs || 0) > 0 || (r.nightOtHrs || 0) > 0 || (r.holidayOtHrs || 0) > 0 || (r.otIn && r.otOut));
+          });
+
+          if (!hasPunchedOnDate) {
+            if (ot.otType === 'NIGHT_OT') {
+              nightOtHours += ot.totalHours;
+            } else if (ot.otType === 'SUNDAY_OT' || ot.otType === 'HOLIDAY_OT') {
+              sunOtHours += ot.totalHours;
+            } else {
+              otHours += ot.totalHours;
+            }
+            if (ot.totalHours >= 2) otDaysWithMeal++;
           }
         });
-
-        // Add approved OT to the totals
-        otHours += reqNormalOt;
-        nightOtHours += reqNightOt;
-        sunOtHours += reqSunOt;
 
         // Merge approved Leave Requests if any exist
         const reqLeaveDays = approvedLeaveRequests.reduce((sum, lv) => sum + (lv.duration || 1), 0);
@@ -121,7 +197,7 @@ export async function generatePayroll(month: number, year: number) {
 
         // Allowances & Incentives
         const lunchAllowance = workingDays * 0.50; // 2000៛ ($0.50) per working day
-        const otMealAllowance = (otHours + sunOtHours + nightOtHours) >= 2 ? 0.50 : 0; // Meal allowance if total OT >= 2 hrs
+        const otMealAllowance = otDaysWithMeal > 0 ? otDaysWithMeal * 0.50 : 0; // Meal allowance $0.50 per day if OT >= 2 hrs
         const transportation = 7; // Fixed $7 transportation allowance
         const attendanceBonus = absentDays > 0 ? 0 : 15; // $15 bonus if no unexcused absences
         

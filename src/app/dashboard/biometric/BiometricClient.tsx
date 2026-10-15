@@ -96,11 +96,57 @@ export default function BiometricClient({
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Manual Punch Form
+  const [manualEntryMode, setManualEntryMode] = useState<'fullday' | 'single'>('fullday');
   const [manualEmpId, setManualEmpId] = useState('');
   const [manualTime, setManualTime] = useState(() => new Date().toISOString().slice(0, 16));
   const [manualType, setManualType] = useState('CHECK_IN');
   const [manualMode, setManualMode] = useState('MANUAL');
   const [manualNotes, setManualNotes] = useState('');
+
+  // Full Day / Forgot Scan Form States
+  const [fullDayDate, setFullDayDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [fullDayFIn, setFullDayFIn] = useState('07:00');
+  const [fullDayFOut, setFullDayFOut] = useState('11:00');
+  const [fullDaySIn, setFullDaySIn] = useState('13:00');
+  const [fullDaySOut, setFullDaySOut] = useState('17:00');
+  const [hasOt, setHasOt] = useState(false);
+  const [fullDayOtIn, setFullDayOtIn] = useState('17:30');
+  const [fullDayOtOut, setFullDayOtOut] = useState('19:30');
+  const [fullDayRegDay, setFullDayRegDay] = useState(1.0);
+  const [fullDayWorkHrs, setFullDayWorkHrs] = useState(8.0);
+  const [fullDayReason, setFullDayReason] = useState('ភ្លេចស្កេន (Forgot to scan)');
+
+  const applyShiftPreset = (preset: 'NORMAL' | 'HALF_MORN' | 'HALF_AFT' | 'NIGHT') => {
+    if (preset === 'NORMAL') {
+      setFullDayFIn('07:00');
+      setFullDayFOut('11:00');
+      setFullDaySIn('13:00');
+      setFullDaySOut('17:00');
+      setFullDayRegDay(1.0);
+      setFullDayWorkHrs(8.0);
+    } else if (preset === 'HALF_MORN') {
+      setFullDayFIn('07:00');
+      setFullDayFOut('11:00');
+      setFullDaySIn('');
+      setFullDaySOut('');
+      setFullDayRegDay(0.5);
+      setFullDayWorkHrs(4.0);
+    } else if (preset === 'HALF_AFT') {
+      setFullDayFIn('');
+      setFullDayFOut('');
+      setFullDaySIn('13:00');
+      setFullDaySOut('17:00');
+      setFullDayRegDay(0.5);
+      setFullDayWorkHrs(4.0);
+    } else if (preset === 'NIGHT') {
+      setFullDayFIn('17:00');
+      setFullDayFOut('22:00');
+      setFullDaySIn('23:00');
+      setFullDaySOut('04:00');
+      setFullDayRegDay(1.0);
+      setFullDayWorkHrs(8.0);
+    }
+  };
 
   // Device Form
   const [devName, setDevName] = useState('Main Gate Terminal');
@@ -181,15 +227,74 @@ export default function BiometricClient({
     }
   };
 
-  // Add Manual Punch
+  // Add Manual Punch (Full Day or Single)
   const handleCreateManualPunch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!manualEmpId || !manualTime) {
-      Swal.fire('Warning', 'សូមជ្រើសរើសបុគ្គលិក និងម៉ោងស្កេន', 'warning');
+    if (!manualEmpId) {
+      Swal.fire('Warning', 'សូមជ្រើសរើសបុគ្គលិក', 'warning');
       return;
     }
 
     try {
+      if (manualEntryMode === 'fullday') {
+        if (!fullDayDate) {
+          Swal.fire('Warning', 'សូមជ្រើសរើសកាលបរិច្ឆេទ', 'warning');
+          return;
+        }
+
+        const res = await fetch('/api/biometric/logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isFullDay: true,
+            employeeId: manualEmpId,
+            date: fullDayDate,
+            fIn: fullDayFIn,
+            fOut: fullDayFOut,
+            sIn: fullDaySIn,
+            sOut: fullDaySOut,
+            otIn: hasOt ? fullDayOtIn : null,
+            otOut: hasOt ? fullDayOtOut : null,
+            regDay: fullDayRegDay,
+            workHrs: fullDayWorkHrs,
+            remarks: `${fullDayReason}${manualNotes ? ` - ${manualNotes}` : ''}`,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Failed to record full day attendance');
+        }
+
+        const data = await res.json();
+        setIsManualModalOpen(false);
+        setManualEmpId('');
+        setManualNotes('');
+
+        // Refresh punch logs list
+        try {
+          const refreshed = await fetch(`/api/biometric/logs${dateFilter ? `?date=${dateFilter}` : ''}`);
+          if (refreshed.ok) {
+            const lData = await refreshed.json();
+            setLogs(lData);
+          }
+        } catch (_) {}
+
+        Swal.fire({
+          icon: 'success',
+          title: 'ជោគជ័យ',
+          text: data.message || 'បានកត់ត្រាវត្តមានពេញមួយថ្ងៃរួចរាល់!',
+          confirmButtonColor: '#2563eb',
+        });
+        return;
+      }
+
+      // Single punch mode
+      if (!manualTime) {
+        Swal.fire('Warning', 'សូមជ្រើសរើសម៉ោងស្កេន', 'warning');
+        return;
+      }
+
       const res = await fetch('/api/biometric/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1459,11 +1564,13 @@ export default function BiometricClient({
             style={{
               background: '#ffffff',
               borderRadius: '20px',
-              maxWidth: '520px',
+              maxWidth: '560px',
               width: '100%',
-              padding: '26px',
+              padding: '24px',
               boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
               border: '1px solid #e2e8f0',
+              maxHeight: '92vh',
+              overflowY: 'auto',
             }}
           >
             <div
@@ -1473,12 +1580,17 @@ export default function BiometricClient({
                 alignItems: 'center',
                 borderBottom: '1px solid #e2e8f0',
                 paddingBottom: '12px',
-                marginBottom: '16px',
+                marginBottom: '14px',
               }}
             >
-              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
-                កត់ត្រាស្កេនវត្តមានដោយដៃ (Manual Punch)
-              </h3>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: '#0f172a' }}>
+                  កត់ត្រាស្កេនវត្តមានដោយដៃ (Manual Attendance Entry)
+                </h3>
+                <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                  ងាយស្រួលបំពេញក្នុងករណីបុគ្គលិកភ្លេចស្កេនពេញមួយថ្ងៃ ឬស្កេនខ្វះចន្លោះ
+                </span>
+              </div>
               <button
                 onClick={() => setIsManualModalOpen(false)}
                 style={{
@@ -1490,6 +1602,67 @@ export default function BiometricClient({
                 }}
               >
                 &times;
+              </button>
+            </div>
+
+            {/* Mode Switcher */}
+            <div
+              style={{
+                display: 'flex',
+                backgroundColor: '#f1f5f9',
+                padding: '4px',
+                borderRadius: '10px',
+                marginBottom: '16px',
+                gap: '4px',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setManualEntryMode('fullday')}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: manualEntryMode === 'fullday' ? '#ffffff' : 'transparent',
+                  color: manualEntryMode === 'fullday' ? '#2563eb' : '#64748b',
+                  fontWeight: manualEntryMode === 'fullday' ? 700 : 500,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                  boxShadow: manualEntryMode === 'fullday' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <span>🌟</span>
+                <span>បំពេញពេញមួយថ្ងៃ (Full Day / ភ្លេចស្កេន)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setManualEntryMode('single')}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: manualEntryMode === 'single' ? '#ffffff' : 'transparent',
+                  color: manualEntryMode === 'single' ? '#2563eb' : '#64748b',
+                  fontWeight: manualEntryMode === 'single' ? 700 : 500,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                  boxShadow: manualEntryMode === 'single' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <span>🕒</span>
+                <span>ស្កេនមួយលើក (Single Punch)</span>
               </button>
             </div>
 
@@ -1527,99 +1700,296 @@ export default function BiometricClient({
                 </select>
               </div>
 
-              {/* Punch Time */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  កាលបរិច្ឆេទ និងម៉ោងស្កេន *
-                </label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={manualTime}
-                  onChange={(e) => setManualTime(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.88rem',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
+              {/* MODE 1: FULL DAY / FORGOT SCAN */}
+              {manualEntryMode === 'fullday' && (
+                <>
+                  {/* Date Selection */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      កាលបរិច្ឆេទវត្តមាន (Date) *
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={fullDayDate}
+                      onChange={(e) => setFullDayDate(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '0.88rem',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
 
-              {/* Punch Type & Mode */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                    ប្រភេទស្កេន *
-                  </label>
-                  <select
-                    value={manualType}
-                    onChange={(e) => setManualType(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '0.88rem',
-                      background: '#ffffff',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                    }}
-                  >
-                    <option value="CHECK_IN">☀️ ចូលព្រឹក (Check In)</option>
-                    <option value="CHECK_OUT">🌙 ចេញល្ងាច (Check Out)</option>
-                    <option value="BREAK_IN">☕ ចូលពីសម្រាក</option>
-                    <option value="BREAK_OUT">🍽️ ចេញសម្រាក</option>
-                    <option value="OT_IN">⏰ ចូលថែមម៉ោង (OT In)</option>
-                    <option value="OT_OUT">⌛ ចេញថែមម៉ោង (OT Out)</option>
-                  </select>
-                </div>
+                  {/* Quick Shift Presets 1-Click */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      ⚡ ជម្រើសកំណត់ម៉ោងស្វ័យប្រវត្តិតាមវេន (Quick Shift Presets) :
+                    </label>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {[
+                        { id: 'NORMAL', label: '⚡ ពេញមួយថ្ងៃ (8h)', desc: '07:00-11:00 & 13:00-17:00' },
+                        { id: 'HALF_MORN', label: '☀️ កន្លះថ្ងៃព្រឹក (4h)', desc: '07:00-11:00' },
+                        { id: 'HALF_AFT', label: '🌤️ កន្លះថ្ងៃរសៀល (4h)', desc: '13:00-17:00' },
+                        { id: 'NIGHT', label: '🌙 វេនយប់ (8h)', desc: '17:00-04:00' },
+                      ].map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => applyShiftPreset(p.id as any)}
+                          style={{
+                            padding: '6px 10px',
+                            borderRadius: '8px',
+                            border: '1px solid #bfdbfe',
+                            backgroundColor: '#eff6ff',
+                            color: '#1d4ed8',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                    វិធីផ្ទៀងផ្ទាត់
-                  </label>
-                  <select
-                    value={manualMode}
-                    onChange={(e) => setManualMode(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '0.88rem',
-                      background: '#ffffff',
-                      outline: 'none',
-                      boxSizing: 'border-box',
-                    }}
-                  >
-                    <option value="MANUAL">✍️ បញ្ចូលដោយដៃ (Manual)</option>
-                    <option value="FINGERPRINT">👆 ស្កេនមេដៃ</option>
-                    <option value="FACE">👤 ស្កេនមុខ</option>
-                    <option value="RFID_CARD">💳 កាតសម្គាល់</option>
-                  </select>
-                </div>
-              </div>
+                  {/* 4 Time Slots (F-In, F-Out, S-In, S-Out) */}
+                  <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>
+                      ម៉ោងបំពេញការងារ (Work Shifts Time) :
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
+                          ចូលព្រឹក (F-In)
+                        </label>
+                        <input
+                          type="time"
+                          value={fullDayFIn}
+                          onChange={(e) => setFullDayFIn(e.target.value)}
+                          style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
+                          ចេញព្រឹក (F-Out)
+                        </label>
+                        <input
+                          type="time"
+                          value={fullDayFOut}
+                          onChange={(e) => setFullDayFOut(e.target.value)}
+                          style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
+                          ចូលរសៀល (S-In)
+                        </label>
+                        <input
+                          type="time"
+                          value={fullDaySIn}
+                          onChange={(e) => setFullDaySIn(e.target.value)}
+                          style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
+                          ចេញរសៀល (S-Out)
+                        </label>
+                        <input
+                          type="time"
+                          value={fullDaySOut}
+                          onChange={(e) => setFullDaySOut(e.target.value)}
+                          style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Reg Day & Work Hrs Summary Badges */}
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.76rem', color: '#64748b' }}>
+                        ថ្ងៃធម្មតា (Reg Day): <strong style={{ color: '#0f172a' }}>{fullDayRegDay}</strong>
+                      </span>
+                      <span style={{ fontSize: '0.76rem', color: '#64748b' }}>
+                        ម៉ោងធ្វើការ (Work Hrs): <strong style={{ color: '#0f172a' }}>{fullDayWorkHrs}h</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Overtime (OT) Toggle */}
+                  <div style={{ border: '1px dashed #cbd5e1', padding: '10px 12px', borderRadius: '8px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', fontWeight: 700, color: '#1e40af', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={hasOt}
+                        onChange={(e) => setHasOt(e.target.checked)}
+                      />
+                      <span>+ បន្ថែមម៉ោងថែម (Overtime / OT)</span>
+                    </label>
+
+                    {hasOt && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
+                            ចូល OT (OT-In)
+                          </label>
+                          <input
+                            type="time"
+                            value={fullDayOtIn}
+                            onChange={(e) => setFullDayOtIn(e.target.value)}
+                            style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '2px' }}>
+                            ចេញ OT (OT-Out)
+                          </label>
+                          <input
+                            type="time"
+                            value={fullDayOtOut}
+                            onChange={(e) => setFullDayOtOut(e.target.value)}
+                            style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reason Dropdown */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      មូលហេតុភ្លេចស្កេន / ស្ថានភាព *
+                    </label>
+                    <select
+                      value={fullDayReason}
+                      onChange={(e) => setFullDayReason(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '0.86rem',
+                        background: '#ffffff',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="ភ្លេចស្កេន (Forgot to scan)">🔔 ភ្លេចស្កេន (Forgot to scan)</option>
+                      <option value="ម៉ាស៊ីនស្កេនគាំង/មានបញ្ហា (Terminal Offline)">⚠️ ម៉ាស៊ីនស្កេនគាំង/មានបញ្ហា (Terminal Offline)</option>
+                      <option value="បេសកកម្មការងារក្រៅ (Official Mission)">🚗 បេសកកម្មការងារក្រៅ (Official Mission)</option>
+                      <option value="មេដៃរលុប ស្កេនមិនជាប់ (Fingerprint Issue)">👆 មេដៃរលុប ស្កេនមិនជាប់ (Fingerprint Issue)</option>
+                      <option value="ការអនុញ្ញាតពិសេសពីប្រធាន (Manager Approved)">✍️ ការអនុញ្ញាតពិសេសពីប្រធាន (Manager Approved)</option>
+                      <option value="ផ្សេងៗ (Other)">📝 ផ្សេងៗ (Other)</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* MODE 2: SINGLE PUNCH */}
+              {manualEntryMode === 'single' && (
+                <>
+                  {/* Punch Time */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      កាលបរិច្ឆេទ និងម៉ោងស្កេន *
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={manualTime}
+                      onChange={(e) => setManualTime(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '0.88rem',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* Punch Type & Mode */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                        ប្រភេទស្កេន *
+                      </label>
+                      <select
+                        value={manualType}
+                        onChange={(e) => setManualType(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          borderRadius: '10px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '0.88rem',
+                          background: '#ffffff',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <option value="CHECK_IN">☀️ ចូលព្រឹក (Check In)</option>
+                        <option value="CHECK_OUT">🌙 ចេញល្ងាច (Check Out)</option>
+                        <option value="BREAK_IN">☕ ចូលពីសម្រាក</option>
+                        <option value="BREAK_OUT">🍽️ ចេញសម្រាក</option>
+                        <option value="OT_IN">⏰ ចូលថែមម៉ោង (OT In)</option>
+                        <option value="OT_OUT">⌛ ចេញថែមម៉ោង (OT Out)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                        វិធីផ្ទៀងផ្ទាត់
+                      </label>
+                      <select
+                        value={manualMode}
+                        onChange={(e) => setManualMode(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          borderRadius: '10px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '0.88rem',
+                          background: '#ffffff',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <option value="MANUAL">✍️ បញ្ចូលដោយដៃ (Manual)</option>
+                        <option value="FINGERPRINT">👆 ស្កេនមេដៃ</option>
+                        <option value="FACE">👤 ស្កេនមុខ</option>
+                        <option value="RFID_CARD">💳 កាតសម្គាល់</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Notes */}
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                  មូលហេតុ / កំណត់សម្គាល់ (Reason / Remarks)
+                  កំណត់សម្គាល់បន្ថែម (Additional Remarks)
                 </label>
                 <input
                   type="text"
                   value={manualNotes}
                   onChange={(e) => setManualNotes(e.target.value)}
-                  placeholder="ភ្លេចស្កេន, ម៉ាស៊ីនគាំង..."
+                  placeholder="មូលហេតុបន្ថែម..."
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
+                    padding: '9px 12px',
+                    borderRadius: '8px',
                     border: '1px solid #cbd5e1',
-                    fontSize: '0.88rem',
+                    fontSize: '0.86rem',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -1647,17 +2017,18 @@ export default function BiometricClient({
                 <button
                   type="submit"
                   style={{
-                    padding: '8px 18px',
+                    padding: '8px 20px',
                     borderRadius: '8px',
                     border: 'none',
                     background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                     color: '#ffffff',
-                    fontSize: '0.85rem',
+                    fontSize: '0.86rem',
                     fontWeight: 700,
                     cursor: 'pointer',
+                    boxShadow: '0 2px 6px rgba(37,99,235,0.3)',
                   }}
                 >
-                  រក្សាទុក
+                  {manualEntryMode === 'fullday' ? '💾 រក្សាទុកវត្តមានពេញមួយថ្ងៃ' : '💾 រក្សាទុក'}
                 </button>
               </div>
             </form>

@@ -101,6 +101,162 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, count: createdLogs.length, logs: createdLogs });
     }
 
+    // Check if Auto-Fill Month for an employee (bulk fill missing days)
+    if (body.isAutoFillMonth) {
+      const { employeeId, year, month, shiftMornIn = '07:00', shiftMornOut = '11:00', shiftAftIn = '13:00', shiftAftOut = '17:00', remarks = 'ភ្លេចស្កេន (បំពេញស្វ័យប្រវត្តិ)' } = body;
+      if (!employeeId || !year || month === undefined) {
+        return NextResponse.json({ error: 'employeeId, year and month are required' }, { status: 400 });
+      }
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let filledCount = 0;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(year, month, day);
+        dateObj.setHours(0, 0, 0, 0);
+
+        // Check if Sunday (off day)
+        if (dateObj.getDay() === 0) continue;
+
+        // Upsert DailyAttendance
+        await prisma.dailyAttendance.upsert({
+          where: {
+            employeeId_date: {
+              employeeId,
+              date: dateObj,
+            },
+          },
+          update: {
+            fIn: shiftMornIn,
+            fOut: shiftMornOut,
+            sIn: shiftAftIn,
+            sOut: shiftAftOut,
+            regDay: 1.0,
+            workHrs: 8.0,
+            remarks,
+          },
+          create: {
+            employeeId,
+            date: dateObj,
+            fIn: shiftMornIn,
+            fOut: shiftMornOut,
+            sIn: shiftAftIn,
+            sOut: shiftAftOut,
+            regDay: 1.0,
+            workHrs: 8.0,
+            remarks,
+          },
+        });
+
+        // Also add biometric punch logs
+        const dateStr = dateObj.toISOString().slice(0, 10);
+        await prisma.biometricPunchLog.createMany({
+          data: [
+            { employeeId, punchTime: new Date(`${dateStr}T${shiftMornIn}:00`), punchType: 'CHECK_IN', verifyMode: 'MANUAL', source: 'MANUAL', notes: remarks },
+            { employeeId, punchTime: new Date(`${dateStr}T${shiftMornOut}:00`), punchType: 'BREAK_OUT', verifyMode: 'MANUAL', source: 'MANUAL', notes: remarks },
+            { employeeId, punchTime: new Date(`${dateStr}T${shiftAftIn}:00`), punchType: 'BREAK_IN', verifyMode: 'MANUAL', source: 'MANUAL', notes: remarks },
+            { employeeId, punchTime: new Date(`${dateStr}T${shiftAftOut}:00`), punchType: 'CHECK_OUT', verifyMode: 'MANUAL', source: 'MANUAL', notes: remarks },
+          ],
+        });
+
+        filledCount++;
+      }
+
+      return NextResponse.json({ success: true, count: filledCount, message: `បានបំពេញវត្តមានពេញខែចំនួន ${filledCount} ថ្ងៃដោយជោគជ័យ!` });
+    }
+
+    // Check if Full Day Manual Punch (Forgot Scan for Entire Day)
+    if (body.isFullDay) {
+      const {
+        employeeId,
+        date,
+        fIn = '07:00',
+        fOut = '11:00',
+        sIn = '13:00',
+        sOut = '17:00',
+        otIn,
+        otOut,
+        regDay = 1.0,
+        workHrs = 8.0,
+        normalOtHrs = 0,
+        nightOtHrs = 0,
+        holidayOtHrs = 0,
+        remarks = 'ភ្លេចស្កេន (បំពេញដោយដៃពេញមួយថ្ងៃ)',
+      } = body;
+
+      if (!employeeId || !date) {
+        return NextResponse.json({ error: 'Employee and date are required' }, { status: 400 });
+      }
+
+      const dateObj = new Date(date);
+      dateObj.setHours(0, 0, 0, 0);
+      const dateStr = dateObj.toISOString().slice(0, 10);
+
+      // 1. Create biometric punch logs
+      const punchData: any[] = [];
+      if (fIn) punchData.push({ employeeId, punchTime: new Date(`${dateStr}T${fIn}:00`), punchType: 'CHECK_IN', verifyMode: 'MANUAL', deviceName: 'Manual Full Day (HR)', source: 'MANUAL', syncStatus: 'SYNCED', notes: remarks });
+      if (fOut) punchData.push({ employeeId, punchTime: new Date(`${dateStr}T${fOut}:00`), punchType: 'BREAK_OUT', verifyMode: 'MANUAL', deviceName: 'Manual Full Day (HR)', source: 'MANUAL', syncStatus: 'SYNCED', notes: remarks });
+      if (sIn) punchData.push({ employeeId, punchTime: new Date(`${dateStr}T${sIn}:00`), punchType: 'BREAK_IN', verifyMode: 'MANUAL', deviceName: 'Manual Full Day (HR)', source: 'MANUAL', syncStatus: 'SYNCED', notes: remarks });
+      if (sOut) punchData.push({ employeeId, punchTime: new Date(`${dateStr}T${sOut}:00`), punchType: 'CHECK_OUT', verifyMode: 'MANUAL', deviceName: 'Manual Full Day (HR)', source: 'MANUAL', syncStatus: 'SYNCED', notes: remarks });
+      if (otIn) punchData.push({ employeeId, punchTime: new Date(`${dateStr}T${otIn}:00`), punchType: 'OT_IN', verifyMode: 'MANUAL', deviceName: 'Manual Full Day (HR)', source: 'MANUAL', syncStatus: 'SYNCED', notes: remarks });
+      if (otOut) punchData.push({ employeeId, punchTime: new Date(`${dateStr}T${otOut}:00`), punchType: 'OT_OUT', verifyMode: 'MANUAL', deviceName: 'Manual Full Day (HR)', source: 'MANUAL', syncStatus: 'SYNCED', notes: remarks });
+
+      if (punchData.length > 0) {
+        await prisma.biometricPunchLog.createMany({ data: punchData });
+      }
+
+      // 2. Direct upsert DailyAttendance so attendance report immediately reflects all hours
+      const updatedAttendance = await prisma.dailyAttendance.upsert({
+        where: {
+          employeeId_date: {
+            employeeId,
+            date: dateObj,
+          },
+        },
+        update: {
+          fIn: fIn || null,
+          fOut: fOut || null,
+          sIn: sIn || null,
+          sOut: sOut || null,
+          otIn: otIn || null,
+          otOut: otOut || null,
+          regDay: parseFloat(String(regDay)) || 1.0,
+          workHrs: parseFloat(String(workHrs)) || 8.0,
+          normalOtHrs: parseFloat(String(normalOtHrs)) || 0,
+          nightOtHrs: parseFloat(String(nightOtHrs)) || 0,
+          holidayOtHrs: parseFloat(String(holidayOtHrs)) || 0,
+          lateMins: 0,
+          earlyMins: 0,
+          remarks,
+        },
+        create: {
+          employeeId,
+          date: dateObj,
+          fIn: fIn || null,
+          fOut: fOut || null,
+          sIn: sIn || null,
+          sOut: sOut || null,
+          otIn: otIn || null,
+          otOut: otOut || null,
+          regDay: parseFloat(String(regDay)) || 1.0,
+          workHrs: parseFloat(String(workHrs)) || 8.0,
+          normalOtHrs: parseFloat(String(normalOtHrs)) || 0,
+          nightOtHrs: parseFloat(String(nightOtHrs)) || 0,
+          holidayOtHrs: parseFloat(String(holidayOtHrs)) || 0,
+          lateMins: 0,
+          earlyMins: 0,
+          remarks,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'បានកត់ត្រាវត្តមានពេញមួយថ្ងៃដោយជោគជ័យ!',
+        attendance: updatedAttendance,
+        punchesCount: punchData.length,
+      }, { status: 201 });
+    }
+
     // Single creation
     const { employeeId, punchTime, punchType, verifyMode, deviceId, deviceName, notes } = body;
 
@@ -108,10 +264,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Employee is required' }, { status: 400 });
     }
 
+    const pTime = punchTime ? new Date(punchTime) : new Date();
+
     const newLog = await prisma.biometricPunchLog.create({
       data: {
         employeeId,
-        punchTime: punchTime ? new Date(punchTime) : new Date(),
+        punchTime: pTime,
         punchType: punchType || 'CHECK_IN',
         verifyMode: verifyMode || 'MANUAL',
         deviceId: deviceId || null,
@@ -125,6 +283,53 @@ export async function POST(request: Request) {
         device: true,
       },
     });
+
+    // Also update DailyAttendance for this punch
+    try {
+      const dateOnly = new Date(pTime);
+      dateOnly.setHours(0, 0, 0, 0);
+      const timeStr = pTime.toTimeString().slice(0, 5); // "HH:MM"
+
+      const existingAtt = await prisma.dailyAttendance.findUnique({
+        where: {
+          employeeId_date: {
+            employeeId,
+            date: dateOnly,
+          },
+        },
+      });
+
+      const updateData: any = {};
+      if (punchType === 'CHECK_IN' && (!existingAtt || !existingAtt.fIn)) updateData.fIn = timeStr;
+      if (punchType === 'BREAK_OUT' && (!existingAtt || !existingAtt.fOut)) updateData.fOut = timeStr;
+      if (punchType === 'BREAK_IN' && (!existingAtt || !existingAtt.sIn)) updateData.sIn = timeStr;
+      if (punchType === 'CHECK_OUT' && (!existingAtt || !existingAtt.sOut)) updateData.sOut = timeStr;
+      if (punchType === 'OT_IN' && (!existingAtt || !existingAtt.otIn)) updateData.otIn = timeStr;
+      if (punchType === 'OT_OUT' && (!existingAtt || !existingAtt.otOut)) updateData.otOut = timeStr;
+
+      if (notes) updateData.remarks = notes;
+
+      if (Object.keys(updateData).length > 0) {
+        await prisma.dailyAttendance.upsert({
+          where: {
+            employeeId_date: {
+              employeeId,
+              date: dateOnly,
+            },
+          },
+          update: updateData,
+          create: {
+            employeeId,
+            date: dateOnly,
+            regDay: 1.0,
+            workHrs: 8.0,
+            ...updateData,
+          },
+        });
+      }
+    } catch (e) {
+      console.warn('Could not auto-sync daily attendance for single punch:', e);
+    }
 
     return NextResponse.json(newLog, { status: 201 });
   } catch (error: any) {

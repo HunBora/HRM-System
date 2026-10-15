@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import PrintAttendanceButton from './PrintAttendanceButton';
 import ExportExcelButton from './ExportExcelButton';
+import AttendanceReportTable from './AttendanceReportTable';
 
 export default async function EmployeeAttendancePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -128,9 +129,11 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
       const otOutPunch = dayPunches.find(p => p.punchType === 'OT_OUT');
 
       if (!fIn && checkIn) fIn = new Date(checkIn.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      if (!fOut && checkOut) fOut = new Date(checkOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      if (!fOut && breakOut) fOut = new Date(breakOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       if (!sIn && breakIn) sIn = new Date(breakIn.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      if (!sOut && breakOut) sOut = new Date(breakOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      if (!sOut && checkOut) sOut = new Date(checkOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      // If only checkIn and checkOut exist (2 punches standard)
+      if (!sOut && checkOut && fIn && !fOut) sOut = new Date(checkOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       if (!otIn && otInPunch) otIn = new Date(otInPunch.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       if (!otOut && otOutPunch) otOut = new Date(otOutPunch.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     }
@@ -140,6 +143,9 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
       const leaveLabel = LEAVE_TYPE_MAP[matchedLeave.leaveType] || matchedLeave.leaveType;
       remarks = remarks ? `${remarks} | ${leaveLabel}` : leaveLabel;
     }
+
+    const computedWorkHrs = hasImportedData ? (attendanceRecord.workHrs || 0) : ((fIn && sOut) ? 8.0 : (isOffDay ? 0 : 0));
+    const computedRegDay = hasImportedData ? (attendanceRecord.regDay || 0) : (isOffDay ? 0 : (matchedLeave ? 0 : 1));
 
     return {
       no: i + 1,
@@ -152,8 +158,8 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
       sOut,
       otIn,
       otOut,
-      regDay: hasImportedData ? (attendanceRecord.regDay || 0) : (isOffDay ? 0 : (matchedLeave ? 0 : 1)),
-      workHrs: hasImportedData ? (attendanceRecord.workHrs || 0) : (isOffDay ? 0 : 0),
+      regDay: computedRegDay,
+      workHrs: computedWorkHrs,
       normalOtHrs,
       nightOtHrs,
       holidayOtHrs,
@@ -165,12 +171,12 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
 
   return (
     <div>
-      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <Link href="/dashboard/attendance" style={{ color: '#3b82f6', textDecoration: 'none', marginBottom: '10px', display: 'inline-block' }} className="no-print">&larr; Back</Link>
           <h1 className="title kh-text" style={{ marginBottom: 0 }}>Attendance Report</h1>
         </div>
-        <div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <PrintAttendanceButton targetId="attendance-log-print-area" title={`Attendance_Log_${employee.employeeId}`} />
           <ExportExcelButton employeeId={employee.id} />
         </div>
@@ -193,63 +199,12 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.85rem' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #000' }}>
-              <th style={thStyle}>លេខ<br/>No</th>
-              <th style={thStyle}>កាលបរិច្ឆេទ<br/>Date</th>
-              <th style={thStyle}>ថ្ងៃ<br/>Day</th>
-              <th style={thStyle}>ម៉ោងចូលព្រឹក<br/>F-In</th>
-              <th style={thStyle}>ម៉ោងចេញព្រឹក<br/>F-Out</th>
-              <th style={thStyle}>ម៉ោងចូលថ្ងៃ<br/>S-In</th>
-              <th style={thStyle}>ម៉ោងចេញថ្ងៃ<br/>S-Out</th>
-              <th style={thStyle}>ម៉ោងចូលOT<br/>OT-In</th>
-              <th style={thStyle}>ម៉ោងចេញOT<br/>OT-Out</th>
-              <th style={thStyle}>ថ្ងៃធម្មតា<br/>Reg Day</th>
-              <th style={thStyle}>ម៉ោងធ្វើការ<br/>Work Hrs</th>
-              <th style={thStyle}>ម៉ោងថែមធម្មតា<br/>Normal OT</th>
-              <th style={thStyle}>ម៉ោងថែមយប់<br/>Night OT</th>
-              <th style={thStyle}>ម៉ោងថែមថ្ងៃបុណ្យ<br/>Holiday OT</th>
-              <th style={thStyle}>ចូលយឺត(នាទី)<br/>Late</th>
-              <th style={thStyle}>ចេញមុន<br/>Early</th>
-              <th style={thStyle}>ផ្សេងៗ<br/>Remarks</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dummyDays.map((d) => (
-              <tr key={d.no} style={d.isOffDay ? { backgroundColor: '#fee2e2', color: '#b91c1c' } : {}}>
-                <td style={tdStyle}>{d.no}</td>
-                <td style={tdStyle}>{d.dateStr}</td>
-                <td style={tdStyle}>{d.day}</td>
-                <td style={tdStyle}>{d.fIn}</td>
-                <td style={tdStyle}>{d.fOut}</td>
-                <td style={tdStyle}>{d.sIn}</td>
-                <td style={tdStyle}>{d.sOut}</td>
-                <td style={tdStyle}>{d.otIn}</td>
-                <td style={tdStyle}>{d.otOut}</td>
-                <td style={tdStyle}>{d.regDay}</td>
-                <td style={tdStyle}>{d.workHrs}</td>
-                <td style={tdStyle}>{d.normalOtHrs}</td>
-                <td style={tdStyle}>{d.nightOtHrs}</td>
-                <td style={tdStyle}>{d.holidayOtHrs}</td>
-                <td style={tdStyle}>{d.lateMins}</td>
-                <td style={tdStyle}>{d.earlyMins}</td>
-                <td style={tdStyle}>{d.remarks}</td>
-              </tr>
-            ))}
-            <tr style={{ fontWeight: 'bold', borderTop: '1px solid #000' }}>
-              <td colSpan={9} style={{ textAlign: 'right', padding: '10px' }}>សរុប-Total</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.regDay, 0)}</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.workHrs, 0)}</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.normalOtHrs, 0)}</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.nightOtHrs, 0)}</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.holidayOtHrs, 0)}</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.lateMins, 0)}</td>
-              <td style={tdStyle}>{dummyDays.reduce((sum, d) => sum + d.earlyMins, 0)}</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
+        <AttendanceReportTable
+          employee={employee}
+          initialDays={dummyDays}
+          month={month}
+          year={year}
+        />
       </div>
     </div>
   );

@@ -88,6 +88,7 @@ const DEFAULT_LAYOUTS = {
     { i: 'leave_application', x: 6, y: 3, w: 6, h: 3, minW: 4, minH: 3 },
     { i: 'employees_role', x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 3 },
     { i: 'employees_location', x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 3 },
+    { i: 'contract_alerts', x: 0, y: 9, w: 12, h: 3, minW: 6, minH: 3 },
   ],
   md: [
     { i: 'daily_attendance', x: 0, y: 0, w: 6, h: 3, minW: 4, minH: 3 },
@@ -96,6 +97,7 @@ const DEFAULT_LAYOUTS = {
     { i: 'leave_application', x: 5, y: 3, w: 5, h: 3, minW: 4, minH: 3 },
     { i: 'employees_role', x: 0, y: 6, w: 5, h: 3, minW: 4, minH: 3 },
     { i: 'employees_location', x: 5, y: 6, w: 5, h: 3, minW: 4, minH: 3 },
+    { i: 'contract_alerts', x: 0, y: 9, w: 10, h: 3, minW: 5, minH: 3 },
   ],
   sm: [
     { i: 'daily_attendance', x: 0, y: 0, w: 6, h: 3, minW: 3, minH: 3 },
@@ -104,6 +106,7 @@ const DEFAULT_LAYOUTS = {
     { i: 'leave_application', x: 0, y: 9, w: 6, h: 3, minW: 3, minH: 3 },
     { i: 'employees_role', x: 0, y: 12, w: 6, h: 3, minW: 3, minH: 3 },
     { i: 'employees_location', x: 0, y: 15, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'contract_alerts', x: 0, y: 18, w: 6, h: 3, minW: 3, minH: 3 },
   ],
 };
 
@@ -176,6 +179,7 @@ export default function CustomizableDashboard({
   const [attendanceView, setAttendanceView] = useState<'trend' | 'bar'>('trend');
   const [departmentView, setDepartmentView] = useState<'leaderboard' | 'donut'>('leaderboard');
   const [loanView, setLoanView] = useState<'health' | 'portfolio'>('health');
+  const [contractView, setContractView] = useState<'contracts' | 'birthdays'>('contracts');
 
   // Compute Demographics
   const provinceMap: Record<string, { current: number; prev: number }> = {};
@@ -237,15 +241,130 @@ export default function CustomizableDashboard({
     ? Math.round((presentCount / allEmployees.length) * 100)
     : 0;
 
+  // Compute upcoming contract & probation expirations (within next 45 days or overdue up to 7 days)
+  const upcomingContracts = React.useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const alerts: Array<{
+      id: string;
+      empId: string;
+      name: string;
+      department: string;
+      position: string;
+      type: string;
+      typeKh: string;
+      expiryDate: Date;
+      daysRemaining: number;
+    }> = [];
+
+    allEmployees.forEach((emp) => {
+      const empName = `${emp.lastNameKh || ''} ${emp.firstNameKh || ''} (${emp.firstNameEn || ''})`.trim() || 'បុគ្គលិក';
+
+      // 1. Probation Expiration
+      if (emp.probationEnd) {
+        const pDate = new Date(emp.probationEnd);
+        pDate.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil((pDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays >= -7 && diffDays <= 45) {
+          alerts.push({
+            id: `${emp.id}-prob`,
+            empId: emp.employeeId || '---',
+            name: empName,
+            department: emp.department || 'ទូទៅ',
+            position: emp.position || 'បុគ្គលិក',
+            type: 'PROBATION',
+            typeKh: 'ផុតសាកល្បង',
+            expiryDate: pDate,
+            daysRemaining: diffDays,
+          });
+        }
+      }
+
+      // 2. Regular Contracts 1, 2, 3 Expirations
+      const contracts = [
+        { key: 'regularContract1', label: 'កិច្ចសន្យាទី ១' },
+        { key: 'regularContract2', label: 'កិច្ចសន្យាទី ២' },
+        { key: 'regularContract3', label: 'កិច្ចសន្យាទី ៣' },
+      ];
+      contracts.forEach((c) => {
+        const rawDate = (emp as any)[c.key];
+        if (rawDate) {
+          const cDate = new Date(rawDate);
+          cDate.setHours(0, 0, 0, 0);
+          const diffDays = Math.ceil((cDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays >= -7 && diffDays <= 45) {
+            alerts.push({
+              id: `${emp.id}-${c.key}`,
+              empId: emp.employeeId || '---',
+              name: empName,
+              department: emp.department || 'ទូទៅ',
+              position: emp.position || 'បុគ្គលិក',
+              type: c.key,
+              typeKh: c.label,
+              expiryDate: cDate,
+              daysRemaining: diffDays,
+            });
+          }
+        }
+      });
+    });
+
+    return alerts.sort((a, b) => a.daysRemaining - b.daysRemaining);
+  }, [allEmployees]);
+
+  // Compute upcoming birthdays this month
+  const upcomingBirthdays = React.useMemo(() => {
+    const today = new Date();
+    const curMonth = today.getMonth(); // 0-indexed
+    const curDay = today.getDate();
+
+    const list: Array<{
+      id: string;
+      empId: string;
+      name: string;
+      department: string;
+      position: string;
+      birthDate: string;
+      dayOfMonth: number;
+      isToday: boolean;
+      daysUntil: number;
+    }> = [];
+
+    allEmployees.forEach((emp) => {
+      if (emp.dob) {
+        const dob = new Date(emp.dob);
+        if (dob.getMonth() === curMonth) {
+          const bDay = dob.getDate();
+          const diff = bDay - curDay;
+          const empName = `${emp.lastNameKh || ''} ${emp.firstNameKh || ''} (${emp.firstNameEn || ''})`.trim() || 'បុគ្គលិក';
+          list.push({
+            id: emp.id,
+            empId: emp.employeeId || '---',
+            name: empName,
+            department: emp.department || 'ទូទៅ',
+            position: emp.position || 'បុគ្គលិក',
+            birthDate: `${String(bDay).padStart(2, '0')}/${String(curMonth + 1).padStart(2, '0')}`,
+            dayOfMonth: bDay,
+            isToday: bDay === curDay,
+            daysUntil: diff,
+          });
+        }
+      }
+    });
+
+    return list.sort((a, b) => a.dayOfMonth - b.dayOfMonth);
+  }, [allEmployees]);
+
   useEffect(() => {
     setIsClient(true);
     // Automatically purge old layout keys
-    ['dashboard_layout_v9', 'dashboard_layout_v10', 'dashboard_layout_v11', 'dashboard_layout_v12'].forEach((k) => {
+    ['dashboard_layout_v9', 'dashboard_layout_v10', 'dashboard_layout_v11', 'dashboard_layout_v12', 'dashboard_layout_v13'].forEach((k) => {
       try {
         localStorage.removeItem(k);
       } catch (e) {}
     });
-    const saved = localStorage.getItem('dashboard_layout_v13');
+    const saved = localStorage.getItem('dashboard_layout_v14');
     if (saved) {
       try {
         setLayouts(JSON.parse(saved));
@@ -259,11 +378,11 @@ export default function CustomizableDashboard({
 
   const onLayoutChange = (layout: Layout[], allLayouts: any) => {
     setLayouts(allLayouts);
-    localStorage.setItem('dashboard_layout_v13', JSON.stringify(allLayouts));
+    localStorage.setItem('dashboard_layout_v14', JSON.stringify(allLayouts));
   };
 
   const handleResetLayout = () => {
-    localStorage.removeItem('dashboard_layout_v13');
+    localStorage.removeItem('dashboard_layout_v14');
     setLayouts(DEFAULT_LAYOUTS);
     window.location.reload();
   };
@@ -582,6 +701,215 @@ export default function CustomizableDashboard({
               <span style={{ color: '#8b5cf6', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
+        </div>
+
+        {/* ========================================================
+            QUICK ACTION HUB (ផ្ទាំងផ្លូវកាត់ប្រតិបត្តិការរហ័ស)
+           ======================================================== */}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '14px',
+            padding: '12px 16px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+            marginBottom: '16px',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.05rem' }}>⚡</span>
+              <span className="kh-text" style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0f172a' }}>
+                ផ្លូវកាត់ប្រតិបត្តិការរហ័ស (Quick Action Hub)
+              </span>
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>| ចុចដើម្បីដំណើរការកិច្ចការប្រចាំថ្ងៃភ្លាមៗ</span>
+            </div>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#0284c7', backgroundColor: '#f0f9ff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #bae6fd', whiteSpace: 'nowrap' }}>
+              ⚡ ៦ មុខងារចម្បង
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: '10px',
+            }}
+          >
+            {/* Action 1: Add Employee */}
+            <Link
+              href="/dashboard/employees/new"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f8fafc',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover-elevate"
+            >
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                👥
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
+                  + បន្ថែមបុគ្គលិក
+                </div>
+                <div style={{ fontSize: '0.66rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                  New Employee
+                </div>
+              </div>
+            </Link>
+
+            {/* Action 2: Daily Attendance */}
+            <Link
+              href="/dashboard/attendance"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f8fafc',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover-elevate"
+            >
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                📅
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
+                  + កត់ត្រាវត្តមាន
+                </div>
+                <div style={{ fontSize: '0.66rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                  Log Attendance
+                </div>
+              </div>
+            </Link>
+
+            {/* Action 3: Apply Leave */}
+            <Link
+              href="/dashboard/leave/new"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f8fafc',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover-elevate"
+            >
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                🌴
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
+                  + ស្នើសុំច្បាប់
+                </div>
+                <div style={{ fontSize: '0.66rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                  Request Leave
+                </div>
+              </div>
+            </Link>
+
+            {/* Action 4: Request Advance */}
+            <Link
+              href="/dashboard/advance/new"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f8fafc',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover-elevate"
+            >
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                💵
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
+                  + ស្នើបុរេប្រទាន
+                </div>
+                <div style={{ fontSize: '0.66rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                  Salary Advance
+                </div>
+              </div>
+            </Link>
+
+            {/* Action 5: Run Payroll */}
+            <Link
+              href="/dashboard/payroll"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f8fafc',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover-elevate"
+            >
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                💰
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
+                  + បើកប្រាក់ខែ
+                </div>
+                <div style={{ fontSize: '0.66rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                  Run Payroll
+                </div>
+              </div>
+            </Link>
+
+            {/* Action 6: Recruitment ATS */}
+            <Link
+              href="/dashboard/recruitment"
+              style={{
+                textDecoration: 'none',
+                backgroundColor: '#f8fafc',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.15s ease',
+              }}
+              className="hover-elevate"
+            >
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', backgroundColor: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
+                📢
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
+                  + ជ្រើសរើសបុគ្គលិក
+                </div>
+                <div style={{ fontSize: '0.66rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                  Recruitment ATS
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
 
         {/* ========================================================
@@ -2404,6 +2732,510 @@ export default function CustomizableDashboard({
                         );
                       })}
                     </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* 8. UPCOMING CONTRACTS & BIRTHDAYS (2-in-1 Alerts Hub) */}
+          {(() => {
+            const contractAlertsCount = upcomingContracts.length;
+            const birthdayAlertsCount = upcomingBirthdays.length;
+            const urgentContracts = upcomingContracts.filter(c => c.daysRemaining <= 14);
+
+            return (
+              <div
+                key="contract_alerts"
+                data-grid={{ x: 0, y: 9, w: 12, h: 3, minW: 6, minH: 3 }}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Header with Switcher Tabs and Actions */}
+                <div
+                  className="card-drag-handle"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    cursor: 'grab',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                    <span style={{ fontSize: '1.15rem' }}>{contractView === 'contracts' ? '⏳' : '🎂'}</span>
+                    <div>
+                      <h3
+                        className="kh-text"
+                        style={{
+                          margin: 0,
+                          fontSize: '0.94rem',
+                          color: '#0f172a',
+                          fontWeight: 800,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {contractView === 'contracts'
+                          ? 'កិច្ចសន្យា & សាកល្បងជិតផុតកំណត់ (Expiring Contracts)'
+                          : 'ខួបកំណើតបុគ្គលិកក្នុងខែនេះ (Employee Birthdays)'}
+                      </h3>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', lineHeight: 1.4, whiteSpace: 'nowrap' }}>
+                        {contractView === 'contracts'
+                          ? 'តាមដានបុគ្គលិកសាកល្បង និងកិច្ចសន្យាការងារក្នុងរយៈពេល ៤៥ ថ្ងៃ'
+                          : `អបអរសាទរខួបកំណើតបុគ្គលិកក្នុងខែនេះ (${upcomingBirthdays.length} នាក់)`}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                    {/* View Switcher Segmented Button */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setContractView('contracts');
+                        }}
+                        style={{
+                          padding: '3px 10px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: contractView === 'contracts' ? '#ffffff' : 'transparent',
+                          color: contractView === 'contracts' ? '#ea580c' : '#64748b',
+                          boxShadow: contractView === 'contracts' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                        }}
+                      >
+                        <span>⏳ ផុតកិច្ចសន្យា/សាកល្បង</span>
+                        {contractAlertsCount > 0 && (
+                          <span
+                            style={{
+                              backgroundColor: urgentContracts.length > 0 ? '#ef4444' : '#f97316',
+                              color: '#ffffff',
+                              fontSize: '0.62rem',
+                              padding: '0 5px',
+                              borderRadius: '999px',
+                              fontWeight: 800,
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {contractAlertsCount}
+                          </span>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setContractView('birthdays');
+                        }}
+                        style={{
+                          padding: '3px 10px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: contractView === 'birthdays' ? '#ffffff' : 'transparent',
+                          color: contractView === 'birthdays' ? '#db2777' : '#64748b',
+                          boxShadow: contractView === 'birthdays' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                        }}
+                      >
+                        <span>🎂 ថ្ងៃកំណើតខែនេះ</span>
+                        {birthdayAlertsCount > 0 && (
+                          <span
+                            style={{
+                              backgroundColor: '#ec4899',
+                              color: '#ffffff',
+                              fontSize: '0.62rem',
+                              padding: '0 5px',
+                              borderRadius: '999px',
+                              fontWeight: 800,
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {birthdayAlertsCount}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/employees"
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: contractView === 'contracts' ? '#ea580c' : '#ec4899',
+                        textDecoration: 'none',
+                        backgroundColor: contractView === 'contracts' ? '#fff7ed' : '#fdf2f8',
+                        padding: '3px 9px',
+                        borderRadius: '6px',
+                        border: `1px solid ${contractView === 'contracts' ? '#ffedd5' : '#fbcfe8'}`,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      គ្រប់គ្រងបុគ្គលិក ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Content Area */}
+                {contractView === 'contracts' ? (
+                  /* VIEW 1: CONTRACTS & PROBATION ALERTS */
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                    {/* Mini Alert Banner / KPI */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: urgentContracts.length > 0 ? '#fff7ed' : '#f8fafc',
+                        border: `1px solid ${urgentContracts.length > 0 ? '#fed7aa' : '#e2e8f0'}`,
+                        borderRadius: '8px',
+                        padding: '6px 12px',
+                        marginBottom: '8px',
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>{urgentContracts.length > 0 ? '⚠️' : '✅'}</span>
+                        <span style={{ color: urgentContracts.length > 0 ? '#c2410c' : '#475569', fontWeight: 600 }}>
+                          {urgentContracts.length > 0
+                            ? `មាន ${urgentContracts.length} នាក់ត្រូវពិនិត្យជាបន្ទាន់ (សល់ ≤ ១៤ ថ្ងៃ ឬហួសកំណត់)`
+                            : 'កិច្ចសន្យាការងារដំណើរការប្រក្រតី គ្មានបញ្ហាប្រញាប់បន្ទាន់'}
+                        </span>
+                      </div>
+                      <span style={{ color: '#64748b', fontSize: '0.7rem' }}>
+                        សរុបជិតផុតកំណត់: <strong>{upcomingContracts.length}</strong> នាក់
+                      </span>
+                    </div>
+
+                    {/* Cards Grid / List */}
+                    {upcomingContracts.length === 0 ? (
+                      <div
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '20px',
+                          color: '#94a3b8',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div style={{ fontSize: '1.8rem', marginBottom: '6px' }}>🎉</div>
+                        <div className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                          ពុំមានកិច្ចសន្យា ឬសាកល្បងជិតផុតកំណត់ក្នុងរយៈពេល ៤៥ ថ្ងៃខាងមុខទេ
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>
+                          កិច្ចសន្យាបុគ្គលិកទាំងអស់ស្ថិតក្នុងស្ថានភាពសុពលភាព
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          flex: 1,
+                          overflowY: 'auto',
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                          gap: '8px',
+                          paddingRight: '4px',
+                          alignContent: 'start',
+                        }}
+                      >
+                        {upcomingContracts.map((item) => {
+                          const isOverdue = item.daysRemaining < 0;
+                          const isCritical = item.daysRemaining <= 7;
+                          const isWarning = item.daysRemaining <= 14;
+
+                          const statusBg = isOverdue ? '#fee2e2' : isCritical ? '#ffedd5' : isWarning ? '#fef3c7' : '#f0f9ff';
+                          const statusBorder = isOverdue ? '#fca5a5' : isCritical ? '#fdba74' : isWarning ? '#fde68a' : '#bae6fd';
+                          const statusText = isOverdue ? '#b91c1c' : isCritical ? '#c2410c' : isWarning ? '#b45309' : '#0369a1';
+                          const dayBadge = isOverdue
+                            ? `ហួស ${Math.abs(item.daysRemaining)} ថ្ងៃ`
+                            : item.daysRemaining === 0
+                            ? 'ផុតកំណត់ថ្ងៃនេះ'
+                            : `សល់ ${item.daysRemaining} ថ្ងៃ`;
+
+                          return (
+                            <div
+                              key={item.id}
+                              style={{
+                                backgroundColor: '#ffffff',
+                                border: `1px solid ${statusBorder}`,
+                                borderLeft: `4px solid ${statusText}`,
+                                borderRadius: '10px',
+                                padding: '8px 10px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '4px',
+                                transition: 'all 0.15s ease',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '6px' }}>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <div
+                                    className="kh-text"
+                                    style={{
+                                      fontSize: '0.8rem',
+                                      fontWeight: 700,
+                                      color: '#0f172a',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      lineHeight: 1.35,
+                                    }}
+                                  >
+                                    {item.name}
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#64748b', marginTop: '1px' }}>
+                                    <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0284c7' }}>
+                                      ID: {item.empId}
+                                    </span>
+                                    <span>•</span>
+                                    <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {item.department}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <span
+                                  style={{
+                                    fontSize: '0.68rem',
+                                    fontWeight: 800,
+                                    color: statusText,
+                                    backgroundColor: statusBg,
+                                    border: `1px solid ${statusBorder}`,
+                                    padding: '2px 7px',
+                                    borderRadius: '6px',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0,
+                                    lineHeight: 1.35,
+                                  }}
+                                >
+                                  {dayBadge}
+                                </span>
+                              </div>
+
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  fontSize: '0.68rem',
+                                  borderTop: '1px dashed #f1f5f9',
+                                  paddingTop: '4px',
+                                  marginTop: '2px',
+                                }}
+                              >
+                                <span
+                                  className="kh-text"
+                                  style={{
+                                    color: '#475569',
+                                    fontWeight: 600,
+                                    backgroundColor: '#f1f5f9',
+                                    padding: '1px 6px',
+                                    borderRadius: '4px',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                >
+                                  📋 {item.typeKh}
+                                </span>
+                                <span style={{ color: '#64748b', fontSize: '0.66rem', fontFamily: 'monospace' }}>
+                                  ផុតកំណត់: {item.expiryDate.toISOString().slice(0, 10)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* VIEW 2: EMPLOYEE BIRTHDAYS THIS MONTH */
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                    {/* Birthday Ribbon */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: '#fdf2f8',
+                        border: '1px solid #fbcfe8',
+                        borderRadius: '8px',
+                        padding: '6px 12px',
+                        marginBottom: '8px',
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🎂</span>
+                        <span style={{ color: '#be185d', fontWeight: 600 }}>
+                          ខែនេះមានបុគ្គលិកសរុប {upcomingBirthdays.length} នាក់ប្រារព្ធពិធីខួបកំណើត!
+                        </span>
+                      </div>
+                      <span style={{ color: '#db2777', fontWeight: 700, fontSize: '0.7rem' }}>
+                        🎉 Happy Birthday!
+                      </span>
+                    </div>
+
+                    {upcomingBirthdays.length === 0 ? (
+                      <div
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '20px',
+                          color: '#94a3b8',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div style={{ fontSize: '1.8rem', marginBottom: '6px' }}>🎈</div>
+                        <div className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                          គ្មានបុគ្គលិកមានថ្ងៃកំណើតក្នុងខែនេះទេ
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          flex: 1,
+                          overflowY: 'auto',
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                          gap: '8px',
+                          paddingRight: '4px',
+                          alignContent: 'start',
+                        }}
+                      >
+                        {upcomingBirthdays.map((item) => {
+                          return (
+                            <div
+                              key={item.id}
+                              style={{
+                                backgroundColor: item.isToday ? '#fdf2f8' : '#ffffff',
+                                border: `1px solid ${item.isToday ? '#f472b6' : '#e2e8f0'}`,
+                                borderLeft: `4px solid ${item.isToday ? '#ec4899' : '#8b5cf6'}`,
+                                borderRadius: '10px',
+                                padding: '8px 10px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: '8px',
+                                boxShadow: item.isToday ? '0 2px 8px rgba(236,72,153,0.15)' : '0 1px 3px rgba(0,0,0,0.03)',
+                              }}
+                            >
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                  <span
+                                    className="kh-text"
+                                    style={{
+                                      fontSize: '0.8rem',
+                                      fontWeight: 700,
+                                      color: '#0f172a',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      lineHeight: 1.35,
+                                    }}
+                                  >
+                                    {item.name}
+                                  </span>
+                                  {item.isToday && (
+                                    <span style={{ fontSize: '0.62rem', backgroundColor: '#ec4899', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                                      ថ្ងៃនេះ!
+                                    </span>
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>
+                                  <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0284c7' }}>
+                                    ID: {item.empId}
+                                  </span>
+                                  <span>•</span>
+                                  <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {item.department}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div
+                                style={{
+                                  textAlign: 'right',
+                                  flexShrink: 0,
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'flex-end',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: '0.78rem',
+                                    fontWeight: 800,
+                                    color: item.isToday ? '#db2777' : '#6d28d9',
+                                    fontFamily: 'monospace',
+                                  }}
+                                >
+                                  🎂 {item.birthDate}
+                                </span>
+                                <span style={{ fontSize: '0.64rem', color: item.daysUntil === 0 ? '#db2777' : item.daysUntil > 0 ? '#10b981' : '#94a3b8' }}>
+                                  {item.daysUntil === 0
+                                    ? 'រីករាយថ្ងៃកំណើត!'
+                                    : item.daysUntil > 0
+                                    ? `សល់ ${item.daysUntil} ថ្ងៃទៀត`
+                                    : 'កន្លងផុតហើយ'}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -215,7 +215,31 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       include: { employee: true }
     }),
     prisma.companySettings.findUnique({ where: { id: 'default' } }),
-    prisma.employee.findMany({ orderBy: { hireDate: 'desc' }, select: { id: true, firstNameKh: true, lastNameKh: true, firstNameEn: true, lastNameEn: true, gender: true, department: true, hireDate: true, basicSalary: true, placeOfBirth: true, nationality: true } }),
+    prisma.employee.findMany({
+      orderBy: { hireDate: 'desc' },
+      select: {
+        id: true,
+        employeeId: true,
+        firstNameKh: true,
+        lastNameKh: true,
+        firstNameEn: true,
+        lastNameEn: true,
+        gender: true,
+        department: true,
+        position: true,
+        hireDate: true,
+        dob: true,
+        probationStart: true,
+        probationEnd: true,
+        regularContract1: true,
+        regularContract2: true,
+        regularContract3: true,
+        basicSalary: true,
+        placeOfBirth: true,
+        nationality: true,
+        photoUrl: true,
+      },
+    }),
     prisma.departmentGroup.findMany({ orderBy: { orderIdx: 'asc' } }),
     // New query: recent leave requests
     prisma.leaveRequest.findMany({

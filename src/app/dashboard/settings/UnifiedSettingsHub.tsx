@@ -6,13 +6,14 @@ import DepartmentGroupManager from '@/components/DepartmentGroupManager';
 import PayrollSettingsManager from '@/components/PayrollSettingsManager';
 import AdvanceSalarySettingsManager from '@/components/AdvanceSalarySettingsManager';
 import KpiSettingsManager from '@/components/KpiSettingsManager';
+import WorkflowManualManager from '@/components/WorkflowManualManager';
 
 interface UnifiedSettingsHubProps {
   settings: any;
 }
 
 export default function UnifiedSettingsHub({ settings }: UnifiedSettingsHubProps) {
-  const [activeTab, setActiveTab] = useState<'general' | 'groups' | 'payroll' | 'advance' | 'kpi'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'groups' | 'payroll' | 'advance' | 'kpi' | 'manual'>('general');
 
   const tabs = [
     {
@@ -45,6 +46,13 @@ export default function UnifiedSettingsHub({ settings }: UnifiedSettingsHubProps
       labelKh: 'ការកំណត់ KPI & រូបមន្ត',
       labelEn: 'KPI Master & Config',
       icon: '📈',
+    },
+    {
+      id: 'manual' as const,
+      labelKh: 'សៀវភៅណែនាំ & រូបមន្តគណនា',
+      labelEn: 'Workflow Manual & Formulas',
+      icon: '📖',
+      badge: 'SOP',
     },
   ];
 
@@ -158,6 +166,12 @@ export default function UnifiedSettingsHub({ settings }: UnifiedSettingsHubProps
         {activeTab === 'kpi' && (
           <div className="card" style={{ padding: '24px', borderRadius: '12px' }}>
             <KpiSettingsManager />
+          </div>
+        )}
+
+        {activeTab === 'manual' && (
+          <div>
+            <WorkflowManualManager settings={settings} />
           </div>
         )}
       </div>

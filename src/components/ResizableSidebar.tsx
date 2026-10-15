@@ -893,12 +893,12 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         {
           href: '/dashboard/settings',
           icon: '⚙️',
-          labelKh: 'ការកំណត់ទូទៅ & Telegram',
-          labelEn: 'System & Bot Settings',
-          labelZh: '系统配置与Telegram机器人',
-          desc: 'កំណត់ឈ្មោះក្រុមហ៊ុន Logo វេនម៉ោង Bot Telegram និង Exchange Rate',
-          descEn: 'Company name, logo, shifts, Telegram bot credentials, and exchange rate',
-          descZh: '配置公司名称、Logo、工作班次、Telegram机器人与汇率',
+          labelKh: 'ការកំណត់ & សៀវភៅណែនាំ SOP',
+          labelEn: 'Settings & Workflow Manual',
+          labelZh: '系统配置与工作手册SOP',
+          desc: 'កំណត់ក្រុមហ៊ុន, ប្តូរប្រាក់, សៀវភៅណែនាំនីតិវិធី & រូបមន្តគណនា',
+          descEn: 'Company settings, exchange rate, workflow manual, and payroll formulas',
+          descZh: '配置公司信息、汇率、SOP作业流程指导书与薪酬计算公式',
           roles: ['ADMIN'],
         },
         {

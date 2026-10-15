@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import KhmerCalendar from '@/components/KhmerCalendar';
 import DraggableSummaryCards from '@/components/DraggableSummaryCards';
 import DraggableBottomGrid from '@/components/DraggableBottomGrid';
 import DashboardKpiChart from '@/components/DashboardKpiChart';
@@ -919,9 +918,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             flexWrap: 'wrap',
           }}
         >
-          {/* Khmer Holiday Calendar Trigger */}
-          <KhmerCalendar initialMonth={filterMonth} initialYear={filterYear} />
-
           {/* Department Group Settings */}
           <Link
             href="/settings"

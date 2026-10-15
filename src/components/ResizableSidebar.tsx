@@ -394,7 +394,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
   // Accordion open/close state for collapsed/expanded folders
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    portal: true,
+    general: true,
     workforce: true,
     time: true,
     finance: true,

@@ -37,7 +37,14 @@ type Props = {
   recentLeaveRequests?: any[];
   advanceStats?: { paid: number; remaining: number; count: number };
   weeklyAttendanceData?: { name: string; present: number; absent: number }[];
-  recruitmentByDept?: { name: string; count: number }[];
+  recruitmentByDept?: { name: string; count: number; openJobs?: number; candidates?: number }[];
+  recruitmentStats?: {
+    totalOpenJobs: number;
+    totalCandidates: number;
+    hiredCount: number;
+    pipeline: Array<{ key: string; nameKh: string; nameEn: string; count: number; color: string; bg: string; border: string; icon: string }>;
+    byDept: Array<{ name: string; count: number; openJobs: number; candidates: number }>;
+  };
   totalPayrollValue?: number;
   totalAdvanceValue?: number;
   filterGrandTotalSalary?: number;
@@ -60,6 +67,16 @@ const DEFAULT_LAYOUTS = {
 
 const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'];
 
+const PROVINCE_THEMES = [
+  { from: '#ec4899', to: '#f43f5e', bg: '#fdf2f8', text: '#be185d', border: '#fbcfe8' }, // Rose / Pink
+  { from: '#6366f1', to: '#8b5cf6', bg: '#eef2ff', text: '#4338ca', border: '#c7d2fe' }, // Indigo / Violet
+  { from: '#0284c7', to: '#06b6d4', bg: '#f0f9ff', text: '#0369a1', border: '#bae6fd' }, // Sky / Cyan
+  { from: '#10b981', to: '#14b8a6', bg: '#f0fdf4', text: '#047857', border: '#bbf7d0' }, // Emerald / Teal
+  { from: '#f59e0b', to: '#eab308', bg: '#fffbeb', text: '#b45309', border: '#fde68a' }, // Amber / Yellow
+  { from: '#8b5cf6', to: '#a855f7', bg: '#faf5ff', text: '#6b21a8', border: '#e9d5ff' }, // Purple
+  { from: '#14b8a6', to: '#2dd4bf', bg: '#f0fdfa', text: '#0f766e', border: '#99f6e4' }, // Teal
+];
+
 export default function CustomizableDashboard({
   locale,
   l,
@@ -77,6 +94,7 @@ export default function CustomizableDashboard({
   advanceStats = { paid: 0, remaining: 0, count: 0 },
   weeklyAttendanceData = [],
   recruitmentByDept = [],
+  recruitmentStats,
   totalPayrollValue = 0,
   totalAdvanceValue = 0,
   filterGrandTotalSalary = 0,
@@ -86,6 +104,8 @@ export default function CustomizableDashboard({
 }: Props) {
   const [layouts, setLayouts] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
+  const [recruitmentView, setRecruitmentView] = useState<'pipeline' | 'departments'>('pipeline');
+  const [hometownView, setHometownView] = useState<'leaderboard' | 'donut'>('leaderboard');
 
   // Compute Demographics
   const provinceMap: Record<string, { current: number; prev: number }> = {};
@@ -629,60 +649,264 @@ export default function CustomizableDashboard({
             </div>
           </div>
 
-          {/* 4. RECRUITMENT PIPELINE BY DEPARTMENT */}
-          <div
-            key="recruitment"
-            data-grid={{ x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 2 }}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '14px',
-              padding: '16px 18px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', cursor: 'grab' }}>
-              <div>
-                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                  📢 ជ្រើសរើសបុគ្គលិកតាមផ្នែក (Recruitment ATS)
-                </h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Hiring Demand by Department</span>
-              </div>
-              <Link
-                href="/dashboard/recruitment"
+          {/* 4. RECRUITMENT PIPELINE & DEMAND (MODERN ATS CARD) */}
+          {(() => {
+            const pipelineData = recruitmentStats?.pipeline || [
+              { key: 'NEW', nameKh: 'ដាក់ពាក្យថ្មី', nameEn: 'Applied', count: 0, color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', icon: '📩' },
+              { key: 'REVIEWING', nameKh: 'ត្រួតពិនិត្យ', nameEn: 'Screening', count: 0, color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', icon: '🔍' },
+              { key: 'INTERVIEWING', nameKh: 'សម្ភាសន៍', nameEn: 'Interview', count: 0, color: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe', icon: '🎙️' },
+              { key: 'OFFERED', nameKh: 'ផ្តល់សំណើ', nameEn: 'Offer', count: 0, color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd', icon: '📝' },
+              { key: 'HIRED', nameKh: 'ជាប់ស្ថាពរ', nameEn: 'Hired', count: 1, color: '#10b981', bg: '#f0fdf4', border: '#bbf7d0', icon: '✅' },
+            ];
+            const totalCandidatesCount = recruitmentStats?.totalCandidates ?? pipelineData.reduce((s, p) => s + p.count, 0);
+            const totalOpenJobs = recruitmentStats?.totalOpenJobs ?? 1;
+            const hiredCount = recruitmentStats?.hiredCount ?? (pipelineData.find(p => p.key === 'HIRED')?.count || 0);
+            const maxStageCount = Math.max(1, ...pipelineData.map(p => p.count));
+
+            const deptChartData = (recruitmentStats?.byDept && recruitmentStats.byDept.length > 0)
+              ? recruitmentStats.byDept
+              : (recruitmentByDept.length > 0 ? recruitmentByDept : [{ name: 'ទូទៅ (General)', count: 1, openJobs: 1, candidates: 1 }]);
+
+            return (
+              <div
+                key="recruitment"
+                data-grid={{ x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 2 }}
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#0284c7',
-                  textDecoration: 'none',
-                  backgroundColor: '#f0f9ff',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #bae6fd',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
                 }}
               >
-                មើលបេក្ខជន ➔
-              </Link>
-            </div>
+                {/* Header with Title, Controls & Navigation */}
+                <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
+                  <div>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>📢</span>
+                      <span>ជ្រើសរើសបុគ្គលិក (Recruitment ATS)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Hiring Demand & Candidate Pipeline</span>
+                  </div>
 
-            <div style={{ flex: 1, minHeight: '140px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={recruitmentByDept.length > 0 ? recruitmentByDept : [{ name: 'ទូទៅ (General)', count: 0 }]}
-                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#0f172a', fontSize: 11, fontWeight: 500 }} width={110} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-                  <Bar dataKey="count" fill="#0284c7" radius={[0, 6, 6, 0]} barSize={22} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* View Switcher Segmented Button */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRecruitmentView('pipeline');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: recruitmentView === 'pipeline' ? '#ffffff' : 'transparent',
+                          color: recruitmentView === 'pipeline' ? '#0284c7' : '#64748b',
+                          boxShadow: recruitmentView === 'pipeline' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        📊 ដំណាក់កាល
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRecruitmentView('departments');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: recruitmentView === 'departments' ? '#ffffff' : 'transparent',
+                          color: recruitmentView === 'departments' ? '#0284c7' : '#64748b',
+                          boxShadow: recruitmentView === 'departments' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        🏢 តាមផ្នែក
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/recruitment"
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: '#0284c7',
+                        textDecoration: 'none',
+                        backgroundColor: '#f0f9ff',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #bae6fd',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      បេក្ខជន ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Metric Summary Ribbon */}
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+                    📋 ដំណែងទំនេរ៖ {totalOpenJobs}
+                  </span>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe' }}>
+                    👥 បេក្ខជនសរុប៖ {totalCandidatesCount}
+                  </span>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+                    ✅ ជាប់ស្ថាពរ៖ {hiredCount}
+                  </span>
+                </div>
+
+                {/* View 1: Sleek ATS Pipeline Funnel */}
+                {recruitmentView === 'pipeline' ? (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px', overflowY: 'auto', paddingRight: '2px' }}>
+                    {pipelineData.map((stage) => {
+                      const pct = totalCandidatesCount > 0 ? Math.round((stage.count / totalCandidatesCount) * 100) : (stage.count > 0 ? 100 : 0);
+                      const barWidth = totalCandidatesCount > 0 
+                        ? Math.max(10, Math.round((stage.count / Math.max(1, maxStageCount)) * 100))
+                        : (stage.count > 0 ? 100 : 8);
+
+                      return (
+                        <div key={stage.key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              borderRadius: '7px',
+                              backgroundColor: stage.bg,
+                              border: `1px solid ${stage.border}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.88rem',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {stage.icon}
+                          </div>
+                          <div style={{ width: '80px', flexShrink: 0 }}>
+                            <div className="kh-text" style={{ fontSize: '0.76rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.15 }}>
+                              {stage.nameKh}
+                            </div>
+                            <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 500 }}>
+                              {stage.nameEn}
+                            </div>
+                          </div>
+                          <div style={{ flex: 1, position: 'relative' }}>
+                            <div
+                              style={{
+                                height: '13px',
+                                backgroundColor: '#f1f5f9',
+                                borderRadius: '999px',
+                                overflow: 'hidden',
+                                position: 'relative',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: `${barWidth}%`,
+                                  height: '100%',
+                                  background: `linear-gradient(90deg, ${stage.color}, ${stage.color}cc)`,
+                                  borderRadius: '999px',
+                                  transition: 'width 0.4s ease',
+                                  boxShadow: `0 2px 6px ${stage.color}40`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: '65px', justifyContent: 'flex-end' }}>
+                            <span
+                              style={{
+                                fontSize: '0.72rem',
+                                fontWeight: 800,
+                                color: stage.color,
+                                backgroundColor: stage.bg,
+                                border: `1px solid ${stage.border}`,
+                                padding: '1px 6px',
+                                borderRadius: '5px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {stage.count} នាក់
+                            </span>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, minWidth: '26px', textAlign: 'right' }}>
+                              {pct}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* View 2: Modern Department Demand Bar Chart */
+                  <div style={{ flex: 1, minHeight: '120px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        layout="vertical"
+                        data={deptChartData}
+                        margin={{ top: 4, right: 25, left: 10, bottom: 4 }}
+                      >
+                        <defs>
+                          <linearGradient id="recruitmentBarGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#0284c7" />
+                            <stop offset="100%" stopColor="#38bdf8" />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#0f172a', fontSize: 11, fontWeight: 600 }} width={100} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.92)', color: '#ffffff', padding: '8px 12px', borderRadius: '8px', fontSize: '0.75rem', boxShadow: '0 8px 20px rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}>
+                                  <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '2px' }}>{data.name}</div>
+                                  <div>ដំណែងទំនេរ៖ <strong>{data.openJobs ?? data.count}</strong></div>
+                                  <div>បេក្ខជនដាក់ពាក្យ៖ <strong>{data.candidates ?? 0} នាក់</strong></div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Bar
+                          dataKey="count"
+                          fill="url(#recruitmentBarGradient)"
+                          radius={[0, 6, 6, 0]}
+                          barSize={20}
+                          label={{ position: 'right', fill: '#0284c7', fontSize: 11, fontWeight: 700 }}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 5. RECENT LEAVE REQUESTS TABLE / LIST */}
           <div
@@ -830,60 +1054,286 @@ export default function CustomizableDashboard({
             </div>
           </div>
 
-          {/* 7. EMPLOYEES BY HOMETOWN / LOCATION (HORIZONTAL BAR) */}
-          <div
-            key="employees_location"
-            data-grid={{ x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 2 }}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '14px',
-              padding: '16px 18px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', cursor: 'grab' }}>
-              <div>
-                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                  📍 បុគ្គលិកតាមរាជធានី-ខេត្តកំណើត (Employees by Hometown)
-                </h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Hometown & Geographical Spread</span>
-              </div>
-              <Link
-                href="/dashboard/employees"
+          {/* 7. EMPLOYEES BY HOMETOWN / LOCATION (MODERN RANKINGS & DONUT) */}
+          {(() => {
+            const topProvincesData = topProvinces.length > 0
+              ? topProvinces
+              : [{ name: 'ភ្នំពេញ (Phnom Penh)', count: allEmployees.length || 1 }];
+            const maxProvinceCount = Math.max(1, ...topProvincesData.map(p => p.count));
+            const provincesCount = Object.keys(provinceMap).length || topProvincesData.length;
+
+            return (
+              <div
+                key="employees_location"
+                data-grid={{ x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 2 }}
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#ec4899',
-                  textDecoration: 'none',
-                  backgroundColor: '#fdf2f8',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #fbcfe8',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
                 }}
               >
-                មើលទីតាំង ➔
-              </Link>
-            </div>
+                {/* Header with Title, Controls & Navigation */}
+                <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
+                  <div>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>📍</span>
+                      <span>បុគ្គលិកតាមរាជធានី-ខេត្ត (Hometown Spread)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Hometown & Geographical Spread</span>
+                  </div>
 
-            <div style={{ flex: 1, minHeight: '140px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={topProvinces.length > 0 ? topProvinces : [{ name: 'ភ្នំពេញ (Phnom Penh)', count: allEmployees.length }]}
-                  margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                  <XAxis type="number" hide />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 11, fontWeight: 500 }} width={110} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-                  <Bar dataKey="count" fill="#ec4899" barSize={22} radius={[0, 6, 6, 0]} label={{ position: 'right', fill: '#475569', fontSize: 11 }} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* View Switcher Segmented Button */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setHometownView('leaderboard');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: hometownView === 'leaderboard' ? '#ffffff' : 'transparent',
+                          color: hometownView === 'leaderboard' ? '#db2777' : '#64748b',
+                          boxShadow: hometownView === 'leaderboard' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        🏆 ចំណាត់ថ្នាក់
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setHometownView('donut');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: hometownView === 'donut' ? '#ffffff' : 'transparent',
+                          color: hometownView === 'donut' ? '#db2777' : '#64748b',
+                          boxShadow: hometownView === 'donut' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        🍩 ក្រាបដូណាត់
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/employees"
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: '#ec4899',
+                        textDecoration: 'none',
+                        backgroundColor: '#fdf2f8',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #fbcfe8',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      ទីតាំង ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Metric Summary Ribbon */}
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#fdf2f8', color: '#be185d', border: '1px solid #fbcfe8' }}>
+                    🏆 នាំមុខគេ៖ {topProvincesData[0]?.name || 'N/A'}
+                  </span>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+                    🗺️ {provincesCount} រាជធានី-ខេត្ត
+                  </span>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}>
+                    👥 {allEmployees.length} នាក់សរុប
+                  </span>
+                </div>
+
+                {/* View 1: Colorful Province Leaderboard Progress Bars */}
+                {hometownView === 'leaderboard' ? (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px', overflowY: 'auto', paddingRight: '2px' }}>
+                    {topProvincesData.map((item, idx) => {
+                      const pct = allEmployees.length > 0 ? Math.round((item.count / allEmployees.length) * 100) : 0;
+                      const barWidth = maxProvinceCount > 0 ? Math.max(12, Math.round((item.count / maxProvinceCount) * 100)) : 10;
+                      const colorTheme = PROVINCE_THEMES[idx % PROVINCE_THEMES.length];
+                      const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`;
+
+                      return (
+                        <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              borderRadius: '7px',
+                              backgroundColor: colorTheme.bg,
+                              border: `1px solid ${colorTheme.border}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: idx < 3 ? '0.9rem' : '0.72rem',
+                              fontWeight: 800,
+                              color: colorTheme.text,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {medal}
+                          </div>
+                          <div style={{ width: '95px', flexShrink: 0 }}>
+                            <div className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {item.name}
+                            </div>
+                          </div>
+                          <div style={{ flex: 1, position: 'relative' }}>
+                            <div
+                              style={{
+                                height: '13px',
+                                backgroundColor: '#f1f5f9',
+                                borderRadius: '999px',
+                                overflow: 'hidden',
+                                position: 'relative',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: `${barWidth}%`,
+                                  height: '100%',
+                                  background: `linear-gradient(90deg, ${colorTheme.from}, ${colorTheme.to})`,
+                                  borderRadius: '999px',
+                                  transition: 'width 0.4s ease',
+                                  boxShadow: `0 2px 6px ${colorTheme.from}40`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: '65px', justifyContent: 'flex-end' }}>
+                            <span
+                              style={{
+                                fontSize: '0.72rem',
+                                fontWeight: 800,
+                                color: colorTheme.text,
+                                backgroundColor: colorTheme.bg,
+                                border: `1px solid ${colorTheme.border}`,
+                                padding: '1px 6px',
+                                borderRadius: '5px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {item.count} នាក់
+                            </span>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, minWidth: '26px', textAlign: 'right' }}>
+                              {pct}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* View 2: High-End Donut Chart with Center KPI & Legend */
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', minHeight: '120px' }}>
+                    <div style={{ flex: '1 1 52%', height: '100%', position: 'relative' }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={topProvincesData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={44}
+                            outerRadius={68}
+                            paddingAngle={4}
+                            cornerRadius={6}
+                            dataKey="count"
+                          >
+                            {topProvincesData.map((entry, index) => (
+                              <Cell key={`prov-cell-${index}`} fill={PROVINCE_THEMES[index % PROVINCE_THEMES.length].from} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                const pct = allEmployees.length > 0 ? Math.round((data.count / allEmployees.length) * 100) : 0;
+                                return (
+                                  <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.92)', color: '#ffffff', padding: '7px 11px', borderRadius: '8px', fontSize: '0.74rem', boxShadow: '0 8px 20px rgba(0,0,0,0.25)', backdropFilter: 'blur(8px)' }}>
+                                    <div style={{ fontWeight: 800, color: '#f472b6', marginBottom: '2px' }}>{data.name}</div>
+                                    <div>ចំនួនបុគ្គលិក៖ <strong>{data.count} នាក់</strong> ({pct}%)</div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          textAlign: 'center',
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                          {allEmployees.length}
+                        </div>
+                        <div className="kh-text" style={{ fontSize: '0.6rem', color: '#64748b', marginTop: '2px' }}>
+                          បុគ្គលិកសរុប
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ flex: '1 1 48%', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '4px', overflowY: 'auto', maxHeight: '140px' }}>
+                      {topProvincesData.map((item, index) => {
+                        const color = PROVINCE_THEMES[index % PROVINCE_THEMES.length];
+                        const pct = allEmployees.length > 0 ? Math.round((item.count / allEmployees.length) * 100) : 0;
+                        return (
+                          <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
+                              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color.from, flexShrink: 0 }} />
+                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80px', color: '#334155', fontWeight: 600 }}>
+                                {item.name}
+                              </span>
+                            </div>
+                            <span style={{ fontWeight: 700, color: color.text, fontSize: '0.7rem' }}>
+                              {item.count}នាក់ ({pct}%)
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </ResponsiveGridLayout>
       </div>
     </div>

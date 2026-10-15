@@ -180,7 +180,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     allEmployees,
     departmentGroupsDb,
     recentLeaveRequests,
-    weeklyAttendance
+    weeklyAttendance,
+    allJobPostings,
+    allCandidates
   ] = await Promise.all([
     prisma.employee.count(),
     prisma.payroll.aggregate({
@@ -226,6 +228,21 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         date: { gte: new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000) }
       },
       select: { date: true }
+    }),
+    // Recruitment ATS queries
+    prisma.jobPosting.findMany({
+      include: { candidates: true },
+      orderBy: { createdAt: 'desc' }
+    }),
+    prisma.candidate.findMany({
+      select: {
+        id: true,
+        status: true,
+        appliedAt: true,
+        jobPosting: {
+          select: { department: true, title: true }
+        }
+      }
     })
   ]);
 
@@ -257,16 +274,68 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   });
   advanceStats.count = advanceSet.size;
 
-  // Compute recruitmentByDept
-  const deptCount: Record<string, number> = {};
-  allEmployees.forEach(emp => {
-    const dept = emp.department || 'General';
-    deptCount[dept] = (deptCount[dept] || 0) + 1;
+  // Compute rich recruitment ATS stats & pipeline
+  const totalOpenJobs = allJobPostings.filter(j => j.status === 'OPEN').length;
+  const totalCandidates = allCandidates.length;
+
+  const stageCounts: Record<string, number> = {
+    NEW: 0,
+    REVIEWING: 0,
+    INTERVIEWING: 0,
+    OFFERED: 0,
+    HIRED: 0,
+    REJECTED: 0,
+  };
+  allCandidates.forEach(c => {
+    const s = c.status || 'NEW';
+    if (stageCounts[s] !== undefined) {
+      stageCounts[s]++;
+    } else {
+      stageCounts.NEW++;
+    }
   });
-  const recruitmentByDept = Object.entries(deptCount)
-    .map(([name, count]) => ({ name, count }))
+
+  const recruitmentPipeline = [
+    { key: 'NEW', nameKh: 'ដាក់ពាក្យថ្មី', nameEn: 'Applied', count: stageCounts.NEW, color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', icon: '📩' },
+    { key: 'REVIEWING', nameKh: 'ត្រួតពិនិត្យ', nameEn: 'Screening', count: stageCounts.REVIEWING, color: '#f59e0b', bg: '#fffbeb', border: '#fde68a', icon: '🔍' },
+    { key: 'INTERVIEWING', nameKh: 'សម្ភាសន៍', nameEn: 'Interview', count: stageCounts.INTERVIEWING, color: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe', icon: '🎙️' },
+    { key: 'OFFERED', nameKh: 'ផ្តល់សំណើ', nameEn: 'Offer', count: stageCounts.OFFERED, color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd', icon: '📝' },
+    { key: 'HIRED', nameKh: 'ជាប់ស្ថាពរ', nameEn: 'Hired', count: stageCounts.HIRED, color: '#10b981', bg: '#f0fdf4', border: '#bbf7d0', icon: '✅' },
+  ];
+
+  // Group demand by department from JobPostings & Candidates, fallback to active departments
+  const jobDeptCount: Record<string, { openJobs: number; candidates: number }> = {};
+  allJobPostings.forEach(j => {
+    const dept = j.department || 'General';
+    if (!jobDeptCount[dept]) jobDeptCount[dept] = { openJobs: 0, candidates: 0 };
+    if (j.status === 'OPEN') jobDeptCount[dept].openJobs += 1;
+    jobDeptCount[dept].candidates += (j.candidates?.length || 0);
+  });
+
+  if (Object.keys(jobDeptCount).length === 0) {
+    allEmployees.forEach(emp => {
+      const dept = emp.department || 'General';
+      if (!jobDeptCount[dept]) jobDeptCount[dept] = { openJobs: 1, candidates: 0 };
+    });
+  }
+
+  const recruitmentByDept = Object.entries(jobDeptCount)
+    .map(([name, data]) => ({
+      name,
+      count: data.openJobs || (data.candidates > 0 ? data.candidates : 1),
+      openJobs: data.openJobs,
+      candidates: data.candidates,
+    }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
+
+  const recruitmentStats = {
+    totalOpenJobs,
+    totalCandidates,
+    hiredCount: stageCounts.HIRED,
+    pipeline: recruitmentPipeline,
+    byDept: recruitmentByDept,
+  };
 
   // Compute weeklyAttendanceData
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -572,6 +641,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         recentLeaveRequests={recentLeaveRequests}
         advanceStats={advanceStats}
         recruitmentByDept={recruitmentByDept}
+        recruitmentStats={recruitmentStats}
         weeklyAttendanceData={weeklyAttendanceData}
         totalPayrollValue={totalPayrollValue}
         totalAdvanceValue={totalAdvanceValue}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { toKhmerLunarDate } from 'khmer-chhankitek-calendar';
 
 const KHMER_DAYS = [
   'ថ្ងៃអាទិត្យ',
@@ -92,7 +93,19 @@ export default function LiveDigitalClock({ locale = 'kh' }: { locale?: string })
     greetingIcon = '🌙';
   }
 
-  // Khmer date
+  // Khmer date & Cambodian holiday detection
+  let todayHolidayName = '';
+  let lunarDayStatus = '';
+  try {
+    const lunar = toKhmerLunarDate(now);
+    if (lunar?.holidays && lunar.holidays.length > 0) {
+      todayHolidayName = lunar.holidays[0].nameKm;
+    }
+    if (lunar?.moonDayKhmer && lunar?.moonStatus && lunar?.khmerMonth) {
+      lunarDayStatus = `${lunar.moonDayKhmer}${lunar.moonStatus} ខែ${lunar.khmerMonth}`;
+    }
+  } catch (e) {}
+
   const dayNameKh = KHMER_DAYS[now.getDay()];
   const dayNum = now.getDate();
   const monthNameKh = KHMER_MONTHS[now.getMonth()];
@@ -252,19 +265,39 @@ export default function LiveDigitalClock({ locale = 'kh' }: { locale?: string })
         }}
       />
 
-      {/* Right: Real-time Date in Khmer & English */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-        <div
-          className="kh-text"
-          style={{
-            fontSize: '0.76rem',
-            fontWeight: 700,
-            color: '#1e293b',
-            whiteSpace: 'nowrap',
-            lineHeight: 1.3,
-          }}
-        >
-          {fullDateKh}
+      {/* Right: Real-time Date in Khmer, English & Cambodian Holiday */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span
+            className="kh-text"
+            style={{
+              fontSize: '0.76rem',
+              fontWeight: 700,
+              color: '#1e293b',
+              whiteSpace: 'nowrap',
+              lineHeight: 1.3,
+            }}
+          >
+            {fullDateKh}
+          </span>
+          {todayHolidayName && (
+            <span
+              className="kh-text"
+              style={{
+                fontSize: '0.64rem',
+                fontWeight: 800,
+                color: '#be123c',
+                backgroundColor: '#ffe4e6',
+                border: '1px solid #fecdd3',
+                padding: '1px 6px',
+                borderRadius: '4px',
+                whiteSpace: 'nowrap',
+                lineHeight: 1.2,
+              }}
+            >
+              🎉 {todayHolidayName}
+            </span>
+          )}
         </div>
         <div
           style={{
@@ -272,9 +305,20 @@ export default function LiveDigitalClock({ locale = 'kh' }: { locale?: string })
             color: '#94a3b8',
             fontWeight: 600,
             whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
           }}
         >
-          {fullDateEn}
+          <span>{fullDateEn}</span>
+          {lunarDayStatus && (
+            <>
+              <span>•</span>
+              <span className="kh-text" style={{ color: '#0284c7', fontWeight: 600 }}>
+                {lunarDayStatus}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>

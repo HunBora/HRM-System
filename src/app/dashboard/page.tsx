@@ -8,6 +8,7 @@ import DraggableBottomGrid from '@/components/DraggableBottomGrid';
 import DashboardKpiChart from '@/components/DashboardKpiChart';
 import CustomizableDashboard from '@/components/CustomizableDashboard';
 import LiveDigitalClock from '@/components/LiveDigitalClock';
+import CambodiaDatePicker from '@/components/CambodiaDatePicker';
 
 
 const dashT = {
@@ -945,69 +946,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <span>ការកំណត់ក្រុមផ្នែក</span>
           </Link>
 
-          {/* Actual Date Filter Form */}
-          <form
-            method="GET"
-            style={{
-              display: 'flex',
-              gap: '8px',
-              alignItems: 'center',
-              backgroundColor: '#ffffff',
-              padding: '4px 8px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-              height: '48px',
-            }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '4px' }}>
-              <span className="kh-text" style={{ fontSize: '0.62rem', color: '#0284c7', fontWeight: 700, lineHeight: 1.1 }}>
-                📅 ថ្ងៃជាក់ស្តែង
-              </span>
-              <input
-                type="date"
-                name="date"
-                defaultValue={actualDateStr}
-                style={{
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                  padding: '1px 2px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  color: '#0f172a',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  margin: 0,
-                }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="kh-text"
-              style={{
-                padding: '6px 14px',
-                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
-                fontSize: '0.78rem',
-                transition: 'all 0.2s ease',
-                height: '36px',
-              }}
-            >
-              <span>✅</span>
-              <span>បង្ហាញ</span>
-            </button>
-          </form>
+          {/* Cambodian Enterprise Date Picker with Public Holidays */}
+          <CambodiaDatePicker actualDateStr={actualDateStr} />
         </div>
       </div>
 

@@ -8,7 +8,6 @@ import DraggableBottomGrid from '@/components/DraggableBottomGrid';
 import DashboardKpiChart from '@/components/DashboardKpiChart';
 import CustomizableDashboard from '@/components/CustomizableDashboard';
 import LiveDigitalClock from '@/components/LiveDigitalClock';
-import CambodiaDatePicker from '@/components/CambodiaDatePicker';
 
 
 const dashT = {
@@ -905,12 +904,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
         </div>
 
-        {/* Center: Live Walking Digital Clock (មុខម៉ោងដើរ Real-time) */}
+        {/* Center: Unified Live Walking Clock & Modern Cambodian Calendar */}
         <div style={{ display: 'flex', justifyContent: 'center', flex: '1 1 auto', minWidth: '280px' }}>
-          <LiveDigitalClock locale={locale} />
+          <LiveDigitalClock locale={locale} actualDateStr={actualDateStr} />
         </div>
 
-        {/* Right: Actions & Date Controls */}
+        {/* Right: Actions */}
         <div
           style={{
             display: 'flex',
@@ -946,9 +945,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <span style={{ fontSize: '1rem' }}>⚙️</span>
             <span>ការកំណត់ក្រុមផ្នែក</span>
           </Link>
-
-          {/* Cambodian Enterprise Date Picker with Public Holidays */}
-          <CambodiaDatePicker actualDateStr={actualDateStr} />
         </div>
       </div>
 

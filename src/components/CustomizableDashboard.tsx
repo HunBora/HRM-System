@@ -82,12 +82,28 @@ type Props = {
 // Enterprise Standard Default Layout (Compact, Fit-Content, High-Readability Grid)
 const DEFAULT_LAYOUTS = {
   lg: [
-    { i: 'daily_attendance', x: 0, y: 0, w: 7, h: 3, minW: 4, minH: 2 },
-    { i: 'loan_pay', x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 2 },
-    { i: 'recruitment', x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 2 },
-    { i: 'leave_application', x: 6, y: 3, w: 6, h: 3, minW: 4, minH: 2 },
-    { i: 'employees_role', x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 2 },
-    { i: 'employees_location', x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 2 },
+    { i: 'daily_attendance', x: 0, y: 0, w: 7, h: 3, minW: 4, minH: 3 },
+    { i: 'loan_pay', x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 3 },
+    { i: 'recruitment', x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 3 },
+    { i: 'leave_application', x: 6, y: 3, w: 6, h: 3, minW: 4, minH: 3 },
+    { i: 'employees_role', x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 3 },
+    { i: 'employees_location', x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 3 },
+  ],
+  md: [
+    { i: 'daily_attendance', x: 0, y: 0, w: 6, h: 3, minW: 4, minH: 3 },
+    { i: 'loan_pay', x: 6, y: 0, w: 4, h: 3, minW: 3, minH: 3 },
+    { i: 'recruitment', x: 0, y: 3, w: 5, h: 3, minW: 4, minH: 3 },
+    { i: 'leave_application', x: 5, y: 3, w: 5, h: 3, minW: 4, minH: 3 },
+    { i: 'employees_role', x: 0, y: 6, w: 5, h: 3, minW: 4, minH: 3 },
+    { i: 'employees_location', x: 5, y: 6, w: 5, h: 3, minW: 4, minH: 3 },
+  ],
+  sm: [
+    { i: 'daily_attendance', x: 0, y: 0, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'loan_pay', x: 0, y: 3, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'recruitment', x: 0, y: 6, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'leave_application', x: 0, y: 9, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'employees_role', x: 0, y: 12, w: 6, h: 3, minW: 3, minH: 3 },
+    { i: 'employees_location', x: 0, y: 15, w: 6, h: 3, minW: 3, minH: 3 },
   ],
 };
 
@@ -223,7 +239,13 @@ export default function CustomizableDashboard({
 
   useEffect(() => {
     setIsClient(true);
-    const saved = localStorage.getItem('dashboard_layout_v9');
+    // Automatically purge old layout keys
+    ['dashboard_layout_v9', 'dashboard_layout_v10', 'dashboard_layout_v11', 'dashboard_layout_v12'].forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch (e) {}
+    });
+    const saved = localStorage.getItem('dashboard_layout_v13');
     if (saved) {
       try {
         setLayouts(JSON.parse(saved));
@@ -237,11 +259,11 @@ export default function CustomizableDashboard({
 
   const onLayoutChange = (layout: Layout[], allLayouts: any) => {
     setLayouts(allLayouts);
-    localStorage.setItem('dashboard_layout_v9', JSON.stringify(allLayouts));
+    localStorage.setItem('dashboard_layout_v13', JSON.stringify(allLayouts));
   };
 
   const handleResetLayout = () => {
-    localStorage.removeItem('dashboard_layout_v9');
+    localStorage.removeItem('dashboard_layout_v13');
     setLayouts(DEFAULT_LAYOUTS);
     window.location.reload();
   };
@@ -375,9 +397,9 @@ export default function CustomizableDashboard({
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
               {allEmployees.length}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px' }}>
-              <span>ស្រី: <strong style={{ color: '#0f172a' }}>{totalFemale}</strong> | ប្រុស: <strong style={{ color: '#0f172a' }}>{totalMale}</strong></span>
-              <span style={{ color: '#0284c7', fontWeight: 700 }}>ចូលមើល ➔</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px', whiteSpace: 'nowrap' }}>
+              <span style={{ lineHeight: 1.4 }}>ស្រី: <strong style={{ color: '#0f172a' }}>{totalFemale}</strong> | ប្រុស: <strong style={{ color: '#0f172a' }}>{totalMale}</strong></span>
+              <span style={{ color: '#0284c7', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
 
@@ -410,9 +432,9 @@ export default function CustomizableDashboard({
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#059669', lineHeight: 1.1 }}>
               {presentCount}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px' }}>
-              <span>អត្រាវត្តមាន: <strong style={{ color: '#059669' }}>{attendanceRate}%</strong></span>
-              <span style={{ color: '#10b981', fontWeight: 700 }}>ចូលមើល ➔</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px', whiteSpace: 'nowrap' }}>
+              <span style={{ lineHeight: 1.4 }}>អត្រាវត្តមាន: <strong style={{ color: '#059669' }}>{attendanceRate}%</strong></span>
+              <span style={{ color: '#10b981', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
 
@@ -445,9 +467,9 @@ export default function CustomizableDashboard({
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#d97706', lineHeight: 1.1 }}>
               {leaveStats.total}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px' }}>
-              <span>មានច្បាប់: <strong style={{ color: '#0f172a' }}>{leaveStats.total}</strong> នាក់</span>
-              <span style={{ color: '#f59e0b', fontWeight: 700 }}>ចូលមើល ➔</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px', whiteSpace: 'nowrap' }}>
+              <span style={{ lineHeight: 1.4 }}>មានច្បាប់: <strong style={{ color: '#0f172a' }}>{leaveStats.total}</strong> នាក់</span>
+              <span style={{ color: '#f59e0b', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
 
@@ -480,9 +502,9 @@ export default function CustomizableDashboard({
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#dc2626', lineHeight: 1.1 }}>
               {absentStats.total}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px' }}>
-              <span>ស្រី: <strong>{absentStats?.female || 0}</strong> | ប្រុស: <strong>{absentStats?.male || 0}</strong></span>
-              <span style={{ color: '#ef4444', fontWeight: 700 }}>ចូលមើល ➔</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px', whiteSpace: 'nowrap' }}>
+              <span style={{ lineHeight: 1.4 }}>ស្រី: <strong>{absentStats?.female || 0}</strong> | ប្រុស: <strong>{absentStats?.male || 0}</strong></span>
+              <span style={{ color: '#ef4444', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
 
@@ -517,9 +539,9 @@ export default function CustomizableDashboard({
                 ? Math.round(filterGrandTotalSalary).toLocaleString()
                 : Math.round(totalPayrollValue).toLocaleString()}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px' }}>
-              <span>ខែ {filterMonth}/{filterYear}</span>
-              <span style={{ color: '#6366f1', fontWeight: 700 }}>ចូលមើល ➔</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px', whiteSpace: 'nowrap' }}>
+              <span style={{ lineHeight: 1.4 }}>ខែ {filterMonth}/{filterYear}</span>
+              <span style={{ color: '#6366f1', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
 
@@ -555,9 +577,9 @@ export default function CustomizableDashboard({
                 : totalAdvanceValue
               ).toLocaleString()}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px' }}>
-              <span>{advanceStats.count} នាក់ស្នើសុំ</span>
-              <span style={{ color: '#8b5cf6', fontWeight: 700 }}>ចូលមើល ➔</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#64748b', borderTop: '1px dashed #f1f5f9', paddingTop: '5px', whiteSpace: 'nowrap' }}>
+              <span style={{ lineHeight: 1.4 }}>{advanceStats.count} នាក់ស្នើសុំ</span>
+              <span style={{ color: '#8b5cf6', fontWeight: 700, whiteSpace: 'nowrap', lineHeight: 1.4 }}>ចូលមើល ➔</span>
             </div>
           </Link>
         </div>
@@ -570,7 +592,7 @@ export default function CustomizableDashboard({
           layouts={layouts}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-          rowHeight={85}
+          rowHeight={98}
           onLayoutChange={onLayoutChange}
           isDraggable={true}
           isResizable={true}
@@ -606,7 +628,7 @@ export default function CustomizableDashboard({
             return (
               <div
                 key="daily_attendance"
-                data-grid={{ x: 0, y: 0, w: 7, h: 3, minW: 4, minH: 2 }}
+                data-grid={{ x: 0, y: 0, w: 7, h: 3, minW: 4, minH: 3 }}
                 style={{
                   backgroundColor: '#ffffff',
                   borderRadius: '14px',
@@ -620,15 +642,15 @@ export default function CustomizableDashboard({
               >
                 {/* Header with Title, Controls & Navigation */}
                 <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
-                  <div>
-                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '8px' }}>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', lineHeight: 1.4 }}>
                       <span>📅</span>
                       <span>ស្ថិតិវត្តមានប្រចាំសប្តាហ៍ (Daily Attendance)</span>
                     </h3>
-                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>៧ ថ្ងៃចុងក្រោយ • Last 7 Days Attendance Trend</span>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', lineHeight: 1.5, display: 'block', paddingTop: '1px' }}>៧ ថ្ងៃចុងក្រោយ • Last 7 Days Attendance Trend</span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                     {/* View Switcher Segmented Button */}
                     <div
                       style={{
@@ -638,6 +660,7 @@ export default function CustomizableDashboard({
                         borderRadius: '8px',
                         border: '1px solid #e2e8f0',
                         gap: '2px',
+                        flexShrink: 0,
                       }}
                     >
                       <button
@@ -647,8 +670,8 @@ export default function CustomizableDashboard({
                           setAttendanceView('trend');
                         }}
                         style={{
-                          padding: '3px 8px',
-                          fontSize: '0.7rem',
+                          padding: '3px 9px',
+                          fontSize: '0.72rem',
                           fontWeight: 700,
                           borderRadius: '6px',
                           border: 'none',
@@ -657,6 +680,9 @@ export default function CustomizableDashboard({
                           color: attendanceView === 'trend' ? '#0284c7' : '#64748b',
                           boxShadow: attendanceView === 'trend' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         📈 និន្នាការ
@@ -668,8 +694,8 @@ export default function CustomizableDashboard({
                           setAttendanceView('bar');
                         }}
                         style={{
-                          padding: '3px 8px',
-                          fontSize: '0.7rem',
+                          padding: '3px 9px',
+                          fontSize: '0.72rem',
                           fontWeight: 700,
                           borderRadius: '6px',
                           border: 'none',
@@ -678,6 +704,9 @@ export default function CustomizableDashboard({
                           color: attendanceView === 'bar' ? '#0284c7' : '#64748b',
                           boxShadow: attendanceView === 'bar' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         📊 របារ
@@ -696,6 +725,8 @@ export default function CustomizableDashboard({
                         borderRadius: '6px',
                         border: '1px solid #bae6fd',
                         whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.4,
                       }}
                     >
                       តារាងវត្តមាន ➔
@@ -717,6 +748,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🟢</span>
@@ -734,6 +767,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>👥</span>
@@ -751,6 +786,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🌴</span>
@@ -768,6 +805,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🔴</span>
@@ -934,7 +973,7 @@ export default function CustomizableDashboard({
             return (
               <div
                 key="loan_pay"
-                data-grid={{ x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 2 }}
+                data-grid={{ x: 7, y: 0, w: 5, h: 3, minW: 3, minH: 3 }}
                 style={{
                   backgroundColor: '#ffffff',
                   borderRadius: '14px',
@@ -948,15 +987,15 @@ export default function CustomizableDashboard({
               >
                 {/* Header with Title, Controls & Navigation */}
                 <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
-                  <div>
-                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.92rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                       <span>💳</span>
-                      <span>ស្ថានភាពប្រាក់កម្ចី & បុរេប្រទាន (Loans & Advances)</span>
+                      <span>កម្ចី & បុរេប្រទាន (Loans & Advances)</span>
                     </h3>
-                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Advances & Employee Loans Portfolio</span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', display: 'block', lineHeight: 1.4, paddingTop: '1px' }}>Advances & Employee Loans</span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                     {/* View Switcher Segmented Button */}
                     <div
                       style={{
@@ -966,6 +1005,7 @@ export default function CustomizableDashboard({
                         borderRadius: '8px',
                         border: '1px solid #e2e8f0',
                         gap: '2px',
+                        flexShrink: 0,
                       }}
                     >
                       <button
@@ -976,7 +1016,7 @@ export default function CustomizableDashboard({
                         }}
                         style={{
                           padding: '3px 8px',
-                          fontSize: '0.7rem',
+                          fontSize: '0.72rem',
                           fontWeight: 700,
                           borderRadius: '6px',
                           border: 'none',
@@ -985,6 +1025,9 @@ export default function CustomizableDashboard({
                           color: loanView === 'health' ? '#6366f1' : '#64748b',
                           boxShadow: loanView === 'health' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         🍩 សុខភាព
@@ -997,7 +1040,7 @@ export default function CustomizableDashboard({
                         }}
                         style={{
                           padding: '3px 8px',
-                          fontSize: '0.7rem',
+                          fontSize: '0.72rem',
                           fontWeight: 700,
                           borderRadius: '6px',
                           border: 'none',
@@ -1006,48 +1049,34 @@ export default function CustomizableDashboard({
                           color: loanView === 'portfolio' ? '#6366f1' : '#64748b',
                           boxShadow: loanView === 'portfolio' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         ⚖️ ប្រៀបធៀប
                       </button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <Link
-                        href="/dashboard/advance"
-                        title="គ្រប់គ្រងបុរេប្រទាន"
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          color: '#8b5cf6',
-                          textDecoration: 'none',
-                          backgroundColor: '#f5f3ff',
-                          padding: '3px 6px',
-                          borderRadius: '6px',
-                          border: '1px solid #ddd6fe',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        បុរេប្រទាន ➔
-                      </Link>
-                      <Link
-                        href="/dashboard/loans"
-                        title="គ្រប់គ្រងប្រាក់កម្ចី"
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          color: '#0284c7',
-                          textDecoration: 'none',
-                          backgroundColor: '#f0f9ff',
-                          padding: '3px 6px',
-                          borderRadius: '6px',
-                          border: '1px solid #bae6fd',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        កម្ចី ➔
-                      </Link>
-                    </div>
+                    <Link
+                      href="/dashboard/advance"
+                      title="គ្រប់គ្រងបុរេប្រទាន & កម្ចី"
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: '#6366f1',
+                        textDecoration: 'none',
+                        backgroundColor: '#eef2ff',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #c7d2fe',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      គ្រប់គ្រង ➔
+                    </Link>
                   </div>
                 </div>
 
@@ -1065,6 +1094,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>💵</span>
@@ -1082,6 +1113,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🏦</span>
@@ -1099,6 +1132,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🔄</span>
@@ -1109,15 +1144,15 @@ export default function CustomizableDashboard({
                 {/* Main Content: Health Donut vs Portfolio Comparison */}
                 {loanView === 'health' ? (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '135px' }}>
-                    <div style={{ flex: 1, position: 'relative', minHeight: '100px' }}>
+                    <div style={{ flex: 1, position: 'relative', minHeight: '110px' }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={donutData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={44}
-                            outerRadius={68}
+                            innerRadius={50}
+                            outerRadius={72}
                             paddingAngle={3}
                             dataKey="value"
                           >
@@ -1159,25 +1194,26 @@ export default function CustomizableDashboard({
                           transform: 'translate(-50%, -50%)',
                           textAlign: 'center',
                           pointerEvents: 'none',
+                          width: '90px',
                         }}
                       >
-                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
                           ${grandTotal.toLocaleString()}
                         </div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b', marginTop: '2px' }}>
-                          សរុបទាំងអស់ ({recoveryRate}%)
+                        <div style={{ fontSize: '0.66rem', color: '#64748b', marginTop: '2px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          សរុប ({recoveryRate}%)
                         </div>
                       </div>
                     </div>
 
                     {/* Bottom Status Breakdown Ribbon */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '4px', borderTop: '1px dashed #f1f5f9' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', paddingTop: '6px', borderTop: '1px dashed #f1f5f9', flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', flexShrink: 0 }} />
                         <span style={{ color: '#64748b' }}>បានសង៖</span>
                         <strong style={{ color: '#047857' }}>${grandRepaid.toLocaleString()}</strong>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', justifyContent: 'flex-end' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366f1', flexShrink: 0 }} />
                         <span style={{ color: '#64748b' }}>នៅសល់៖</span>
                         <strong style={{ color: '#4338ca' }}>${grandRemaining.toLocaleString()}</strong>
@@ -1247,8 +1283,8 @@ export default function CustomizableDashboard({
                       </div>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.65rem', color: '#0284c7', fontWeight: 600 }}>
-                        <span>រំលស់ប្រចាំខែ៖ <strong>${loanMonthly.toLocaleString()}/ខែ</strong></span>
-                        <Link href="/dashboard/loans" style={{ color: '#0284c7', textDecoration: 'none', fontWeight: 700 }}>
+                        <span style={{ whiteSpace: 'nowrap', lineHeight: 1.4 }}>រំលស់ប្រចាំខែ៖ <strong>${loanMonthly.toLocaleString()}/ខែ</strong></span>
+                        <Link href="/dashboard/loans" style={{ color: '#0284c7', textDecoration: 'none', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, lineHeight: 1.4 }}>
                           មើលលម្អិត ➔
                         </Link>
                       </div>
@@ -1285,7 +1321,7 @@ export default function CustomizableDashboard({
             return (
               <div
                 key="recruitment"
-                data-grid={{ x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 2 }}
+                data-grid={{ x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 3 }}
                 style={{
                   backgroundColor: '#ffffff',
                   borderRadius: '14px',
@@ -1299,15 +1335,15 @@ export default function CustomizableDashboard({
               >
                 {/* Header with Title, Controls & Navigation */}
                 <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
-                  <div>
-                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                       <span>📢</span>
                       <span>ជ្រើសរើសបុគ្គលិក (Recruitment ATS)</span>
                     </h3>
-                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Hiring Demand & Candidate Pipeline</span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', lineHeight: 1.4, paddingTop: '1px', whiteSpace: 'nowrap' }}>Hiring Demand & Candidate Pipeline</span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                     {/* View Switcher Segmented Button */}
                     <div
                       style={{
@@ -1317,6 +1353,7 @@ export default function CustomizableDashboard({
                         borderRadius: '8px',
                         border: '1px solid #e2e8f0',
                         gap: '2px',
+                        flexShrink: 0,
                       }}
                     >
                       <button
@@ -1336,6 +1373,9 @@ export default function CustomizableDashboard({
                           color: recruitmentView === 'pipeline' ? '#0284c7' : '#64748b',
                           boxShadow: recruitmentView === 'pipeline' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         📊 ដំណាក់កាល
@@ -1357,6 +1397,9 @@ export default function CustomizableDashboard({
                           color: recruitmentView === 'departments' ? '#0284c7' : '#64748b',
                           boxShadow: recruitmentView === 'departments' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         🏢 តាមផ្នែក
@@ -1375,6 +1418,8 @@ export default function CustomizableDashboard({
                         borderRadius: '6px',
                         border: '1px solid #bae6fd',
                         whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.4,
                       }}
                     >
                       បេក្ខជន ➔
@@ -1384,20 +1429,20 @@ export default function CustomizableDashboard({
 
                 {/* Metric Summary Ribbon */}
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                     📋 ដំណែងទំនេរ៖ {totalOpenJobs}
                   </span>
-                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                     👥 បេក្ខជនសរុប៖ {totalCandidatesCount}
                   </span>
-                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                     ✅ ជាប់ស្ថាពរ៖ {hiredCount}
                   </span>
                 </div>
 
                 {/* View 1: Sleek ATS Pipeline Funnel */}
                 {recruitmentView === 'pipeline' ? (
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px', overflowY: 'auto', paddingRight: '2px' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '5px', overflowY: 'auto', paddingRight: '2px' }}>
                     {pipelineData.map((stage) => {
                       const pct = totalCandidatesCount > 0 ? Math.round((stage.count / totalCandidatesCount) * 100) : (stage.count > 0 ? 100 : 0);
                       const barWidth = totalCandidatesCount > 0 
@@ -1422,11 +1467,11 @@ export default function CustomizableDashboard({
                           >
                             {stage.icon}
                           </div>
-                          <div style={{ width: '80px', flexShrink: 0 }}>
-                            <div className="kh-text" style={{ fontSize: '0.76rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.15 }}>
+                          <div style={{ width: '85px', flexShrink: 0 }}>
+                            <div className="kh-text" style={{ fontSize: '0.76rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.35, whiteSpace: 'nowrap' }}>
                               {stage.nameKh}
                             </div>
-                            <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 500 }}>
+                            <div style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 500, whiteSpace: 'nowrap', lineHeight: 1.2 }}>
                               {stage.nameEn}
                             </div>
                           </div>
@@ -1452,7 +1497,7 @@ export default function CustomizableDashboard({
                               />
                             </div>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: '65px', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: '65px', justifyContent: 'flex-end', flexShrink: 0 }}>
                             <span
                               style={{
                                 fontSize: '0.72rem',
@@ -1463,11 +1508,12 @@ export default function CustomizableDashboard({
                                 padding: '1px 6px',
                                 borderRadius: '5px',
                                 whiteSpace: 'nowrap',
+                                lineHeight: 1.4,
                               }}
                             >
                               {stage.count} នាក់
                             </span>
-                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, minWidth: '26px', textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, minWidth: '26px', textAlign: 'right', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                               {pct}%
                             </span>
                           </div>
@@ -1526,42 +1572,47 @@ export default function CustomizableDashboard({
           {/* 5. RECENT LEAVE REQUESTS TABLE / LIST */}
           <div
             key="leave_application"
-            data-grid={{ x: 6, y: 3, w: 6, h: 3, minW: 4, minH: 2 }}
+            data-grid={{ x: 6, y: 3, w: 6, h: 3, minW: 4, minH: 3 }}
             style={{
               backgroundColor: '#ffffff',
               borderRadius: '14px',
-              padding: '16px 18px',
+              padding: '14px 18px',
               border: '1px solid #e2e8f0',
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
               display: 'flex',
               flexDirection: 'column',
+              overflow: 'hidden',
             }}
           >
-            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', cursor: 'grab' }}>
-              <div>
-                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                  🌴 សំណើសុំច្បាប់ថ្មីៗ (Recent Leave Requests)
+            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
+              <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
+                  <span>🌴</span>
+                  <span>សំណើសុំច្បាប់ថ្មីៗ (Recent Leave Requests)</span>
                 </h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Latest Requests & Clearances</span>
+                <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', lineHeight: 1.4, paddingTop: '1px', whiteSpace: 'nowrap' }}>Latest Requests & Clearances</span>
               </div>
               <Link
                 href="/dashboard/leave"
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
                   color: '#d97706',
                   textDecoration: 'none',
                   backgroundColor: '#fef3c7',
                   padding: '3px 8px',
                   borderRadius: '6px',
                   border: '1px solid #fde68a',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  lineHeight: 1.4,
                 }}
               >
                 មើលទាំងអស់ ➔
               </Link>
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', paddingRight: '2px' }}>
               {(recentLeaveRequests || []).length > 0 ? (
                 recentLeaveRequests.map((req: any, i: number) => {
                   const empName = req.employee
@@ -1583,13 +1634,16 @@ export default function CustomizableDashboard({
                         borderRadius: '8px',
                         textDecoration: 'none',
                         transition: 'background 0.15s ease',
+                        gap: '8px',
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1.1rem' }}>👤</span>
-                        <div>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>{empName}</div>
-                          <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                        <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>👤</span>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.35 }}>
+                            {empName}
+                          </div>
+                          <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>
                             មូលហេតុ: {req.reason || 'ច្បាប់ផ្ទាល់ខ្លួន'} • {req.leaveType || 'Annual'}
                           </div>
                         </div>
@@ -1603,6 +1657,9 @@ export default function CustomizableDashboard({
                           borderRadius: '6px',
                           backgroundColor: isApproved ? '#dcfce7' : isRejected ? '#fee2e2' : '#fef3c7',
                           color: isApproved ? '#15803d' : isRejected ? '#b91c1c' : '#b45309',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         {isApproved ? 'អនុម័តរួច' : isRejected ? 'បដិសេធ' : 'រង់ចាំអនុម័ត'}
@@ -1631,7 +1688,7 @@ export default function CustomizableDashboard({
             return (
               <div
                 key="employees_role"
-                data-grid={{ x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 2 }}
+                data-grid={{ x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 3 }}
                 style={{
                   backgroundColor: '#ffffff',
                   borderRadius: '14px',
@@ -1645,15 +1702,15 @@ export default function CustomizableDashboard({
               >
                 {/* Header with Title, Controls & Navigation */}
                 <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
-                  <div>
-                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                       <span>🏢</span>
                       <span>រចនាសម្ព័ន្ធបុគ្គលិកតាមផ្នែក (Employees by Department)</span>
                     </h3>
-                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Department Headcount & Workforce Distribution</span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', lineHeight: 1.4, paddingTop: '1px', whiteSpace: 'nowrap' }}>Department Headcount & Workforce Distribution</span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                     {/* View Switcher Segmented Button */}
                     <div
                       style={{
@@ -1663,6 +1720,7 @@ export default function CustomizableDashboard({
                         borderRadius: '8px',
                         border: '1px solid #e2e8f0',
                         gap: '2px',
+                        flexShrink: 0,
                       }}
                     >
                       <button
@@ -1682,6 +1740,9 @@ export default function CustomizableDashboard({
                           color: departmentView === 'leaderboard' ? '#6366f1' : '#64748b',
                           boxShadow: departmentView === 'leaderboard' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         🏆 ចំណាត់ថ្នាក់
@@ -1703,6 +1764,9 @@ export default function CustomizableDashboard({
                           color: departmentView === 'donut' ? '#6366f1' : '#64748b',
                           boxShadow: departmentView === 'donut' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         🍩 ដ្យាក្រាម
@@ -1721,6 +1785,8 @@ export default function CustomizableDashboard({
                         borderRadius: '6px',
                         border: '1px solid #c7d2fe',
                         whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.4,
                       }}
                     >
                       បញ្ជីបុគ្គលិក ➔
@@ -1742,6 +1808,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🏢</span>
@@ -1759,6 +1827,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>🥇</span>
@@ -1776,6 +1846,8 @@ export default function CustomizableDashboard({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.4,
                     }}
                   >
                     <span>👥</span>
@@ -1807,20 +1879,20 @@ export default function CustomizableDashboard({
                           }}
                         >
                           {/* Medal / Rank Indicator */}
-                          <span style={{ fontSize: '0.8rem', minWidth: '22px', textAlign: 'center', fontWeight: 700, color: '#64748b' }}>
+                          <span style={{ fontSize: '0.8rem', minWidth: '22px', textAlign: 'center', fontWeight: 700, color: '#64748b', lineHeight: 1.4 }}>
                             {medal}
                           </span>
 
                           {/* Dept Icon */}
-                          <span style={{ fontSize: '1rem' }}>{icon}</span>
+                          <span style={{ fontSize: '1rem', flexShrink: 0 }}>{icon}</span>
 
                           {/* Dept Name & Progress Bar */}
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.35 }}>
                                 {dept.name}
                               </span>
-                              <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>
+                              <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', lineHeight: 1.3 }}>
                                 {dept.female !== undefined ? `(ស្រី ${dept.female} / ប្រុស ${dept.male})` : ''}
                               </span>
                             </div>
@@ -1851,11 +1923,12 @@ export default function CustomizableDashboard({
                                 color: theme.text,
                                 border: `1px solid ${theme.border}`,
                                 whiteSpace: 'nowrap',
+                                lineHeight: 1.4,
                               }}
                             >
                               {dept.count} នាក់
                             </span>
-                            <span style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, minWidth: '30px', textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, minWidth: '30px', textAlign: 'right', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                               {dept.percentage}%
                             </span>
                           </div>
@@ -1922,12 +1995,13 @@ export default function CustomizableDashboard({
                         transform: 'translate(-50%, -50%)',
                         textAlign: 'center',
                         pointerEvents: 'none',
+                        width: '90px',
                       }}
                     >
-                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
                         {totalStaffCount}
                       </div>
-                      <div style={{ fontSize: '0.62rem', color: '#64748b' }}>បុគ្គលិកសរុប</div>
+                      <div className="kh-text" style={{ fontSize: '0.62rem', color: '#64748b', whiteSpace: 'nowrap', lineHeight: 1.3 }}>បុគ្គលិកសរុប</div>
                     </div>
                   </div>
                 )}
@@ -1946,7 +2020,7 @@ export default function CustomizableDashboard({
             return (
               <div
                 key="employees_location"
-                data-grid={{ x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 2 }}
+                data-grid={{ x: 6, y: 6, w: 6, h: 3, minW: 4, minH: 3 }}
                 style={{
                   backgroundColor: '#ffffff',
                   borderRadius: '14px',
@@ -1960,15 +2034,15 @@ export default function CustomizableDashboard({
               >
                 {/* Header with Title, Controls & Navigation */}
                 <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
-                  <div>
-                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ minWidth: 0, flex: 1, paddingRight: '6px' }}>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                       <span>📍</span>
                       <span>បុគ្គលិកតាមរាជធានី-ខេត្ត (Hometown Spread)</span>
                     </h3>
-                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Hometown & Geographical Spread</span>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', lineHeight: 1.4, paddingTop: '1px', whiteSpace: 'nowrap' }}>Hometown & Geographical Spread</span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                     {/* View Switcher Segmented Button */}
                     <div
                       style={{
@@ -1978,6 +2052,7 @@ export default function CustomizableDashboard({
                         borderRadius: '8px',
                         border: '1px solid #e2e8f0',
                         gap: '2px',
+                        flexShrink: 0,
                       }}
                     >
                       <button
@@ -1997,6 +2072,9 @@ export default function CustomizableDashboard({
                           color: hometownView === 'leaderboard' ? '#db2777' : '#64748b',
                           boxShadow: hometownView === 'leaderboard' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         🏆 ចំណាត់ថ្នាក់
@@ -2018,6 +2096,9 @@ export default function CustomizableDashboard({
                           color: hometownView === 'donut' ? '#db2777' : '#64748b',
                           boxShadow: hometownView === 'donut' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                          lineHeight: 1.4,
                         }}
                       >
                         🍩 ក្រាបដូណាត់
@@ -2036,6 +2117,8 @@ export default function CustomizableDashboard({
                         borderRadius: '6px',
                         border: '1px solid #fbcfe8',
                         whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.4,
                       }}
                     >
                       ទីតាំង ➔
@@ -2045,20 +2128,20 @@ export default function CustomizableDashboard({
 
                 {/* Metric Summary Ribbon */}
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#fdf2f8', color: '#be185d', border: '1px solid #fbcfe8' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#fdf2f8', color: '#be185d', border: '1px solid #fbcfe8', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                     🏆 នាំមុខគេ៖ {topProvincesData[0]?.name || 'N/A'}
                   </span>
-                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                     🗺️ {provincesCount} រាជធានី-ខេត្ត
                   </span>
-                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}>
+                  <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                     👥 {allEmployees.length} នាក់សរុប
                   </span>
                 </div>
 
                 {/* View 1: Colorful Province Leaderboard Progress Bars */}
                 {hometownView === 'leaderboard' ? (
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px', overflowY: 'auto', paddingRight: '2px' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '5px', overflowY: 'auto', paddingRight: '2px' }}>
                     {topProvincesData.map((item, idx) => {
                       const pct = allEmployees.length > 0 ? Math.round((item.count / allEmployees.length) * 100) : 0;
                       const barWidth = maxProvinceCount > 0 ? Math.max(12, Math.round((item.count / maxProvinceCount) * 100)) : 10;
@@ -2086,7 +2169,7 @@ export default function CustomizableDashboard({
                             {medal}
                           </div>
                           <div style={{ width: '95px', flexShrink: 0 }}>
-                            <div className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.35 }}>
                               {item.name}
                             </div>
                           </div>
@@ -2112,7 +2195,7 @@ export default function CustomizableDashboard({
                               />
                             </div>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: '65px', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: '65px', justifyContent: 'flex-end', flexShrink: 0 }}>
                             <span
                               style={{
                                 fontSize: '0.72rem',
@@ -2123,11 +2206,12 @@ export default function CustomizableDashboard({
                                 padding: '1px 6px',
                                 borderRadius: '5px',
                                 whiteSpace: 'nowrap',
+                                lineHeight: 1.4,
                               }}
                             >
                               {item.count} នាក់
                             </span>
-                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, minWidth: '26px', textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, minWidth: '26px', textAlign: 'right', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
                               {pct}%
                             </span>
                           </div>
@@ -2180,12 +2264,13 @@ export default function CustomizableDashboard({
                           transform: 'translate(-50%, -50%)',
                           textAlign: 'center',
                           pointerEvents: 'none',
+                          width: '90px',
                         }}
                       >
-                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
                           {allEmployees.length}
                         </div>
-                        <div className="kh-text" style={{ fontSize: '0.6rem', color: '#64748b', marginTop: '2px' }}>
+                        <div className="kh-text" style={{ fontSize: '0.6rem', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap', lineHeight: 1.3 }}>
                           បុគ្គលិកសរុប
                         </div>
                       </div>
@@ -2199,11 +2284,11 @@ export default function CustomizableDashboard({
                           <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
                               <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color.from, flexShrink: 0 }} />
-                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80px', color: '#334155', fontWeight: 600 }}>
+                              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80px', color: '#334155', fontWeight: 600, lineHeight: 1.35 }}>
                                 {item.name}
                               </span>
                             </div>
-                            <span style={{ fontWeight: 700, color: color.text, fontSize: '0.7rem' }}>
+                            <span style={{ fontWeight: 700, color: color.text, fontSize: '0.7rem', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
                               {item.count}នាក់ ({pct}%)
                             </span>
                           </div>

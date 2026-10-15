@@ -339,6 +339,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   // Compute weeklyAttendanceData
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const daysKh = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
   const attCountByDay: Record<number, number> = {};
   weeklyAttendance.forEach(att => {
     const d = new Date(att.date).getDay();
@@ -350,10 +351,15 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     const d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
     const dayIndex = d.getDay();
     const presentCount = attCountByDay[dayIndex] || 0;
+    const absentCount = Math.max(0, totalEmployees - presentCount);
+    const rate = totalEmployees > 0 ? Math.round((presentCount / totalEmployees) * 100) : 0;
     weeklyAttendanceData.push({
       name: days[dayIndex],
+      nameKh: daysKh[dayIndex],
+      dateStr: `${d.getDate()}/${d.getMonth() + 1}`,
       present: presentCount,
-      absent: totalEmployees - presentCount
+      absent: absentCount,
+      rate
     });
   }
   

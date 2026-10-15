@@ -17,6 +17,8 @@ import {
   ResponsiveContainer,
   Legend,
   CartesianGrid,
+  AreaChart,
+  Area,
 } from 'recharts';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -36,7 +38,14 @@ type Props = {
   hrContactUrl?: string;
   recentLeaveRequests?: any[];
   advanceStats?: { paid: number; remaining: number; count: number };
-  weeklyAttendanceData?: { name: string; present: number; absent: number }[];
+  weeklyAttendanceData?: {
+    name: string;
+    nameKh?: string;
+    dateStr?: string;
+    present: number;
+    absent: number;
+    rate?: number;
+  }[];
   recruitmentByDept?: { name: string; count: number; openJobs?: number; candidates?: number }[];
   recruitmentStats?: {
     totalOpenJobs: number;
@@ -77,6 +86,30 @@ const PROVINCE_THEMES = [
   { from: '#14b8a6', to: '#2dd4bf', bg: '#f0fdfa', text: '#0f766e', border: '#99f6e4' }, // Teal
 ];
 
+const DEPT_THEMES = [
+  { from: '#6366f1', to: '#818cf8', bg: '#eef2ff', text: '#4338ca', border: '#c7d2fe' }, // Indigo
+  { from: '#0284c7', to: '#38bdf8', bg: '#f0f9ff', text: '#0369a1', border: '#bae6fd' }, // Sky
+  { from: '#10b981', to: '#34d399', bg: '#f0fdf4', text: '#047857', border: '#bbf7d0' }, // Emerald
+  { from: '#f59e0b', to: '#fbbf24', bg: '#fffbeb', text: '#b45309', border: '#fde68a' }, // Amber
+  { from: '#8b5cf6', to: '#a78bfa', bg: '#faf5ff', text: '#6b21a8', border: '#e9d5ff' }, // Purple
+  { from: '#ec4899', to: '#f472b6', bg: '#fdf2f8', text: '#be185d', border: '#fbcfe8' }, // Pink
+  { from: '#14b8a6', to: '#2dd4bf', bg: '#f0fdfa', text: '#0f766e', border: '#99f6e4' }, // Teal
+  { from: '#f97316', to: '#fb923c', bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' }, // Orange
+];
+
+const getDeptIcon = (name: string) => {
+  const n = (name || '').toLowerCase();
+  if (n.includes('it') || n.includes('tech') || n.includes('ព័ត៌មាន') || n.includes('software')) return '💻';
+  if (n.includes('hr') || n.includes('human') || n.includes('ធនធានមនុស្ស') || n.includes('personnel')) return '👥';
+  if (n.includes('account') || n.includes('finance') || n.includes('ហិរញ្ញវត្ថុ') || n.includes('គណនេយ្យ') || n.includes('audit')) return '💰';
+  if (n.includes('sale') || n.includes('market') || n.includes('លក់') || n.includes('ទីផ្សារ')) return '📈';
+  if (n.includes('op') || n.includes('operation') || n.includes('ប្រតិបត្តិ') || n.includes('ផលិត')) return '⚙️';
+  if (n.includes('log') || n.includes('warehouse') || n.includes('ដឹកជញ្ជូន') || n.includes('ឃ្លាំង')) return '🚚';
+  if (n.includes('admin') || n.includes('រដ្ឋបាល') || n.includes('legal') || n.includes('ច្បាប់')) return '📋';
+  if (n.includes('clean') || n.includes('security') || n.includes('សន្តិសុខ') || n.includes('អនាម័យ')) return '🛡️';
+  return '🏢';
+};
+
 export default function CustomizableDashboard({
   locale,
   l,
@@ -106,6 +139,8 @@ export default function CustomizableDashboard({
   const [isClient, setIsClient] = useState(false);
   const [recruitmentView, setRecruitmentView] = useState<'pipeline' | 'departments'>('pipeline');
   const [hometownView, setHometownView] = useState<'leaderboard' | 'donut'>('leaderboard');
+  const [attendanceView, setAttendanceView] = useState<'trend' | 'bar'>('trend');
+  const [departmentView, setDepartmentView] = useState<'leaderboard' | 'donut'>('leaderboard');
 
   // Compute Demographics
   const provinceMap: Record<string, { current: number; prev: number }> = {};
@@ -129,13 +164,23 @@ export default function CustomizableDashboard({
     .slice(0, 7);
 
   const employeesByRole = React.useMemo(() => {
-    const dCount: Record<string, number> = {};
+    const dCount: Record<string, { total: number; female: number; male: number }> = {};
     allEmployees.forEach((emp) => {
-      const dept = emp.department || 'General';
-      dCount[dept] = (dCount[dept] || 0) + 1;
+      const dept = emp.department || 'ទូទៅ (General)';
+      if (!dCount[dept]) dCount[dept] = { total: 0, female: 0, male: 0 };
+      dCount[dept].total += 1;
+      const isF = emp.gender === 'Female' || emp.gender === 'F' || emp.gender === 'ស្រី';
+      if (isF) dCount[dept].female += 1;
+      else dCount[dept].male += 1;
     });
     return Object.entries(dCount)
-      .map(([name, count]) => ({ name, count }))
+      .map(([name, data]) => ({
+        name,
+        count: data.total,
+        female: data.female,
+        male: data.male,
+        percentage: allEmployees.length > 0 ? Math.round((data.total / allEmployees.length) * 100) : 0,
+      }))
       .sort((a, b) => b.count - a.count);
   }, [allEmployees]);
 
@@ -512,63 +557,334 @@ export default function CustomizableDashboard({
           isResizable={true}
           draggableHandle=".card-drag-handle"
         >
-          {/* 2. DAILY ATTENDANCE STATISTIC CHART */}
-          <div
-            key="daily_attendance"
-            data-grid={{ x: 0, y: 0, w: 7, h: 3, minW: 4, minH: 2 }}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '14px',
-              padding: '16px 18px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', cursor: 'grab' }}>
-              <div>
-                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                  📅 ស្ថិតិវត្តមានប្រចាំសប្តាហ៍ (Daily Attendance)
-                </h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>៧ ថ្ងៃចុងក្រោយ • Last 7 Days</span>
-              </div>
-              <Link
-                href="/dashboard/attendance"
+          {/* 2. DAILY ATTENDANCE STATISTIC CHART (MODERN 2-IN-1: TREND WAVE & DAILY BARS) */}
+          {(() => {
+            const totalStaff = allEmployees.length || 1;
+            const todayPresent = todayAttendancesCount > 0 ? todayAttendancesCount : calculatedPresent;
+            const todayAbsent = absentStats?.total || 0;
+            const todayLeave = leaveStats?.total || 0;
+
+            const validWeeklyData = weeklyAttendanceData.length > 0
+              ? weeklyAttendanceData.map(d => ({
+                  ...d,
+                  rate: d.rate ?? (totalStaff > 0 ? Math.round((d.present / totalStaff) * 100) : 0),
+                  absent: d.absent ?? Math.max(0, totalStaff - d.present)
+                }))
+              : [
+                  { name: 'Sun', nameKh: 'អាទិត្យ', present: 0, absent: 0, rate: 0 },
+                  { name: 'Mon', nameKh: 'ច័ន្ទ', present: 0, absent: 0, rate: 0 },
+                  { name: 'Tue', nameKh: 'អង្គារ', present: 0, absent: 0, rate: 0 },
+                  { name: 'Wed', nameKh: 'ពុធ', present: 0, absent: 0, rate: 0 },
+                  { name: 'Thu', nameKh: 'ព្រហស្បតិ៍', present: 0, absent: 0, rate: 0 },
+                  { name: 'Fri', nameKh: 'សុក្រ', present: 0, absent: 0, rate: 0 },
+                  { name: 'Sat', nameKh: 'សៅរ៍', present: 0, absent: 0, rate: 0 },
+                ];
+
+            const avgWeeklyRate = Math.round(
+              validWeeklyData.reduce((acc, d) => acc + (d.rate || 0), 0) / validWeeklyData.length
+            );
+
+            return (
+              <div
+                key="daily_attendance"
+                data-grid={{ x: 0, y: 0, w: 7, h: 3, minW: 4, minH: 2 }}
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#0284c7',
-                  textDecoration: 'none',
-                  backgroundColor: '#f0f9ff',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #bae6fd',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
                 }}
               >
-                មើលតារាងវត្តមាន ➔
-              </Link>
-            </div>
+                {/* Header with Title, Controls & Navigation */}
+                <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
+                  <div>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>📅</span>
+                      <span>ស្ថិតិវត្តមានប្រចាំសប្តាហ៍ (Daily Attendance)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>៧ ថ្ងៃចុងក្រោយ • Last 7 Days Attendance Trend</span>
+                  </div>
 
-            <div style={{ flex: 1, minHeight: '140px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={weeklyAttendanceData.length > 0 ? weeklyAttendanceData : [{ name: 'Sun', present: 0, absent: 0 }]}
-                  margin={{ top: 8, right: 10, left: -20, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '0.8rem' }}
-                  />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '2px' }} align="right" verticalAlign="top" />
-                  <Bar dataKey="present" name="មានវត្តមាន (Present)" fill="#10b981" radius={[5, 5, 0, 0]} barSize={28} />
-                  <Bar dataKey="absent" name="អវត្តមាន (Absent)" fill="#f43f5e" radius={[5, 5, 0, 0]} barSize={28} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* View Switcher Segmented Button */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAttendanceView('trend');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: attendanceView === 'trend' ? '#ffffff' : 'transparent',
+                          color: attendanceView === 'trend' ? '#0284c7' : '#64748b',
+                          boxShadow: attendanceView === 'trend' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        📈 និន្នាការ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setAttendanceView('bar');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: attendanceView === 'bar' ? '#ffffff' : 'transparent',
+                          color: attendanceView === 'bar' ? '#0284c7' : '#64748b',
+                          boxShadow: attendanceView === 'bar' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        📊 របារ
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/attendance"
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: '#0284c7',
+                        textDecoration: 'none',
+                        backgroundColor: '#f0f9ff',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #bae6fd',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      តារាងវត្តមាន ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* KPI Ribbon Header */}
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f0fdf4',
+                      color: '#15803d',
+                      border: '1px solid #bbf7d0',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🟢</span>
+                    <span>អត្រាមធ្យម៖ {avgWeeklyRate}%</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f0f9ff',
+                      color: '#0369a1',
+                      border: '1px solid #bae6fd',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>👥</span>
+                    <span>វត្តមានថ្ងៃនេះ៖ {todayPresent}/{totalStaff} នាក់</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#fffbeb',
+                      color: '#b45309',
+                      border: '1px solid #fde68a',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🌴</span>
+                    <span>សុំច្បាប់៖ {todayLeave} នាក់</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#fef2f2',
+                      color: '#b91c1c',
+                      border: '1px solid #fecaca',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🔴</span>
+                    <span>អវត្តមាន៖ {todayAbsent} នាក់</span>
+                  </span>
+                </div>
+
+                {/* Main Content: Trend Wave vs Daily Bars */}
+                {attendanceView === 'trend' ? (
+                  <div style={{ flex: 1, minHeight: '135px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={validWeeklyData} margin={{ top: 6, right: 10, left: -22, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="attPresentWave" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                          </linearGradient>
+                          <linearGradient id="attAbsentWave" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div
+                                  style={{
+                                    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                                    color: '#ffffff',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.75rem',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
+                                    backdropFilter: 'blur(8px)',
+                                  }}
+                                >
+                                  <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '3px' }}>
+                                    {data.nameKh ? `${data.nameKh} (${data.name})` : data.name} {data.dateStr ? `• ${data.dateStr}` : ''}
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#86efac' }}>
+                                    <span>🟢 មានវត្តមាន៖</span>
+                                    <strong>{data.present} នាក់ ({data.rate}%)</strong>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fda4af' }}>
+                                    <span>🔴 អវត្តមាន៖</span>
+                                    <strong>{data.absent} នាក់</strong>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} align="right" verticalAlign="top" />
+                        <Area
+                          type="monotone"
+                          dataKey="present"
+                          name="មានវត្តមាន (Present)"
+                          stroke="#10b981"
+                          strokeWidth={2.5}
+                          fill="url(#attPresentWave)"
+                          dot={{ r: 3, fill: '#10b981', strokeWidth: 1, stroke: '#ffffff' }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="absent"
+                          name="អវត្តមាន (Absent)"
+                          stroke="#f43f5e"
+                          strokeWidth={2}
+                          strokeDasharray="4 4"
+                          fill="url(#attAbsentWave)"
+                          dot={{ r: 3, fill: '#f43f5e', strokeWidth: 1, stroke: '#ffffff' }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, minHeight: '135px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={validWeeklyData} margin={{ top: 6, right: 10, left: -22, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="barPresentGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#059669" />
+                          </linearGradient>
+                          <linearGradient id="barAbsentGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#f43f5e" />
+                            <stop offset="100%" stopColor="#e11d48" />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div
+                                  style={{
+                                    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                                    color: '#ffffff',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.75rem',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
+                                    backdropFilter: 'blur(8px)',
+                                  }}
+                                >
+                                  <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '4px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '3px' }}>
+                                    {data.nameKh ? `${data.nameKh} (${data.name})` : data.name} {data.dateStr ? `• ${data.dateStr}` : ''}
+                                  </div>
+                                  <div style={{ color: '#86efac' }}>🟢 មានវត្តមាន៖ <strong>{data.present} នាក់ ({data.rate}%)</strong></div>
+                                  <div style={{ color: '#fda4af' }}>🔴 អវត្តមាន៖ <strong>{data.absent} នាក់</strong></div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '0px' }} align="right" verticalAlign="top" />
+                        <Bar dataKey="present" name="មានវត្តមាន (Present)" fill="url(#barPresentGrad)" radius={[5, 5, 0, 0]} barSize={22} />
+                        <Bar dataKey="absent" name="អវត្តមាន (Absent)" fill="url(#barAbsentGrad)" radius={[5, 5, 0, 0]} barSize={22} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 3. ADVANCE SALARY & LOAN HEALTH (DONUT) */}
           <div
@@ -1003,56 +1319,322 @@ export default function CustomizableDashboard({
             </div>
           </div>
 
-          {/* 6. EMPLOYEES BY DEPARTMENT (BAR CHART) */}
-          <div
-            key="employees_role"
-            data-grid={{ x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 2 }}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '14px',
-              padding: '16px 18px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', cursor: 'grab' }}>
-              <div>
-                <h3 className="kh-text" style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                  🏢 រចនាសម្ព័ន្ធបុគ្គលិកតាមផ្នែក (Employees by Department)
-                </h3>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Department Headcount Distribution</span>
-              </div>
-              <Link
-                href="/dashboard/employees"
+          {/* 6. EMPLOYEES BY DEPARTMENT (MODERN 2-IN-1: RANKINGS PROGRESS & DONUT) */}
+          {(() => {
+            const deptList = employeesByRole.length > 0
+              ? employeesByRole
+              : [{ name: 'ទូទៅ (General)', count: allEmployees.length || 1, female: 0, male: allEmployees.length || 1, percentage: 100 }];
+            const maxDeptCount = Math.max(1, ...deptList.map(d => d.count));
+            const totalStaffCount = allEmployees.length || 1;
+            const topDept = deptList[0];
+            const avgPerDept = Math.round(totalStaffCount / Math.max(1, deptList.length));
+
+            return (
+              <div
+                key="employees_role"
+                data-grid={{ x: 0, y: 6, w: 6, h: 3, minW: 4, minH: 2 }}
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#6366f1',
-                  textDecoration: 'none',
-                  backgroundColor: '#eef2ff',
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #c7d2fe',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
                 }}
               >
-                បញ្ជីបុគ្គលិក ➔
-              </Link>
-            </div>
+                {/* Header with Title, Controls & Navigation */}
+                <div className="card-drag-handle" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', cursor: 'grab' }}>
+                  <div>
+                    <h3 className="kh-text" style={{ margin: 0, fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>🏢</span>
+                      <span>រចនាសម្ព័ន្ធបុគ្គលិកតាមផ្នែក (Employees by Department)</span>
+                    </h3>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Department Headcount & Workforce Distribution</span>
+                  </div>
 
-            <div style={{ flex: 1, minHeight: '140px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={employeesByRole} margin={{ top: 8, right: 10, left: -20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={{ stroke: '#cbd5e1' }} tickLine={false} tick={{ fill: '#475569', fontSize: 11, angle: -25, textAnchor: 'end' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }} />
-                  <Bar dataKey="count" fill="#6366f1" barSize={26} radius={[5, 5, 0, 0]} label={{ position: 'top', fill: '#475569', fontSize: 11 }} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {/* View Switcher Segmented Button */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        backgroundColor: '#f1f5f9',
+                        padding: '2px',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        gap: '2px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDepartmentView('leaderboard');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: departmentView === 'leaderboard' ? '#ffffff' : 'transparent',
+                          color: departmentView === 'leaderboard' ? '#6366f1' : '#64748b',
+                          boxShadow: departmentView === 'leaderboard' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        🏆 ចំណាត់ថ្នាក់
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDepartmentView('donut');
+                        }}
+                        style={{
+                          padding: '3px 8px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          backgroundColor: departmentView === 'donut' ? '#ffffff' : 'transparent',
+                          color: departmentView === 'donut' ? '#6366f1' : '#64748b',
+                          boxShadow: departmentView === 'donut' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        🍩 ដ្យាក្រាម
+                      </button>
+                    </div>
+
+                    <Link
+                      href="/dashboard/employees"
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: '#6366f1',
+                        textDecoration: 'none',
+                        backgroundColor: '#eef2ff',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #c7d2fe',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      បញ្ជីបុគ្គលិក ➔
+                    </Link>
+                  </div>
+                </div>
+
+                {/* KPI Ribbon Header */}
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#eef2ff',
+                      color: '#4338ca',
+                      border: '1px solid #c7d2fe',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🏢</span>
+                    <span>ផ្នែកសរុប៖ {deptList.length} ផ្នែក</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f0fdf4',
+                      color: '#15803d',
+                      border: '1px solid #bbf7d0',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>🥇</span>
+                    <span>ផ្នែកធំបំផុត៖ {topDept?.name || 'ទូទៅ'} ({topDept?.count || 0} នាក់)</span>
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: '#f0f9ff',
+                      color: '#0369a1',
+                      border: '1px solid #bae6fd',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span>👥</span>
+                    <span>មធ្យមភាគ៖ {avgPerDept} នាក់/ផ្នែក</span>
+                  </span>
+                </div>
+
+                {/* Main Content: Department Rankings vs Donut */}
+                {departmentView === 'leaderboard' ? (
+                  <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '7px', paddingRight: '4px' }}>
+                    {deptList.map((dept, index) => {
+                      const theme = DEPT_THEMES[index % DEPT_THEMES.length];
+                      const icon = getDeptIcon(dept.name);
+                      const fillWidth = Math.max(10, Math.round((dept.count / maxDeptCount) * 100));
+                      const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+
+                      return (
+                        <div
+                          key={dept.name}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '5px 8px',
+                            borderRadius: '8px',
+                            backgroundColor: '#f8fafc',
+                            border: '1px solid #f1f5f9',
+                            transition: 'background 0.15s ease',
+                          }}
+                        >
+                          {/* Medal / Rank Indicator */}
+                          <span style={{ fontSize: '0.8rem', minWidth: '22px', textAlign: 'center', fontWeight: 700, color: '#64748b' }}>
+                            {medal}
+                          </span>
+
+                          {/* Dept Icon */}
+                          <span style={{ fontSize: '1rem' }}>{icon}</span>
+
+                          {/* Dept Name & Progress Bar */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {dept.name}
+                              </span>
+                              <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>
+                                {dept.female !== undefined ? `(ស្រី ${dept.female} / ប្រុស ${dept.male})` : ''}
+                              </span>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div style={{ height: '6px', width: '100%', backgroundColor: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                              <div
+                                style={{
+                                  height: '100%',
+                                  width: `${fillWidth}%`,
+                                  background: `linear-gradient(90deg, ${theme.from}, ${theme.to})`,
+                                  borderRadius: '4px',
+                                  transition: 'width 0.4s ease',
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Badges: Count & Percentage */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                            <span
+                              style={{
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                padding: '2px 7px',
+                                borderRadius: '6px',
+                                backgroundColor: theme.bg,
+                                color: theme.text,
+                                border: `1px solid ${theme.border}`,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {dept.count} នាក់
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, minWidth: '30px', textAlign: 'right' }}>
+                              {dept.percentage}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, position: 'relative', minHeight: '135px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={deptList}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={46}
+                          outerRadius={70}
+                          paddingAngle={3}
+                          dataKey="count"
+                        >
+                          {deptList.map((_, i) => (
+                            <Cell key={`dept-cell-${i}`} fill={DEPT_THEMES[i % DEPT_THEMES.length].from} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div
+                                  style={{
+                                    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                                    color: '#ffffff',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.75rem',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
+                                    backdropFilter: 'blur(8px)',
+                                  }}
+                                >
+                                  <div style={{ fontWeight: 800, color: '#a5b4fc', marginBottom: '3px' }}>
+                                    {getDeptIcon(data.name)} {data.name}
+                                  </div>
+                                  <div>ចំនួនបុគ្គលិក៖ <strong>{data.count} នាក់ ({data.percentage}%)</strong></div>
+                                  {data.female !== undefined && (
+                                    <div style={{ fontSize: '0.7rem', color: '#cbd5e1' }}>
+                                      ស្រី៖ {data.female} នាក់ • ប្រុស៖ {data.male} នាក់
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', bottom: -4 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        textAlign: 'center',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                        {totalStaffCount}
+                      </div>
+                      <div style={{ fontSize: '0.62rem', color: '#64748b' }}>បុគ្គលិកសរុប</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 7. EMPLOYEES BY HOMETOWN / LOCATION (MODERN RANKINGS & DONUT) */}
           {(() => {

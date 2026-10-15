@@ -917,6 +917,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             alignItems: 'center',
             gap: '10px',
             flexWrap: 'wrap',
+            flexShrink: 0,
           }}
         >
           {/* Department Group Settings */}

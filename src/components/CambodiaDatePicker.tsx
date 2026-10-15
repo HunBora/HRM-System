@@ -14,7 +14,15 @@ const MONTHS_EN = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-const DAYS_KH = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+const WEEKDAYS_HEADER = [
+  { label: 'អាទិត្យ', isWeekend: true },
+  { label: 'ច័ន្ទ', isWeekend: false },
+  { label: 'អង្គារ', isWeekend: false },
+  { label: 'ពុធ', isWeekend: false },
+  { label: 'ព្រហ', isWeekend: false },
+  { label: 'សុក្រ', isWeekend: false },
+  { label: 'សៅរ៍', isWeekend: true },
+];
 
 const toKhmerNum = (num: number | string): string => {
   const khmerDigits = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
@@ -126,7 +134,7 @@ export default function CambodiaDatePicker({
 
   return (
     <div style={{ position: 'relative' }} ref={dropdownRef}>
-      {/* Trigger Button */}
+      {/* Trigger Button - Full Content Fit, Zero Truncation */}
       <button
         type="button"
         onClick={() => {
@@ -136,43 +144,47 @@ export default function CambodiaDatePicker({
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '10px',
           backgroundColor: selectedHolidayName ? '#fff1f2' : '#ffffff',
           border: `1.5px solid ${selectedHolidayName ? '#f43f5e' : '#cbd5e1'}`,
           borderRadius: '10px',
-          padding: '5px 12px',
-          height: '46px',
+          padding: '6px 14px',
+          height: '48px',
           cursor: 'pointer',
           boxShadow: '0 1px 3px rgba(15, 23, 42, 0.05)',
           transition: 'all 0.15s ease',
           outline: 'none',
+          whiteSpace: 'nowrap',
+          maxWidth: '100%',
         }}
         title="ចុចដើម្បីជ្រើសរើសកាលបរិច្ឆេទ និងមើលថ្ងៃឈប់សម្រាកបុណ្យជាតិ"
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontSize: '0.85rem' }}>📅</span>
+            <span style={{ fontSize: '0.9rem' }}>{selectedHolidayName ? '🎉' : '📅'}</span>
             <span
               className="kh-text"
               style={{
-                fontSize: '0.66rem',
-                color: selectedHolidayName ? '#be123c' : '#64748b',
-                fontWeight: 700,
-                lineHeight: 1.1,
+                fontSize: '0.68rem',
+                color: selectedHolidayName ? '#be123c' : '#0284c7',
+                fontWeight: 800,
+                lineHeight: 1.2,
+                whiteSpace: 'nowrap',
               }}
             >
-              {selectedHolidayName ? '🇰🇭 ថ្ងៃឈប់សម្រាកបុណ្យជាតិ' : 'កាលបរិច្ឆេទជាក់ស្តែង'}
+              {selectedHolidayName ? 'ថ្ងៃឈប់សម្រាកបុណ្យជាតិ' : 'កាលបរិច្ឆេទជាក់ស្តែង'}
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '1px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px', flexWrap: 'nowrap' }}>
             <span
               style={{
-                fontSize: '0.82rem',
+                fontSize: '0.88rem',
                 fontWeight: 800,
                 color: '#0f172a',
                 fontFamily: 'monospace',
                 lineHeight: 1.2,
+                whiteSpace: 'nowrap',
               }}
             >
               {selectedDayFormatted}
@@ -182,18 +194,15 @@ export default function CambodiaDatePicker({
               <span
                 className="kh-text"
                 style={{
-                  fontSize: '0.66rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   color: '#9f1239',
                   backgroundColor: '#ffe4e6',
-                  padding: '1px 6px',
-                  borderRadius: '4px',
+                  padding: '2px 8px',
+                  borderRadius: '6px',
                   border: '1px solid #fecdd3',
                   whiteSpace: 'nowrap',
-                  maxWidth: '140px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  lineHeight: 1.3,
+                  lineHeight: 1.35,
                 }}
               >
                 {selectedHolidayName}
@@ -204,11 +213,12 @@ export default function CambodiaDatePicker({
 
         <span
           style={{
-            fontSize: '0.65rem',
-            color: '#64748b',
+            fontSize: '0.7rem',
+            color: selectedHolidayName ? '#be123c' : '#64748b',
             marginLeft: '4px',
             transform: isOpen ? 'rotate(180deg)' : 'none',
             transition: 'transform 0.2s ease',
+            flexShrink: 0,
           }}
         >
           ▼
@@ -220,18 +230,21 @@ export default function CambodiaDatePicker({
         <div
           style={{
             position: 'absolute',
-            top: '52px',
+            top: '54px',
             right: 0,
-            width: '340px',
+            width: '360px',
+            maxWidth: 'calc(100vw - 32px)',
             backgroundColor: '#ffffff',
             borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 12px 32px -4px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(15, 23, 42, 0.08)',
+            border: '1px solid #cbd5e1',
+            boxShadow: '0 20px 45px -10px rgba(15, 23, 42, 0.22), 0 8px 20px -4px rgba(15, 23, 42, 0.1)',
             zIndex: 9999,
-            padding: '14px',
+            padding: '16px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
+            gap: '12px',
+            maxHeight: 'calc(90vh - 70px)',
+            overflowY: 'auto',
             animation: 'fadeInPop 0.15s ease-out',
           }}
         >
@@ -262,8 +275,8 @@ export default function CambodiaDatePicker({
               type="button"
               onClick={prevMonth}
               style={{
-                width: '30px',
-                height: '30px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 border: '1px solid #e2e8f0',
                 backgroundColor: '#f8fafc',
@@ -283,19 +296,21 @@ export default function CambodiaDatePicker({
               <div
                 className="kh-text"
                 style={{
-                  fontSize: '0.88rem',
+                  fontSize: '0.92rem',
                   fontWeight: 800,
                   color: '#0f172a',
-                  lineHeight: 1.2,
+                  lineHeight: 1.25,
                 }}
               >
                 ខែ{KHMER_MONTHS[month]} ({MONTHS_EN[month]})
               </div>
               <div
+                className="kh-text"
                 style={{
-                  fontSize: '0.72rem',
+                  fontSize: '0.74rem',
                   color: '#0284c7',
                   fontWeight: 700,
+                  marginTop: '1px',
                 }}
               >
                 ឆ្នាំ {toKhmerNum(year)} • {year}
@@ -306,8 +321,8 @@ export default function CambodiaDatePicker({
               type="button"
               onClick={nextMonth}
               style={{
-                width: '30px',
-                height: '30px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 border: '1px solid #e2e8f0',
                 backgroundColor: '#f8fafc',
@@ -324,22 +339,30 @@ export default function CambodiaDatePicker({
             </button>
           </div>
 
-          {/* Weekday Labels */}
+          {/* Weekday Labels - Full Words with Zero Unicode Slicing */}
           <div
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(7, 1fr)',
               textAlign: 'center',
-              fontSize: '0.68rem',
-              fontWeight: 700,
-              color: '#64748b',
-              paddingBottom: '4px',
-              borderBottom: '1px dashed #e2e8f0',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              padding: '6px 0',
+              borderBottom: '1px solid #e2e8f0',
+              backgroundColor: '#f8fafc',
+              borderRadius: '8px',
             }}
           >
-            {DAYS_KH.map((d, idx) => (
-              <span key={d} style={{ color: idx === 0 || idx === 6 ? '#ef4444' : '#475569' }}>
-                {d.slice(0, 3)}
+            {WEEKDAYS_HEADER.map((w, idx) => (
+              <span
+                key={idx}
+                className="kh-text"
+                style={{
+                  color: w.isWeekend ? '#e11d48' : '#334155',
+                  lineHeight: 1.4,
+                }}
+              >
+                {w.label}
               </span>
             ))}
           </div>
@@ -354,7 +377,7 @@ export default function CambodiaDatePicker({
           >
             {/* Empty slots before first day */}
             {Array.from({ length: firstDayIndex }).map((_, idx) => (
-              <div key={`empty-${idx}`} style={{ height: '38px' }} />
+              <div key={`empty-${idx}`} style={{ minHeight: '46px' }} />
             ))}
 
             {/* Days in Month */}
@@ -378,13 +401,15 @@ export default function CambodiaDatePicker({
               // Check if day has Cambodian holiday
               let holidayName = '';
               let lunarText = '';
+              let lunarFullText = '';
               try {
                 const lunar = toKhmerLunarDate(cellDate);
                 if (lunar?.holidays && lunar.holidays.length > 0) {
                   holidayName = lunar.holidays[0].nameKm;
                 }
                 if (lunar?.moonDayKhmer && lunar?.moonStatus) {
-                  lunarText = `${lunar.moonDayKhmer}${lunar.moonStatus.slice(0, 1)}`;
+                  lunarText = `${lunar.moonDayKhmer}${lunar.moonStatus}`;
+                  lunarFullText = `${lunar.moonDayKhmer}${lunar.moonStatus} ខែ${lunar.khmerMonth || ''}`;
                 }
               } catch (e) {}
 
@@ -395,16 +420,16 @@ export default function CambodiaDatePicker({
                   key={`day-${dNum}`}
                   type="button"
                   onClick={() => handleSelectDate(cellDate)}
-                  title={holidayName ? `🇰🇭 ${holidayName} (${lunarText})` : `ថ្ងៃទី ${dNum} (${lunarText})`}
+                  title={holidayName ? `🎉 ${holidayName} (${lunarFullText})` : `ថ្ងៃទី ${toKhmerNum(dNum)} (${lunarFullText})`}
                   style={{
-                    height: '38px',
+                    minHeight: '46px',
                     borderRadius: '8px',
                     border: isSelected
                       ? '2px solid #2563eb'
                       : isToday
                       ? '1.5px solid #3b82f6'
                       : isHoliday
-                      ? '1px solid #fecdd3'
+                      ? '1.5px solid #fda4af'
                       : '1px solid #f1f5f9',
                     backgroundColor: isSelected
                       ? '#2563eb'
@@ -418,39 +443,48 @@ export default function CambodiaDatePicker({
                       : isHoliday
                       ? '#be123c'
                       : isWeekend
-                      ? '#ef4444'
+                      ? '#e11d48'
                       : '#0f172a',
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '2px',
+                    padding: '3px 2px',
                     position: 'relative',
-                    transition: 'all 0.1s ease',
+                    transition: 'all 0.15s ease',
+                    boxShadow: isSelected
+                      ? '0 2px 6px rgba(37, 99, 235, 0.25)'
+                      : isHoliday
+                      ? '0 1px 3px rgba(244, 63, 94, 0.1)'
+                      : 'none',
                   }}
                 >
                   <span
                     style={{
-                      fontSize: '0.8rem',
-                      fontWeight: isSelected || isHoliday || isToday ? 800 : 600,
+                      fontSize: '0.84rem',
+                      fontWeight: isSelected || isHoliday || isToday ? 800 : 700,
                       lineHeight: 1.1,
+                      color: isSelected ? '#ffffff' : isHoliday ? '#be123c' : isWeekend ? '#e11d48' : '#0f172a',
                     }}
                   >
                     {dNum}
                   </span>
 
-                  {/* Lunar Day or Holiday dot */}
+                  {/* Lunar Day or Holiday Badge */}
                   <span
+                    className="kh-text"
                     style={{
-                      fontSize: '0.55rem',
+                      fontSize: isHoliday ? '0.62rem' : '0.58rem',
                       color: isSelected
                         ? '#dbeafe'
                         : isHoliday
                         ? '#e11d48'
-                        : '#94a3b8',
-                      lineHeight: 1,
-                      fontWeight: isHoliday ? 800 : 500,
+                        : '#64748b',
+                      lineHeight: 1.35,
+                      fontWeight: isHoliday ? 800 : 600,
+                      whiteSpace: 'nowrap',
+                      marginTop: '1px',
                     }}
                   >
                     {isHoliday ? '★ បុណ្យ' : lunarText}
@@ -465,9 +499,8 @@ export default function CambodiaDatePicker({
             style={{
               backgroundColor: '#fff1f2',
               border: '1px solid #fecdd3',
-              borderRadius: '10px',
-              padding: '8px 10px',
-              fontSize: '0.7rem',
+              borderRadius: '12px',
+              padding: '10px 12px',
               color: '#9f1239',
               marginTop: '4px',
             }}
@@ -475,24 +508,35 @@ export default function CambodiaDatePicker({
             <div
               className="kh-text"
               style={{
+                fontSize: '0.74rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
-                marginBottom: '4px',
+                gap: '6px',
+                marginBottom: '6px',
                 color: '#be123c',
+                lineHeight: 1.3,
               }}
             >
-              <span>🇰🇭</span>
+              <span>🎉</span>
               <span>ថ្ងៃឈប់សម្រាកបុណ្យជាតិក្នុងខែនេះ៖</span>
             </div>
 
             {monthHolidays.length === 0 ? (
-              <div style={{ color: '#64748b', fontSize: '0.66rem' }}>
+              <div className="kh-text" style={{ color: '#64748b', fontSize: '0.7rem', lineHeight: 1.35 }}>
                 គ្មានថ្ងៃឈប់សម្រាកបុណ្យជាតិផ្លូវការក្នុងខែនេះទេ
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                  maxHeight: '130px',
+                  overflowY: 'auto',
+                  paddingRight: '4px',
+                }}
+              >
                 {monthHolidays.map((h) => (
                   <div
                     key={`h-${h.day}`}
@@ -500,24 +544,40 @@ export default function CambodiaDatePicker({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      fontSize: '0.66rem',
+                      gap: '8px',
+                      padding: '4px 8px',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '6px',
+                      border: '1px solid #fecdd3',
                     }}
                   >
-                    <span style={{ fontWeight: 700, color: '#9f1239' }}>
+                    <span
+                      className="kh-text"
+                      style={{
+                        fontWeight: 700,
+                        color: '#9f1239',
+                        fontSize: '0.72rem',
+                        lineHeight: 1.4,
+                      }}
+                    >
                       • ថ្ងៃទី {toKhmerNum(h.day)}: {h.nameKm}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleSelectDate(new Date(year, month, h.day))}
+                      className="kh-text"
                       style={{
-                        backgroundColor: '#ffffff',
-                        border: '1px solid #fecdd3',
-                        color: '#be123c',
+                        backgroundColor: '#be123c',
+                        border: 'none',
+                        color: '#ffffff',
                         borderRadius: '4px',
-                        padding: '1px 5px',
-                        fontSize: '0.62rem',
+                        padding: '3px 8px',
+                        fontSize: '0.64rem',
                         fontWeight: 700,
                         cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        lineHeight: 1.2,
                       }}
                     >
                       ជ្រើសរើស ➔
@@ -536,6 +596,7 @@ export default function CambodiaDatePicker({
               justifyContent: 'space-between',
               borderTop: '1px solid #f1f5f9',
               paddingTop: '8px',
+              gap: '8px',
             }}
           >
             <button
@@ -543,14 +604,16 @@ export default function CambodiaDatePicker({
               onClick={jumpToToday}
               className="kh-text"
               style={{
-                fontSize: '0.72rem',
+                fontSize: '0.74rem',
                 fontWeight: 700,
                 color: '#2563eb',
                 backgroundColor: '#eff6ff',
                 border: '1px solid #bfdbfe',
-                borderRadius: '6px',
-                padding: '4px 10px',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 cursor: 'pointer',
+                lineHeight: 1.3,
+                whiteSpace: 'nowrap',
               }}
             >
               📍 ទៅកាន់ថ្ងៃនេះ (Today)
@@ -561,14 +624,16 @@ export default function CambodiaDatePicker({
               onClick={() => setIsOpen(false)}
               className="kh-text"
               style={{
-                fontSize: '0.72rem',
+                fontSize: '0.74rem',
                 fontWeight: 600,
                 color: '#64748b',
                 backgroundColor: '#f8fafc',
                 border: '1px solid #e2e8f0',
-                borderRadius: '6px',
-                padding: '4px 10px',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 cursor: 'pointer',
+                lineHeight: 1.3,
+                whiteSpace: 'nowrap',
               }}
             >
               បិទ (Close)

@@ -1612,14 +1612,51 @@ export default function CustomizableDashboard({
               </Link>
             </div>
 
+            {/* Mini Summary Ribbon */}
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
+                ⏳ រង់ចាំពិនិត្យ៖ {(recentLeaveRequests || []).filter(r => r.status === 'PENDING').length}
+              </span>
+              <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
+                ✅ អនុម័តរួច៖ {(recentLeaveRequests || []).filter(r => r.status === 'APPROVED').length}
+              </span>
+              <span style={{ fontSize: '0.67rem', fontWeight: 700, padding: '2px 7px', borderRadius: '5px', backgroundColor: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
+                📋 សរុបច្បាប់៖ {leaveStats?.total || (recentLeaveRequests || []).length} នាក់
+              </span>
+            </div>
+
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', paddingRight: '2px' }}>
               {(recentLeaveRequests || []).length > 0 ? (
                 recentLeaveRequests.map((req: any, i: number) => {
-                  const empName = req.employee
-                    ? `${req.employee.lastNameKh || ''} ${req.employee.firstNameKh || ''} (${req.employee.firstNameEn || ''} ${req.employee.lastNameEn || ''})`.trim()
+                  const emp = req.employee;
+                  const empId = emp?.employeeId || '---';
+                  const empName = emp
+                    ? `${emp.lastNameKh || ''} ${emp.firstNameKh || ''} (${emp.firstNameEn || ''} ${emp.lastNameEn || ''})`.trim()
                     : 'បុគ្គលិក';
+                  const dept = emp?.department || 'ទូទៅ';
+                  const position = emp?.position || 'បុគ្គលិក';
+                  const durationDays = req.duration && req.duration > 0
+                    ? req.duration
+                    : (req.startDate && req.endDate
+                        ? Math.max(1, Math.round((new Date(req.endDate).getTime() - new Date(req.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1)
+                        : 1);
+
+                  const leaveTypeKhMap: Record<string, string> = {
+                    ANNUAL: 'ច្បាប់ប្រចាំឆ្នាំ',
+                    SICK: 'ច្បាប់ឈឺ',
+                    UNPAID: 'ឥតប្រាក់ឈ្នួល',
+                    MATERNITY: 'លំហែមាតុភាព',
+                    SPECIAL: 'ច្បាប់ពិសេស',
+                    CASUAL: 'ច្បាប់ផ្ទាល់ខ្លួន',
+                  };
+                  const leaveTypeLabel = leaveTypeKhMap[req.leaveType?.toUpperCase()] || req.leaveType || 'ច្បាប់';
+
                   const isApproved = req.status === 'APPROVED';
                   const isRejected = req.status === 'REJECTED';
+
+                  const dateStr = req.startDate
+                    ? new Date(req.startDate).toLocaleDateString('en-GB')
+                    : '';
 
                   return (
                     <Link
@@ -1629,41 +1666,113 @@ export default function CustomizableDashboard({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '6px 10px',
+                        padding: '7px 10px',
                         backgroundColor: '#f8fafc',
-                        borderRadius: '8px',
+                        borderRadius: '9px',
                         textDecoration: 'none',
-                        transition: 'background 0.15s ease',
-                        gap: '8px',
+                        transition: 'all 0.15s ease',
+                        gap: '10px',
+                        border: '1px solid #f1f5f9',
                       }}
+                      className="hover-elevate"
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
-                        <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>👤</span>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.35 }}>
+                      {/* Left: Avatar Icon */}
+                      <div
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          backgroundColor: '#e0f2fe',
+                          color: '#0369a1',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1rem',
+                          flexShrink: 0,
+                          border: '1px solid #bae6fd',
+                        }}
+                      >
+                        👤
+                      </div>
+
+                      {/* Center: Detailed Info (Name, ID, Duration, Dept, Role) */}
+                      <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        {/* Line 1: Name + ID Badge + Duration Badge */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', lineHeight: 1.35 }}>
                             {empName}
-                          </div>
-                          <div style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>
-                            មូលហេតុ: {req.reason || 'ច្បាប់ផ្ទាល់ខ្លួន'} • {req.leaveType || 'Annual'}
-                          </div>
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              color: '#334155',
+                              backgroundColor: '#e2e8f0',
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                              fontFamily: 'monospace',
+                              whiteSpace: 'nowrap',
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            ID: {empId}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              fontWeight: 800,
+                              color: '#b45309',
+                              backgroundColor: '#fef3c7',
+                              border: '1px solid #fde68a',
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                              whiteSpace: 'nowrap',
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            ⏱️ {durationDays} ថ្ងៃ
+                          </span>
+                        </div>
+
+                        {/* Line 2: Department (ផ្នែក) + Role (តួនាទី) + Reason */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>
+                          <span style={{ color: '#0284c7', fontWeight: 700, flexShrink: 0 }}>
+                            🏢 {dept}
+                          </span>
+                          <span style={{ color: '#cbd5e1', flexShrink: 0 }}>•</span>
+                          <span style={{ color: '#475569', fontWeight: 600, flexShrink: 0 }}>
+                            💼 {position}
+                          </span>
+                          <span style={{ color: '#cbd5e1', flexShrink: 0 }}>•</span>
+                          <span style={{ color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {leaveTypeLabel}{req.reason ? ` (${req.reason})` : ''}
+                          </span>
                         </div>
                       </div>
 
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          padding: '2px 7px',
-                          borderRadius: '6px',
-                          backgroundColor: isApproved ? '#dcfce7' : isRejected ? '#fee2e2' : '#fef3c7',
-                          color: isApproved ? '#15803d' : isRejected ? '#b91c1c' : '#b45309',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {isApproved ? 'អនុម័តរួច' : isRejected ? 'បដិសេធ' : 'រង់ចាំអនុម័ត'}
-                      </span>
+                      {/* Right: Status Badge & Date */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '3px', flexShrink: 0 }}>
+                        <span
+                          style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 800,
+                            padding: '2px 7px',
+                            borderRadius: '6px',
+                            backgroundColor: isApproved ? '#dcfce7' : isRejected ? '#fee2e2' : '#fef3c7',
+                            color: isApproved ? '#15803d' : isRejected ? '#b91c1c' : '#b45309',
+                            border: `1px solid ${isApproved ? '#bbf7d0' : isRejected ? '#fecaca' : '#fde68a'}`,
+                            whiteSpace: 'nowrap',
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {isApproved ? '✅ អនុម័តរួច' : isRejected ? '❌ បដិសេធ' : '⏳ រង់ចាំ'}
+                        </span>
+                        {dateStr && (
+                          <span style={{ fontSize: '0.62rem', color: '#94a3b8', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
+                            {dateStr}
+                          </span>
+                        )}
+                      </div>
                     </Link>
                   );
                 })

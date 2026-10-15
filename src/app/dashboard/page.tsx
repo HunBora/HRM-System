@@ -220,7 +220,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     // New query: recent leave requests
     prisma.leaveRequest.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 4,
+      take: 6,
       include: { employee: true }
     }),
     // New query: 7 days attendance

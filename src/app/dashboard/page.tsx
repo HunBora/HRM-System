@@ -97,15 +97,21 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   const resolvedParams = await searchParams;
 
-  // Get current date constraints & parse actual date filter
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Accurate Cambodia Timezone (Asia/Phnom_Penh - GMT+7)
+  const nowInCambodia = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
+  const todayKh = new Date(nowInCambodia.getFullYear(), nowInCambodia.getMonth(), nowInCambodia.getDate());
+  const todayKhStr = `${todayKh.getFullYear()}-${String(todayKh.getMonth() + 1).padStart(2, '0')}-${String(todayKh.getDate()).padStart(2, '0')}`;
 
-  let actualDateObj = new Date(today);
+  const isCustomFiltered = Boolean(resolvedParams?.date && resolvedParams.date !== todayKhStr);
+
+  let actualDateObj = todayKh;
   if (resolvedParams?.date) {
-    const parsedDate = new Date(resolvedParams.date);
-    if (!isNaN(parsedDate.getTime())) {
-      actualDateObj = parsedDate;
+    const parts = resolvedParams.date.split('-');
+    if (parts.length === 3) {
+      const parsedDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      if (!isNaN(parsedDate.getTime())) {
+        actualDateObj = parsedDate;
+      }
     }
   }
 
@@ -114,8 +120,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const actualDateEnd = new Date(actualDateObj);
   actualDateEnd.setHours(23, 59, 59, 999);
 
-  const actualDateStr = actualDateObj.toISOString().split('T')[0]; // YYYY-MM-DD
-  const formattedActualDateKh = actualDateObj.toLocaleDateString('en-GB'); // DD/MM/YYYY
+  const actualDateStr = `${actualDateObj.getFullYear()}-${String(actualDateObj.getMonth() + 1).padStart(2, '0')}-${String(actualDateObj.getDate()).padStart(2, '0')}`;
+  const formattedActualDateKh = `${String(actualDateObj.getDate()).padStart(2, '0')}/${String(actualDateObj.getMonth() + 1).padStart(2, '0')}/${actualDateObj.getFullYear()}`;
 
   const currentMonth = today.getMonth() + 1;
   const currentYear = today.getFullYear();
@@ -906,7 +912,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
         {/* Center: Unified Live Walking Clock & Modern Cambodian Calendar */}
         <div style={{ display: 'flex', justifyContent: 'center', flex: '1 1 auto', minWidth: '280px' }}>
-          <LiveDigitalClock locale={locale} actualDateStr={actualDateStr} />
+          <LiveDigitalClock locale={locale} actualDateStr={isCustomFiltered ? actualDateStr : ''} isCustomFiltered={isCustomFiltered} />
         </div>
 
         {/* Right: Actions */}

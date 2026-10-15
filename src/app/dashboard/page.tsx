@@ -100,6 +100,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   // Accurate Cambodia Timezone (Asia/Phnom_Penh - GMT+7)
   const nowInCambodia = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Phnom_Penh" }));
   const todayKh = new Date(nowInCambodia.getFullYear(), nowInCambodia.getMonth(), nowInCambodia.getDate());
+  const today = todayKh;
   const todayKhStr = `${todayKh.getFullYear()}-${String(todayKh.getMonth() + 1).padStart(2, '0')}-${String(todayKh.getDate()).padStart(2, '0')}`;
 
   const isCustomFiltered = Boolean(resolvedParams?.date && resolvedParams.date !== todayKhStr);

@@ -18,12 +18,15 @@ export default async function IDCardPage({ params }: { params: Promise<{ id: str
     where: { id: 'default' }
   });
 
-  const companyName = settings?.companyName || 'HRM System';
+  const companyName = settings?.companyName || 'G.S TEXTILE GARMENT (CAMBODIA) CO., LTD.';
 
   return (
-    <div>
-      <h1 className="title kh-text no-print" style={{ textAlign: 'center' }}>Employee ID Card</h1>
-      <IDCardClient employee={employee} companyName={companyName} />
+    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '12px 16px' }}>
+      <IDCardClient
+        employee={employee}
+        companyName={companyName}
+        settings={settings}
+      />
     </div>
   );
 }

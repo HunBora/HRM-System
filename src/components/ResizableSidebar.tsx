@@ -602,6 +602,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
+          href: '/dashboard/contracts',
+          icon: '📜',
+          labelKh: 'កិច្ចសន្យាការងារ (៣ភាសា)',
+          labelEn: 'Employment Contracts',
+          labelZh: '劳动合同管理 (三语)',
+          desc: 'បង្កើត ព្រីន និងទាញយកកិច្ចសន្យា ៣ភាសា (FDC, UDC, សាកល្បង, ជនបរទេស)',
+          descEn: 'Generate, preview, edit and export trilingual contracts (FDC/UDC/Probation/Foreign)',
+          descZh: '生成、预览、编辑及导出三语劳动合同（固定期、无固定期、试用期及外籍员工）',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
+        },
+        {
           href: '/dashboard/recruitment',
           icon: '📢',
           labelKh: 'ជ្រើសរើសបុគ្គលិក & ATS',

@@ -102,6 +102,7 @@ model Employee {
   loans            EmployeeLoan[]
   biometricLogs    BiometricPunchLog[]
   contracts        Contract[]
+  delegations      DelegationOfAuthority[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -797,4 +798,58 @@ model Contract {
   
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+}
+
+// --- Delegation of Authority & Handover Model ---
+model DelegationOfAuthority {
+  id                    String    @id @default(uuid())
+  refNo                 String    @unique // e.g. DOA-202610-0001
+  
+  // Delegator (អ្នកផ្ទេរសិទ្ធិ)
+  delegatorId           String
+  delegator             Employee  @relation(fields: [delegatorId], references: [id], onDelete: Cascade)
+  
+  // Reason & Purpose
+  reasonType            String    @default("MISSION") // MISSION (បេសកកម្ម), LEAVE (ឈប់សម្រាក), TRAINING (វគ្គបណ្តុះបណ្តាល), OTHER (ផ្សេងៗ)
+  reasonDetail          String?   @db.Text            // Specific mission goals or purpose
+  missionLocation       String?                       // e.g. "ខេត្តសៀមរាប / Siem Reap", "ប្រទេសចិន / China"
+  
+  // Period
+  startDate             DateTime
+  endDate               DateTime
+  totalDays             Int       @default(1)
+  
+  // Delegatees (អ្នកទទួលសិទ្ធិ - គាំទ្រ ១ ដល់ ៣ នាក់ ឬច្រើននាក់)
+  // JSON array: [{ employeeId, nameKh, nameEn, position, department, phone, scopeOfWork, financialLimit, specificTasks }]
+  delegateesJson        String    @db.Text
+  
+  // Scope of authority & limits
+  canApproveLeave       Boolean   @default(true)
+  canApproveOt          Boolean   @default(true)
+  canSignDailyReports   Boolean   @default(true)
+  canApproveExpense     Boolean   @default(false)
+  maxExpenseAmount      Float?    // Max dollar limit for signing expenses
+  canManageOperations   Boolean   @default(true)
+  canCoordinateClients  Boolean   @default(false)
+  canAccessKeysStamps   Boolean   @default(false)
+  
+  // Explicit restrictions & Handover items
+  restrictions          String?   @db.Text // ការកំណត់ព្រំដែនសិទ្ធិ / Limitations
+  handoverItems         String?   @db.Text // សម្ភារៈប្រគល់ (ត្រា, កូនសោ, Laptop, លុយបម្រុង...)
+  notes                 String?   @db.Text
+  
+  // Template format: 'standard' (Corporate Form), 'formal-letter' (Formal Letter), 'mission' (Field Mission)
+  templateStyle         String    @default("standard")
+  
+  // Status
+  status                String    @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  
+  // Approvals & Signatures
+  approvedByDeptHead    String?   // Name / Title of Line Manager
+  deptHeadApprovedAt    DateTime?
+  approvedByManagement  String?   // Name / Title of GM / HR Director
+  managementApprovedAt  DateTime?
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 }

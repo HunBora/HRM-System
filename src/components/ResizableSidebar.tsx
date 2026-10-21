@@ -847,6 +847,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
         {
+          href: '/dashboard/delegations',
+          icon: '🤝',
+          labelKh: 'លិខិតផ្ទេរសិទ្ធិ (DOA)',
+          labelEn: 'Delegation of Authority',
+          labelZh: '授权委托与工作交接',
+          desc: 'លិខិតផ្ទេរសិទ្ធិពេលចេញបេសកកម្ម ឬទៅយូរថ្ងៃ អាចប្រគល់ជូន ១ ដល់ ៣ នាក់',
+          descEn: 'Delegation of authority and handover forms for missions and leave',
+          descZh: '出差外勤或休假授权交接书（支持1至3人）',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
           href: '/dashboard/documents',
           icon: '📁',
           labelKh: 'ឯកសារគោលការណ៍ក្រុមហ៊ុន',

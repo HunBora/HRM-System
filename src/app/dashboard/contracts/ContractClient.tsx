@@ -458,7 +458,7 @@ export default function ContractClient({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
             <span style={{ fontSize: '2rem' }}>📜</span>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0 }}>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, lineHeight: 1.5, padding: '4px 0' }}>
               ប្រព័ន្ធគ្រប់គ្រងកិច្ចសន្យាការងារ & Smart Alert
             </h1>
           </div>
@@ -563,10 +563,10 @@ export default function ContractClient({
                 {alertStats.fdcNoticeCount}
               </span>
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#991b1b', marginTop: '0.5rem' }}>
-              FDC ត្រូវជូនដំណឹងមុន
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#991b1b', marginTop: '0.5rem', lineHeight: 1.4 }}>
+              កិច្ចសន្យា FDC ត្រូវជូនដំណឹង
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
               ១០ ថ្ងៃ ឬ ១៥ ថ្ងៃ (មាត្រា ៧៣)
             </div>
           </div>
@@ -633,11 +633,11 @@ export default function ContractClient({
                 {alertStats.probationCount}
               </span>
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#92400e', marginTop: '0.5rem' }}>
-              សាកល្បងជិតចប់
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#92400e', marginTop: '0.5rem', lineHeight: 1.4 }}>
+              សាកល្បងការងារជិតចប់
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-              នៅសល់ $\le$ ៧ ថ្ងៃ (ត្រៀមវាយតម្លៃ)
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
+              នៅសល់ ≤ ៧ ថ្ងៃ (ត្រៀមវាយតម្លៃ)
             </div>
           </div>
 
@@ -668,10 +668,10 @@ export default function ContractClient({
                 {alertStats.expiredCount}
               </span>
             </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginTop: '0.5rem' }}>
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginTop: '0.5rem', lineHeight: 1.4 }}>
               កិច្ចសន្យាផុតកំណត់ហើយ
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
               ត្រូវសម្រេចបន្ត ឬទូទាត់ផ្តាច់
             </div>
           </div>
@@ -746,21 +746,25 @@ export default function ContractClient({
               value={tableSearchText}
               onChange={(e) => setTableSearchText(e.target.value)}
               style={{
-                padding: '0.55rem 1rem',
+                padding: '0.6rem 1rem',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
                 fontSize: '0.9rem',
-                width: '260px',
+                fontFamily: 'inherit',
+                lineHeight: 1.5,
+                width: '280px',
               }}
             />
             <select
               value={tableFilterType}
               onChange={(e) => setTableFilterType(e.target.value)}
               style={{
-                padding: '0.55rem 1rem',
+                padding: '0.6rem 1rem',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
                 fontSize: '0.9rem',
+                fontFamily: 'inherit',
+                lineHeight: 1.5,
                 background: '#ffffff',
               }}
             >

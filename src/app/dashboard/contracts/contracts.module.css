@@ -5,6 +5,7 @@
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.5rem 0;
+  line-height: 1.6;
 }
 
 .headerCard {

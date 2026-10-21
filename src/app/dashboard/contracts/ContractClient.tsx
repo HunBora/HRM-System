@@ -432,6 +432,76 @@ export default function ContractClient({
     }
   };
 
+
+  // Export PDF directly using html2canvas & jsPDF
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const handleExportPdf = async () => {
+    try {
+      setIsExportingPdf(true);
+      // Ensure we are viewing preview tab so element is visible
+      setActiveTab('preview');
+      
+      // Small timeout to ensure DOM is rendered if tab just changed
+      await new Promise((r) => setTimeout(r, 150));
+
+      const element = document.getElementById('printableContractArea');
+      if (!element) {
+        window.print();
+        return;
+      }
+
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).default;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // First page
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      // Additional pages if needed
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const filename = `${formData.contractNo || 'Contract'}_${formData.employeeNameEn || 'Employee'}.pdf`;
+      pdf.save(filename);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ទាញយក PDF ជោគជ័យ!',
+        text: `បានរក្សាទុកឯកសារ: ${filename}`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error('Error generating PDF:', err);
+      window.print();
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   // Print Contract
   const handlePrint = () => {
     window.print();
@@ -1436,6 +1506,7 @@ export default function ContractClient({
               {/* Right: Action Buttons */}
               <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexShrink: 0 }}>
                 <button
+                  type="button"
                   onClick={handlePrint}
                   style={{
                     background: '#1e293b',
@@ -1451,10 +1522,36 @@ export default function ContractClient({
                     fontSize: '0.8rem',
                     whiteSpace: 'nowrap',
                   }}
+                  title="បោះពុម្ពកិច្ចសន្យា"
                 >
                   🖨️ បោះពុម្ព (Print)
                 </button>
                 <button
+                  type="button"
+                  onClick={handleExportPdf}
+                  disabled={isExportingPdf}
+                  style={{
+                    background: '#dc2626',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0.4rem 0.75rem',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    fontSize: '0.8rem',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 6px rgba(220, 38, 38, 0.25)',
+                  }}
+                  title="ទាញយកឯកសារកិច្ចសន្យាជាទម្រង់ PDF"
+                >
+                  <span>📑</span>
+                  {isExportingPdf ? 'កំពុងបង្កើត PDF...' : 'ទាញយក PDF (.pdf)'}
+                </button>
+                <button
+                  type="button"
                   onClick={handleExportWord}
                   style={{
                     background: '#2563eb',
@@ -1470,6 +1567,7 @@ export default function ContractClient({
                     fontSize: '0.8rem',
                     whiteSpace: 'nowrap',
                   }}
+                  title="ទាញយកឯកសារជា Word Docx"
                 >
                   📄 Word (.docx)
                 </button>

@@ -103,6 +103,7 @@ model Employee {
   biometricLogs    BiometricPunchLog[]
   contracts        Contract[]
   delegations      DelegationOfAuthority[]
+  appointments     AppointmentLetter[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -849,6 +850,62 @@ model DelegationOfAuthority {
   deptHeadApprovedAt    DateTime?
   approvedByManagement  String?   // Name / Title of GM / HR Director
   managementApprovedAt  DateTime?
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+// ==========================================
+// APPOINTMENT / PROMOTION LETTER MODEL (លិខិតតែងតាំងតួនាទី)
+// គំរូសម្រាប់រោងចក្រ / ក្រុមហ៊ុន (Factory / Company Appointment)
+// ==========================================
+model AppointmentLetter {
+  id                    String    @id @default(uuid())
+  refNo                 String    @unique // e.g. "APPT-202610-0001"
+  
+  employeeId            String
+  employee              Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  // Previous Position & Dept
+  oldPosition           String?
+  oldDepartment         String?
+  
+  // Appointed/Promoted Position & Dept
+  newPosition           String
+  newDepartment         String
+  reportsTo             String?   // e.g. "នាយកចាត់ការទូទៅ (General Manager)"
+  
+  // Effective Date & Probation
+  effectiveDate         DateTime
+  probationMonths       Int       @default(0) // 0 = permanent immediately, or 1, 2, 3 months
+  
+  // Compensation & Benefits (if applicable)
+  newSalary             Float?
+  positionAllowance     Float?
+  benefits              String?   @db.Text // e.g. "កាតទូរស័ព្ទ, ប្រេងសាំង, ប្រាក់រង្វាន់លើកទឹកចិត្ត"
+  
+  // Duties & Responsibilities (JSON array of strings)
+  dutiesJson            String    @db.Text
+  
+  // Preamble References (យោង...)
+  preambleLaw           String?   @db.Text // យោងតាមក្រមច្បាប់ស្តីពីការងារ នៃព្រះរាជាណាចក្រកម្ពុជា
+  preambleInternalRule  String?   @db.Text // យោងតាមលក្ខន្តិកៈ និងបទបញ្ជាផ្ទៃក្នុងរបស់រោងចក្រ/ក្រុមហ៊ុន
+  preamblePerformance   String?   @db.Text // យោងតាមសមត្ថភាព ចំណេះដឹង បទពិសោធន៍ ស្នាដៃការងារ និងភាពស្មោះត្រង់របស់បុគ្គលិក
+  preambleNeeds         String?   @db.Text // យោងតាមតម្រូវការការងារជាក់ស្តែង និងការសម្រេចរបស់គណៈគ្រប់គ្រងរោងចក្រ/ក្រុមហ៊ុន
+  
+  // Signer & Location (ដូចគំរូរូបភាព)
+  signLocation          String?   @default("រាជធានីភ្នំពេញ")
+  signDate              DateTime  @default(now())
+  signatoryTitle        String?   @default("អគ្គនាយកក្រុមហ៊ុន (General Manager / CEO)")
+  signatoryName         String?
+  
+  // CC Distribution list
+  ccList                String?   @db.Text
+  
+  // Status & Template
+  templateStyle         String    @default("standard")
+  status                String    @default("ACTIVE") // ACTIVE, CANCELLED
+  notes                 String?   @db.Text
   
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt

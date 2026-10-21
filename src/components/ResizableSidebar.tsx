@@ -858,6 +858,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
         },
         {
+          href: '/dashboard/appointments',
+          icon: '📜',
+          labelKh: 'លិខិតតែងតាំងតួនាទី',
+          labelEn: 'Appointment / Promotion',
+          labelZh: '委任书与职位晋升',
+          desc: 'លិខិតតែងតាំង និងដំឡើងតំណែងបុគ្គលិក ៣ភាសា និងទម្រង់ស្តង់ដាររោងចក្រ',
+          descEn: 'Official appointment and promotion letters for factory and corporate roles',
+          descZh: '工厂与企业标准委任书、晋升任命书（三语格式）',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
+        {
           href: '/dashboard/documents',
           icon: '📁',
           labelKh: 'ឯកសារគោលការណ៍ក្រុមហ៊ុន',

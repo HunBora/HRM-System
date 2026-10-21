@@ -78,9 +78,15 @@ export default function ContractClient({
   const [activeTab, setActiveTab] = useState<'preview' | 'form' | 'clauses'>('preview');
   const [searchEmpQuery, setSearchEmpQuery] = useState('');
   const [isEmpDropdownOpen, setIsEmpDropdownOpen] = useState(false);
+  
+  // Table filters & pagination for 1000+ employees
   const [tableFilterType, setTableFilterType] = useState<string>('ALL');
+  const [deptFilter, setDeptFilter] = useState<string>('ALL');
   const [alertFilterCategory, setAlertFilterCategory] = useState<string>('ALL');
   const [tableSearchText, setTableSearchText] = useState('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(30); // 30 records per page default
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingTelegram, setIsSendingTelegram] = useState(false);
 
@@ -161,7 +167,19 @@ export default function ContractClient({
     };
   }, [contractAlertsMap]);
 
-  // Filter employees for Auto-Search
+  // Extract unique departments for dropdown
+  const departmentList = useMemo(() => {
+    const set = new Set<string>();
+    contracts.forEach((c) => {
+      if (c.department) set.add(c.department);
+    });
+    employees.forEach((e) => {
+      if (e.department) set.add(e.department);
+    });
+    return Array.from(set).filter(Boolean).sort();
+  }, [contracts, employees]);
+
+  // Filter employees for Auto-Search in modal
   const filteredEmployees = useMemo(() => {
     if (!searchEmpQuery.trim()) return employees.slice(0, 15);
     const q = searchEmpQuery.toLowerCase().trim();
@@ -413,17 +431,19 @@ export default function ContractClient({
     window.print();
   };
 
-  // Filter Table Contracts by Type, Search, and Smart Alert Category
-  const filteredContracts = useMemo(() => {
+  // Filter Table Contracts by Type, Department, Search, and Smart Alert Category
+  const fullyFilteredContracts = useMemo(() => {
     return contracts.filter((c) => {
       const matchesType = tableFilterType === 'ALL' || c.contractType === tableFilterType;
-      const q = tableSearchText.toLowerCase();
+      const matchesDept = deptFilter === 'ALL' || c.department === deptFilter;
+      const q = tableSearchText.toLowerCase().trim();
       const matchesSearch =
         !q ||
         c.contractNo.toLowerCase().includes(q) ||
         c.employee.employeeId.toLowerCase().includes(q) ||
         `${c.employee.firstNameEn} ${c.employee.lastNameEn}`.toLowerCase().includes(q) ||
-        `${c.employee.lastNameKh} ${c.employee.firstNameKh}`.toLowerCase().includes(q);
+        `${c.employee.lastNameKh} ${c.employee.firstNameKh}`.toLowerCase().includes(q) ||
+        (c.employee.nationalId && c.employee.nationalId.toLowerCase().includes(q));
 
       const alerts = contractAlertsMap.get(c.id) || [];
       let matchesAlertCategory = true;
@@ -443,47 +463,98 @@ export default function ContractClient({
         matchesAlertCategory = alerts.some((a) => a.alertType === 'EXPIRED');
       }
 
-      return matchesType && matchesSearch && matchesAlertCategory;
+      return matchesType && matchesDept && matchesSearch && matchesAlertCategory;
     });
-  }, [contracts, tableFilterType, tableSearchText, alertFilterCategory, contractAlertsMap]);
+  }, [contracts, tableFilterType, deptFilter, tableSearchText, alertFilterCategory, contractAlertsMap]);
+
+  // Pagination calculations for 1000+ employees
+  const totalPages = pageSize === -1 ? 1 : Math.ceil(fullyFilteredContracts.length / pageSize) || 1;
+  const paginatedContracts = useMemo(() => {
+    if (pageSize === -1) return fullyFilteredContracts;
+    const start = (currentPage - 1) * pageSize;
+    return fullyFilteredContracts.slice(start, start + pageSize);
+  }, [fullyFilteredContracts, currentPage, pageSize]);
 
   // Derived metadata
   const currentMeta = CONTRACT_TYPE_METADATA[formData.contractType] || CONTRACT_TYPE_METADATA.FDC;
   const currentGender = getGenderLabel(formData.gender);
 
+  // Standard Trilingual Table Header component
+  const Th = ({
+    kh,
+    en,
+    zh,
+    minW = 'auto',
+    align = 'left',
+  }: {
+    kh: string;
+    en: string;
+    zh: string;
+    minW?: string;
+    align?: 'left' | 'center' | 'right';
+  }) => (
+    <th
+      style={{
+        padding: '6px 10px',
+        borderBottom: '2px solid #cbd5e1',
+        borderRight: '1px solid #e2e8f0',
+        verticalAlign: 'middle',
+        minWidth: minW,
+        position: 'sticky',
+        top: 0,
+        backgroundColor: '#f1f5f9',
+        zIndex: 10,
+        textAlign: align,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1px',
+          alignItems: align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start',
+          lineHeight: 1.2,
+        }}
+      >
+        <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0f172a' }}>{kh}</span>
+        <span style={{ fontSize: '0.71rem', fontWeight: 500, color: '#334155' }}>{en}</span>
+        <span style={{ fontSize: '0.71rem', fontWeight: 500, color: '#64748b' }}>{zh}</span>
+      </div>
+    </th>
+  );
+
   return (
     <div className={styles.container}>
-      {/* Top Banner Card */}
+      {/* --- 1. ULTRA-COMPACT SLIM HEADER BAR (FIT-CONTENT) --- */}
       <div className={styles.headerCard}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '2rem' }}>📜</span>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, lineHeight: 1.5, padding: '4px 0' }}>
-              ប្រព័ន្ធគ្រប់គ្រងកិច្ចសន្យាការងារ & Smart Alert
-            </h1>
-          </div>
-          <p style={{ margin: 0, opacity: 0.9, fontSize: '0.95rem', maxWidth: '850px' }}>
-            ដាស់តឿនឆ្លាតវៃកុងត្រា FDC (១០-១៥ ថ្ងៃ តាមមាត្រា ៧៣) និង Work Permit / Visa ជនបរទេស (៣០-៦០ ថ្ងៃ)
-            ជាមួយទម្រង់ស្តង់ដារ ៣ ភាសា (ខ្មែរ ចិន អង់គ្លេស)។
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <span style={{ fontSize: '1.4rem' }}>📜</span>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, lineHeight: 1.3 }}>
+            កិច្ចសន្យាការងារ & Smart Alert (៣ ភាសា)
+          </h1>
+          <span style={{ fontSize: '0.78rem', opacity: 0.85, marginLeft: '4px' }}>
+            Contracts • 劳动合同管理
+          </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={handleSendTelegramAlerts}
             disabled={isSendingTelegram}
             style={{
-              background: '#0284c7',
+              background: 'rgba(255, 255, 255, 0.18)',
               color: '#ffffff',
-              fontWeight: 700,
-              padding: '0.85rem 1.4rem',
-              borderRadius: '12px',
+              fontWeight: 600,
+              padding: '0.45rem 0.9rem',
+              borderRadius: '8px',
               border: '1px solid rgba(255,255,255,0.3)',
               cursor: 'pointer',
-              fontSize: '0.95rem',
+              fontSize: '0.85rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              gap: '0.4rem',
             }}
           >
             <span>📢</span>
@@ -495,280 +566,226 @@ export default function ContractClient({
               background: '#ffffff',
               color: '#1e3a8a',
               fontWeight: 700,
-              padding: '0.85rem 1.6rem',
-              borderRadius: '12px',
+              padding: '0.45rem 1.1rem',
+              borderRadius: '8px',
               border: 'none',
               cursor: 'pointer',
-              fontSize: '1rem',
+              fontSize: '0.88rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              transition: 'all 0.2s ease',
+              gap: '0.4rem',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
             }}
           >
-            <span style={{ fontSize: '1.3rem' }}>➕</span>
+            <span>➕</span>
             បង្កើតកិច្ចសន្យាថ្មី (New Contract)
           </button>
         </div>
       </div>
 
-      {/* --- SMART ALERT NOTIFICATION CENTER BAR --- */}
-      <div
-        style={{
-          background: 'linear-gradient(to right, #f8fafc, #ffffff)',
-          border: '1px solid #cbd5e1',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem',
-          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.4rem' }}>🚨</span>
-            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>
-              មជ្ឈមណ្ឌលដាស់តឿនឆ្លាតវៃ (MLVT 2026 Smart Expiry Alerts)
-            </h3>
-          </div>
-          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-            ចុចលើ Card នីមួយៗដើម្បី Filter មើលបុគ្គលិកជាក់លាក់
+      {/* --- 2. ULTRA-COMPACT SMART ALERT STRIP (SLIM CHIPS BAR) --- */}
+      <div className={styles.alertStrip}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginRight: '0.25rem' }}>
+          <span>🚨</span>
+          <span>Alerts:</span>
+        </div>
+
+        {/* Chip 1: FDC Notice */}
+        <div
+          onClick={() => {
+            setAlertFilterCategory(alertFilterCategory === 'FDC_NOTICE' ? 'ALL' : 'FDC_NOTICE');
+            setCurrentPage(1);
+          }}
+          className={styles.alertChip}
+          style={{
+            background: alertFilterCategory === 'FDC_NOTICE' ? '#fef2f2' : '#fff1f2',
+            borderColor: alertFilterCategory === 'FDC_NOTICE' ? '#ef4444' : '#fecdd3',
+            color: '#991b1b',
+          }}
+          title="កិច្ចសន្យា FDC ត្រូវជូនដំណឹង ១០-១៥ ថ្ងៃ (មាត្រា ៧៣) / FDC Notice Due"
+        >
+          <span>🔔 FDC ត្រូវជូនដំណឹង (10-15d)</span>
+          <span style={{ background: '#ef4444', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+            {alertStats.fdcNoticeCount}
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-          {/* Card 1: FDC Notice */}
-          <div
-            onClick={() => setAlertFilterCategory(alertFilterCategory === 'FDC_NOTICE' ? 'ALL' : 'FDC_NOTICE')}
-            style={{
-              background: alertFilterCategory === 'FDC_NOTICE' ? '#fef2f2' : '#ffffff',
-              border: `2px solid ${alertFilterCategory === 'FDC_NOTICE' ? '#ef4444' : '#fee2e2'}`,
-              borderRadius: '12px',
-              padding: '1rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>🔔</span>
-              <span
-                style={{
-                  background: '#ef4444',
-                  color: '#ffffff',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '20px',
-                }}
-              >
-                {alertStats.fdcNoticeCount}
-              </span>
-            </div>
-            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#991b1b', marginTop: '0.5rem', lineHeight: 1.4 }}>
-              កិច្ចសន្យា FDC ត្រូវជូនដំណឹង
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
-              ១០ ថ្ងៃ ឬ ១៥ ថ្ងៃ (មាត្រា ៧៣)
-            </div>
-          </div>
+        {/* Chip 2: Foreign WP & Visa */}
+        <div
+          onClick={() => {
+            setAlertFilterCategory(alertFilterCategory === 'FOREIGN_WP_VISA' ? 'ALL' : 'FOREIGN_WP_VISA');
+            setCurrentPage(1);
+          }}
+          className={styles.alertChip}
+          style={{
+            background: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#f5f3ff' : '#f3e8ff',
+            borderColor: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#7c3aed' : '#ddd6fe',
+            color: '#5b21b6',
+          }}
+          title="Work Permit & Visa ជនបរទេស ៣០-៦០ ថ្ងៃ (រៀបចំ MLVT) / Foreign WP & Visa"
+        >
+          <span>🌐 Work Permit & Visa (30-60d)</span>
+          <span style={{ background: '#7c3aed', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+            {alertStats.foreignWpCount + alertStats.foreignVisaCount}
+          </span>
+        </div>
 
-          {/* Card 2: Foreign WP */}
-          <div
-            onClick={() => setAlertFilterCategory(alertFilterCategory === 'FOREIGN_WP_VISA' ? 'ALL' : 'FOREIGN_WP_VISA')}
-            style={{
-              background: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#f5f3ff' : '#ffffff',
-              border: `2px solid ${alertFilterCategory === 'FOREIGN_WP_VISA' ? '#7c3aed' : '#ede9fe'}`,
-              borderRadius: '12px',
-              padding: '1rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>🌐</span>
-              <span
-                style={{
-                  background: '#7c3aed',
-                  color: '#ffffff',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '20px',
-                }}
-              >
-                {alertStats.foreignWpCount + alertStats.foreignVisaCount}
-              </span>
-            </div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#5b21b6', marginTop: '0.5rem' }}>
-              Work Permit & Visa ជនបរទេស
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-              ៣០ ដល់ ៦០ ថ្ងៃ (រៀបចំ MLVT)
-            </div>
-          </div>
+        {/* Chip 3: Probation Ending */}
+        <div
+          onClick={() => {
+            setAlertFilterCategory(alertFilterCategory === 'PROBATION' ? 'ALL' : 'PROBATION');
+            setCurrentPage(1);
+          }}
+          className={styles.alertChip}
+          style={{
+            background: alertFilterCategory === 'PROBATION' ? '#fffbeb' : '#fef3c7',
+            borderColor: alertFilterCategory === 'PROBATION' ? '#d97706' : '#fde68a',
+            color: '#92400e',
+          }}
+          title="សាកល្បងការងារជិតចប់ នៅសល់ ≤ ៧ ថ្ងៃ / Probation Ending ≤ 7 Days"
+        >
+          <span>⏳ សាកល្បងជិតចប់ (≤ 7d)</span>
+          <span style={{ background: '#d97706', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+            {alertStats.probationCount}
+          </span>
+        </div>
 
-          {/* Card 3: Probation Ending */}
-          <div
-            onClick={() => setAlertFilterCategory(alertFilterCategory === 'PROBATION' ? 'ALL' : 'PROBATION')}
-            style={{
-              background: alertFilterCategory === 'PROBATION' ? '#fffbeb' : '#ffffff',
-              border: `2px solid ${alertFilterCategory === 'PROBATION' ? '#d97706' : '#fef3c7'}`,
-              borderRadius: '12px',
-              padding: '1rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>⏳</span>
-              <span
-                style={{
-                  background: '#d97706',
-                  color: '#ffffff',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '20px',
-                }}
-              >
-                {alertStats.probationCount}
-              </span>
-            </div>
-            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#92400e', marginTop: '0.5rem', lineHeight: 1.4 }}>
-              សាកល្បងការងារជិតចប់
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
-              នៅសល់ ≤ ៧ ថ្ងៃ (ត្រៀមវាយតម្លៃ)
-            </div>
-          </div>
-
-          {/* Card 4: Expired */}
-          <div
-            onClick={() => setAlertFilterCategory(alertFilterCategory === 'EXPIRED' ? 'ALL' : 'EXPIRED')}
-            style={{
-              background: alertFilterCategory === 'EXPIRED' ? '#f8fafc' : '#ffffff',
-              border: `2px solid ${alertFilterCategory === 'EXPIRED' ? '#475569' : '#e2e8f0'}`,
-              borderRadius: '12px',
-              padding: '1rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.3rem' }}>⚠️</span>
-              <span
-                style={{
-                  background: '#475569',
-                  color: '#ffffff',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '20px',
-                }}
-              >
-                {alertStats.expiredCount}
-              </span>
-            </div>
-            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginTop: '0.5rem', lineHeight: 1.4 }}>
-              កិច្ចសន្យាផុតកំណត់ហើយ
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
-              ត្រូវសម្រេចបន្ត ឬទូទាត់ផ្តាច់
-            </div>
-          </div>
+        {/* Chip 4: Expired */}
+        <div
+          onClick={() => {
+            setAlertFilterCategory(alertFilterCategory === 'EXPIRED' ? 'ALL' : 'EXPIRED');
+            setCurrentPage(1);
+          }}
+          className={styles.alertChip}
+          style={{
+            background: alertFilterCategory === 'EXPIRED' ? '#f1f5f9' : '#f8fafc',
+            borderColor: alertFilterCategory === 'EXPIRED' ? '#475569' : '#e2e8f0',
+            color: '#334155',
+          }}
+          title="កិច្ចសន្យាបានផុតកំណត់កាលបរិច្ឆេទហើយ / Expired Contracts"
+        >
+          <span>⚠️ ផុតកំណត់ហើយ</span>
+          <span style={{ background: '#475569', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+            {alertStats.expiredCount}
+          </span>
         </div>
 
         {alertFilterCategory !== 'ALL' && (
-          <div style={{ marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0369a1' }}>
-              🔍 កំពុង Filter តាម៖ <strong>{alertFilterCategory}</strong>
-            </span>
-            <button
-              onClick={() => setAlertFilterCategory('ALL')}
-              style={{
-                background: '#e0f2fe',
-                color: '#0369a1',
-                border: 'none',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              សម្អាត Filter (Reset) ✕
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setAlertFilterCategory('ALL');
+              setCurrentPage(1);
+            }}
+            style={{
+              background: '#e0f2fe',
+              color: '#0369a1',
+              border: 'none',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              marginLeft: 'auto',
+            }}
+          >
+            សម្អាត Filter (Reset) ✕
+          </button>
         )}
       </div>
 
-      {/* Contract Management Table */}
-      <div
-        style={{
-          background: 'var(--card-bg, #ffffff)',
-          borderRadius: '16px',
-          border: '1px solid var(--border-color, #e2e8f0)',
-          padding: '1.5rem',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        }}
-      >
+      {/* --- 3. TABLE CARD & TOOLBAR (FIT CONTENT & HIGH CAPACITY) --- */}
+      <div className={styles.tableCard}>
+        {/* Compact Toolbar */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '1rem',
-            marginBottom: '1.25rem',
+            gap: '0.6rem',
+            marginBottom: '0.65rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-              បញ្ជីកិច្ចសន្យាការងារក្នុងប្រព័ន្ធ (Issued Contracts)
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+              បញ្ជីកិច្ចសន្យាការងារ (Issued Contracts)
             </h2>
             <span
               style={{
                 background: '#e0f2fe',
                 color: '#0369a1',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '20px',
-                fontSize: '0.85rem',
-                fontWeight: 600,
+                padding: '0.15rem 0.55rem',
+                borderRadius: '16px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
               }}
             >
-              {filteredContracts.length} កុងត្រា
+              {fullyFilteredContracts.length.toLocaleString()} កុងត្រា
             </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* Filter Inputs (Search, Dept, Contract Type) */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               type="text"
-              placeholder="ស្វែងរកតាមលេខកុងត្រា ឬឈ្មោះ..."
+              placeholder="ស្វែងរកតាមលេខកុងត្រា ឈ្មោះ អត្តលេខ..."
               value={tableSearchText}
-              onChange={(e) => setTableSearchText(e.target.value)}
+              onChange={(e) => {
+                setTableSearchText(e.target.value);
+                setCurrentPage(1);
+              }}
               style={{
-                padding: '0.6rem 1rem',
-                borderRadius: '8px',
+                padding: '0.45rem 0.75rem',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontFamily: 'inherit',
-                lineHeight: 1.5,
-                width: '280px',
+                width: '240px',
               }}
             />
+
+            {/* Department Filter for 1000+ workers */}
+            <select
+              value={deptFilter}
+              onChange={(e) => {
+                setDeptFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{
+                padding: '0.45rem 0.65rem',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.85rem',
+                fontFamily: 'inherit',
+                background: '#ffffff',
+                maxWidth: '180px',
+              }}
+            >
+              <option value="ALL">គ្រប់ផ្នែក (All Depts / 部门)</option>
+              {departmentList.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+
+            {/* Contract Type Filter */}
             <select
               value={tableFilterType}
-              onChange={(e) => setTableFilterType(e.target.value)}
+              onChange={(e) => {
+                setTableFilterType(e.target.value);
+                setCurrentPage(1);
+              }}
               style={{
-                padding: '0.6rem 1rem',
-                borderRadius: '8px',
+                padding: '0.45rem 0.65rem',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.9rem',
+                fontSize: '0.85rem',
                 fontFamily: 'inherit',
-                lineHeight: 1.5,
                 background: '#ffffff',
               }}
             >
-              <option value="ALL">គ្រប់ប្រភេទកិច្ចសន្យា (All Types)</option>
+              <option value="ALL">គ្រប់ប្រភេទ (All Types / 全部)</option>
               <option value="FDC">កិច្ចសន្យាមានកំណត់ (FDC)</option>
               <option value="UDC">កិច្ចសន្យាមិនកំណត់ (UDC)</option>
               <option value="PROBATION">សាកល្បងការងារ (Probation)</option>
@@ -777,79 +794,100 @@ export default function ContractClient({
           </div>
         </div>
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+        {/* Scrollable Table Area with Sticky Trilingual Header */}
+        <div className={styles.tableScrollArea}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.83rem', whiteSpace: 'nowrap' }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-                <th style={{ padding: '0.85rem 1rem' }}>លេខកុងត្រា</th>
-                <th style={{ padding: '0.85rem 1rem' }}>បុគ្គលិក (Employee)</th>
-                <th style={{ padding: '0.85rem 1rem' }}>ប្រភេទកុងត្រា</th>
-                <th style={{ padding: '0.85rem 1rem' }}>មុខតំណែង / ផ្នែក</th>
-                <th style={{ padding: '0.85rem 1rem' }}>ថ្ងៃចាប់ផ្តើម - បញ្ចប់</th>
-                <th style={{ padding: '0.85rem 1rem' }}>ស្ថានភាពដាស់តឿន (Smart Alert)</th>
-                <th style={{ padding: '0.85rem 1rem' }}>ប្រាក់ឈ្នួលគោល</th>
-                <th style={{ padding: '0.85rem 1rem', textAlign: 'center' }}>សកម្មភាព</th>
+              <tr>
+                <Th kh="ល.រ" en="No." zh="序号" minW="45px" align="center" />
+                <Th kh="លេខកុងត្រា" en="Contract No." zh="合同编号" minW="135px" />
+                <Th kh="បុគ្គលិក" en="Employee" zh="员工姓名" minW="180px" />
+                <Th kh="ប្រភេទ" en="Type" zh="类型" minW="85px" align="center" />
+                <Th kh="មុខតំណែង & ផ្នែក" en="Position & Dept" zh="职务与部门" minW="135px" />
+                <Th kh="ថិរវេលា (ចាប់ផ្តើម - បញ្ចប់)" en="Duration (Start - End)" zh="合同期限 (起止)" minW="150px" />
+                <Th kh="ស្ថានភាពដាស់តឿន" en="Smart Alert" zh="预警状态" minW="175px" align="center" />
+                <Th kh="ប្រាក់ឈ្នួលគោល" en="Basic Salary" zh="基本底薪" minW="100px" align="right" />
+                <Th kh="សកម្មភាព" en="Actions" zh="操作" minW="110px" align="center" />
               </tr>
             </thead>
             <tbody>
-              {filteredContracts.length === 0 ? (
+              {paginatedContracts.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
                     មិនមានកិច្ចសន្យាត្រូវតាមការស្វែងរក ឬ Filter ឡើយ។
                   </td>
                 </tr>
               ) : (
-                filteredContracts.map((c) => {
+                paginatedContracts.map((c, index) => {
                   const meta = CONTRACT_TYPE_METADATA[c.contractType] || CONTRACT_TYPE_METADATA.FDC;
                   const alerts = contractAlertsMap.get(c.id) || [];
                   const primaryAlert = alerts[0];
+                  const rowNumber = (currentPage - 1) * (pageSize === -1 ? 0 : pageSize) + index + 1;
 
                   return (
                     <tr
                       key={c.id}
-                      style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s' }}
+                      style={{
+                        borderBottom: '1px solid #f1f5f9',
+                        transition: 'background 0.15s',
+                        background: index % 2 === 1 ? '#fafafa' : '#ffffff',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f9ff')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = index % 2 === 1 ? '#fafafa' : '#ffffff')}
                     >
-                      <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: '#1e3a8a' }}>
+                      {/* 1. Row Number */}
+                      <td style={{ padding: '6px 10px', textAlign: 'center', color: '#64748b', fontWeight: 500, borderRight: '1px solid #f1f5f9' }}>
+                        {rowNumber}
+                      </td>
+
+                      {/* 2. Contract No */}
+                      <td style={{ padding: '6px 10px', fontWeight: 600, color: '#1e3a8a', borderRight: '1px solid #f1f5f9' }}>
                         {c.contractNo}
                       </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
+
+                      {/* 3. Employee Name & ID */}
+                      <td style={{ padding: '6px 10px', borderRight: '1px solid #f1f5f9' }}>
                         <div style={{ fontWeight: 600, color: '#0f172a' }}>
-                          {c.employee.lastNameKh} {c.employee.firstNameKh} ({c.employee.firstNameEn}{' '}
-                          {c.employee.lastNameEn})
+                          {c.employee.lastNameKh} {c.employee.firstNameKh} ({c.employee.firstNameEn} {c.employee.lastNameEn})
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                          អត្តលេខ: {c.employee.employeeId} {c.isForeigner && '🌐 (ជនបរទេស)'}
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                          អត្តលេខ: <strong>{c.employee.employeeId}</strong> {c.isForeigner && '🌐 (ជនបរទេស/外籍)'}
                         </div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
+
+                      {/* 4. Contract Type Badge */}
+                      <td style={{ padding: '6px 10px', textAlign: 'center', borderRight: '1px solid #f1f5f9' }}>
                         <span
                           style={{
                             background: meta.badgeBg,
                             color: meta.badgeColor,
-                            padding: '0.25rem 0.65rem',
-                            borderRadius: '12px',
-                            fontWeight: 600,
-                            fontSize: '0.8rem',
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '10px',
+                            fontWeight: 700,
+                            fontSize: '0.75rem',
                             display: 'inline-block',
                           }}
                         >
                           {c.contractType}
                         </span>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
-                        <div>{c.positionTitle}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{c.department}</div>
+
+                      {/* 5. Position & Dept */}
+                      <td style={{ padding: '6px 10px', borderRight: '1px solid #f1f5f9' }}>
+                        <div style={{ fontWeight: 600 }}>{c.positionTitle}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{c.department}</div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
+
+                      {/* 6. Duration (Start - End) */}
+                      <td style={{ padding: '6px 10px', borderRight: '1px solid #f1f5f9' }}>
                         <div>{formatContractDate(c.startDate)}</div>
-                        <div style={{ fontSize: '0.8rem', color: c.contractType === 'UDC' ? '#059669' : '#64748b' }}>
-                          ➔ {c.contractType === 'UDC' ? 'គ្មានកំណត់ (UDC)' : formatContractDate(c.endDate)}
+                        <div style={{ fontSize: '0.75rem', color: c.contractType === 'UDC' ? '#059669' : '#64748b' }}>
+                          ➔ {c.contractType === 'UDC' ? 'គ្មានកំណត់ (UDC/无固定期)' : formatContractDate(c.endDate)}
                         </div>
                       </td>
 
-                      {/* Smart Alert Pill Column */}
-                      <td style={{ padding: '0.85rem 1rem' }}>
+                      {/* 7. Smart Alert Pill */}
+                      <td style={{ padding: '6px 10px', textAlign: 'center', borderRight: '1px solid #f1f5f9' }}>
                         {primaryAlert ? (
                           <div
                             style={{
@@ -865,9 +903,9 @@ export default function ContractClient({
                                   : primaryAlert.alertLevel === 'WARNING'
                                   ? '#b45309'
                                   : '#475569',
-                              padding: '0.35rem 0.65rem',
-                              borderRadius: '8px',
-                              fontSize: '0.78rem',
+                              padding: '0.25rem 0.55rem',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
                               fontWeight: 700,
                               display: 'inline-block',
                               maxWidth: '220px',
@@ -875,7 +913,7 @@ export default function ContractClient({
                             title={primaryAlert.messageKh}
                           >
                             <div>{primaryAlert.titleKh}</div>
-                            <div style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+                            <div style={{ fontSize: '0.7rem', fontWeight: 500 }}>
                               {primaryAlert.daysRemaining >= 0
                                 ? `នៅសល់ ${primaryAlert.daysRemaining} ថ្ងៃ`
                                 : `ហួស ${Math.abs(primaryAlert.daysRemaining)} ថ្ងៃ`}
@@ -886,21 +924,24 @@ export default function ContractClient({
                             style={{
                               background: '#ecfdf5',
                               color: '#059669',
-                              padding: '0.25rem 0.6rem',
-                              borderRadius: '8px',
-                              fontSize: '0.78rem',
+                              padding: '0.2rem 0.5rem',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
                               fontWeight: 600,
                             }}
                           >
-                            ✓ មានសុពលភាព (Active)
+                            ✓ មានសុពលភាព (Active/有效)
                           </span>
                         )}
                       </td>
 
-                      <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: '#0f172a' }}>
+                      {/* 8. Basic Wage */}
+                      <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 700, color: '#0f172a', borderRight: '1px solid #f1f5f9' }}>
                         ${c.basicSalaryUsd.toLocaleString()} USD
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', textAlign: 'center' }}>
+
+                      {/* 9. Action Buttons */}
+                      <td style={{ padding: '6px 10px', textAlign: 'center' }}>
                         <button
                           onClick={() => {
                             setFormData({
@@ -950,10 +991,10 @@ export default function ContractClient({
                             color: '#2563eb',
                             border: '1px solid #bfdbfe',
                             borderRadius: '6px',
-                            padding: '0.4rem 0.8rem',
+                            padding: '0.3rem 0.65rem',
                             fontWeight: 600,
                             cursor: 'pointer',
-                            fontSize: '0.85rem',
+                            fontSize: '0.78rem',
                           }}
                         >
                           👁️ មើល / កែប្រែ
@@ -966,6 +1007,131 @@ export default function ContractClient({
             </tbody>
           </table>
         </div>
+
+        {/* --- 4. COMPACT PAGINATION FOOTER (FOR 1000+ EMPLOYEES) --- */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '0.65rem',
+            paddingTop: '0.45rem',
+            borderTop: '1px solid #f1f5f9',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+          }}
+        >
+          {/* Record range */}
+          <div style={{ fontSize: '0.82rem', color: '#475569' }}>
+            បង្ហាញ <strong>{fullyFilteredContracts.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? 0 : pageSize) + 1}</strong> -{' '}
+            <strong>{pageSize === -1 ? fullyFilteredContracts.length : Math.min(currentPage * pageSize, fullyFilteredContracts.length)}</strong> នៃ{' '}
+            <strong>{fullyFilteredContracts.length.toLocaleString()}</strong> កុងត្រា
+            <span style={{ color: '#94a3b8', marginLeft: '6px' }}>
+              / Showing {fullyFilteredContracts.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? 0 : pageSize) + 1}-
+              {pageSize === -1 ? fullyFilteredContracts.length : Math.min(currentPage * pageSize, fullyFilteredContracts.length)} of{' '}
+              {fullyFilteredContracts.length.toLocaleString()} / 共 {fullyFilteredContracts.length.toLocaleString()} 条
+            </span>
+          </div>
+
+          {/* Page Size & Navigation Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {/* Per page selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: '#475569' }}>
+              <span>ក្នុង១ទំព័រ / Per page:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.8rem',
+                  background: '#ffffff',
+                  fontWeight: 600,
+                }}
+              >
+                <option value={15}>15</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value={200}>200</option>
+                <option value={-1}>ទាំងអស់ (All)</option>
+              </select>
+            </div>
+
+            {/* Navigation buttons */}
+            {pageSize !== -1 && totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '5px',
+                    border: '1px solid #cbd5e1',
+                    background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.75rem',
+                  }}
+                  title="ទំព័រដំបូង / First / 第一页"
+                >
+                  ««
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '0.25rem 0.55rem',
+                    borderRadius: '5px',
+                    border: '1px solid #cbd5e1',
+                    background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  ◄ ថយ / Prev
+                </button>
+                <span style={{ padding: '0 0.4rem', fontSize: '0.82rem', fontWeight: 700, color: '#1e3a8a' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: '0.25rem 0.55rem',
+                    borderRadius: '5px',
+                    border: '1px solid #cbd5e1',
+                    background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  បន្ទាប់ / Next ►
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '5px',
+                    border: '1px solid #cbd5e1',
+                    background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '0.75rem',
+                  }}
+                  title="ទំព័រចុងក្រោយ / Last / 最后一页"
+                >
+                  »»
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Modal Contract Editor / Previewer */}
@@ -975,7 +1141,7 @@ export default function ContractClient({
             {/* Modal Header */}
             <div
               style={{
-                padding: '1rem 1.5rem',
+                padding: '0.85rem 1.25rem',
                 borderBottom: '1px solid #e2e8f0',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -983,29 +1149,29 @@ export default function ContractClient({
                 background: '#f8fafc',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '1.6rem' }}>📜</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span style={{ fontSize: '1.4rem' }}>📜</span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#0f172a' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
                     {currentMeta.nameKh}
                   </h3>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                     {currentMeta.nameEn} • {currentMeta.nameZh}
                   </div>
                 </div>
               </div>
 
               {/* Navigation Tabs */}
-              <div style={{ display: 'flex', gap: '0.5rem', background: '#e2e8f0', padding: '4px', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', gap: '0.4rem', background: '#e2e8f0', padding: '3px', borderRadius: '8px' }}>
                 <button
                   onClick={() => setActiveTab('preview')}
                   style={{
-                    padding: '0.45rem 1rem',
+                    padding: '0.4rem 0.85rem',
                     borderRadius: '6px',
                     border: 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                     background: activeTab === 'preview' ? '#ffffff' : 'transparent',
                     color: activeTab === 'preview' ? '#1e3a8a' : '#64748b',
                     boxShadow: activeTab === 'preview' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
@@ -1016,12 +1182,12 @@ export default function ContractClient({
                 <button
                   onClick={() => setActiveTab('form')}
                   style={{
-                    padding: '0.45rem 1rem',
+                    padding: '0.4rem 0.85rem',
                     borderRadius: '6px',
                     border: 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                     background: activeTab === 'form' ? '#ffffff' : 'transparent',
                     color: activeTab === 'form' ? '#1e3a8a' : '#64748b',
                     boxShadow: activeTab === 'form' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
@@ -1032,12 +1198,12 @@ export default function ContractClient({
                 <button
                   onClick={() => setActiveTab('clauses')}
                   style={{
-                    padding: '0.45rem 1rem',
+                    padding: '0.4rem 0.85rem',
                     borderRadius: '6px',
                     border: 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                     background: activeTab === 'clauses' ? '#ffffff' : 'transparent',
                     color: activeTab === 'clauses' ? '#1e3a8a' : '#64748b',
                     boxShadow: activeTab === 'clauses' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
@@ -1048,24 +1214,24 @@ export default function ContractClient({
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
                 <button
                   onClick={handlePrint}
                   style={{
                     background: '#1e293b',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '8px',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '6px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                   }}
                 >
-                  🖨️ បោះពុម្ព (Print / PDF)
+                  🖨️ បោះពុម្ព (Print)
                 </button>
                 <button
                   onClick={handleExportWord}
@@ -1073,14 +1239,14 @@ export default function ContractClient({
                     background: '#2563eb',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '8px',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '6px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                   }}
                 >
                   📄 ទាញយក Word (.docx)
@@ -1092,14 +1258,14 @@ export default function ContractClient({
                     background: '#059669',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '8px',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '6px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                   }}
                 >
                   💾 រក្សាទុក (Save)
@@ -1110,11 +1276,11 @@ export default function ContractClient({
                     background: '#f1f5f9',
                     color: '#64748b',
                     border: '1px solid #cbd5e1',
-                    padding: '0.5rem 0.8rem',
-                    borderRadius: '8px',
+                    padding: '0.45rem 0.75rem',
+                    borderRadius: '6px',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                   }}
                 >
                   ✕
@@ -1123,25 +1289,25 @@ export default function ContractClient({
             </div>
 
             {/* Modal Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', background: '#f1f5f9' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem', background: '#f1f5f9' }}>
               {/* TAB 1: FORM INPUTS (Auto-search & Fields) */}
               {activeTab === 'form' && (
                 <div
                   style={{
                     background: '#ffffff',
-                    borderRadius: '14px',
-                    padding: '2rem',
+                    borderRadius: '12px',
+                    padding: '1.75rem',
                     maxWidth: '1100px',
                     margin: '0 auto',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 >
-                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem', color: '#1e3a8a' }}>
+                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.65rem', marginBottom: '1.25rem', color: '#1e3a8a', fontSize: '1.1rem' }}>
                     🔍 ១. ស្វែងរកបុគ្គលិកដោយស្វ័យប្រវត្តិ (Auto-fill Employee)
                   </h3>
 
-                  <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem' }}>
+                  <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', fontSize: '0.9rem' }}>
                       វាយបញ្ចូល អត្តលេខ / ឈ្មោះ (ខ្មែរ/ឡាតាំង) / លេខអត្តសញ្ញាណប័ណ្ណ៖
                     </label>
                     <input
@@ -1155,10 +1321,10 @@ export default function ContractClient({
                       onFocus={() => setIsEmpDropdownOpen(true)}
                       style={{
                         width: '100%',
-                        padding: '0.75rem 1rem',
+                        padding: '0.65rem 0.9rem',
                         borderRadius: '8px',
                         border: '2px solid #3b82f6',
-                        fontSize: '1rem',
+                        fontSize: '0.95rem',
                       }}
                     />
 
@@ -1185,7 +1351,7 @@ export default function ContractClient({
                             key={emp.id}
                             onClick={() => handleSelectEmployee(emp)}
                             style={{
-                              padding: '0.75rem 1rem',
+                              padding: '0.65rem 0.9rem',
                               borderBottom: '1px solid #f1f5f9',
                               cursor: 'pointer',
                               display: 'flex',
@@ -1199,7 +1365,7 @@ export default function ContractClient({
                             <div>
                               <strong style={{ color: '#1e3a8a' }}>{emp.employeeId}</strong> -{' '}
                               {emp.lastNameKh} {emp.firstNameKh} ({emp.firstNameEn} {emp.lastNameEn})
-                              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                              <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
                                 ផ្នែក៖ {emp.department} • មុខតំណែង៖ {emp.position} • អត្តសញ្ញាណប័ណ្ណ៖{' '}
                                 {emp.nationalId || 'N/A'}
                               </div>
@@ -1208,7 +1374,7 @@ export default function ContractClient({
                               style={{
                                 background: '#dbeafe',
                                 color: '#1d4ed8',
-                                padding: '0.2rem 0.6rem',
+                                padding: '0.2rem 0.55rem',
                                 borderRadius: '12px',
                                 fontSize: '0.75rem',
                                 fontWeight: 600,
@@ -1222,13 +1388,13 @@ export default function ContractClient({
                     )}
                   </div>
 
-                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', margin: '2rem 0 1.5rem 0', color: '#1e3a8a' }}>
+                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.65rem', margin: '1.75rem 0 1.25rem 0', color: '#1e3a8a', fontSize: '1.1rem' }}>
                     📋 ២. ប្រភេទកិច្ចសន្យា និងកាលបរិច្ឆេទ (Contract Type & Dates)
                   </h3>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ជ្រើសរើសប្រភេទកិច្ចសន្យា (Contract Type):
                       </label>
                       <select
@@ -1236,10 +1402,10 @@ export default function ContractClient({
                         onChange={(e) => handleContractTypeChange(e.target.value as ContractType)}
                         style={{
                           width: '100%',
-                          padding: '0.65rem 0.85rem',
+                          padding: '0.55rem 0.75rem',
                           borderRadius: '8px',
                           border: '2px solid #2563eb',
-                          fontSize: '0.95rem',
+                          fontSize: '0.9rem',
                           fontWeight: 600,
                           background: '#eff6ff',
                           color: '#1e3a8a',
@@ -1253,64 +1419,64 @@ export default function ContractClient({
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         លេខឯកសារ (Document No):
                       </label>
                       <input
                         type="text"
                         value={formData.contractNo}
                         onChange={(e) => setFormData({ ...formData, contractNo: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         កាលបរិច្ឆេទចុះកុងត្រា (Signed Date):
                       </label>
                       <input
                         type="date"
                         value={formData.signedDate}
                         onChange={(e) => setFormData({ ...formData, signedDate: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ថ្ងៃចាប់ផ្តើមការងារ (Start Date):
                       </label>
                       <input
                         type="date"
                         value={formData.startDate}
                         onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
 
                     {formData.contractType !== 'UDC' && (
                       <div>
-                        <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                           ថ្ងៃបញ្ចប់កុងត្រា (End Date):
                         </label>
                         <input
                           type="date"
                           value={formData.endDate}
                           onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                          style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                          style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                         />
                       </div>
                     )}
 
                     {formData.contractType === 'PROBATION' && (
                       <div>
-                        <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                        <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                           កម្រិតសាកល្បង (Probation Category - មាត្រា ៦៨):
                         </label>
                         <select
                           value={formData.probationCategory}
                           onChange={(e) => handleProbationCategoryChange(e.target.value as any)}
-                          style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                          style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                         >
                           <option value="EMPLOYEE">និយោជិត/ការិយាល័យ (៣ ខែ - 3 Months)</option>
                           <option value="SPECIALISED">កម្មករឯកទេស/ជំនាញ (២ ខែ - 2 Months)</option>
@@ -1326,17 +1492,17 @@ export default function ContractClient({
                       style={{
                         background: '#f5f3ff',
                         border: '1px solid #ddd6fe',
-                        borderRadius: '12px',
-                        padding: '1.25rem',
-                        marginTop: '1.5rem',
+                        borderRadius: '10px',
+                        padding: '1rem',
+                        marginTop: '1.25rem',
                       }}
                     >
-                      <h4 style={{ margin: '0 0 1rem 0', color: '#6d28d9', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <h4 style={{ margin: '0 0 0.75rem 0', color: '#6d28d9', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         🌐 ព័ត៌មានបន្ថែមសម្រាប់បុគ្គលិកជនបរទេស (Foreign Expatriate Info)
                       </h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                             លេខលិខិតឆ្លងដែន (Passport No):
                           </label>
                           <input
@@ -1344,22 +1510,22 @@ export default function ContractClient({
                             value={formData.passportNo || ''}
                             onChange={(e) => setFormData({ ...formData, passportNo: e.target.value })}
                             placeholder="ឧ. E12345678"
-                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                             ថ្ងៃផុតកំណត់លិខិតឆ្លងដែន (Passport Expiry):
                           </label>
                           <input
                             type="date"
                             value={formData.passportExpiry || ''}
                             onChange={(e) => setFormData({ ...formData, passportExpiry: e.target.value })}
-                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                             លេខប័ណ្ណការងារ MLVT (Work Permit No):
                           </label>
                           <input
@@ -1367,22 +1533,22 @@ export default function ContractClient({
                             value={formData.workPermitNo || ''}
                             onChange={(e) => setFormData({ ...formData, workPermitNo: e.target.value })}
                             placeholder="ឧ. WP-2026-9999"
-                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                             ថ្ងៃផុតកំណត់ប័ណ្ណការងារ (Work Permit Expiry):
                           </label>
                           <input
                             type="date"
                             value={formData.workPermitExpiry || ''}
                             onChange={(e) => setFormData({ ...formData, workPermitExpiry: e.target.value })}
-                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                             លេខទិដ្ឋាការ (Visa No - EB Visa):
                           </label>
                           <input
@@ -1390,82 +1556,82 @@ export default function ContractClient({
                             value={formData.visaNo || ''}
                             onChange={(e) => setFormData({ ...formData, visaNo: e.target.value })}
                             placeholder="ឧ. EB-098765"
-                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
                             ថ្ងៃផុតកំណត់ទិដ្ឋាការ (Visa Expiry):
                           </label>
                           <input
                             type="date"
                             value={formData.visaExpiry || ''}
                             onChange={(e) => setFormData({ ...formData, visaExpiry: e.target.value })}
-                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                           />
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', margin: '2rem 0 1.5rem 0', color: '#1e3a8a' }}>
+                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.65rem', margin: '1.75rem 0 1.25rem 0', color: '#1e3a8a', fontSize: '1.1rem' }}>
                     🏢 ៣. ព័ត៌មានក្រុមហ៊ុន និងនិយោជក (Company & Representative)
                   </h3>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ឈ្មោះក្រុមហ៊ុន/រោងចក្រ (Company Name):
                       </label>
                       <input
                         type="text"
                         value={formData.companyName}
                         onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         អាសយដ្ឋានក្រុមហ៊ុន (Address):
                       </label>
                       <input
                         type="text"
                         value={formData.companyAddress}
                         onChange={(e) => setFormData({ ...formData, companyAddress: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         តំណាងដោយ (Representative):
                       </label>
                       <input
                         type="text"
                         value={formData.representative}
                         onChange={(e) => setFormData({ ...formData, representative: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         តួនាទីអ្នកតំណាង (Role / Position):
                       </label>
                       <input
                         type="text"
                         value={formData.representativeRole}
                         onChange={(e) => setFormData({ ...formData, representativeRole: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                   </div>
 
-                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', margin: '2rem 0 1.5rem 0', color: '#1e3a8a' }}>
+                  <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.65rem', margin: '1.75rem 0 1.25rem 0', color: '#1e3a8a', fontSize: '1.1rem' }}>
                     💵 ៤. ប្រាក់ឈ្នួល និងម៉ោងធ្វើការ (Wages & Working Hours)
                   </h3>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ប្រាក់ឈ្នួលគោល (USD):
                       </label>
                       <input
@@ -1479,56 +1645,56 @@ export default function ContractClient({
                             basicSalaryKhr: usd * exchangeRate,
                           });
                         }}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ប្រាក់ឈ្នួលគិតជារៀល (KHR):
                       </label>
                       <input
                         type="number"
                         value={formData.basicSalaryKhr}
                         onChange={(e) => setFormData({ ...formData, basicSalaryKhr: Number(e.target.value) || 0 })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ថ្ងៃបើកប្រាក់ឈ្នួល (Payment Day):
                       </label>
                       <input
                         type="text"
                         value={formData.paymentDay}
                         onChange={(e) => setFormData({ ...formData, paymentDay: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.35rem', fontSize: '0.85rem' }}>
                         ម៉ោងធ្វើការ (Work Hours):
                       </label>
                       <input
                         type="text"
                         value={formData.workingHours}
                         onChange={(e) => setFormData({ ...formData, workingHours: e.target.value })}
-                        style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
                       />
                     </div>
                   </div>
 
-                  <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                  <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
                     <button
                       onClick={() => setActiveTab('preview')}
                       style={{
                         background: '#2563eb',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '0.75rem 1.75rem',
+                        padding: '0.65rem 1.5rem',
                         borderRadius: '8px',
                         fontWeight: 700,
                         cursor: 'pointer',
-                        fontSize: '1rem',
+                        fontSize: '0.95rem',
                       }}
                     >
                       មើលលទ្ធផលកិច្ចសន្យា (Go to Preview) ➔
@@ -1542,23 +1708,22 @@ export default function ContractClient({
                 <div
                   style={{
                     background: '#ffffff',
-                    borderRadius: '14px',
-                    padding: '2rem',
+                    borderRadius: '12px',
+                    padding: '1.75rem',
                     maxWidth: '1100px',
                     margin: '0 auto',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 >
-                  <div style={{ marginBottom: '1.5rem', background: '#eff6ff', padding: '1rem', borderRadius: '10px', borderLeft: '4px solid #2563eb' }}>
-                    <h4 style={{ margin: '0 0 0.25rem 0', color: '#1e3a8a' }}>✏️ កែប្រែខ្លឹមសារខសន្យា (Customizable Clauses)</h4>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>
+                  <div style={{ marginBottom: '1.25rem', background: '#eff6ff', padding: '0.85rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
+                    <h4 style={{ margin: '0 0 0.2rem 0', color: '#1e3a8a', fontSize: '0.95rem' }}>✏️ កែប្រែខ្លឹមសារខសន្យា (Customizable Clauses)</h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#475569' }}>
                       លោកអ្នកអាចកែប្រែបន្ថែមបន្ថយអត្ថន័យនៃខសន្យានីមួយៗបានតាមតម្រូវការជាក់ស្តែងរបស់ក្រុមហ៊ុន។
                     </p>
                   </div>
 
-                  {/* Section 1 Custom */}
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.4rem' }}>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
                       ខសន្យាទី ១៖ ភាគីនៃកិច្ចសន្យា (ភាសាខ្មែរ):
                     </label>
                     <textarea
@@ -1566,13 +1731,12 @@ export default function ContractClient({
                       value={formData.clause1BodyKh || ''}
                       onChange={(e) => setFormData({ ...formData, clause1BodyKh: e.target.value })}
                       placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                     />
                   </div>
 
-                  {/* Section 2 Custom */}
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.4rem' }}>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
                       ខសន្យាទី ២៖ មុខតំណែង និងទីកន្លែងធ្វើការ (ភាសាខ្មែរ):
                     </label>
                     <textarea
@@ -1580,13 +1744,12 @@ export default function ContractClient({
                       value={formData.clause2BodyKh || ''}
                       onChange={(e) => setFormData({ ...formData, clause2BodyKh: e.target.value })}
                       placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                     />
                   </div>
 
-                  {/* Section 3 Custom */}
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.4rem' }}>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
                       ខសន្យាទី ៣៖ ប្រាក់ឈ្នួល និងការទូទាត់ (ភាសាខ្មែរ):
                     </label>
                     <textarea
@@ -1594,13 +1757,12 @@ export default function ContractClient({
                       value={formData.clause3BodyKh || ''}
                       onChange={(e) => setFormData({ ...formData, clause3BodyKh: e.target.value })}
                       placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                     />
                   </div>
 
-                  {/* Section 4 Custom */}
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.4rem' }}>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
                       ខសន្យាទី ៤៖ ម៉ោងធ្វើការ និងការសម្រាក (ភាសាខ្មែរ):
                     </label>
                     <textarea
@@ -1608,22 +1770,22 @@ export default function ContractClient({
                       value={formData.clause4BodyKh || ''}
                       onChange={(e) => setFormData({ ...formData, clause4BodyKh: e.target.value })}
                       placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                     />
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
                     <button
                       onClick={() => setActiveTab('preview')}
                       style={{
                         background: '#2563eb',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '0.75rem 1.75rem',
+                        padding: '0.65rem 1.5rem',
                         borderRadius: '8px',
                         fontWeight: 700,
                         cursor: 'pointer',
-                        fontSize: '1rem',
+                        fontSize: '0.95rem',
                       }}
                     >
                       មើលការផ្លាស់ប្តូរ (Preview Changes) ➔
@@ -1642,19 +1804,19 @@ export default function ContractClient({
                       justifyContent: 'space-between',
                       alignItems: 'flex-start',
                       borderBottom: '2px solid #1e3a8a',
-                      paddingBottom: '0.75rem',
-                      marginBottom: '1.25rem',
+                      paddingBottom: '0.65rem',
+                      marginBottom: '1rem',
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                      <div style={{ fontSize: '0.82rem', color: '#64748b' }}>
                         ឈ្មោះក្រុមហ៊ុន / Company name / 公司名称:
                       </div>
-                      <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#1e3a8a' }}>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e3a8a' }}>
                         {formData.companyName || '__________________________'}
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: '0.85rem', color: '#475569' }}>
+                    <div style={{ textAlign: 'right', fontSize: '0.82rem', color: '#475569' }}>
                       <div>
                         លេខឯកសារ / Doc No. / 文件编号:{' '}
                         <strong style={{ color: '#0f172a' }}>{formData.contractNo}</strong>
@@ -1666,24 +1828,24 @@ export default function ContractClient({
                   </div>
 
                   {/* Contract Trilingual Title */}
-                  <div style={{ textAlign: 'center', margin: '1.5rem 0 1.25rem 0' }}>
+                  <div style={{ textAlign: 'center', margin: '1.25rem 0 1rem 0' }}>
                     <h2
                       style={{
-                        fontSize: '1.5rem',
+                        fontSize: '1.4rem',
                         fontWeight: 800,
                         color: '#1e3a8a',
-                        margin: '0 0 0.25rem 0',
-                        letterSpacing: '0.5px',
+                        margin: '0 0 0.2rem 0',
+                        letterSpacing: '0.4px',
                       }}
                     >
                       {currentMeta.nameKh}
                     </h2>
                     <h3
                       style={{
-                        fontSize: '1.05rem',
+                        fontSize: '1rem',
                         fontWeight: 700,
                         color: '#1d4ed8',
-                        margin: '0 0 0.2rem 0',
+                        margin: '0 0 0.15rem 0',
                         textTransform: 'uppercase',
                       }}
                     >
@@ -1691,7 +1853,7 @@ export default function ContractClient({
                     </h3>
                     <h3
                       style={{
-                        fontSize: '1.05rem',
+                        fontSize: '1rem',
                         fontWeight: 600,
                         color: '#475569',
                         margin: '0',
@@ -1703,8 +1865,8 @@ export default function ContractClient({
                     {/* Signed at & Date */}
                     <div
                       style={{
-                        marginTop: '0.85rem',
-                        fontSize: '0.9rem',
+                        marginTop: '0.75rem',
+                        fontSize: '0.88rem',
                         fontWeight: 600,
                         color: '#334155',
                       }}
@@ -1719,12 +1881,12 @@ export default function ContractClient({
                   </div>
 
                   {/* Clause 1: Contracting Parties */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ១. ភាគីនៃកិច្ចសន្យា / 1. Contracting parties / 一、合同双方
                     </div>
                     {/* Khmer */}
-                    <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', textAlign: 'justify' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem', textAlign: 'justify' }}>
                       {formData.clause1BodyKh || (
                         <>
                           <strong>និយោជក៖</strong> ឈ្មោះក្រុមហ៊ុន{' '}
@@ -1742,7 +1904,7 @@ export default function ContractClient({
                       )}
                     </p>
                     {/* English */}
-                    <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic', textAlign: 'justify' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic', textAlign: 'justify' }}>
                       <strong>Employer:</strong> Company <u>{formData.companyName || '__________'}</u>, address{' '}
                       <u>{formData.companyAddress || '__________'}</u>, represented by{' '}
                       <u>{formData.representative || '__________'}</u>, position{' '}
@@ -1753,7 +1915,7 @@ export default function ContractClient({
                       <u>{formData.address || '__________'}</u>.
                     </p>
                     {/* Chinese */}
-                    <p style={{ margin: '0 0 0.65rem 0', fontSize: '0.85rem', color: '#475569', textAlign: 'justify' }}>
+                    <p style={{ margin: '0 0 0.55rem 0', fontSize: '0.82rem', color: '#475569', textAlign: 'justify' }}>
                       <strong>雇主：</strong>公司名称 <u>{formData.companyName || '__________'}</u>，地址{' '}
                       <u>{formData.companyAddress || '__________'}</u>，代表人{' '}
                       <u>{formData.representative || '__________'}</u>，职务{' '}
@@ -1767,11 +1929,11 @@ export default function ContractClient({
 
                     {/* Term variation */}
                     {formData.contractType === 'PROBATION' && (
-                      <div style={{ background: '#f8fafc', padding: '0.65rem', borderRadius: '6px', borderLeft: '3px solid #d97706' }}>
-                        <div style={{ fontWeight: 700, color: '#b45309', fontSize: '0.9rem' }}>
+                      <div style={{ background: '#f8fafc', padding: '0.55rem', borderRadius: '6px', borderLeft: '3px solid #d97706' }}>
+                        <div style={{ fontWeight: 700, color: '#b45309', fontSize: '0.88rem' }}>
                           រយៈពេលសាកល្បង / Probation period / 试用期限
                         </div>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.87rem' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.85rem' }}>
                           ចាប់ពីថ្ងៃទី <u>{formatContractDate(formData.startDate)}</u> ដល់ថ្ងៃទី{' '}
                           <u>{formatContractDate(formData.endDate)}</u>។ រយៈពេលអតិបរមា៖ ៣ ខែសម្រាប់និយោជិត; ២
                           ខែសម្រាប់កម្មករឯកទេស; ១ ខែសម្រាប់កម្មករធម្មតា (មាត្រា ៦៨)។ ប្រភេទមុខងារ៖{' '}
@@ -1786,14 +1948,14 @@ export default function ContractClient({
                           ក្នុងរយៈពេលសាកល្បង ការជូនដំណឹងមុនអនុវត្តតាមមាត្រា ៨២ និងបទប្បញ្ញត្តិពាក់ព័ន្ធ។
                           ការបន្តការងារត្រូវបញ្ជាក់ជាកិច្ចសន្យា FDC ឬ UDC ស្របច្បាប់។
                         </p>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: '#334155', fontStyle: 'italic' }}>
                           From <u>{formatContractDate(formData.startDate)}</u> to{' '}
                           <u>{formatContractDate(formData.endDate)}</u>. Maximum: 3 months for employees, 2
-                          months for specialised workers, 1 month for non-specialised workers (Article 68). Category: {formData.probationCategory}. The
+                          months for specialised workers, 1 month for non-specialised workers (Article 68). The
                           employer evaluates work ability and communicates results. Notice during probation is
                           governed by Article 82. Continued employment shall be documented under a lawful FDC or UDC.
                         </p>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#475569' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: '#475569' }}>
                           自 <u>{formatContractDate(formData.startDate)}</u> 至{' '}
                           <u>{formatContractDate(formData.endDate)}</u>。最长试用期：职员3个月、专业工人2个月、普通工人1个月（第68条）。考核及结束：雇主评估工作能力并告知结果。试用期间通知依第82条执行。继续雇佣须依法签订固定期限或无固定期限合同。
                         </p>
@@ -1801,24 +1963,24 @@ export default function ContractClient({
                     )}
 
                     {formData.contractType === 'UDC' && (
-                      <div style={{ background: '#f8fafc', padding: '0.65rem', borderRadius: '6px', borderLeft: '3px solid #059669' }}>
-                        <div style={{ fontWeight: 700, color: '#047857', fontSize: '0.9rem' }}>
+                      <div style={{ background: '#f8fafc', padding: '0.55rem', borderRadius: '6px', borderLeft: '3px solid #059669' }}>
+                        <div style={{ fontWeight: 700, color: '#047857', fontSize: '0.88rem' }}>
                           ការចាប់ផ្តើម និងរយៈពេល / Commencement and duration / 开始日期及期限
                         </div>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.87rem' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.85rem' }}>
                           ចាប់ផ្តើមថ្ងៃទី <u>{formatContractDate(formData.startDate)}</u>{' '}
                           ហើយគ្មានថ្ងៃបញ្ចប់កំណត់ជាមុន។ អតីតភាពការងារត្រូវគណនាតាមច្បាប់។ ការបញ្ចប់កិច្ចសន្យា៖
                           ការបញ្ចប់កិច្ចសន្យាត្រូវមានមូលហេតុ និងការជូនដំណឹងតាមច្បាប់។ រយៈពេលជូនដំណឹងអាស្រ័យលើអតីតភាព៖
                           ក្រោម ៦ ខែ ៧ ថ្ងៃ; ៦ ខែដល់ ២ ឆ្នាំ ១៥ ថ្ងៃ; លើស ២ ដល់ ៥ ឆ្នាំ ១ ខែ; លើស ៥ ដល់ ១០ ឆ្នាំ ២
                           ខែ; លើស ១០ ឆ្នាំ ៣ ខែ។ ប្រាក់បំណាច់អតីតភាពការងារ និងសំណងផ្សេងៗត្រូវអនុវត្តតាមច្បាប់ជាធរមាន។
                         </p>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: '#334155', fontStyle: 'italic' }}>
                           Commences on <u>{formatContractDate(formData.startDate)}</u> and has no predetermined
                           end date. Length of service is determined according to law. Termination requires lawful
                           grounds and notice (under 6 months, 7 days; 6 months–2 years, 15 days; over 2–5 years, 1
                           month; over 5–10 years, 2 months; over 10 years, 3 months). Seniority payments follow current law.
                         </p>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#475569' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: '#475569' }}>
                           自 <u>{formatContractDate(formData.startDate)}</u>{' '}
                           起生效，无预定终止日期。工龄依法计算。解除合同须具备合法理由并依法通知（不足6个月7天；6个月至2年15天；超过2年至5年1个月；超过5年至10年2个月；超过10年3个月）。工龄补偿及其他赔偿依法执行。
                         </p>
@@ -1826,11 +1988,11 @@ export default function ContractClient({
                     )}
 
                     {(formData.contractType === 'FDC' || formData.contractType === 'FOREIGN_FDC') && (
-                      <div style={{ background: '#f8fafc', padding: '0.65rem', borderRadius: '6px', borderLeft: '3px solid #2563eb' }}>
-                        <div style={{ fontWeight: 700, color: '#1d4ed8', fontSize: '0.9rem' }}>
+                      <div style={{ background: '#f8fafc', padding: '0.55rem', borderRadius: '6px', borderLeft: '3px solid #2563eb' }}>
+                        <div style={{ fontWeight: 700, color: '#1d4ed8', fontSize: '0.88rem' }}>
                           រយៈពេលកិច្ចសន្យា / Contract term / 合同期限
                         </div>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.87rem' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.85rem' }}>
                           ចាប់ពីថ្ងៃទី <u>{formatContractDate(formData.startDate)}</u> ដល់ថ្ងៃទី{' '}
                           <u>{formatContractDate(formData.endDate)}</u>។ កិច្ចសន្យានេះត្រូវធ្វើជាលាយលក្ខណ៍អក្សរ
                           និងមានថ្ងៃចាប់ផ្តើម និងថ្ងៃបញ្ចប់ច្បាស់លាស់។ រយៈពេលកិច្ចសន្យានីមួយៗមិនលើស ២ ឆ្នាំ។
@@ -1848,14 +2010,14 @@ export default function ContractClient({
                           នៃប្រាក់ឈ្នួលដែលបានទទួលក្នុងរយៈពេលកិច្ចសន្យា រួមទាំងសិទ្ធិផ្សេងៗតាមច្បាប់។
                           ការបញ្ចប់មុនកាលកំណត់ត្រូវគោរពមាត្រា ៧៣។
                         </p>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: '#334155', fontStyle: 'italic' }}>
                           From <u>{formatContractDate(formData.startDate)}</u> to{' '}
                           <u>{formatContractDate(formData.endDate)}</u>. This agreement is in writing with
                           definite start and end dates. Each term shall not exceed two years. Renewals must comply with
                           Article 67 and Instruction No. 050/19. Severance at expiry is at least 5% of wages paid during
                           the contract. Early termination follows Article 73.
                         </p>
-                        <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#475569' }}>
+                        <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: '#475569' }}>
                           自 <u>{formatContractDate(formData.startDate)}</u> 至{' '}
                           <u>{formatContractDate(formData.endDate)}</u>。本合同采用书面形式，明确起止日期。每期合同不超过两年。续签须遵守第67条及第050/19号指导文件。合同期满时依法提前通知（超过6个月至1年提前10天；超过1年提前15天）。期满补偿至少为合同期内已支付工资的5%。
                         </p>
@@ -1864,11 +2026,11 @@ export default function ContractClient({
                   </div>
 
                   {/* Clause 2 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ២. មុខតំណែង និងទីកន្លែងធ្វើការ / 2. Position and workplace / 二、岗位及工作地点
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       {formData.clause2BodyKh || (
                         <>
                           មុខតំណែង <u>{formData.positionTitle || '__________'}</u> នាយកដ្ឋាន{' '}
@@ -1878,13 +2040,13 @@ export default function ContractClient({
                         </>
                       )}
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       Position <u>{formData.positionTitle || '__________'}</u>, department{' '}
                       <u>{formData.department || '__________'}</u>, workplace{' '}
                       <u>{formData.workplace || formData.companyAddress || '__________'}</u>. Duties follow the job
                       description explained to the employee.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       岗位 <u>{formData.positionTitle || '__________'}</u>，部门{' '}
                       <u>{formData.department || '__________'}</u>，工作地点{' '}
                       <u>{formData.workplace || formData.companyAddress || '__________'}</u>。工作职责依照已向员工说明的岗位说明书。
@@ -1892,11 +2054,11 @@ export default function ContractClient({
                   </div>
 
                   {/* Clause 3 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៣. ប្រាក់ឈ្នួល និងការទូទាត់ / 3. Wages and payment / 三、工资及支付
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       {formData.clause3BodyKh || (
                         <>
                           ប្រាក់ឈ្នួលគោល <u>${formData.basicSalaryUsd.toLocaleString()}</u> ដុល្លារ/ខែ ឬ{' '}
@@ -1907,13 +2069,13 @@ export default function ContractClient({
                         </>
                       )}
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       Basic wage USD <u>${formData.basicSalaryUsd.toLocaleString()}</u>/month or KHR{' '}
                       <u>{formData.basicSalaryKhr.toLocaleString()}</u>/month, not below the applicable minimum.
                       Payment date(s) <u>{formData.paymentDay}</u> via <u>{formData.paymentMethod}</u>. Overtime and
                       benefits follow applicable law.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       基本工资每月 <u>${formData.basicSalaryUsd.toLocaleString()}</u> 美元或{' '}
                       <u>{formData.basicSalaryKhr.toLocaleString()}</u> 瑞尔，不低于适用最低工资。发薪日期{' '}
                       <u>{formData.paymentDay}</u>，支付方式 <u>{formData.paymentMethod}</u>。加班费及福利依法执行。
@@ -1921,11 +2083,11 @@ export default function ContractClient({
                   </div>
 
                   {/* Clause 4 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៤. ម៉ោងធ្វើការ និងការសម្រាក / 4. Working hours and rest / 四、工作时间及休息
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       {formData.clause4BodyKh || (
                         <>
                           ម៉ោងធ្វើការ <u>{formData.workingHours}</u>; សម្រាកអាហារ <u>{formData.mealBreak}</u>;
@@ -1934,106 +2096,106 @@ export default function ContractClient({
                         </>
                       )}
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       Work hours <u>{formData.workingHours}</u>; meal break <u>{formData.mealBreak}</u>; working
                       days <u>{formData.workingDays}</u>. Normal hours shall not exceed 8 per day and 48 per week.
                       Overtime follows the law.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       工作时间 <u>{formData.workingHours}</u>；用餐休息 <u>{formData.mealBreak}</u>；工作日{' '}
                       <u>{formData.workingDays}</u>。正常工作时间每日不超过8小时、每周不超过48小时。加班依法安排。
                     </p>
                   </div>
 
                   {/* Clause 5 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៥. ការឈប់សម្រាក និងសន្តិសុខសង្គម / 5. Leave and social security / 五、休假及社会保障
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       កម្មករនិយោជិតមានសិទ្ធិទទួលបានថ្ងៃឈប់សម្រាកប្រចាំសប្តាហ៍ ថ្ងៃបុណ្យមានប្រាក់ឈ្នួល
                       ការឈប់សម្រាកប្រចាំឆ្នាំ និងការឈប់សម្រាកផ្សេងៗតាមច្បាប់។ និយោជកអនុវត្តកាតព្វកិច្ច ប.ស.ស.
                       តាមបទប្បញ្ញត្តិ។
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       The employee receives weekly rest, paid public holidays, annual leave and other statutory leave.
                       The employer meets applicable NSSF obligations.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       员工依法享有每周休息、带薪法定节假日、年假及其他假期。雇主依法履行国家社会保障基金（NSSF）义务。
                     </p>
                   </div>
 
                   {/* Clause 6 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៦. សុវត្ថិភាព សុខភាព និងវិន័យ / 6. Safety, health and discipline / 六、安全、健康与纪律
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       និយោជកផ្តល់បរិយាកាសការងារមានសុវត្ថិភាព និងឧបករណ៍ការពារដែលចាំបាច់។
                       កម្មករនិយោជិតគោរពនីតិវិធីសុវត្ថិភាព បទបញ្ជាផ្ទៃក្នុងស្របច្បាប់
                       និងមានសិទ្ធិប្តឹងតវ៉ាដោយគ្មានការសងសឹក។
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       The employer provides a safe workplace and necessary protective equipment. The employee follows
                       lawful safety procedures and internal rules and may raise grievances without retaliation.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       雇主提供安全工作环境及必要防护用品。员工遵守合法安全程序和内部规章，并有权提出申诉且不受报复。
                     </p>
                   </div>
 
                   {/* Clause 7 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៧. ការមិនរើសអើង និងការស្ម័គ្រចិត្ត / 7. Non-discrimination and voluntary work / 七、反歧视与自愿劳动
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       ការងារធ្វើឡើងដោយស្ម័គ្រចិត្ត គ្មានការបង្ខិតបង្ខំ ការរើសអើង
                       ឬការរក្សាទុកឯកសារផ្ទាល់ខ្លួនដោយខុសច្បាប់។
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       Employment is voluntary, without forced labour, discrimination or unlawful retention of personal
                       documents.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       雇佣属自愿性质，禁止强迫劳动、歧视或非法扣留个人证件。
                     </p>
                   </div>
 
                   {/* Clause 8 */}
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៨. ការដោះស្រាយវិវាទ និងអាទិភាពច្បាប់ / 8. Disputes and governing law / 八、争议解决与适用法律
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       វិវាទត្រូវដោះស្រាយតាមការពិភាក្សា និងយន្តការស្របច្បាប់នៅកម្ពុជា។
                       ប្រសិនបើលក្ខខណ្ឌណាមួយផ្ទុយច្បាប់ការងារ ត្រូវអនុវត្តច្បាប់
                       ឬលក្ខខណ្ឌដែលផ្តល់អត្ថប្រយោជន៍ល្អជាងដល់កម្មករនិយោជិត។
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       Disputes shall be handled through dialogue and lawful Cambodian mechanisms. Where a term
                       conflicts with labour law, the law or more favourable employee entitlement prevails.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       争议通过协商及柬埔寨合法机制解决。合同条款与劳动法冲突时，以法律或对员工更有利的条件为准。
                     </p>
                   </div>
 
                   {/* Clause 9 */}
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.98rem', marginBottom: '0.35rem' }}>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
                       ៩. ការទទួលស្គាល់ / 9. Acknowledgment / 九、确认
                     </div>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.9rem' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
                       ភាគីទាំងពីរបានអាន ឬទទួលការពន្យល់អំពីកិច្ចសន្យានេះ និងយល់ព្រមដោយស្ម័គ្រចិត្ត។ រៀបចំជា ២ ច្បាប់
                       មានតម្លៃដូចគ្នា ភាគីនីមួយៗរក្សា ១ ច្បាប់។
                     </p>
-                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.85rem', color: '#334155', fontStyle: 'italic' }}>
+                    <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                       Both parties have read or had this agreement explained and voluntarily accept it. Two equally
                       valid copies are signed, one retained by each party.
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#475569' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
                       双方已阅读或听取本合同解释并自愿同意。本合同一式两份，具有同等效力，双方各执一份。
                     </p>
                   </div>
@@ -2044,16 +2206,16 @@ export default function ContractClient({
                       width: '100%',
                       borderCollapse: 'collapse',
                       border: '1px solid #cbd5e1',
-                      marginTop: '1.5rem',
+                      marginTop: '1.25rem',
                       marginBottom: '1rem',
                     }}
                   >
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                        <th style={{ width: '50%', padding: '0.75rem', textAlign: 'center', borderRight: '1px solid #cbd5e1' }}>
+                        <th style={{ width: '50%', padding: '0.65rem', textAlign: 'center', borderRight: '1px solid #cbd5e1' }}>
                           និយោជក / Employer / 雇主
                         </th>
-                        <th style={{ width: '50%', padding: '0.75rem', textAlign: 'center' }}>
+                        <th style={{ width: '50%', padding: '0.65rem', textAlign: 'center' }}>
                           កម្មករនិយោជិត / Employee / 员工
                         </th>
                       </tr>
@@ -2062,16 +2224,16 @@ export default function ContractClient({
                       <tr>
                         <td
                           style={{
-                            padding: '1rem',
+                            padding: '0.85rem',
                             borderRight: '1px solid #cbd5e1',
                             verticalAlign: 'top',
-                            height: '140px',
+                            height: '130px',
                           }}
                         >
-                          <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.8rem', marginBottom: '3.5rem' }}>
+                          <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.78rem', marginBottom: '3rem' }}>
                             ហត្ថលេខា/ត្រា / Signature/stamp / 签名盖章
                           </div>
-                          <div style={{ fontSize: '0.85rem' }}>
+                          <div style={{ fontSize: '0.82rem' }}>
                             <div>
                               ឈ្មោះ / Name / 姓名: <strong>{formData.representative || '__________'}</strong>
                             </div>
@@ -2081,11 +2243,11 @@ export default function ContractClient({
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem', verticalAlign: 'top', height: '140px' }}>
-                          <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.8rem', marginBottom: '3.5rem' }}>
+                        <td style={{ padding: '0.85rem', verticalAlign: 'top', height: '130px' }}>
+                          <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.78rem', marginBottom: '3rem' }}>
                             ហត្ថលេខា/ស្នាមមេដៃ / Signature/thumbprint / 签名指印
                           </div>
-                          <div style={{ fontSize: '0.85rem' }}>
+                          <div style={{ fontSize: '0.82rem' }}>
                             <div>
                               ឈ្មោះ / Name / 姓名:{' '}
                               <strong>
@@ -2106,12 +2268,12 @@ export default function ContractClient({
                   <div
                     style={{
                       textAlign: 'center',
-                      fontSize: '0.75rem',
+                      fontSize: '0.72rem',
                       color: '#94a3b8',
                       fontStyle: 'italic',
-                      marginTop: '1.25rem',
+                      marginTop: '1rem',
                       borderTop: '1px dashed #e2e8f0',
-                      paddingTop: '0.5rem',
+                      paddingTop: '0.45rem',
                     }}
                   >
                     សម្គាល់ / Note / 备注: គំរូសម្រាប់បំពេញ មិនមែនជាទម្រង់ដែលក្រសួងបានអនុម័តជាផ្លូវការទេ។ /

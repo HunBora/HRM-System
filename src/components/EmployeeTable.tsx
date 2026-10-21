@@ -9,6 +9,18 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
   const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Selection for batch actions (e.g. Batch ID Cards Print)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   // Pagination for 1000+ employees
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(30); // 30 records per page default
@@ -58,6 +70,23 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', whiteSpace: 'nowrap' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--surface-color)' }}>
+              <th style={{ padding: '6px 8px', borderBottom: '1px dashed var(--border-color)', borderRight: '1px dashed var(--border-color)', verticalAlign: 'middle', width: '38px', minWidth: '38px', position: 'sticky', top: 0, backgroundColor: 'var(--surface-color)', zIndex: 10, boxShadow: '0 1px 0 var(--border-color)' }}>
+                <input
+                  type="checkbox"
+                  checked={paginatedEmployees.length > 0 && paginatedEmployees.every((e) => selectedIds.has(e.id))}
+                  onChange={(e) => {
+                    const next = new Set(selectedIds);
+                    if (e.target.checked) {
+                      paginatedEmployees.forEach((emp) => next.add(emp.id));
+                    } else {
+                      paginatedEmployees.forEach((emp) => next.delete(emp.id));
+                    }
+                    setSelectedIds(next);
+                  }}
+                  style={{ cursor: 'pointer', width: '15px', height: '15px' }}
+                  title="ជ្រើសរើសទំព័រនេះ / Select all on page"
+                />
+              </th>
               <Th en="Photo" cn="照片" kh="រូបថត" minW="48px" />
               <Th en="No." cn="序号" kh="ល.រ" minW="42px" />
               <Th en="ID No" cn="编号" kh="អត្តលេខ" minW="72px" />
@@ -99,28 +128,37 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
           <tbody>
             {paginatedEmployees.length === 0 ? (
               <tr>
-                <td colSpan={30} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
+                <td colSpan={31} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
                   {t.employee.noData}
                 </td>
               </tr>
             ) : (
               paginatedEmployees.map((emp, index) => {
                 const rowNumber = (safeCurrentPage - 1) * (pageSize === -1 ? 0 : pageSize) + index + 1;
+                const isSelected = selectedIds.has(emp.id);
                 return (
                   <tr 
                   key={emp.id} 
                   style={{ 
                     transition: 'background-color 0.15s ease', 
                     borderBottom: '1px dashed var(--border-color)',
-                    backgroundColor: index % 2 === 1 ? 'rgba(241, 245, 249, 0.35)' : 'transparent'
+                    backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : index % 2 === 1 ? 'rgba(241, 245, 249, 0.35)' : 'transparent'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.08)';
+                    e.currentTarget.style.backgroundColor = isSelected ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.08)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 1 ? 'rgba(241, 245, 249, 0.35)' : 'transparent';
+                    e.currentTarget.style.backgroundColor = isSelected ? 'rgba(99, 102, 241, 0.12)' : index % 2 === 1 ? 'rgba(241, 245, 249, 0.35)' : 'transparent';
                   }}
                 >
+                  <td style={{ ...tdStyle, width: '38px', minWidth: '38px', textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggleSelect(emp.id)}
+                      style={{ cursor: 'pointer', width: '15px', height: '15px' }}
+                    />
+                  </td>
                   <td style={{ ...tdStyle, padding: '2px 4px', textAlign: 'center' }}>
                     {emp.photoUrl ? (
                       <img 
@@ -396,6 +434,85 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
               borderRadius: '4px'
             }} 
           />
+        </div>
+      )}
+
+      {/* Floating Action Bar for Selected Employees */}
+      {selectedIds.size > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#0f172a',
+            color: '#ffffff',
+            padding: '10px 20px',
+            borderRadius: '50px',
+            boxShadow: '0 16px 36px -4px rgba(0, 0, 0, 0.4), 0 8px 16px -4px rgba(0, 0, 0, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px',
+            zIndex: 1200,
+            border: '1px solid #334155',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.86rem' }}>
+            <span
+              style={{
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                padding: '2px 9px',
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                fontSize: '0.8rem',
+              }}
+            >
+              {selectedIds.size}
+            </span>
+            <span className="kh-text" style={{ fontWeight: 600 }}>
+              នាក់បានជ្រើសរើស (Selected)
+            </span>
+          </div>
+
+          <div style={{ height: '18px', width: '1px', backgroundColor: '#334155' }} />
+
+          <Link
+            href={`/dashboard/employees/batch-id-cards?ids=${Array.from(selectedIds).join(',')}`}
+            style={{
+              backgroundColor: '#10b981',
+              color: '#ffffff',
+              padding: '6px 16px',
+              borderRadius: '20px',
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)',
+            }}
+          >
+            <span>🖨️</span>
+            <span className="kh-text">បោះពុម្ពកាតបុគ្គលិក (Print Cards)</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setSelectedIds(new Set())}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              fontSize: '0.82rem',
+              padding: '4px 8px',
+              borderRadius: '4px',
+            }}
+            title="Deselect All / បោះបង់ការជ្រើសរើស"
+          >
+            ✕ សម្អាត (Clear)
+          </button>
         </div>
       )}
     </>

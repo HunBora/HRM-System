@@ -73,6 +73,24 @@ export default async function EmployeesPage({
             <ClearAllDataButton />
           )}
           <EmployeeExportImportButtons />
+          <Link
+            href={`/dashboard/employees/batch-id-cards${dept ? `?dept=${encodeURIComponent(dept)}` : ''}`}
+            className="kh-text"
+            style={{
+              padding: '8px 14px',
+              backgroundColor: '#4f46e5',
+              color: 'white',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '13px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            🪪 បោះពុម្ពកាតជាដុំ (Batch ID Cards)
+          </Link>
           <Link href="/dashboard/employees/new" className="btn-primary kh-text" style={{ textDecoration: 'none' }}>
             {t.employee.newEmployeeBtn}
           </Link>

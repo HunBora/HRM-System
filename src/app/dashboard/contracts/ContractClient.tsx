@@ -485,6 +485,193 @@ export default function ContractClient({
   const currentMeta = CONTRACT_TYPE_METADATA[formData.contractType] || CONTRACT_TYPE_METADATA.FDC;
   const currentGender = getGenderLabel(formData.gender);
 
+  // State for trilingual clause translation
+  const [translatingClause, setTranslatingClause] = useState<number | null>(null);
+  const [isTranslatingAll, setIsTranslatingAll] = useState(false);
+
+  // Compute Standard Default MLVT Clause Texts based on current form inputs
+  const defaultClauses = useMemo(() => {
+    const formattedStartDate = formatContractDate(formData.startDate);
+    const formattedEndDate = formatContractDate(formData.endDate);
+    const formattedDob = formatContractDate(formData.dob);
+    const formattedSignedDate = formatContractDate(formData.signedDate);
+
+    // Clause 1: Contracting Parties
+    const c1Kh = `និយោជក៖ ឈ្មោះក្រុមហ៊ុន ${formData.companyName || '__________'} អាសយដ្ឋាន ${formData.companyAddress || '__________'} តំណាងដោយ ${formData.representative || '__________'} តួនាទី ${formData.representativeRole || '__________'}។ កម្មករនិយោជិត៖ ឈ្មោះ ${formData.employeeNameKh || formData.employeeNameEn || '__________'} (ឡាតាំង: ${formData.employeeNameEn || '__________'}) ភេទ ${currentGender.kh} ថ្ងៃខែឆ្នាំកំណើត ${formattedDob} លេខអត្តសញ្ញាណប័ណ្ណ/លិខិតឆ្លងដែន ${formData.nationalIdOrPassport || '__________'} អាសយដ្ឋាន ${formData.address || '__________'}។`;
+    const c1En = `Employer: Company ${formData.companyName || '__________'}, address ${formData.companyAddress || '__________'}, represented by ${formData.representative || '__________'}, position ${formData.representativeRole || '__________'}. Employee: Name ${formData.employeeNameEn || '__________'}, sex ${currentGender.en}, date of birth ${formattedDob}, ID/passport ${formData.nationalIdOrPassport || '__________'}, address ${formData.address || '__________'}.`;
+    const c1Zh = `雇主：公司名称 ${formData.companyName || '__________'}，地址 ${formData.companyAddress || '__________'}，代表人 ${formData.representative || '__________'}，职务 ${formData.representativeRole || '__________'}。员工：姓名 ${formData.employeeNameKh || formData.employeeNameEn || '__________'}（英文：${formData.employeeNameEn || '__________'}），性别 ${currentGender.zh}，出生日期 ${formattedDob}，身份证/护照 ${formData.nationalIdOrPassport || '__________'}，地址 ${formData.address || '__________'}。`;
+
+    // Clause 2: Position and Workplace
+    const c2Kh = `មុខតំណែង ${formData.positionTitle || '__________'} នាយកដ្ឋាន ${formData.department || '__________'} ទីកន្លែងធ្វើការ ${formData.workplace || formData.companyAddress || '__________'}។ ភារកិច្ចត្រូវអនុវត្តតាមការពិពណ៌នាការងារដែលបានពន្យល់ជូន។`;
+    const c2En = `Position ${formData.positionTitle || '__________'}, department ${formData.department || '__________'}, workplace ${formData.workplace || formData.companyAddress || '__________'}. Duties follow the job description explained to the employee.`;
+    const c2Zh = `岗位 ${formData.positionTitle || '__________'}，部门 ${formData.department || '__________'}，工作地点 ${formData.workplace || formData.companyAddress || '__________'}。工作职责依照已向员工说明的岗位说明书。`;
+
+    // Clause 3: Wages and Payment
+    const c3Kh = `ប្រាក់ឈ្នួលគោល ${formData.basicSalaryUsd ? formData.basicSalaryUsd.toLocaleString() : '__________'} ដុល្លារ/ខែ ឬ ${formData.basicSalaryKhr ? formData.basicSalaryKhr.toLocaleString() : '__________'} រៀល/ខែ មិនទាបជាងកម្រិតអប្បបរមាដែលអនុវត្ត។ ការទូទាត់ធ្វើនៅថ្ងៃទី ${formData.paymentDay || '01-05'} តាមរយៈ ${formData.paymentMethod || 'Bank Transfer / Cash'}។ ប្រាក់ថែមម៉ោង និងអត្ថប្រយោជន៍ត្រូវអនុវត្តតាមច្បាប់។`;
+    const c3En = `Basic wage USD ${formData.basicSalaryUsd ? formData.basicSalaryUsd.toLocaleString() : '__________'}/month or KHR ${formData.basicSalaryKhr ? formData.basicSalaryKhr.toLocaleString() : '__________'}/month, not below the applicable minimum. Payment date(s) ${formData.paymentDay || '01-05'} via ${formData.paymentMethod || 'Bank Transfer / Cash'}. Overtime and benefits follow applicable law.`;
+    const c3Zh = `基本工资每月 ${formData.basicSalaryUsd ? formData.basicSalaryUsd.toLocaleString() : '__________'} 美元或 ${formData.basicSalaryKhr ? formData.basicSalaryKhr.toLocaleString() : '__________'} 瑞尔，不低于适用最低工资。发薪日期 ${formData.paymentDay || '01-05'}，支付方式 ${formData.paymentMethod || '银行转账/现金'}。加班费及福利依法执行。`;
+
+    // Clause 4: Working Hours & Rest
+    const c4Kh = `ម៉ោងធ្វើការ ${formData.workingHours || '07:00 ដល់ 11:00 / 13:00 ដល់ 17:00'}; សម្រាកអាហារ ${formData.mealBreak || '11:00 ដល់ 13:00'}; ថ្ងៃធ្វើការ ${formData.workingDays || 'ច័ន្ទ ដល់ សៅរ៍'}។ ម៉ោងធ្វើការធម្មតាមិនលើស ៨ ម៉ោងក្នុងមួយថ្ងៃ និង ៤៨ ម៉ោងក្នុងមួយសប្តាហ៍។ ការថែមម៉ោងត្រូវធ្វើតាមច្បាប់។`;
+    const c4En = `Work hours ${formData.workingHours || '07:00 to 11:00 / 13:00 to 17:00'}; meal break ${formData.mealBreak || '11:00 to 13:00'}; working days ${formData.workingDays || 'Monday to Saturday'} . Normal hours shall not exceed 8 per day and 48 per week. Overtime follows the law.`;
+    const c4Zh = `工作时间 ${formData.workingHours || '07:00至11:00 / 13:00至17:00'}；用餐休息 ${formData.mealBreak || '11:00至13:00'}；工作日 ${formData.workingDays || '周一至周六'}。正常工作时间每日不超过8小时、每周不超过48小时。加班依法安排。`;
+
+    // Clause 5: Leave & Social Security
+    const c5Kh = `កម្មករនិយោជិតមានសិទ្ធិទទួលបានថ្ងៃឈប់សម្រាកប្រចាំសប្តាហ៍ ថ្ងៃបុណ្យមានប្រាក់ឈ្នួល ការឈប់សម្រាកប្រចាំឆ្នាំ និងការឈប់សម្រាកផ្សេងៗតាមច្បាប់។ និយោជកអនុវត្តកាតព្វកិច្ច ប.ស.ស. តាមបទប្បញ្ញត្តិ។`;
+    const c5En = `The employee receives weekly rest, paid public holidays, annual leave and other statutory leave. The employer meets applicable NSSF obligations.`;
+    const c5Zh = `员工依法享有每周休息、带薪法定节假日、年假及其他假期。雇主依法履行国家社会保障基金（NSSF）义务。`;
+
+    // Clause 6: Safety, Health & Discipline
+    const c6Kh = `និយោជកផ្តល់បរិយាកាសការងារមានសុវត្ថិភាព និងឧបករណ៍ការពារដែលចាំបាច់។ កម្មករនិយោជិតគោរពនីតិវិធីសុវត្ថិភាព បទបញ្ជាផ្ទៃក្នុងស្របច្បាប់ និងមានសិទ្ធិប្តឹងតវ៉ាដោយគ្មានការសងសឹក។`;
+    const c6En = `The employer provides a safe workplace and necessary protective equipment. The employee follows lawful safety procedures and internal rules and may raise grievances without retaliation.`;
+    const c6Zh = `雇主提供安全工作环境及必要防护用品。员工遵守合法安全程序和内部规章，并有权提出申诉且不受报复。`;
+
+    // Clause 7: Non-discrimination
+    const c7Kh = `ការងារធ្វើឡើងដោយស្ម័គ្រចិត្ត គ្មានការបង្ខិតបង្ខំ ការរើសអើង ឬការរក្សាទុកឯកសារផ្ទាល់ខ្លួនដោយខុសច្បាប់។`;
+    const c7En = `Employment is voluntary, without forced labour, discrimination or unlawful retention of personal documents.`;
+    const c7Zh = `雇佣属自愿性质，禁止强迫劳动、歧视或非法扣留个人证件。`;
+
+    // Clause 8: Dispute Resolution
+    const c8Kh = `វិវាទត្រូវដោះស្រាយតាមការពិភាក្សា និងយន្តការស្របច្បាប់នៅកម្ពុជា។ ប្រសិនបើលក្ខខណ្ឌណាមួយផ្ទុយច្បាប់ការងារ ត្រូវអនុវត្តច្បាប់ ឬលក្ខខណ្ឌដែលផ្តល់អត្ថប្រយោជន៍ល្អជាងដល់កម្មករនិយោជិត។`;
+    const c8En = `Disputes shall be handled through dialogue and lawful Cambodian mechanisms. Where a term conflicts with labour law, the law or more favourable employee entitlement prevails.`;
+    const c8Zh = `争议通过协商及柬埔寨合法机制解决。合同条款与劳动法冲突时，以法律或对员工更有利的条件为准。`;
+
+    return {
+      c1: { kh: c1Kh, en: c1En, zh: c1Zh },
+      c2: { kh: c2Kh, en: c2En, zh: c2Zh },
+      c3: { kh: c3Kh, en: c3En, zh: c3Zh },
+      c4: { kh: c4Kh, en: c4En, zh: c4Zh },
+      c5: { kh: c5Kh, en: c5En, zh: c5Zh },
+      c6: { kh: c6Kh, en: c6En, zh: c6Zh },
+      c7: { kh: c7Kh, en: c7En, zh: c7Zh },
+      c8: { kh: c8Kh, en: c8En, zh: c8Zh },
+    };
+  }, [formData, currentGender]);
+
+  // Function to translate a single clause into all 3 languages
+  const handleTranslateClause = async (clauseNum: number) => {
+    try {
+      setTranslatingClause(clauseNum);
+      const khKey = `clause${clauseNum}BodyKh` as keyof ContractFormData;
+      const enKey = `clause${clauseNum}BodyEn` as keyof ContractFormData;
+      const zhKey = `clause${clauseNum}BodyZh` as keyof ContractFormData;
+
+      const khVal = (formData[khKey] as string) || '';
+      const enVal = (formData[enKey] as string) || '';
+      const zhVal = (formData[zhKey] as string) || '';
+      const defObj = (defaultClauses as any)[`c${clauseNum}`];
+
+      // Prioritize the language that was explicitly entered
+      let sourceText = khVal || enVal || zhVal || defObj.kh;
+      let sourceLang = khVal ? 'km' : enVal ? 'en' : zhVal ? 'zh-CN' : 'auto';
+
+      const res = await fetch('/api/contracts/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: sourceText, sourceLang }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setFormData((prev) => ({
+          ...prev,
+          [khKey]: data.km || khVal || defObj.kh,
+          [enKey]: data.en || enVal || defObj.en,
+          [zhKey]: data.zh || zhVal || defObj.zh,
+        }));
+      }
+    } catch (err) {
+      console.error('Translation error:', err);
+    } finally {
+      setTranslatingClause(null);
+    }
+  };
+
+  // Function to translate ALL clauses into all 3 languages
+  const handleTranslateAllClauses = async () => {
+    try {
+      setIsTranslatingAll(true);
+      const updated = { ...formData };
+
+      for (let i = 1; i <= 8; i++) {
+        const khKey = `clause${i}BodyKh` as keyof ContractFormData;
+        const enKey = `clause${i}BodyEn` as keyof ContractFormData;
+        const zhKey = `clause${i}BodyZh` as keyof ContractFormData;
+
+        const khVal = (formData[khKey] as string) || '';
+        const enVal = (formData[enKey] as string) || '';
+        const zhVal = (formData[zhKey] as string) || '';
+        const defObj = (defaultClauses as any)[`c${i}`];
+
+        const sourceText = khVal || enVal || zhVal || defObj.kh;
+        const sourceLang = khVal ? 'km' : enVal ? 'en' : zhVal ? 'zh-CN' : 'auto';
+
+        const res = await fetch('/api/contracts/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: sourceText, sourceLang }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          (updated as any)[khKey] = data.km || khVal || defObj.kh;
+          (updated as any)[enKey] = data.en || enVal || defObj.en;
+          (updated as any)[zhKey] = data.zh || zhVal || defObj.zh;
+        }
+      }
+
+      setFormData(updated);
+      Swal.fire({
+        icon: 'success',
+        title: 'បកប្រែជោគជ័យ / Translation Complete',
+        text: 'រាល់ខសន្យាទាំងអស់ត្រូវបានបកប្រែ និងរត់ចូលទាំង ៣ ភាសាដោយស្វ័យប្រវត្តិ!',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error('Translate all error:', err);
+    } finally {
+      setIsTranslatingAll(false);
+    }
+  };
+
+  // Function to pre-fill all 8 clauses with MLVT standard text in 3 languages
+  const handleLoadDefaultClauses = () => {
+    setFormData((prev) => ({
+      ...prev,
+      clause1BodyKh: defaultClauses.c1.kh,
+      clause1BodyEn: defaultClauses.c1.en,
+      clause1BodyZh: defaultClauses.c1.zh,
+      clause2BodyKh: defaultClauses.c2.kh,
+      clause2BodyEn: defaultClauses.c2.en,
+      clause2BodyZh: defaultClauses.c2.zh,
+      clause3BodyKh: defaultClauses.c3.kh,
+      clause3BodyEn: defaultClauses.c3.en,
+      clause3BodyZh: defaultClauses.c3.zh,
+      clause4BodyKh: defaultClauses.c4.kh,
+      clause4BodyEn: defaultClauses.c4.en,
+      clause4BodyZh: defaultClauses.c4.zh,
+      clause5BodyKh: defaultClauses.c5.kh,
+      clause5BodyEn: defaultClauses.c5.en,
+      clause5BodyZh: defaultClauses.c5.zh,
+      clause6BodyKh: defaultClauses.c6.kh,
+      clause6BodyEn: defaultClauses.c6.en,
+      clause6BodyZh: defaultClauses.c6.zh,
+      clause7BodyKh: defaultClauses.c7.kh,
+      clause7BodyEn: defaultClauses.c7.en,
+      clause7BodyZh: defaultClauses.c7.zh,
+      clause8BodyKh: defaultClauses.c8.kh,
+      clause8BodyEn: defaultClauses.c8.en,
+      clause8BodyZh: defaultClauses.c8.zh,
+    }));
+    Swal.fire({
+      icon: 'info',
+      title: 'បានផ្ទុកខ្លឹមសារស្តង់ដារ ៣ ភាសា',
+      text: 'ខ្លឹមសារខសន្យាទាំង ៨ ត្រូវបានបំពេញរួចរាល់ជា ភាសាខ្មែរ អង់គ្លេស និងចិន។',
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
   // Standard Trilingual Table Header component
   const Th = ({
     kh,
@@ -1734,82 +1921,248 @@ export default function ContractClient({
                 </div>
               )}
 
-              {/* TAB 2: EDIT CLAUSES (កែរអត្ថន័យបាន) */}
+                            {/* TAB 2: EDIT CLAUSES (កែរអត្ថន័យបាន & រត់អូតូទាំង ៣ ភាសា) */}
               {activeTab === 'clauses' && (
                 <div className={styles.formCard}>
-                  <div style={{ marginBottom: '1.25rem', background: '#eff6ff', padding: '0.85rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
-                    <h4 style={{ margin: '0 0 0.2rem 0', color: '#1e3a8a', fontSize: '0.95rem' }}>✏️ កែប្រែខ្លឹមសារខសន្យា (Customizable Clauses)</h4>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#475569' }}>
-                      លោកអ្នកអាចកែប្រែបន្ថែមបន្ថយអត្ថន័យនៃខសន្យានីមួយៗបានតាមតម្រូវការជាក់ស្តែងរបស់ក្រុមហ៊ុន។
-                    </p>
+                  {/* Banner & Global Translate Controls */}
+                  <div
+                    style={{
+                      marginBottom: '1.25rem',
+                      background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)',
+                      padding: '1rem 1.25rem',
+                      borderRadius: '10px',
+                      border: '1px solid #bfdbfe',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div>
+                      <h4 style={{ margin: '0 0 0.25rem 0', color: '#1e3a8a', fontSize: '1rem', fontWeight: 800 }}>
+                        🌐 កែប្រែខ្លឹមសារខសន្យា & រត់អូតូទាំង ៣ ភាសា (Trilingual Auto-Sync)
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '0.82rem', color: '#334155', lineHeight: 1.4 }}>
+                        ពេលលោកអ្នកវាយបញ្ចូលជា <strong>ភាសាខ្មែរ (លើគេ)</strong> ឬភាសាណាមួយ ប្រព័ន្ធនឹងបកប្រែ និងរត់អូតូទាំង ៣ ភាសា (ខ្មែរ អង់គ្លេស ចិន) ចូលទៅក្នុងទម្រង់កុងត្រា។
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        onClick={handleLoadDefaultClauses}
+                        style={{
+                          background: '#ffffff',
+                          color: '#1e3a8a',
+                          border: '1.5px solid #93c5fd',
+                          padding: '0.45rem 0.85rem',
+                          borderRadius: '7px',
+                          fontWeight: 700,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                        }}
+                      >
+                        <span>🔄</span>
+                        ផ្ទុកខ្លឹមសារស្តង់ដារ ៣ ភាសា
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleTranslateAllClauses}
+                        disabled={isTranslatingAll}
+                        style={{
+                          background: '#2563eb',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '0.45rem 1rem',
+                          borderRadius: '7px',
+                          fontWeight: 700,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.4rem',
+                          boxShadow: '0 2px 6px rgba(37,99,235,0.25)',
+                        }}
+                      >
+                        <span>✨</span>
+                        {isTranslatingAll ? 'កំពុងបកប្រែគ្រប់ខសន្យា...' : 'បកប្រែអូតូគ្រប់ខសន្យាទាំងអស់'}
+                      </button>
+                    </div>
                   </div>
 
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
-                      ខសន្យាទី ១៖ ភាគីនៃកិច្ចសន្យា (ភាសាខ្មែរ):
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.clause1BodyKh || ''}
-                      onChange={(e) => setFormData({ ...formData, clause1BodyKh: e.target.value })}
-                      placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                    />
-                  </div>
+                  {/* 8 CLAUSES CARDS (Each has 3 Languages: Khmer top, English middle, Chinese bottom) */}
+                  {[
+                    { num: 1, titleKm: '១. ភាគីនៃកិច្ចសន្យា', titleEn: '1. Contracting parties', titleZh: '一、合同双方', keyKh: 'clause1BodyKh', keyEn: 'clause1BodyEn', keyZh: 'clause1BodyZh', def: defaultClauses.c1 },
+                    { num: 2, titleKm: '២. មុខតំណែង និងទីកន្លែងធ្វើការ', titleEn: '2. Position and workplace', titleZh: '二、岗位及工作地点', keyKh: 'clause2BodyKh', keyEn: 'clause2BodyEn', keyZh: 'clause2BodyZh', def: defaultClauses.c2 },
+                    { num: 3, titleKm: '៣. ប្រាក់ឈ្នួល និងការទូទាត់', titleEn: '3. Wages and payment', titleZh: '三、工资及支付', keyKh: 'clause3BodyKh', keyEn: 'clause3BodyEn', keyZh: 'clause3BodyZh', def: defaultClauses.c3 },
+                    { num: 4, titleKm: '៤. ម៉ោងធ្វើការ និងការសម្រាក', titleEn: '4. Working hours and rest', titleZh: '四、工作时间及休息', keyKh: 'clause4BodyKh', keyEn: 'clause4BodyEn', keyZh: 'clause4BodyZh', def: defaultClauses.c4 },
+                    { num: 5, titleKm: '៥. ការឈប់សម្រាក និងសន្តិសុខសង្គម', titleEn: '5. Leave and social security', titleZh: '五、休假及社会保障', keyKh: 'clause5BodyKh', keyEn: 'clause5BodyEn', keyZh: 'clause5BodyZh', def: defaultClauses.c5 },
+                    { num: 6, titleKm: '៦. សុវត្ថិភាព សុខភាព និងវិន័យ', titleEn: '6. Safety, health and discipline', titleZh: '六、安全、健康与纪律', keyKh: 'clause6BodyKh', keyEn: 'clause6BodyEn', keyZh: 'clause6BodyZh', def: defaultClauses.c6 },
+                    { num: 7, titleKm: '៧. ការមិនរើសអើង និងការស្ម័គ្រចិត្ត', titleEn: '7. Non-discrimination and voluntary work', titleZh: '七、反歧视与自愿劳动', keyKh: 'clause7BodyKh', keyEn: 'clause7BodyEn', keyZh: 'clause7BodyZh', def: defaultClauses.c7 },
+                    { num: 8, titleKm: '៨. ការដោះស្រាយវិវាទ និងអាទិភាពច្បាប់', titleEn: '8. Disputes and governing law', titleZh: '八、争议解决与适用法律', keyKh: 'clause8BodyKh', keyEn: 'clause8BodyEn', keyZh: 'clause8BodyZh', def: defaultClauses.c8 },
+                  ].map((c) => {
+                    const currentKh = (formData as any)[c.keyKh] !== undefined ? (formData as any)[c.keyKh] : c.def.kh;
+                    const currentEn = (formData as any)[c.keyEn] !== undefined ? (formData as any)[c.keyEn] : c.def.en;
+                    const currentZh = (formData as any)[c.keyZh] !== undefined ? (formData as any)[c.keyZh] : c.def.zh;
 
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
-                      ខសន្យាទី ២៖ មុខតំណែង និងទីកន្លែងធ្វើការ (ភាសាខ្មែរ):
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.clause2BodyKh || ''}
-                      onChange={(e) => setFormData({ ...formData, clause2BodyKh: e.target.value })}
-                      placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                    />
-                  </div>
+                    return (
+                      <div
+                        key={c.num}
+                        style={{
+                          marginBottom: '1.25rem',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '10px',
+                          padding: '1rem',
+                          background: '#ffffff',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                        }}
+                      >
+                        {/* Header of Clause */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '0.65rem',
+                            borderBottom: '1px solid #f1f5f9',
+                            paddingBottom: '0.45rem',
+                            flexWrap: 'wrap',
+                            gap: '0.5rem',
+                          }}
+                        >
+                          <div>
+                            <span style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.92rem' }}>
+                              {c.titleKm}
+                            </span>
+                            <span style={{ fontSize: '0.78rem', color: '#64748b', marginLeft: '6px' }}>
+                              / {c.titleEn} / {c.titleZh}
+                            </span>
+                          </div>
 
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
-                      ខសន្យាទី ៣៖ ប្រាក់ឈ្នួល និងការទូទាត់ (ភាសាខ្មែរ):
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.clause3BodyKh || ''}
-                      onChange={(e) => setFormData({ ...formData, clause3BodyKh: e.target.value })}
-                      placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                    />
-                  </div>
+                          <button
+                            type="button"
+                            onClick={() => handleTranslateClause(c.num)}
+                            disabled={translatingClause === c.num}
+                            style={{
+                              background: '#eff6ff',
+                              color: '#1d4ed8',
+                              border: '1px solid #bfdbfe',
+                              padding: '0.3rem 0.65rem',
+                              borderRadius: '6px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                            }}
+                          >
+                            <span>🌐</span>
+                            {translatingClause === c.num ? 'កំពុងបកប្រែ...' : 'បកប្រែអូតូ ៣ ភាសា (Auto-Translate)'}
+                          </button>
+                        </div>
 
-                  <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ fontWeight: 700, color: '#1e3a8a', display: 'block', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
-                      ខសន្យាទី ៤៖ ម៉ោងធ្វើការ និងការសម្រាក (ភាសាខ្មែរ):
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.clause4BodyKh || ''}
-                      onChange={(e) => setFormData({ ...formData, clause4BodyKh: e.target.value })}
-                      placeholder="ទុកទទេដើម្បីប្រើខ្លឹមសារស្តង់ដារ..."
-                      style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                    />
-                  </div>
+                        {/* 3 Textareas (Khmer on top, English middle, Chinese bottom) */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                          {/* 1. Khmer */}
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', marginBottom: '2px' }}>
+                              🇰🇭 ភាសាខ្មែរ (Khmer - លើគេ):
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={currentKh}
+                              onChange={(e) => setFormData({ ...formData, [c.keyKh]: e.target.value })}
+                              style={{
+                                width: '100%',
+                                padding: '0.45rem 0.65rem',
+                                borderRadius: '6px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.84rem',
+                                fontFamily: 'inherit',
+                                boxSizing: 'border-box',
+                                lineHeight: 1.4,
+                              }}
+                            />
+                          </div>
+
+                          {/* 2. English */}
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '2px' }}>
+                              🇬🇧 ភាសាអង់គ្លេស (English):
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={currentEn}
+                              onChange={(e) => setFormData({ ...formData, [c.keyEn]: e.target.value })}
+                              style={{
+                                width: '100%',
+                                padding: '0.45rem 0.65rem',
+                                borderRadius: '6px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.82rem',
+                                fontFamily: 'inherit',
+                                fontStyle: 'italic',
+                                color: '#334155',
+                                boxSizing: 'border-box',
+                                lineHeight: 1.4,
+                              }}
+                            />
+                          </div>
+
+                          {/* 3. Chinese */}
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '2px' }}>
+                              🇨🇳 ភាសាចិន (中文):
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={currentZh}
+                              onChange={(e) => setFormData({ ...formData, [c.keyZh]: e.target.value })}
+                              style={{
+                                width: '100%',
+                                padding: '0.45rem 0.65rem',
+                                borderRadius: '6px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.82rem',
+                                fontFamily: 'inherit',
+                                color: '#475569',
+                                boxSizing: 'border-box',
+                                lineHeight: 1.4,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
                     <button
+                      type="button"
                       onClick={() => setActiveTab('preview')}
                       style={{
                         background: '#2563eb',
                         color: '#ffffff',
                         border: 'none',
-                        padding: '0.65rem 1.5rem',
+                        padding: '0.6rem 1.5rem',
                         borderRadius: '8px',
                         fontWeight: 700,
                         cursor: 'pointer',
-                        fontSize: '0.95rem',
+                        fontSize: '0.92rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        boxShadow: '0 2px 8px rgba(37,99,235,0.25)',
                       }}
                     >
+                      <span>👁️</span>
                       មើលការផ្លាស់ប្តូរ (Preview Changes) ➔
                     </button>
                   </div>
@@ -1927,26 +2280,34 @@ export default function ContractClient({
                     </p>
                     {/* English */}
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic', textAlign: 'justify' }}>
-                      <strong>Employer:</strong> Company <u>{formData.companyName || '__________'}</u>, address{' '}
-                      <u>{formData.companyAddress || '__________'}</u>, represented by{' '}
-                      <u>{formData.representative || '__________'}</u>, position{' '}
-                      <u>{formData.representativeRole || '__________'}</u>. <strong>Employee:</strong> Name{' '}
-                      <u>{formData.employeeNameEn || '__________'}</u>, sex <u>{currentGender.en}</u>, date of
-                      birth <u>{formatContractDate(formData.dob)}</u>, ID/passport{' '}
-                      <u>{formData.nationalIdOrPassport || '__________'}</u>, address{' '}
-                      <u>{formData.address || '__________'}</u>.
+                      {formData.clause1BodyEn || (
+                        <>
+                          <strong>Employer:</strong> Company <u>{formData.companyName || '__________'}</u>, address{' '}
+                          <u>{formData.companyAddress || '__________'}</u>, represented by{' '}
+                          <u>{formData.representative || '__________'}</u>, position{' '}
+                          <u>{formData.representativeRole || '__________'}</u>. <strong>Employee:</strong> Name{' '}
+                          <u>{formData.employeeNameEn || '__________'}</u>, sex <u>{currentGender.en}</u>, date of
+                          birth <u>{formatContractDate(formData.dob)}</u>, ID/passport{' '}
+                          <u>{formData.nationalIdOrPassport || '__________'}</u>, address{' '}
+                          <u>{formData.address || '__________'}</u>.
+                        </>
+                      )}
                     </p>
                     {/* Chinese */}
                     <p style={{ margin: '0 0 0.55rem 0', fontSize: '0.82rem', color: '#475569', textAlign: 'justify' }}>
-                      <strong>雇主：</strong>公司名称 <u>{formData.companyName || '__________'}</u>，地址{' '}
-                      <u>{formData.companyAddress || '__________'}</u>，代表人{' '}
-                      <u>{formData.representative || '__________'}</u>，职务{' '}
-                      <u>{formData.representativeRole || '__________'}</u>。<strong>员工：</strong>姓名{' '}
-                      <u>{formData.employeeNameKh || formData.employeeNameEn || '__________'}</u>（英文：
-                      <u>{formData.employeeNameEn || '__________'}</u>），性别 <u>{currentGender.zh}</u>，出生日期{' '}
-                      <u>{formatContractDate(formData.dob)}</u>，身份证/护照{' '}
-                      <u>{formData.nationalIdOrPassport || '__________'}</u>，地址{' '}
-                      <u>{formData.address || '__________'}</u>。
+                      {formData.clause1BodyZh || (
+                        <>
+                          <strong>雇主：</strong>公司名称 <u>{formData.companyName || '__________'}</u>，地址{' '}
+                          <u>{formData.companyAddress || '__________'}</u>，代表人{' '}
+                          <u>{formData.representative || '__________'}</u>，职务{' '}
+                          <u>{formData.representativeRole || '__________'}</u>。<strong>员工：</strong>姓名{' '}
+                          <u>{formData.employeeNameKh || formData.employeeNameEn || '__________'}</u>（英文：
+                          <u>{formData.employeeNameEn || '__________'}</u>），性别 <u>{currentGender.zh}</u>，出生日期{' '}
+                          <u>{formatContractDate(formData.dob)}</u>，身份证/护照{' '}
+                          <u>{formData.nationalIdOrPassport || '__________'}</u>，地址{' '}
+                          <u>{formData.address || '__________'}</u>。
+                        </>
+                      )}
                     </p>
 
                     {/* Term variation */}
@@ -2063,15 +2424,23 @@ export default function ContractClient({
                       )}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      Position <u>{formData.positionTitle || '__________'}</u>, department{' '}
-                      <u>{formData.department || '__________'}</u>, workplace{' '}
-                      <u>{formData.workplace || formData.companyAddress || '__________'}</u>. Duties follow the job
-                      description explained to the employee.
+                      {formData.clause2BodyEn || (
+                        <>
+                          Position <u>{formData.positionTitle || '__________'}</u>, department{' '}
+                          <u>{formData.department || '__________'}</u>, workplace{' '}
+                          <u>{formData.workplace || formData.companyAddress || '__________'}</u>. Duties follow the job
+                          description explained to the employee.
+                        </>
+                      )}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      岗位 <u>{formData.positionTitle || '__________'}</u>，部门{' '}
-                      <u>{formData.department || '__________'}</u>，工作地点{' '}
-                      <u>{formData.workplace || formData.companyAddress || '__________'}</u>。工作职责依照已向员工说明的岗位说明书。
+                      {formData.clause2BodyZh || (
+                        <>
+                          岗位 <u>{formData.positionTitle || '__________'}</u>，部门{' '}
+                          <u>{formData.department || '__________'}</u>，工作地点{' '}
+                          <u>{formData.workplace || formData.companyAddress || '__________'}</u>。工作职责依照已向员工说明的岗位说明书。
+                        </>
+                      )}
                     </p>
                   </div>
 
@@ -2092,15 +2461,23 @@ export default function ContractClient({
                       )}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      Basic wage USD <u>${formData.basicSalaryUsd.toLocaleString()}</u>/month or KHR{' '}
-                      <u>{formData.basicSalaryKhr.toLocaleString()}</u>/month, not below the applicable minimum.
-                      Payment date(s) <u>{formData.paymentDay}</u> via <u>{formData.paymentMethod}</u>. Overtime and
-                      benefits follow applicable law.
+                      {formData.clause3BodyEn || (
+                        <>
+                          Basic wage USD <u>${formData.basicSalaryUsd.toLocaleString()}</u>/month or KHR{' '}
+                          <u>{formData.basicSalaryKhr.toLocaleString()}</u>/month, not below the applicable minimum.
+                          Payment date(s) <u>{formData.paymentDay}</u> via <u>{formData.paymentMethod}</u>. Overtime and
+                          benefits follow applicable law.
+                        </>
+                      )}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      基本工资每月 <u>${formData.basicSalaryUsd.toLocaleString()}</u> 美元或{' '}
-                      <u>{formData.basicSalaryKhr.toLocaleString()}</u> 瑞尔，不低于适用最低工资。发薪日期{' '}
-                      <u>{formData.paymentDay}</u>，支付方式 <u>{formData.paymentMethod}</u>。加班费及福利依法执行。
+                      {formData.clause3BodyZh || (
+                        <>
+                          基本工资每月 <u>${formData.basicSalaryUsd.toLocaleString()}</u> 美元或{' '}
+                          <u>{formData.basicSalaryKhr.toLocaleString()}</u> 瑞尔，不低于适用最低工资。发薪日期{' '}
+                          <u>{formData.paymentDay}</u>，支付方式 <u>{formData.paymentMethod}</u>。加班费及福利依法执行。
+                        </>
+                      )}
                     </p>
                   </div>
 
@@ -2119,13 +2496,21 @@ export default function ContractClient({
                       )}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      Work hours <u>{formData.workingHours}</u>; meal break <u>{formData.mealBreak}</u>; working
-                      days <u>{formData.workingDays}</u>. Normal hours shall not exceed 8 per day and 48 per week.
-                      Overtime follows the law.
+                      {formData.clause4BodyEn || (
+                        <>
+                          Work hours <u>{formData.workingHours}</u>; meal break <u>{formData.mealBreak}</u>; working
+                          days <u>{formData.workingDays}</u>. Normal hours shall not exceed 8 per day and 48 per week.
+                          Overtime follows the law.
+                        </>
+                      )}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      工作时间 <u>{formData.workingHours}</u>；用餐休息 <u>{formData.mealBreak}</u>；工作日{' '}
-                      <u>{formData.workingDays}</u>。正常工作时间每日不超过8小时、每周不超过48小时。加班依法安排。
+                      {formData.clause4BodyZh || (
+                        <>
+                          工作时间 <u>{formData.workingHours}</u>；用餐休息 <u>{formData.mealBreak}</u>；工作日{' '}
+                          <u>{formData.workingDays}</u>。正常工作时间每日不超过8小时、每周不超过48小时。加班依法安排。
+                        </>
+                      )}
                     </p>
                   </div>
 
@@ -2135,16 +2520,13 @@ export default function ContractClient({
                       ៥. ការឈប់សម្រាក និងសន្តិសុខសង្គម / 5. Leave and social security / 五、休假及社会保障
                     </div>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
-                      កម្មករនិយោជិតមានសិទ្ធិទទួលបានថ្ងៃឈប់សម្រាកប្រចាំសប្តាហ៍ ថ្ងៃបុណ្យមានប្រាក់ឈ្នួល
-                      ការឈប់សម្រាកប្រចាំឆ្នាំ និងការឈប់សម្រាកផ្សេងៗតាមច្បាប់។ និយោជកអនុវត្តកាតព្វកិច្ច ប.ស.ស.
-                      តាមបទប្បញ្ញត្តិ។
+                      {formData.clause5BodyKh || 'កម្មករនិយោជិតមានសិទ្ធិទទួលបានថ្ងៃឈប់សម្រាកប្រចាំសប្តាហ៍ ថ្ងៃបុណ្យមានប្រាក់ឈ្នួល ការឈប់សម្រាកប្រចាំឆ្នាំ និងការឈប់សម្រាកផ្សេងៗតាមច្បាប់។ និយោជកអនុវត្តកាតព្វកិច្ច ប.ស.ស. តាមបទប្បញ្ញត្តិ។'}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      The employee receives weekly rest, paid public holidays, annual leave and other statutory leave.
-                      The employer meets applicable NSSF obligations.
+                      {formData.clause5BodyEn || 'The employee receives weekly rest, paid public holidays, annual leave and other statutory leave. The employer meets applicable NSSF obligations.'}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      员工依法享有每周休息、带薪法定节假日、年假及其他假期。雇主依法履行国家社会保障基金（NSSF）义务。
+                      {formData.clause5BodyZh || '员工依法享有每周休息、带薪法定节假日、年假及其他假期。雇主依法履行国家社会保障基金（NSSF）义务。'}
                     </p>
                   </div>
 
@@ -2154,16 +2536,13 @@ export default function ContractClient({
                       ៦. សុវត្ថិភាព សុខភាព និងវិន័យ / 6. Safety, health and discipline / 六、安全、健康与纪律
                     </div>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
-                      និយោជកផ្តល់បរិយាកាសការងារមានសុវត្ថិភាព និងឧបករណ៍ការពារដែលចាំបាច់។
-                      កម្មករនិយោជិតគោរពនីតិវិធីសុវត្ថិភាព បទបញ្ជាផ្ទៃក្នុងស្របច្បាប់
-                      និងមានសិទ្ធិប្តឹងតវ៉ាដោយគ្មានការសងសឹក។
+                      {formData.clause6BodyKh || 'និយោជកផ្តល់បរិយាកាសការងារមានសុវត្ថិភាព និងឧបករណ៍ការពារដែលចាំបាច់។ កម្មករនិយោជិតគោរពនីតិវិធីសុវត្ថិភាព បទបញ្ជាផ្ទៃក្នុងស្របច្បាប់ និងមានសិទ្ធិប្តឹងតវ៉ាដោយគ្មានការសងសឹក។'}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      The employer provides a safe workplace and necessary protective equipment. The employee follows
-                      lawful safety procedures and internal rules and may raise grievances without retaliation.
+                      {formData.clause6BodyEn || 'The employer provides a safe workplace and necessary protective equipment. The employee follows lawful safety procedures and internal rules and may raise grievances without retaliation.'}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      雇主提供安全工作环境及必要防护用品。员工遵守合法安全程序和内部规章，并有权提出申诉且不受报复。
+                      {formData.clause6BodyZh || '雇主提供安全工作环境及必要防护用品。员工遵守合法安全程序和内部规章，并有权提出申诉且不受报复。'}
                     </p>
                   </div>
 
@@ -2173,15 +2552,13 @@ export default function ContractClient({
                       ៧. ការមិនរើសអើង និងការស្ម័គ្រចិត្ត / 7. Non-discrimination and voluntary work / 七、反歧视与自愿劳动
                     </div>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
-                      ការងារធ្វើឡើងដោយស្ម័គ្រចិត្ត គ្មានការបង្ខិតបង្ខំ ការរើសអើង
-                      ឬការរក្សាទុកឯកសារផ្ទាល់ខ្លួនដោយខុសច្បាប់។
+                      {formData.clause7BodyKh || 'ការងារធ្វើឡើងដោយស្ម័គ្រចិត្ត គ្មានការបង្ខិតបង្ខំ ការរើសអើង ឬការរក្សាទុកឯកសារផ្ទាល់ខ្លួនដោយខុសច្បាប់។'}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      Employment is voluntary, without forced labour, discrimination or unlawful retention of personal
-                      documents.
+                      {formData.clause7BodyEn || 'Employment is voluntary, without forced labour, discrimination or unlawful retention of personal documents.'}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      雇佣属自愿性质，禁止强迫劳动、歧视或非法扣留个人证件。
+                      {formData.clause7BodyZh || '雇佣属自愿性质，禁止强迫劳动、歧视或非法扣留个人证件。'}
                     </p>
                   </div>
 
@@ -2191,16 +2568,13 @@ export default function ContractClient({
                       ៨. ការដោះស្រាយវិវាទ និងអាទិភាពច្បាប់ / 8. Disputes and governing law / 八、争议解决与适用法律
                     </div>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.88rem' }}>
-                      វិវាទត្រូវដោះស្រាយតាមការពិភាក្សា និងយន្តការស្របច្បាប់នៅកម្ពុជា។
-                      ប្រសិនបើលក្ខខណ្ឌណាមួយផ្ទុយច្បាប់ការងារ ត្រូវអនុវត្តច្បាប់
-                      ឬលក្ខខណ្ឌដែលផ្តល់អត្ថប្រយោជន៍ល្អជាងដល់កម្មករនិយោជិត។
+                      {formData.clause8BodyKh || 'វិវាទត្រូវដោះស្រាយតាមការពិភាក្សា និងយន្តការស្របច្បាប់នៅកម្ពុជា។ ប្រសិនបើលក្ខខណ្ឌណាមួយផ្ទុយច្បាប់ការងារ ត្រូវអនុវត្តច្បាប់ ឬលក្ខខណ្ឌដែលផ្តល់អត្ថប្រយោជន៍ល្អជាងដល់កម្មករនិយោជិត។'}
                     </p>
                     <p style={{ margin: '0 0 0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
-                      Disputes shall be handled through dialogue and lawful Cambodian mechanisms. Where a term
-                      conflicts with labour law, the law or more favourable employee entitlement prevails.
+                      {formData.clause8BodyEn || 'Disputes shall be handled through dialogue and lawful Cambodian mechanisms. Where a term conflicts with labour law, the law or more favourable employee entitlement prevails.'}
                     </p>
                     <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.82rem', color: '#475569' }}>
-                      争议通过协商及柬埔寨合法机制解决。合同条款与劳动法冲突时，以法律或对员工更有利的条件为准。
+                      {formData.clause8BodyZh || '争议通过协商及柬埔寨合法机制解决。合同条款与劳动法冲突时，以法律或对员工更有利的条件为准。'}
                     </p>
                   </div>
 

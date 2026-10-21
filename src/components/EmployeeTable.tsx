@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import DeleteEmployeeButton from '@/components/DeleteEmployeeButton';
 
@@ -8,6 +8,25 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [hoveredPhoto, setHoveredPhoto] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Pagination for 1000+ employees
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(30); // 30 records per page default
+
+  // Reset page to 1 if employee count changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [employees.length]);
+
+  const totalEmployees = employees.length;
+  const totalPages = pageSize === -1 ? 1 : Math.ceil(totalEmployees / pageSize) || 1;
+  const safeCurrentPage = Math.min(currentPage, totalPages) || 1;
+
+  const paginatedEmployees = useMemo(() => {
+    if (pageSize === -1) return employees;
+    const start = (safeCurrentPage - 1) * pageSize;
+    return employees.slice(start, start + pageSize);
+  }, [employees, safeCurrentPage, pageSize]);
 
   const formatDate = (date: any) => {
     if (!date) return '-';
@@ -34,8 +53,9 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
 
   return (
     <>
-      <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 190px)', padding: 0, border: '1px dashed var(--border-color)', transform: 'none' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', whiteSpace: 'nowrap' }}>
+      <div className="card" style={{ padding: 0, border: '1px dashed var(--border-color)', transform: 'none', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 230px)', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', whiteSpace: 'nowrap' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--surface-color)' }}>
               <Th en="Photo" cn="照片" kh="រូបថត" minW="48px" />
@@ -77,15 +97,17 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
             </tr>
           </thead>
           <tbody>
-            {employees.length === 0 ? (
+            {paginatedEmployees.length === 0 ? (
               <tr>
                 <td colSpan={30} style={{ padding: '24px', textAlign: 'center' }} className="kh-text text-muted">
                   {t.employee.noData}
                 </td>
               </tr>
             ) : (
-              employees.map((emp, index) => (
-                <tr 
+              paginatedEmployees.map((emp, index) => {
+                const rowNumber = (safeCurrentPage - 1) * (pageSize === -1 ? 0 : pageSize) + index + 1;
+                return (
+                  <tr 
                   key={emp.id} 
                   style={{ 
                     transition: 'background-color 0.15s ease', 
@@ -117,7 +139,7 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
                       <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'inline-block', verticalAlign: 'middle' }}></div>
                     )}
                   </td>
-                  <td style={tdStyle}>{index + 1}</td>
+                  <td style={tdStyle}>{rowNumber}</td>
                   <td style={{ ...tdStyle, fontWeight: 500 }}>{emp.employeeId}</td>
                   <td style={tdStyle} className="kh-text">{emp.firstNameKh} {emp.lastNameKh}</td>
                   <td style={tdStyle}>{emp.firstNameEn} {emp.lastNameEn}</td>
@@ -161,10 +183,159 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
                      </div>
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
+        </div>
+
+        {/* Compact Trilingual Pagination Footer for 1000+ employees */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '7px 14px',
+            borderTop: '1px dashed var(--border-color)',
+            backgroundColor: 'var(--surface-color)',
+            flexWrap: 'wrap',
+            gap: '8px',
+            fontSize: '0.82rem',
+          }}
+        >
+          {/* Record range */}
+          <div style={{ color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>បង្ហាញ / Showing:</span>
+            <strong>
+              {totalEmployees === 0 ? 0 : (safeCurrentPage - 1) * (pageSize === -1 ? 0 : pageSize) + 1}
+            </strong>
+            <span>-</span>
+            <strong>
+              {pageSize === -1 ? totalEmployees : Math.min(safeCurrentPage * pageSize, totalEmployees)}
+            </strong>
+            <span>នៃ / of</span>
+            <strong style={{ color: 'var(--primary-color)' }}>{totalEmployees.toLocaleString()}</strong>
+            <span style={{ color: '#94a3b8', marginLeft: '4px' }}>
+              បុគ្គលិក / Employees / 员工
+            </span>
+          </div>
+
+          {/* Page size and navigation controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            {/* Page Size Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ color: '#64748b', fontSize: '0.8rem' }}>ក្នុង១ទំព័រ / Per page:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--card-bg, #ffffff)',
+                  color: 'var(--text-color)',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                <option value={15}>15</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value={200}>200</option>
+                <option value={-1}>ទាំងអស់ (All)</option>
+              </select>
+            </div>
+
+            {/* Page Navigation Buttons */}
+            {pageSize !== -1 && totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={safeCurrentPage === 1}
+                  style={{
+                    padding: '3px 7px',
+                    borderRadius: '5px',
+                    border: '1px solid var(--border-color)',
+                    background: safeCurrentPage === 1 ? 'rgba(0,0,0,0.03)' : 'var(--card-bg, #ffffff)',
+                    color: safeCurrentPage === 1 ? '#94a3b8' : 'var(--text-color)',
+                    cursor: safeCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                  title="First Page / ទំព័រដំបូង"
+                >
+                  ⏮
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={safeCurrentPage === 1}
+                  style={{
+                    padding: '3px 7px',
+                    borderRadius: '5px',
+                    border: '1px solid var(--border-color)',
+                    background: safeCurrentPage === 1 ? 'rgba(0,0,0,0.03)' : 'var(--card-bg, #ffffff)',
+                    color: safeCurrentPage === 1 ? '#94a3b8' : 'var(--text-color)',
+                    cursor: safeCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                  title="Previous Page / ទំព័រមុន"
+                >
+                  ◀
+                </button>
+
+                <span style={{ fontSize: '0.8rem', padding: '0 6px', fontWeight: 600, color: 'var(--text-color)' }}>
+                  ទំព័រ {safeCurrentPage} / {totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={safeCurrentPage === totalPages}
+                  style={{
+                    padding: '3px 7px',
+                    borderRadius: '5px',
+                    border: '1px solid var(--border-color)',
+                    background: safeCurrentPage === totalPages ? 'rgba(0,0,0,0.03)' : 'var(--card-bg, #ffffff)',
+                    color: safeCurrentPage === totalPages ? '#94a3b8' : 'var(--text-color)',
+                    cursor: safeCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                  title="Next Page / ទំព័របន្ទាប់"
+                >
+                  ▶
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={safeCurrentPage === totalPages}
+                  style={{
+                    padding: '3px 7px',
+                    borderRadius: '5px',
+                    border: '1px solid var(--border-color)',
+                    background: safeCurrentPage === totalPages ? 'rgba(0,0,0,0.03)' : 'var(--card-bg, #ffffff)',
+                    color: safeCurrentPage === totalPages ? '#94a3b8' : 'var(--text-color)',
+                    cursor: safeCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                  title="Last Page / ទំព័រចុងក្រោយ"
+                >
+                  ⏭
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Lightbox for Photo */}

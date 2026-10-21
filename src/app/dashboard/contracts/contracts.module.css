@@ -73,43 +73,163 @@
   border-radius: 8px;
 }
 
-/* Modal Overlay */
+/* Modal Overlay - True Fullscreen Portal covering everything */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .modalContent {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 12px;
   width: 96vw;
   max-width: 1350px;
+  height: 94vh;
   max-height: 94vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+  animation: modalScaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modalHeader {
+  padding: 0.5rem 1.1rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  min-height: 52px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.modalBody {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 1rem;
+  background: #f1f5f9;
+}
+
+/* Fit Content Form Cards */
+.formCard {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  max-width: 1050px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.85rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.formLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.formLabelKh {
+  font-size: 0.83rem;
+  color: #0f172a;
+}
+
+.formLabelEnZh {
+  font-size: 0.71rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.85rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #0f172a;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.sectionHeader {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.4rem;
+  margin: 1.35rem 0 0.85rem 0;
+  color: #1e3a8a;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 /* A4 Contract Sheet Paper */
 .a4Sheet {
   background: #ffffff;
   width: 210mm;
+  max-width: 100%;
   min-height: 297mm;
   margin: 0 auto;
-  padding: 18mm 16mm;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  padding: 16mm 14mm;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   color: #0f172a;
   font-family: 'Khmer OS Siemreap', 'Siemreap', 'Noto Sans Khmer', system-ui, sans-serif;
   line-height: 1.5;
   box-sizing: border-box;
+  border-radius: 4px;
 }
 
 /* Print Rules */

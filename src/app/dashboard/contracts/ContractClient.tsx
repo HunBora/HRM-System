@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import styles from './contracts.module.css';
 import {
@@ -74,6 +75,11 @@ export default function ContractClient({
   userRole,
 }: Props) {
   const [contracts, setContracts] = useState<ContractRecord[]>(initialContracts);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'form' | 'clauses'>('preview');
   const [searchEmpQuery, setSearchEmpQuery] = useState('');
@@ -1135,46 +1141,71 @@ export default function ContractClient({
       </div>
 
       {/* Modal Contract Editor / Previewer */}
-      {isModalOpen && (
+      {isModalOpen && mounted && createPortal(
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
-            {/* Modal Header */}
-            <div
-              style={{
-                padding: '0.85rem 1.25rem',
-                borderBottom: '1px solid #e2e8f0',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                background: '#f8fafc',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            {/* Modal Header - Ultra-clean Fit-Content with Trilingual Contract Selector & Controls */}
+            <div className={styles.modalHeader}>
+              {/* Left: Contract Type Dropdown with Trilingual labels */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                 <span style={{ fontSize: '1.4rem' }}>📜</span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#0f172a' }}>
-                    {currentMeta.nameKh}
-                  </h3>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    {currentMeta.nameEn} • {currentMeta.nameZh}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e3a8a', whiteSpace: 'nowrap' }}>
+                      ប្រភេទកុងត្រា (Type):
+                    </label>
+                    <select
+                      value={formData.contractType}
+                      onChange={(e) => handleContractTypeChange(e.target.value as ContractType)}
+                      style={{
+                        padding: '0.35rem 0.65rem',
+                        borderRadius: '7px',
+                        border: '1.5px solid #2563eb',
+                        fontSize: '0.84rem',
+                        fontWeight: 700,
+                        background: '#eff6ff',
+                        color: '#1e3a8a',
+                        cursor: 'pointer',
+                        outline: 'none',
+                      }}
+                    >
+                      <option value="FDC">១. កិច្ចសន្យាមានកំណត់ថិរវេលា (FDC - Fixed Duration)</option>
+                      <option value="PROBATION">២. កិច្ចសន្យាសាកល្បងការងារ (Probation Contract)</option>
+                      <option value="UDC">៣. កិច្ចសន្យាមានថិរវេលាមិនកំណត់ (UDC - Undetermined Duration)</option>
+                      <option value="FOREIGN_FDC">៤. កិច្ចសន្យាការងារបុគ្គលិកជនបរទេស (Foreign Expat Contract)</option>
+                    </select>
+                  </div>
+                  <div style={{ fontSize: '0.71rem', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
+                    {currentMeta.nameKh} • {currentMeta.nameEn} • {currentMeta.nameZh}
                   </div>
                 </div>
               </div>
 
-              {/* Navigation Tabs */}
-              <div style={{ display: 'flex', gap: '0.4rem', background: '#e2e8f0', padding: '3px', borderRadius: '8px' }}>
+              {/* Center: Navigation Tabs */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.3rem',
+                  background: '#f1f5f9',
+                  padding: '3px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  flexShrink: 0,
+                }}
+              >
                 <button
                   onClick={() => setActiveTab('preview')}
                   style={{
-                    padding: '0.4rem 0.85rem',
+                    padding: '0.35rem 0.75rem',
                     borderRadius: '6px',
                     border: 'none',
-                    fontWeight: 600,
+                    fontWeight: activeTab === 'preview' ? 700 : 500,
                     cursor: 'pointer',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                     background: activeTab === 'preview' ? '#ffffff' : 'transparent',
                     color: activeTab === 'preview' ? '#1e3a8a' : '#64748b',
                     boxShadow: activeTab === 'preview' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   👁️ មើលជាមុន (Preview A4)
@@ -1182,15 +1213,16 @@ export default function ContractClient({
                 <button
                   onClick={() => setActiveTab('form')}
                   style={{
-                    padding: '0.4rem 0.85rem',
+                    padding: '0.35rem 0.75rem',
                     borderRadius: '6px',
                     border: 'none',
-                    fontWeight: 600,
+                    fontWeight: activeTab === 'form' ? 700 : 500,
                     cursor: 'pointer',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                     background: activeTab === 'form' ? '#ffffff' : 'transparent',
                     color: activeTab === 'form' ? '#1e3a8a' : '#64748b',
                     boxShadow: activeTab === 'form' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   ⚙️ កំណត់ព័ត៌មាន (Fill & Edit)
@@ -1198,37 +1230,39 @@ export default function ContractClient({
                 <button
                   onClick={() => setActiveTab('clauses')}
                   style={{
-                    padding: '0.4rem 0.85rem',
+                    padding: '0.35rem 0.75rem',
                     borderRadius: '6px',
                     border: 'none',
-                    fontWeight: 600,
+                    fontWeight: activeTab === 'clauses' ? 700 : 500,
                     cursor: 'pointer',
-                    fontSize: '0.85rem',
+                    fontSize: '0.82rem',
                     background: activeTab === 'clauses' ? '#ffffff' : 'transparent',
                     color: activeTab === 'clauses' ? '#1e3a8a' : '#64748b',
                     boxShadow: activeTab === 'clauses' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                    whiteSpace: 'nowrap',
                   }}
                 >
-                  ✏️ កែរអត្ថន័យខសន្យា (Custom Clauses)
+                  ✏️ កែរអត្ថន័យខសន្យា (Clauses)
                 </button>
               </div>
 
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
+              {/* Right: Action Buttons */}
+              <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexShrink: 0 }}>
                 <button
                   onClick={handlePrint}
                   style={{
                     background: '#1e293b',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '0.45rem 0.85rem',
+                    padding: '0.4rem 0.75rem',
                     borderRadius: '6px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
-                    fontSize: '0.82rem',
+                    gap: '0.35rem',
+                    fontSize: '0.8rem',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   🖨️ បោះពុម្ព (Print)
@@ -1239,17 +1273,18 @@ export default function ContractClient({
                     background: '#2563eb',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '0.45rem 0.85rem',
+                    padding: '0.4rem 0.75rem',
                     borderRadius: '6px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
-                    fontSize: '0.82rem',
+                    gap: '0.35rem',
+                    fontSize: '0.8rem',
+                    whiteSpace: 'nowrap',
                   }}
                 >
-                  📄 ទាញយក Word (.docx)
+                  📄 Word (.docx)
                 </button>
                 <button
                   onClick={handleSaveContract}
@@ -1258,14 +1293,15 @@ export default function ContractClient({
                     background: '#059669',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '0.45rem 0.85rem',
+                    padding: '0.4rem 0.75rem',
                     borderRadius: '6px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
-                    fontSize: '0.82rem',
+                    gap: '0.35rem',
+                    fontSize: '0.8rem',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   💾 រក្សាទុក (Save)
@@ -1273,15 +1309,19 @@ export default function ContractClient({
                 <button
                   onClick={() => setIsModalOpen(false)}
                   style={{
-                    background: '#f1f5f9',
-                    color: '#64748b',
-                    border: '1px solid #cbd5e1',
-                    padding: '0.45rem 0.75rem',
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    padding: '0.4rem 0.75rem',
                     borderRadius: '6px',
-                    fontWeight: 700,
+                    fontWeight: 800,
                     cursor: 'pointer',
                     fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
+                  title="បិទ (Close)"
                 >
                   ✕
                 </button>
@@ -1289,19 +1329,10 @@ export default function ContractClient({
             </div>
 
             {/* Modal Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem', background: '#f1f5f9' }}>
+            <div className={styles.modalBody}>
               {/* TAB 1: FORM INPUTS (Auto-search & Fields) */}
               {activeTab === 'form' && (
-                <div
-                  style={{
-                    background: '#ffffff',
-                    borderRadius: '12px',
-                    padding: '1.75rem',
-                    maxWidth: '1100px',
-                    margin: '0 auto',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  }}
-                >
+                <div className={styles.formCard}>
                   <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.65rem', marginBottom: '1.25rem', color: '#1e3a8a', fontSize: '1.1rem' }}>
                     🔍 ១. ស្វែងរកបុគ្គលិកដោយស្វ័យប្រវត្តិ (Auto-fill Employee)
                   </h3>
@@ -1705,16 +1736,7 @@ export default function ContractClient({
 
               {/* TAB 2: EDIT CLAUSES (កែរអត្ថន័យបាន) */}
               {activeTab === 'clauses' && (
-                <div
-                  style={{
-                    background: '#ffffff',
-                    borderRadius: '12px',
-                    padding: '1.75rem',
-                    maxWidth: '1100px',
-                    margin: '0 auto',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                  }}
-                >
+                <div className={styles.formCard}>
                   <div style={{ marginBottom: '1.25rem', background: '#eff6ff', padding: '0.85rem', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
                     <h4 style={{ margin: '0 0 0.2rem 0', color: '#1e3a8a', fontSize: '0.95rem' }}>✏️ កែប្រែខ្លឹមសារខសន្យា (Customizable Clauses)</h4>
                     <p style={{ margin: 0, fontSize: '0.8rem', color: '#475569' }}>
@@ -2283,7 +2305,8 @@ export default function ContractClient({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

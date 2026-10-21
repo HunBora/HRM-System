@@ -348,19 +348,34 @@ export default function IDCardClient({
   companyName: string;
   settings?: any;
 }) {
-  // Card Format Style State (Defaulting to Wave & Gold)
-  const [cardStyle, setCardStyle] = useState<CardStyleType>('wave-gold');
+  // Parse saved default config from settings or null
+  const initialConfig = useMemo(() => {
+    let cfg: any = null;
+    if (settings?.idCardDefaultSettings) {
+      try {
+        cfg = typeof settings.idCardDefaultSettings === 'string'
+          ? JSON.parse(settings.idCardDefaultSettings)
+          : settings.idCardDefaultSettings;
+      } catch (e) {
+        console.error('Failed to parse settings.idCardDefaultSettings', e);
+      }
+    }
+    return cfg;
+  }, [settings?.idCardDefaultSettings]);
+
+  // Card Format Style State (Defaulting to saved default or Wave & Gold)
+  const [cardStyle, setCardStyle] = useState<CardStyleType>(initialConfig?.cardStyle || 'wave-gold');
 
   // Theme and Styling State
-  const [activeTheme, setActiveTheme] = useState('navy-gold');
-  const [primaryColor, setPrimaryColor] = useState('#1e3a8a');
-  const [accentColor, setAccentColor] = useState('#eab308');
-  const [cardBg, setCardBg] = useState('#ffffff');
-  const [textColor, setTextColor] = useState('#0f172a');
+  const [activeTheme, setActiveTheme] = useState(initialConfig?.activeTheme || 'navy-gold');
+  const [primaryColor, setPrimaryColor] = useState(initialConfig?.primaryColor || '#1e3a8a');
+  const [accentColor, setAccentColor] = useState(initialConfig?.accentColor || '#eab308');
+  const [cardBg, setCardBg] = useState(initialConfig?.cardBg || '#ffffff');
+  const [textColor, setTextColor] = useState(initialConfig?.textColor || '#0f172a');
 
   // Font Options
-  const [fontFamily, setFontFamily] = useState(FONT_OPTIONS[0].value);
-  const [fontScale, setFontScale] = useState(1.0);
+  const [fontFamily, setFontFamily] = useState(initialConfig?.fontFamily || FONT_OPTIONS[0].value);
+  const [fontScale, setFontScale] = useState(initialConfig?.fontScale ?? 1.0);
 
   // Zoom Preview
   const [previewZoom, setPreviewZoom] = useState(1.2);
@@ -372,11 +387,16 @@ export default function IDCardClient({
   const [isExporting, setIsExporting] = useState(false);
 
   // Lanyard & Barcode Display Toggles
-  const [showLanyard, setShowLanyard] = useState(true);
-  const [showBarcode, setShowBarcode] = useState(true);
+  const [showLanyard, setShowLanyard] = useState(initialConfig?.showLanyard ?? true);
+  const [showBarcode, setShowBarcode] = useState(initialConfig?.showBarcode ?? true);
 
   // Tagline (ដូចរូប 5: "Your Tagline Here")
-  const [tagline, setTagline] = useState('Excellence in Production');
+  const [tagline, setTagline] = useState(initialConfig?.tagline || 'Excellence in Production');
+
+  // Saved default indicator & state
+  const [savedDefaultStyle, setSavedDefaultStyle] = useState<string>(initialConfig?.cardStyle || 'wave-gold');
+  const [isSavingDefault, setIsSavingDefault] = useState(false);
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
   // Dates and Blood Group
   const issueDateFormatted = employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('en-GB') : '01/01/2026';
@@ -468,6 +488,40 @@ export default function IDCardClient({
   const cardWidth = isLandscape ? '86mm' : '54mm';
   const cardHeight = isLandscape ? '54mm' : '86mm';
 
+  // Check localStorage on mount if no server settings were provided
+  React.useEffect(() => {
+    if (!initialConfig && typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('hrm_id_card_default_settings');
+        if (raw) {
+          const cfg = JSON.parse(raw);
+          if (cfg.cardStyle) {
+            setCardStyle(cfg.cardStyle);
+            setSavedDefaultStyle(cfg.cardStyle);
+          }
+          if (cfg.activeTheme) setActiveTheme(cfg.activeTheme);
+          if (cfg.primaryColor) setPrimaryColor(cfg.primaryColor);
+          if (cfg.accentColor) setAccentColor(cfg.accentColor);
+          if (cfg.cardBg) setCardBg(cfg.cardBg);
+          if (cfg.textColor) setTextColor(cfg.textColor);
+          if (cfg.fontFamily) setFontFamily(cfg.fontFamily);
+          if (cfg.fontScale !== undefined) setFontScale(cfg.fontScale);
+          if (cfg.showBarcode !== undefined) setShowBarcode(cfg.showBarcode);
+          if (cfg.showLanyard !== undefined) setShowLanyard(cfg.showLanyard);
+          if (cfg.tagline) setTagline(cfg.tagline);
+          if (cfg.qrType) setQrType(cfg.qrType);
+          if (cfg.customQrUrl !== undefined) setCustomQrUrl(cfg.customQrUrl);
+          if (cfg.langMode) setLangMode(cfg.langMode);
+          if (cfg.termsKh) setTermsKh(cfg.termsKh);
+          if (cfg.termsEn) setTermsEn(cfg.termsEn);
+          if (cfg.termsZh) setTermsZh(cfg.termsZh);
+        }
+      } catch (e) {
+        console.error('Error reading localStorage default id card:', e);
+      }
+    }
+  }, [initialConfig]);
+
   // Apply card style
   const handleSelectStyle = (s: CardStyleDef) => {
     setCardStyle(s.id);
@@ -484,12 +538,83 @@ export default function IDCardClient({
     setTextColor(theme.textColor);
   };
 
+  // Save current style & options as default for all ID cards
+  const handleSaveAsDefault = async (targetStyle?: CardStyleType) => {
+    const styleToSave = targetStyle || cardStyle;
+    setIsSavingDefault(true);
+
+    let pColor = primaryColor;
+    let aColor = accentColor;
+    if (targetStyle && targetStyle !== cardStyle) {
+      const foundDef = CARD_STYLES.find((s) => s.id === targetStyle);
+      if (foundDef) {
+        pColor = foundDef.defaultPrimary;
+        aColor = foundDef.defaultAccent;
+        setCardStyle(targetStyle);
+        setPrimaryColor(pColor);
+        setAccentColor(aColor);
+      }
+    }
+
+    const configToSave = {
+      cardStyle: styleToSave,
+      activeTheme,
+      primaryColor: pColor,
+      accentColor: aColor,
+      cardBg,
+      textColor,
+      fontFamily,
+      fontScale,
+      showBarcode,
+      showLanyard,
+      tagline,
+      qrType,
+      customQrUrl,
+      langMode,
+      termsKh,
+      termsEn,
+      termsZh,
+      savedAt: new Date().toISOString()
+    };
+
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hrm_id_card_default_settings', JSON.stringify(configToSave));
+      }
+
+      await fetch('/api/company-settings/id-card', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idCardDefaultSettings: JSON.stringify(configToSave) })
+      });
+
+      setSavedDefaultStyle(styleToSave);
+      const styleDef = CARD_STYLES.find((s) => s.id === styleToSave);
+      const name = styleDef ? styleDef.nameKh : styleToSave;
+      setSaveSuccessMessage(`✓ បានរក្សាទុក «${name}» ជាម៉ូតលំនាំដើម (Default) សម្រាប់កាតបុគ្គលិកទាំងអស់រួចរាល់!`);
+      setTimeout(() => setSaveSuccessMessage(null), 4500);
+    } catch (err) {
+      console.warn('Saved to localStorage notice:', err);
+      setSavedDefaultStyle(styleToSave);
+      setSaveSuccessMessage(`✓ បានរក្សាទុកជាម៉ូតលំនាំដើម (Default) រួចរាល់!`);
+      setTimeout(() => setSaveSuccessMessage(null), 4500);
+    } finally {
+      setIsSavingDefault(false);
+    }
+  };
+
   // Reset all to defaults
   const handleReset = () => {
-    setCardStyle('wave-gold');
-    applyPresetTheme(THEME_PRESETS[0]);
-    setFontFamily(FONT_OPTIONS[0].value);
-    setFontScale(1.0);
+    const baseStyle = initialConfig?.cardStyle || 'wave-gold';
+    setCardStyle(baseStyle);
+    if (initialConfig?.primaryColor) {
+      setPrimaryColor(initialConfig.primaryColor);
+      setAccentColor(initialConfig.accentColor || '#eab308');
+    } else {
+      applyPresetTheme(THEME_PRESETS[0]);
+    }
+    setFontFamily(initialConfig?.fontFamily || FONT_OPTIONS[0].value);
+    setFontScale(initialConfig?.fontScale ?? 1.0);
     setCompanyKh(defaultCompanyKh);
     setCompanyEn(companyName);
     setCompanyZh(defaultCompanyZh);
@@ -502,15 +627,15 @@ export default function IDCardClient({
     setDeptEn(resolvedDept.en);
     setDeptZh(resolvedDept.zh);
     setContactPhone(defaultPhone);
-    setTermsKh('ប័ណ្ណនេះជាកម្មសិទ្ធិរបស់ក្រុមហ៊ុន។ ប្រសិនបើរើសបាន សូមប្រគល់ជូនការិយាល័យរដ្ឋបាលក្រុមហ៊ុនវិញ។');
-    setTermsEn('This card is the property of the company. If found, please return to Admin Office.');
-    setTermsZh('此工卡为公司资产。如有拾获，请交还至公司行政部。');
-    setLangMode('trilingual');
-    setQrType('verify-url');
-    setCustomQrUrl('');
-    setShowLanyard(true);
-    setShowBarcode(true);
-    setTagline('Excellence in Production');
+    setTermsKh(initialConfig?.termsKh || 'ប័ណ្ណនេះជាកម្មសិទ្ធិរបស់ក្រុមហ៊ុន។ ប្រសិនបើរើសបាន សូមប្រគល់ជូនការិយាល័យរដ្ឋបាលក្រុមហ៊ុនវិញ។');
+    setTermsEn(initialConfig?.termsEn || 'This card is the property of the company. If found, please return to Admin Office.');
+    setTermsZh(initialConfig?.termsZh || '此工卡为公司资产。如有拾获，请交还至公司行政部。');
+    setLangMode(initialConfig?.langMode || 'trilingual');
+    setQrType(initialConfig?.qrType || 'verify-url');
+    setCustomQrUrl(initialConfig?.customQrUrl || '');
+    setShowLanyard(initialConfig?.showLanyard ?? true);
+    setShowBarcode(initialConfig?.showBarcode ?? true);
+    setTagline(initialConfig?.tagline || 'Excellence in Production');
   };
 
   // Export to PDF
@@ -1550,6 +1675,41 @@ export default function IDCardClient({
             🖼️ រូបក្រោយ (.png)
           </button>
 
+          {/* Save as Default Button */}
+          <button
+            type="button"
+            onClick={() => handleSaveAsDefault()}
+            disabled={isSavingDefault}
+            style={{
+              padding: '9px 16px',
+              backgroundColor: savedDefaultStyle === cardStyle ? '#047857' : '#059669',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: isSavingDefault ? 'wait' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 5px rgba(5, 150, 105, 0.3)',
+              transition: 'all 0.15s ease'
+            }}
+            title="រក្សាទុក Style & ការកំណត់បច្ចុប្បន្នជាលំនាំដើមសម្រាប់កាតបុគ្គលិកទាំងអស់"
+          >
+            {isSavingDefault ? (
+              <>
+                <span>⏳</span>
+                <span>កំពុងរក្សាទុក...</span>
+              </>
+            ) : (
+              <>
+                <span>💾</span>
+                <span>{savedDefaultStyle === cardStyle ? '✓ លំនាំដើមបច្ចុប្បន្ន (Default)' : 'រក្សាទុកជាលំនាំដើម (Save Default)'}</span>
+              </>
+            )}
+          </button>
+
           <button
             onClick={handleReset}
             style={{
@@ -1568,6 +1728,48 @@ export default function IDCardClient({
           </button>
         </div>
       </div>
+
+      {/* Toast Notification for Default Save */}
+      {saveSuccessMessage && (
+        <div
+          className="no-print"
+          style={{
+            padding: '12px 18px',
+            backgroundColor: '#065f46',
+            color: '#ffffff',
+            borderRadius: '10px',
+            boxShadow: '0 4px 14px rgba(6, 95, 70, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '13.5px',
+            fontWeight: 600,
+            animation: 'fadeIn 0.2s ease-out',
+            border: '1px solid #059669'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>🎉</span>
+            <span>{saveSuccessMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveSuccessMessage(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#a7f3d0',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              padding: '2px 8px',
+              borderRadius: '4px'
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Main Studio Layout: Left Controls + Right Live Canvas */}
       <div
@@ -1692,40 +1894,125 @@ export default function IDCardClient({
                 <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
                   📐 ជ្រើសរើស Style/Format កាតសម្គាល់ខ្លួន (គ្រប់ម៉ូដគំរូ):
                 </div>
+
+                {/* Default Style Status & Save Action */}
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: '#ecfdf5',
+                    border: '1.5px solid #a7f3d0',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px'
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <div style={{ fontSize: '11px', color: '#047857', fontWeight: 600 }}>
+                      ⭐ ម៉ូតលំនាំដើមរបស់ក្រុមហ៊ុន (Default Style):
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#065f46', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span>{CARD_STYLES.find((s) => s.id === savedDefaultStyle)?.icon}</span>
+                      <span>{CARD_STYLES.find((s) => s.id === savedDefaultStyle)?.nameKh}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveAsDefault(cardStyle)}
+                    disabled={isSavingDefault}
+                    style={{
+                      padding: '7px 13px',
+                      backgroundColor: savedDefaultStyle === cardStyle ? '#10b981' : '#059669',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '11.5px',
+                      cursor: isSavingDefault ? 'wait' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      boxShadow: '0 2px 4px rgba(5, 150, 105, 0.25)',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title="រក្សាទុកម៉ូតដែលកំពុងជ្រើសរើសជាលំនាំដើម"
+                  >
+                    💾 {savedDefaultStyle === cardStyle ? 'បានរក្សាទុក (Active)' : 'រក្សាទុកជាលំនាំដើម'}
+                  </button>
+                </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {CARD_STYLES.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => handleSelectStyle(s)}
-                      style={{
-                        padding: '11px 12px',
-                        borderRadius: '10px',
-                        border: cardStyle === s.id ? '2px solid #4f46e5' : '1px solid #cbd5e1',
-                        backgroundColor: cardStyle === s.id ? '#f5f3ff' : '#ffffff',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '10px',
-                        textAlign: 'left',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <span style={{ fontSize: '22px', lineHeight: 1 }}>{s.icon}</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '12.5px', fontWeight: 700, color: cardStyle === s.id ? '#4f46e5' : '#1e293b' }}>
-                            {s.nameKh}
-                          </span>
-                          <span style={{ fontSize: '10px', fontWeight: 700, color: '#4f46e5', backgroundColor: '#ede9fe', padding: '1px 6px', borderRadius: '4px' }}>
-                            {s.sampleNo}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
-                          {s.desc}
+                  {CARD_STYLES.map((s) => {
+                    const isSelected = cardStyle === s.id;
+                    const isDefault = savedDefaultStyle === s.id;
+                    return (
+                      <div
+                        key={s.id}
+                        onClick={() => handleSelectStyle(s)}
+                        style={{
+                          padding: '11px 12px',
+                          borderRadius: '10px',
+                          border: isSelected ? '2px solid #4f46e5' : '1px solid #cbd5e1',
+                          backgroundColor: isSelected ? '#f5f3ff' : '#ffffff',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '10px',
+                          textAlign: 'left',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <span style={{ fontSize: '22px', lineHeight: 1 }}>{s.icon}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                            <span style={{ fontSize: '12.5px', fontWeight: 700, color: isSelected ? '#4f46e5' : '#1e293b' }}>
+                              {s.nameKh}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {isDefault && (
+                                <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#047857', backgroundColor: '#d1fae5', padding: '1px 6px', borderRadius: '4px', border: '1px solid #6ee7b7' }}>
+                                  ★ លំនាំដើម
+                                </span>
+                              )}
+                              <span style={{ fontSize: '10px', fontWeight: 700, color: '#4f46e5', backgroundColor: '#ede9fe', padding: '1px 6px', borderRadius: '4px' }}>
+                                {s.sampleNo}
+                              </span>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
+                            {s.desc}
+                          </div>
+                          {isSelected && !isDefault && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveAsDefault(s.id);
+                              }}
+                              style={{
+                                marginTop: '6px',
+                                padding: '3px 9px',
+                                fontSize: '10.5px',
+                                borderRadius: '4px',
+                                backgroundColor: '#10b981',
+                                color: '#ffffff',
+                                border: 'none',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <span>⭐</span>
+                              <span>កំណត់ម៉ូតនេះជាលំនាំដើម (Set as Default)</span>
+                            </button>
+                          )}
                         </div>
                       </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Display Toggles */}
@@ -2309,28 +2596,59 @@ export default function IDCardClient({
             {/* Quick Style Switcher Pills on Canvas Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700, color: '#1e293b' }}>Style:</span>
-              {CARD_STYLES.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => handleSelectStyle(s)}
-                  style={{
-                    padding: '5px 10px',
-                    borderRadius: '6px',
-                    border: cardStyle === s.id ? '1.5px solid #4f46e5' : '1px solid #cbd5e1',
-                    backgroundColor: cardStyle === s.id ? '#f5f3ff' : '#ffffff',
-                    color: cardStyle === s.id ? '#4f46e5' : '#475569',
-                    fontWeight: cardStyle === s.id ? 700 : 500,
-                    cursor: 'pointer',
-                    fontSize: '11.5px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <span>{s.icon}</span>
-                  <span>{s.nameKh.split('(')[0]}</span>
-                </button>
-              ))}
+              {CARD_STYLES.map((s) => {
+                const isSelected = cardStyle === s.id;
+                const isDefault = savedDefaultStyle === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => handleSelectStyle(s)}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: '6px',
+                      border: isSelected ? '1.5px solid #4f46e5' : isDefault ? '1.5px solid #10b981' : '1px solid #cbd5e1',
+                      backgroundColor: isSelected ? '#f5f3ff' : isDefault ? '#f0fdf4' : '#ffffff',
+                      color: isSelected ? '#4f46e5' : isDefault ? '#047857' : '#475569',
+                      fontWeight: isSelected ? 700 : 500,
+                      cursor: 'pointer',
+                      fontSize: '11.5px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title={isDefault ? 'ម៉ូតលំនាំដើមរបស់ក្រុមហ៊ុន (Default)' : s.nameKh}
+                  >
+                    <span>{s.icon}</span>
+                    <span>{s.nameKh.split('(')[0]}</span>
+                    {isDefault && <span style={{ color: '#059669', fontWeight: 800 }}>★</span>}
+                  </button>
+                );
+              })}
+
+              {/* Quick Save as Default Pill Button */}
+              <button
+                type="button"
+                onClick={() => handleSaveAsDefault(cardStyle)}
+                disabled={isSavingDefault}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  backgroundColor: savedDefaultStyle === cardStyle ? '#ecfdf5' : '#10b981',
+                  color: savedDefaultStyle === cardStyle ? '#065f46' : '#ffffff',
+                  border: savedDefaultStyle === cardStyle ? '1px solid #a7f3d0' : 'none',
+                  fontWeight: 700,
+                  cursor: isSavingDefault ? 'wait' : 'pointer',
+                  fontSize: '11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  marginLeft: '4px'
+                }}
+                title="រក្សាទុកម៉ូតនេះជាលំនាំដើម (Save as Default)"
+              >
+                <span>💾</span>
+                <span>{savedDefaultStyle === cardStyle ? '★ លំនាំដើម (Active)' : 'រក្សាទុកជាលំនាំដើម'}</span>
+              </button>
             </div>
 
             {/* Preview Zoom */}
@@ -2485,7 +2803,7 @@ export default function IDCardClient({
             }}
           >
             <div>
-              💡 <strong>Style បច្ចុប្បន្ន:</strong> {CARD_STYLES.find(s => s.id === cardStyle)?.nameKh} ({cardWidth} × {cardHeight}) ស្តង់ដារ CR80 PVC Card។
+              💡 <strong>Style បច្ចុប្បន្ន:</strong> {CARD_STYLES.find(s => s.id === cardStyle)?.nameKh} ({cardWidth} × {cardHeight}) ស្តង់ដារ CR80 PVC Card {savedDefaultStyle === cardStyle ? '• ⭐ (ម៉ូតលំនាំដើមក្រុមហ៊ុន / Default)' : ''}
             </div>
             <div style={{ fontWeight: 600, color: '#2563eb' }}>
               ✓ Fit Content ស្អាត កុំដាច់អក្សរ

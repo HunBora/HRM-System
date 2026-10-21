@@ -255,6 +255,7 @@ model CompanySettings {
   contactPhone      String?
   telegramLink      String?
   telegramQrUrl     String?
+  idCardDefaultSettings     String?
 
   advanceMaxLimit           Float    @default(50)
   advanceEligibilityMonths  Int      @default(3)

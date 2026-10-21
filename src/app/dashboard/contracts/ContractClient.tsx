@@ -11,6 +11,7 @@ import {
   getGenderLabel,
 } from '@/lib/contractTemplates';
 import { generateContractDocxBlob } from '@/lib/contractDocx';
+import { analyzeContractAlert, ContractAlertItem } from '@/lib/contractAlerts';
 
 interface EmployeeItem {
   id: string;
@@ -50,7 +51,11 @@ interface ContractRecord {
   basicSalaryKhr: number;
   isForeigner: boolean;
   passportNo?: string | null;
+  passportExpiry?: string | null;
+  visaNo?: string | null;
+  visaExpiry?: string | null;
   workPermitNo?: string | null;
+  workPermitExpiry?: string | null;
   customClausesJson?: string | null;
   createdAt: string;
 }
@@ -74,8 +79,10 @@ export default function ContractClient({
   const [searchEmpQuery, setSearchEmpQuery] = useState('');
   const [isEmpDropdownOpen, setIsEmpDropdownOpen] = useState(false);
   const [tableFilterType, setTableFilterType] = useState<string>('ALL');
+  const [alertFilterCategory, setAlertFilterCategory] = useState<string>('ALL');
   const [tableSearchText, setTableSearchText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingTelegram, setIsSendingTelegram] = useState(false);
 
   // Default Form State
   const defaultCompanyName = companySettings?.companyName || 'Cambodia Enterprise Co., Ltd.';
@@ -116,6 +123,44 @@ export default function ContractClient({
     workingDays: 'ច័ន្ទ ដល់ សៅរ៍ / Monday to Saturday / 周一至周六',
   });
 
+  // Calculate Smart Alerts for all contracts
+  const contractAlertsMap = useMemo(() => {
+    const map = new Map<string, ContractAlertItem[]>();
+    contracts.forEach((c) => {
+      const alerts = analyzeContractAlert(c);
+      map.set(c.id, alerts);
+    });
+    return map;
+  }, [contracts]);
+
+  // Aggregated Smart Alert Counts
+  const alertStats = useMemo(() => {
+    let fdcNoticeCount = 0;
+    let foreignWpCount = 0;
+    let foreignVisaCount = 0;
+    let probationCount = 0;
+    let expiredCount = 0;
+
+    contractAlertsMap.forEach((alerts) => {
+      alerts.forEach((a) => {
+        if (a.alertType === 'FDC_CRITICAL' || a.alertType === 'FDC_WARNING') fdcNoticeCount++;
+        if (a.alertType === 'FOREIGN_WP_CRITICAL' || a.alertType === 'FOREIGN_WP_WARNING') foreignWpCount++;
+        if (a.alertType === 'FOREIGN_VISA_CRITICAL' || a.alertType === 'FOREIGN_VISA_WARNING') foreignVisaCount++;
+        if (a.alertType === 'PROBATION_ENDING') probationCount++;
+        if (a.alertType === 'EXPIRED') expiredCount++;
+      });
+    });
+
+    return {
+      fdcNoticeCount,
+      foreignWpCount,
+      foreignVisaCount,
+      probationCount,
+      expiredCount,
+      totalAlerts: fdcNoticeCount + foreignWpCount + foreignVisaCount + probationCount + expiredCount,
+    };
+  }, [contractAlertsMap]);
+
   // Filter employees for Auto-Search
   const filteredEmployees = useMemo(() => {
     if (!searchEmpQuery.trim()) return employees.slice(0, 15);
@@ -144,7 +189,6 @@ export default function ContractClient({
       ? new Date(emp.hireDate).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0];
 
-    // Determine default end date
     const dStart = new Date(start);
     const dEnd = new Date(dStart);
     dEnd.setFullYear(dEnd.getFullYear() + 1);
@@ -261,6 +305,29 @@ export default function ContractClient({
     setIsModalOpen(true);
   };
 
+  // Send Smart Alerts to Telegram
+  const handleSendTelegramAlerts = async () => {
+    try {
+      setIsSendingTelegram(true);
+      const res = await fetch('/api/contracts/alerts', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.message || 'Failed to send alert');
+      }
+
+      Swal.fire({
+        icon: data.telegramSent ? 'success' : 'info',
+        title: data.telegramSent ? 'ផ្ញើ Telegram ជោគជ័យ!' : 'រួចរាល់!',
+        text: data.message,
+        confirmButtonText: 'យល់ព្រម',
+      });
+    } catch (err: any) {
+      Swal.fire('Error', err.message || 'មិនអាចផ្ញើ Telegram Alert បានទេ', 'error');
+    } finally {
+      setIsSendingTelegram(false);
+    }
+  };
+
   // Save Contract to Database
   const handleSaveContract = async () => {
     if (!formData.employeeId) {
@@ -346,7 +413,7 @@ export default function ContractClient({
     window.print();
   };
 
-  // Filter Table Contracts
+  // Filter Table Contracts by Type, Search, and Smart Alert Category
   const filteredContracts = useMemo(() => {
     return contracts.filter((c) => {
       const matchesType = tableFilterType === 'ALL' || c.contractType === tableFilterType;
@@ -357,9 +424,28 @@ export default function ContractClient({
         c.employee.employeeId.toLowerCase().includes(q) ||
         `${c.employee.firstNameEn} ${c.employee.lastNameEn}`.toLowerCase().includes(q) ||
         `${c.employee.lastNameKh} ${c.employee.firstNameKh}`.toLowerCase().includes(q);
-      return matchesType && matchesSearch;
+
+      const alerts = contractAlertsMap.get(c.id) || [];
+      let matchesAlertCategory = true;
+      if (alertFilterCategory === 'FDC_NOTICE') {
+        matchesAlertCategory = alerts.some((a) => a.alertType === 'FDC_CRITICAL' || a.alertType === 'FDC_WARNING');
+      } else if (alertFilterCategory === 'FOREIGN_WP_VISA') {
+        matchesAlertCategory = alerts.some(
+          (a) =>
+            a.alertType === 'FOREIGN_WP_CRITICAL' ||
+            a.alertType === 'FOREIGN_WP_WARNING' ||
+            a.alertType === 'FOREIGN_VISA_CRITICAL' ||
+            a.alertType === 'FOREIGN_VISA_WARNING'
+        );
+      } else if (alertFilterCategory === 'PROBATION') {
+        matchesAlertCategory = alerts.some((a) => a.alertType === 'PROBATION_ENDING');
+      } else if (alertFilterCategory === 'EXPIRED') {
+        matchesAlertCategory = alerts.some((a) => a.alertType === 'EXPIRED');
+      }
+
+      return matchesType && matchesSearch && matchesAlertCategory;
     });
-  }, [contracts, tableFilterType, tableSearchText]);
+  }, [contracts, tableFilterType, tableSearchText, alertFilterCategory, contractAlertsMap]);
 
   // Derived metadata
   const currentMeta = CONTRACT_TYPE_METADATA[formData.contractType] || CONTRACT_TYPE_METADATA.FDC;
@@ -373,87 +459,246 @@ export default function ContractClient({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
             <span style={{ fontSize: '2rem' }}>📜</span>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0 }}>
-              ប្រព័ន្ធគ្រប់គ្រងកិច្ចសន្យាការងារ (៣ភាសា)
+              ប្រព័ន្ធគ្រប់គ្រងកិច្ចសន្យាការងារ & Smart Alert
             </h1>
           </div>
           <p style={{ margin: 0, opacity: 0.9, fontSize: '0.95rem', maxWidth: '850px' }}>
-            បង្កើត ព្រីន និងទាញយកកិច្ចសន្យាស្តង់ដារក្រសួងការងារ MLVT ឆ្នាំ២០២៦ ជា ៣ ភាសា (ខ្មែរលើគេ ចិន
-            និងអង់គ្លេស) សម្រាប់កុងត្រាមានកំណត់ (FDC), មិនកំណត់ (UDC), សាកល្បង (Probation)
-            និងបុគ្គលិកជនបរទេស (Foreign Expat)។
+            ដាស់តឿនឆ្លាតវៃកុងត្រា FDC (១០-១៥ ថ្ងៃ តាមមាត្រា ៧៣) និង Work Permit / Visa ជនបរទេស (៣០-៦០ ថ្ងៃ)
+            ជាមួយទម្រង់ស្តង់ដារ ៣ ភាសា (ខ្មែរ ចិន អង់គ្លេស)។
           </p>
         </div>
-        <button
-          onClick={handleOpenNewModal}
-          style={{
-            background: '#ffffff',
-            color: '#1e3a8a',
-            fontWeight: 700,
-            padding: '0.85rem 1.6rem',
-            borderRadius: '12px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <span style={{ fontSize: '1.3rem' }}>➕</span>
-          បង្កើតកិច្ចសន្យាថ្មី (New Contract)
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleSendTelegramAlerts}
+            disabled={isSendingTelegram}
+            style={{
+              background: '#0284c7',
+              color: '#ffffff',
+              fontWeight: 700,
+              padding: '0.85rem 1.4rem',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            }}
+          >
+            <span>📢</span>
+            {isSendingTelegram ? 'កំពុងផ្ញើ...' : 'ផ្ញើ Alert ទៅ Telegram'}
+          </button>
+          <button
+            onClick={handleOpenNewModal}
+            style={{
+              background: '#ffffff',
+              color: '#1e3a8a',
+              fontWeight: 700,
+              padding: '0.85rem 1.6rem',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{ fontSize: '1.3rem' }}>➕</span>
+            បង្កើតកិច្ចសន្យាថ្មី (New Contract)
+          </button>
+        </div>
       </div>
 
-      {/* Stats Summary */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard} style={{ borderLeft: '4px solid #2563eb' }}>
-          <div style={{ fontSize: '2rem', background: '#eff6ff', padding: '0.75rem', borderRadius: '12px' }}>
-            📄
+      {/* --- SMART ALERT NOTIFICATION CENTER BAR --- */}
+      <div
+        style={{
+          background: 'linear-gradient(to right, #f8fafc, #ffffff)',
+          border: '1px solid #cbd5e1',
+          borderRadius: '16px',
+          padding: '1.25rem 1.5rem',
+          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ fontSize: '1.4rem' }}>🚨</span>
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#1e293b' }}>
+              មជ្ឈមណ្ឌលដាស់តឿនឆ្លាតវៃ (MLVT 2026 Smart Expiry Alerts)
+            </h3>
           </div>
-          <div>
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>កុងត្រាមានកំណត់ (FDC)</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-              {contracts.filter((c) => c.contractType === 'FDC').length}
+          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+            ចុចលើ Card នីមួយៗដើម្បី Filter មើលបុគ្គលិកជាក់លាក់
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+          {/* Card 1: FDC Notice */}
+          <div
+            onClick={() => setAlertFilterCategory(alertFilterCategory === 'FDC_NOTICE' ? 'ALL' : 'FDC_NOTICE')}
+            style={{
+              background: alertFilterCategory === 'FDC_NOTICE' ? '#fef2f2' : '#ffffff',
+              border: `2px solid ${alertFilterCategory === 'FDC_NOTICE' ? '#ef4444' : '#fee2e2'}`,
+              borderRadius: '12px',
+              padding: '1rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.3rem' }}>🔔</span>
+              <span
+                style={{
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '20px',
+                }}
+              >
+                {alertStats.fdcNoticeCount}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#991b1b', marginTop: '0.5rem' }}>
+              FDC ត្រូវជូនដំណឹងមុន
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              ១០ ថ្ងៃ ឬ ១៥ ថ្ងៃ (មាត្រា ៧៣)
+            </div>
+          </div>
+
+          {/* Card 2: Foreign WP */}
+          <div
+            onClick={() => setAlertFilterCategory(alertFilterCategory === 'FOREIGN_WP_VISA' ? 'ALL' : 'FOREIGN_WP_VISA')}
+            style={{
+              background: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#f5f3ff' : '#ffffff',
+              border: `2px solid ${alertFilterCategory === 'FOREIGN_WP_VISA' ? '#7c3aed' : '#ede9fe'}`,
+              borderRadius: '12px',
+              padding: '1rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.3rem' }}>🌐</span>
+              <span
+                style={{
+                  background: '#7c3aed',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '20px',
+                }}
+              >
+                {alertStats.foreignWpCount + alertStats.foreignVisaCount}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#5b21b6', marginTop: '0.5rem' }}>
+              Work Permit & Visa ជនបរទេស
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              ៣០ ដល់ ៦០ ថ្ងៃ (រៀបចំ MLVT)
+            </div>
+          </div>
+
+          {/* Card 3: Probation Ending */}
+          <div
+            onClick={() => setAlertFilterCategory(alertFilterCategory === 'PROBATION' ? 'ALL' : 'PROBATION')}
+            style={{
+              background: alertFilterCategory === 'PROBATION' ? '#fffbeb' : '#ffffff',
+              border: `2px solid ${alertFilterCategory === 'PROBATION' ? '#d97706' : '#fef3c7'}`,
+              borderRadius: '12px',
+              padding: '1rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.3rem' }}>⏳</span>
+              <span
+                style={{
+                  background: '#d97706',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '20px',
+                }}
+              >
+                {alertStats.probationCount}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#92400e', marginTop: '0.5rem' }}>
+              សាកល្បងជិតចប់
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              នៅសល់ $\le$ ៧ ថ្ងៃ (ត្រៀមវាយតម្លៃ)
+            </div>
+          </div>
+
+          {/* Card 4: Expired */}
+          <div
+            onClick={() => setAlertFilterCategory(alertFilterCategory === 'EXPIRED' ? 'ALL' : 'EXPIRED')}
+            style={{
+              background: alertFilterCategory === 'EXPIRED' ? '#f8fafc' : '#ffffff',
+              border: `2px solid ${alertFilterCategory === 'EXPIRED' ? '#475569' : '#e2e8f0'}`,
+              borderRadius: '12px',
+              padding: '1rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.3rem' }}>⚠️</span>
+              <span
+                style={{
+                  background: '#475569',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '20px',
+                }}
+              >
+                {alertStats.expiredCount}
+              </span>
+            </div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginTop: '0.5rem' }}>
+              កិច្ចសន្យាផុតកំណត់ហើយ
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+              ត្រូវសម្រេចបន្ត ឬទូទាត់ផ្តាច់
             </div>
           </div>
         </div>
 
-        <div className={styles.statCard} style={{ borderLeft: '4px solid #059669' }}>
-          <div style={{ fontSize: '2rem', background: '#ecfdf5', padding: '0.75rem', borderRadius: '12px' }}>
-            📑
+        {alertFilterCategory !== 'ALL' && (
+          <div style={{ marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0369a1' }}>
+              🔍 កំពុង Filter តាម៖ <strong>{alertFilterCategory}</strong>
+            </span>
+            <button
+              onClick={() => setAlertFilterCategory('ALL')}
+              style={{
+                background: '#e0f2fe',
+                color: '#0369a1',
+                border: 'none',
+                padding: '0.2rem 0.6rem',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              សម្អាត Filter (Reset) ✕
+            </button>
           </div>
-          <div>
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>កុងត្រាអចិន្ត្រៃយ៍ (UDC)</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-              {contracts.filter((c) => c.contractType === 'UDC').length}
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.statCard} style={{ borderLeft: '4px solid #d97706' }}>
-          <div style={{ fontSize: '2rem', background: '#fffbeb', padding: '0.75rem', borderRadius: '12px' }}>
-            ⏳
-          </div>
-          <div>
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>សាកល្បងការងារ (Probation)</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-              {contracts.filter((c) => c.contractType === 'PROBATION').length}
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.statCard} style={{ borderLeft: '4px solid #7c3aed' }}>
-          <div style={{ fontSize: '2rem', background: '#f5f3ff', padding: '0.75rem', borderRadius: '12px' }}>
-            🌐
-          </div>
-          <div>
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>បុគ្គលិកជនបរទេស (Foreigners)</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e293b' }}>
-              {contracts.filter((c) => c.isForeigner || c.contractType === 'FOREIGN_FDC').length}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Contract Management Table */}
@@ -537,8 +782,8 @@ export default function ContractClient({
                 <th style={{ padding: '0.85rem 1rem' }}>បុគ្គលិក (Employee)</th>
                 <th style={{ padding: '0.85rem 1rem' }}>ប្រភេទកុងត្រា</th>
                 <th style={{ padding: '0.85rem 1rem' }}>មុខតំណែង / ផ្នែក</th>
-                <th style={{ padding: '0.85rem 1rem' }}>កាលបរិច្ឆេទចាប់ផ្តើម</th>
-                <th style={{ padding: '0.85rem 1rem' }}>កាលបរិច្ឆេទបញ្ចប់</th>
+                <th style={{ padding: '0.85rem 1rem' }}>ថ្ងៃចាប់ផ្តើម - បញ្ចប់</th>
+                <th style={{ padding: '0.85rem 1rem' }}>ស្ថានភាពដាស់តឿន (Smart Alert)</th>
                 <th style={{ padding: '0.85rem 1rem' }}>ប្រាក់ឈ្នួលគោល</th>
                 <th style={{ padding: '0.85rem 1rem', textAlign: 'center' }}>សកម្មភាព</th>
               </tr>
@@ -547,12 +792,15 @@ export default function ContractClient({
               {filteredContracts.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-                    មិនទាន់មានកិច្ចសន្យានៅក្នុងប្រព័ន្ធឡើយ។ សូមចុចប៊ូតុង "បង្កើតកិច្ចសន្យាថ្មី" ខាងលើ!
+                    មិនមានកិច្ចសន្យាត្រូវតាមការស្វែងរក ឬ Filter ឡើយ។
                   </td>
                 </tr>
               ) : (
                 filteredContracts.map((c) => {
                   const meta = CONTRACT_TYPE_METADATA[c.contractType] || CONTRACT_TYPE_METADATA.FDC;
+                  const alerts = contractAlertsMap.get(c.id) || [];
+                  const primaryAlert = alerts[0];
+
                   return (
                     <tr
                       key={c.id}
@@ -589,14 +837,62 @@ export default function ContractClient({
                         <div>{c.positionTitle}</div>
                         <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{c.department}</div>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>{formatContractDate(c.startDate)}</td>
                       <td style={{ padding: '0.85rem 1rem' }}>
-                        {c.contractType === 'UDC' ? (
-                          <span style={{ color: '#059669', fontWeight: 600 }}>គ្មានកំណត់ (UDC)</span>
+                        <div>{formatContractDate(c.startDate)}</div>
+                        <div style={{ fontSize: '0.8rem', color: c.contractType === 'UDC' ? '#059669' : '#64748b' }}>
+                          ➔ {c.contractType === 'UDC' ? 'គ្មានកំណត់ (UDC)' : formatContractDate(c.endDate)}
+                        </div>
+                      </td>
+
+                      {/* Smart Alert Pill Column */}
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        {primaryAlert ? (
+                          <div
+                            style={{
+                              background:
+                                primaryAlert.alertLevel === 'CRITICAL'
+                                  ? '#fee2e2'
+                                  : primaryAlert.alertLevel === 'WARNING'
+                                  ? '#fef3c7'
+                                  : '#f1f5f9',
+                              color:
+                                primaryAlert.alertLevel === 'CRITICAL'
+                                  ? '#b91c1c'
+                                  : primaryAlert.alertLevel === 'WARNING'
+                                  ? '#b45309'
+                                  : '#475569',
+                              padding: '0.35rem 0.65rem',
+                              borderRadius: '8px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              display: 'inline-block',
+                              maxWidth: '220px',
+                            }}
+                            title={primaryAlert.messageKh}
+                          >
+                            <div>{primaryAlert.titleKh}</div>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+                              {primaryAlert.daysRemaining >= 0
+                                ? `នៅសល់ ${primaryAlert.daysRemaining} ថ្ងៃ`
+                                : `ហួស ${Math.abs(primaryAlert.daysRemaining)} ថ្ងៃ`}
+                            </div>
+                          </div>
                         ) : (
-                          formatContractDate(c.endDate)
+                          <span
+                            style={{
+                              background: '#ecfdf5',
+                              color: '#059669',
+                              padding: '0.25rem 0.6rem',
+                              borderRadius: '8px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                            }}
+                          >
+                            ✓ មានសុពលភាព (Active)
+                          </span>
                         )}
                       </td>
+
                       <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: '#0f172a' }}>
                         ${c.basicSalaryUsd.toLocaleString()} USD
                       </td>
@@ -626,7 +922,11 @@ export default function ContractClient({
                               nationality: c.employee.nationality || 'Cambodian',
                               isForeigner: c.isForeigner,
                               passportNo: c.passportNo || '',
+                              passportExpiry: c.passportExpiry ? new Date(c.passportExpiry).toISOString().split('T')[0] : '',
+                              visaNo: c.visaNo || '',
+                              visaExpiry: c.visaExpiry ? new Date(c.visaExpiry).toISOString().split('T')[0] : '',
                               workPermitNo: c.workPermitNo || '',
+                              workPermitExpiry: c.workPermitExpiry ? new Date(c.workPermitExpiry).toISOString().split('T')[0] : '',
                               positionTitle: c.positionTitle,
                               department: c.department,
                               workplace: defaultAddress,
@@ -1089,6 +1389,17 @@ export default function ContractClient({
                             style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                           />
                         </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>
+                            ថ្ងៃផុតកំណត់ទិដ្ឋាការ (Visa Expiry):
+                          </label>
+                          <input
+                            type="date"
+                            value={formData.visaExpiry || ''}
+                            onChange={(e) => setFormData({ ...formData, visaExpiry: e.target.value })}
+                            style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1474,7 +1785,7 @@ export default function ContractClient({
                         <p style={{ margin: '0.2rem 0', fontSize: '0.82rem', color: '#334155', fontStyle: 'italic' }}>
                           From <u>{formatContractDate(formData.startDate)}</u> to{' '}
                           <u>{formatContractDate(formData.endDate)}</u>. Maximum: 3 months for employees, 2
-                          months for specialised workers, 1 month for non-specialised workers (Article 68). The
+                          months for specialised workers, 1 month for non-specialised workers (Article 68). Category: {formData.probationCategory}. The
                           employer evaluates work ability and communicates results. Notice during probation is
                           governed by Article 82. Continued employment shall be documented under a lawful FDC or UDC.
                         </p>

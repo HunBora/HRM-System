@@ -364,7 +364,7 @@ export default function BatchIDCardsClient({
         if (printSides === 'both' || printSides === 'front-only') {
           const frontEl = document.getElementById(`batch-front-${emp.id}`);
           if (frontEl) {
-            if (i > 0 || printSides === 'back-only') {
+            if (i > 0) {
               pdf.addPage([pdfW, pdfH], isLandscape ? 'landscape' : 'portrait');
             }
             const canvas = await html2canvas(frontEl, { scale: 3.5, useCORS: true, backgroundColor: null });

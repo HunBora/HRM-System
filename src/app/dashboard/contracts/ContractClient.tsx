@@ -86,6 +86,7 @@ export default function ContractClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showIsoProbationModal, setShowIsoProbationModal] = useState(false);
   const [selectedIsoEmployee, setSelectedIsoEmployee] = useState<any>(null);
+  const [selectedIsoContractType, setSelectedIsoContractType] = useState<any>('PROBATION');
   const [activeTab, setActiveTab] = useState<'preview' | 'form' | 'clauses'>('preview');
   const [searchEmpQuery, setSearchEmpQuery] = useState('');
   const [isEmpDropdownOpen, setIsEmpDropdownOpen] = useState(false);
@@ -992,6 +993,7 @@ export default function ContractClient({
           <button
             onClick={() => {
               setSelectedIsoEmployee(null);
+              setSelectedIsoContractType('PROBATION');
               setShowIsoProbationModal(true);
             }}
             style={{
@@ -1008,10 +1010,10 @@ export default function ContractClient({
               gap: '0.4rem',
               boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
             }}
-            title="ទម្រង់កិច្ចសន្យាសាកល្បង ISO 9001:2015 តាមរោងចក្រ ឡាងថៃ ប៊ែក / Langtai Bags (4 ទំព័រ / 4-page)"
+            title="ទម្រង់កិច្ចសន្យា ISO 9001:2015 ៤ ទំព័រ (FDC, UDC, បុគ្គលិកជនបរទេស, សាកល្បង / 试用工)"
           >
             <span>🏭</span>
-            កិច្ចសន្យាសាកល្បង ISO 9001:2015 (Langtai / 试用工)
+            កិច្ចសន្យា ISO 9001:2015 (FDC • UDC • បរទេស • សាកល្បង)
           </button>
           <button
             onClick={handleOpenNewModal}
@@ -1495,9 +1497,10 @@ export default function ContractClient({
                         <button
                           onClick={() => {
                             setSelectedIsoEmployee(c.employee);
+                            setSelectedIsoContractType(c.contractType);
                             setShowIsoProbationModal(true);
                           }}
-                          title="កិច្ចសន្យាសាកល្បង ISO 9001:2015 (Langtai Bags / 试用工 4 ទំព័រ)"
+                          title={`កិច្ចសន្យា ISO 9001:2015 ៤ ទំព័រ (${c.contractType})`}
                           style={{
                             background: '#ecfdf5',
                             color: '#059669',
@@ -3051,13 +3054,14 @@ export default function ContractClient({
         document.body
       )}
 
-      {/* ISO 9001:2015 Probation Contract Modal (Langtai Bags / 4 Pages) */}
+      {/* ISO 9001:2015 Contract Modal (FDC, UDC, Foreigner, Probation / 4 Pages) */}
       <IsoProbationContractModal
         isOpen={showIsoProbationModal}
         onClose={() => setShowIsoProbationModal(false)}
         employees={employees}
         companySettings={companySettings}
         initialEmployee={selectedIsoEmployee}
+        initialContractType={selectedIsoContractType}
       />
     </div>
   );

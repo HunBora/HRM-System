@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import RecruitmentAnnouncementModal from './RecruitmentAnnouncementModal';
+import JobApplicationFormModal from './JobApplicationFormModal';
 
 interface JobPosting {
   id: string;
@@ -43,6 +45,7 @@ interface Candidate {
 interface Props {
   initialJobs: JobPosting[];
   initialCandidates: Candidate[];
+  companySettings?: any;
 }
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; labelKh: string }> = {
@@ -58,11 +61,47 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; labelKh: string 
   REJECTED: { bg: '#fee2e2', text: '#b91c1c', labelKh: 'មិនជាប់ (Rejected)' },
 };
 
-export default function RecruitmentClient({ initialJobs, initialCandidates }: Props) {
+export default function RecruitmentClient({ initialJobs, initialCandidates, companySettings }: Props) {
   const [activeTab, setActiveTab] = useState<'jobs' | 'candidates'>('jobs');
   const [jobs, setJobs] = useState<JobPosting[]>(initialJobs);
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [loading, setLoading] = useState(false);
+
+  // Official Announcement & Job Application Form Modals
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [showAppFormModal, setShowAppFormModal] = useState(false);
+  const [selectedJobForModal, setSelectedJobForModal] = useState<JobPosting | null>(null);
+
+  const openAnnouncementModal = (job: JobPosting) => {
+    setSelectedJobForModal(job);
+    setShowAnnouncementModal(true);
+  };
+
+  const openAppFormModal = (job: JobPosting) => {
+    setSelectedJobForModal(job);
+    setShowAppFormModal(true);
+  };
+
+  const handleSaveJobAnnouncement = async (requirementsJson: string) => {
+    if (!selectedJobForModal) return;
+    try {
+      const res = await fetch('/api/recruitment/jobs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedJobForModal.id,
+          requirements: requirementsJson,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to update job posting');
+      const updated = await res.json();
+      setJobs(jobs.map((j) => (j.id === updated.id ? { ...updated, _count: j._count } : j)));
+      setSelectedJobForModal({ ...selectedJobForModal, requirements: requirementsJson });
+    } catch (err: any) {
+      console.error('Error saving announcement:', err);
+      throw err;
+    }
+  };
 
   // Search & Filter state
   const [jobSearch, setJobSearch] = useState('');
@@ -435,6 +474,29 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
               >
                 📊 ទាញយក Excel (Export Jobs)
               </button>
+              {jobs.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => openAnnouncementModal(jobs[0])}
+                  style={{
+                    backgroundColor: '#0284c7',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)',
+                  }}
+                  title="មើល និងបោះពុម្ពសេចក្តីជូនដំណឹងជ្រើសរើសបុគ្គលិកផ្លូវការ"
+                >
+                  📜 គំរូសេចក្តីជូនដំណឹងផ្លូវការ (Official Notice)
+                </button>
+              )}
               <button
                 onClick={openCreateJobModal}
                 style={{
@@ -695,15 +757,55 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
                         👥 បេក្ខជន៖ {job._count?.candidates || 0} នាក់
                       </span>
 
-                      <div style={{ display: 'flex', gap: '6px' }}>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={() => openAnnouncementModal(job)}
+                          title="មើល និងបោះពុម្ពសេចក្តីជូនដំណឹងជ្រើសរើសបុគ្គលិកផ្លូវការ"
+                          style={{
+                            background: '#eff6ff',
+                            border: '1px solid #93c5fd',
+                            borderRadius: '6px',
+                            padding: '6px 10px',
+                            fontSize: '0.82rem',
+                            cursor: 'pointer',
+                            fontWeight: 700,
+                            color: '#1d4ed8',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          📜 សេចក្តីជូនដំណឹង
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openAppFormModal(job)}
+                          title="មើល និងបោះពុម្ពពាក្យស្នើសុំចូលបម្រើការងារផ្លូវការ"
+                          style={{
+                            background: '#f0fdf4',
+                            border: '1px solid #86efac',
+                            borderRadius: '6px',
+                            padding: '6px 10px',
+                            fontSize: '0.82rem',
+                            cursor: 'pointer',
+                            fontWeight: 700,
+                            color: '#15803d',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          📝 ពាក្យសុំការងារ
+                        </button>
                         <button
                           onClick={() => openEditJobModal(job)}
                           style={{
                             background: '#f8fafc',
                             border: '1px solid #cbd5e1',
                             borderRadius: '6px',
-                            padding: '6px 12px',
-                            fontSize: '0.85rem',
+                            padding: '6px 10px',
+                            fontSize: '0.82rem',
                             cursor: 'pointer',
                             fontWeight: 600,
                             color: '#334155',
@@ -717,8 +819,8 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
                             background: '#fef2f2',
                             border: '1px solid #fca5a5',
                             borderRadius: '6px',
-                            padding: '6px 12px',
-                            fontSize: '0.85rem',
+                            padding: '6px 10px',
+                            fontSize: '0.82rem',
                             cursor: 'pointer',
                             fontWeight: 600,
                             color: '#dc2626',
@@ -1301,6 +1403,26 @@ export default function RecruitmentClient({ initialJobs, initialCandidates }: Pr
             </form>
           </div>
         </div>
+      )}
+      {/* Modal: Official Recruitment Announcement (សេចក្តីជូនដំណឹងផ្លូវការ) */}
+      {showAnnouncementModal && selectedJobForModal && (
+        <RecruitmentAnnouncementModal
+          isOpen={showAnnouncementModal}
+          onClose={() => setShowAnnouncementModal(false)}
+          job={selectedJobForModal}
+          companySettings={companySettings}
+          onSave={handleSaveJobAnnouncement}
+        />
+      )}
+
+      {/* Modal: Official Job Application Form (ពាក្យស្នើសុំចូលបម្រើការងារផ្លូវការ) */}
+      {showAppFormModal && selectedJobForModal && (
+        <JobApplicationFormModal
+          isOpen={showAppFormModal}
+          onClose={() => setShowAppFormModal(false)}
+          job={selectedJobForModal}
+          companySettings={companySettings}
+        />
       )}
     </div>
   );

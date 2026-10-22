@@ -11,7 +11,7 @@ export default async function RecruitmentPage() {
   }
 
   // Pre-fetch initial data
-  const [initialJobs, initialCandidates] = await Promise.all([
+  const [initialJobs, initialCandidates, companySettings] = await Promise.all([
     prisma.jobPosting.findMany({
       include: {
         _count: {
@@ -31,6 +31,9 @@ export default async function RecruitmentPage() {
         }
       },
       orderBy: { appliedAt: 'desc' }
+    }),
+    prisma.companySettings.findUnique({
+      where: { id: 'default' }
     })
   ]);
 
@@ -39,6 +42,7 @@ export default async function RecruitmentPage() {
       <RecruitmentClient 
         initialJobs={JSON.parse(JSON.stringify(initialJobs))} 
         initialCandidates={JSON.parse(JSON.stringify(initialCandidates))} 
+        companySettings={JSON.parse(JSON.stringify(companySettings || {}))}
       />
     </div>
   );

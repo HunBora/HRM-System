@@ -474,55 +474,55 @@ export default function OvertimeClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Page Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* Page Header (Compact) */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '16px',
+        gap: '10px',
         background: '#ffffff',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+        padding: '10px 16px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
         border: '1px solid #f1f5f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '30px' }}>⏰</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '22px' }}>⏰</span>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
               ការស្នើសុំ និងអនុម័តថែមម៉ោង (Overtime)
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.75rem' }}>
               Overtime Requisition & Workflow Approval • 员工加班申请与多级审批流程
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           {/* Single Request */}
           <button
             onClick={() => handleOpenCreate(false)}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 16px',
+              borderRadius: '8px',
+              padding: '6px 12px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)'
+              boxShadow: '0 2px 6px rgba(2, 132, 199, 0.2)'
             }}
           >
             <span>➕</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ស្នើសុំថែមម៉ោង</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Single OT • 个人申请</div>
+              <div style={{ fontSize: '0.65rem', opacity: 0.85 }}>Single OT • 个人申请</div>
             </div>
           </button>
 
@@ -533,22 +533,22 @@ export default function OvertimeClient({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)'
+                boxShadow: '0 2px 6px rgba(99, 102, 241, 0.2)'
               }}
             >
               <span>⚡</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+              <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div>ស្នើជាក្រុម/ផ្នែក</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Bulk OT • 批量申请</div>
+                <div style={{ fontSize: '0.65rem', opacity: 0.85 }}>Bulk OT • 批量申请</div>
               </div>
             </button>
           )}
@@ -559,61 +559,62 @@ export default function OvertimeClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 16px',
+              borderRadius: '8px',
+              padding: '6px 12px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)'
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ទាញយក Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
+              <div style={{ fontSize: '0.65rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
             </div>
           </button>
         </div>
       </div>
 
-      {/* 3-Language Metrics Cards */}
+      {/* 3-Language Metrics Cards (Compact Mini-Cards) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '10px'
       }}>
         {/* Card 1: Total Requests */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#e0f2fe',
             color: '#0284c7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             📋
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សំណើថែមម៉ោងសរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total OT Requests • 加班申请总数</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0284c7', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>សំណើថែមម៉ោងសរុប</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Total OT Requests • 加班总数</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0284c7', marginTop: '2px', lineHeight: 1 }}>
               {stats.total}
             </div>
           </div>
@@ -622,31 +623,32 @@ export default function OvertimeClient({
         {/* Card 2: Pending Approval */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#fef3c7',
             color: '#b45309',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             ⏳
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>រង់ចាំការអនុម័ត</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Pending Approval • 待审批</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#b45309', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>រង់ចាំការអនុម័ត</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Pending Approval • 待审批</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#b45309', marginTop: '2px', lineHeight: 1 }}>
               {stats.pending}
             </div>
           </div>
@@ -655,31 +657,32 @@ export default function OvertimeClient({
         {/* Card 3: Approved */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#dcfce7',
             color: '#15803d',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             ✅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បានអនុម័ត</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Approved Requests • 已批准</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#15803d', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>បានអនុម័ត</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Approved Requests • 已批准</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#15803d', marginTop: '2px', lineHeight: 1 }}>
               {stats.approved}
             </div>
           </div>
@@ -688,50 +691,51 @@ export default function OvertimeClient({
         {/* Card 4: Total Approved Hours */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#f3e8ff',
             color: '#7e22ce',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             ⏰
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ម៉ោង OT សរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Approved OT Hours • 批准工时</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#7e22ce', marginTop: '4px' }}>
-              {stats.totalApprovedHours} <span style={{ fontSize: '1rem', fontWeight: 600 }}>ម៉ោង</span>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>ម៉ោង OT សរុប</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Approved OT Hours • 批准工时</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#7e22ce', marginTop: '2px', lineHeight: 1 }}>
+              {stats.totalApprovedHours} <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>ម៉ោង</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filter Toolbar */}
+      {/* Filter Toolbar (Compact) */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '12px',
+        gap: '8px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '14px 18px',
-        borderRadius: '14px',
+        padding: '8px 12px',
+        borderRadius: '10px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 220px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ ឬមូលហេតុ..."
@@ -739,28 +743,28 @@ export default function OvertimeClient({
             onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px 9px 36px',
-              borderRadius: '10px',
+              padding: '6px 10px 6px 32px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.82rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '9px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '10px', top: '7px', color: '#94a3b8', fontSize: '13px' }}>🔍</span>
         </div>
 
         {/* OT Type Filter */}
-        <div style={{ minWidth: '170px' }}>
+        <div style={{ minWidth: '150px' }}>
           <select
             value={otTypeFilter}
             onChange={e => { setOtTypeFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -774,16 +778,16 @@ export default function OvertimeClient({
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '170px' }}>
+        <div style={{ minWidth: '150px' }}>
           <select
             value={departmentFilter}
             onChange={e => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -797,16 +801,16 @@ export default function OvertimeClient({
         </div>
 
         {/* Status Filter */}
-        <div style={{ minWidth: '160px' }}>
+        <div style={{ minWidth: '140px' }}>
           <select
             value={statusFilter}
             onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -820,16 +824,16 @@ export default function OvertimeClient({
         </div>
 
         {/* Page Size Selector */}
-        <div style={{ minWidth: '130px' }}>
+        <div style={{ minWidth: '120px' }}>
           <select
             value={pageSize}
             onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
@@ -856,13 +860,13 @@ export default function OvertimeClient({
               setCurrentPage(1);
             }}
             style={{
-              padding: '9px 14px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #fecaca',
               background: '#fef2f2',
               color: '#dc2626',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.78rem',
               cursor: 'pointer'
             }}
             title="កំណត់ឡើងវិញ (Reset Filter)"

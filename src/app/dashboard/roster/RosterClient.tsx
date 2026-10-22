@@ -486,45 +486,43 @@ export default function RosterClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Page Title & Action Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* Page Title & Action Header (Compact) */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '16px',
+        gap: '10px',
         background: '#ffffff',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+        padding: '10px 16px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
         border: '1px solid #f1f5f9'
       }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '28px' }}>⏱️</span>
-            <div>
-              <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
-                កាលវិភាគវេនការងារ (Shift Roster)
-              </h1>
-              <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.88rem' }}>
-                Shift Scheduling & Monthly Roster Matrix • 轮班排班表
-              </p>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '22px' }}>⏱️</span>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+              កាលវិភាគវេនការងារ (Shift Roster)
+            </h1>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.75rem' }}>
+              Shift Scheduling & Monthly Roster Matrix • 轮班排班表
+            </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {/* Month & Year Navigation */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             background: '#f8fafc',
             border: '1px solid #cbd5e1',
-            borderRadius: '10px',
-            padding: '4px 8px',
-            gap: '8px'
+            borderRadius: '8px',
+            padding: '3px 6px',
+            gap: '6px'
           }}>
             <button
               onClick={handlePrevMonth}
@@ -533,19 +531,20 @@ export default function RosterClient({
                 background: '#ffffff',
                 border: '1px solid #e2e88f',
                 borderRadius: '6px',
-                padding: '6px 12px',
+                padding: '4px 8px',
                 cursor: 'pointer',
                 fontWeight: 700,
+                fontSize: '0.78rem',
                 color: '#1e293b'
               }}
               title="ខែមុន (Previous Month)"
             >
               ◀
             </button>
-            <span style={{ fontWeight: 800, fontSize: '1rem', color: '#0f172a', minWidth: '120px', textAlign: 'center' }}>
-              {new Date(year, month - 1).toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })}
+            <span style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a', minWidth: '100px', textAlign: 'center', lineHeight: 1.1 }}>
+              {new Date(year, month - 1).toLocaleDateString('km-KH', { month: 'short', year: 'numeric' })}
               <br />
-              <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+              <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 500 }}>
                 {new Date(year, month - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
               </span>
             </span>
@@ -556,9 +555,10 @@ export default function RosterClient({
                 background: '#ffffff',
                 border: '1px solid #e2e88f',
                 borderRadius: '6px',
-                padding: '6px 12px',
+                padding: '4px 8px',
                 cursor: 'pointer',
                 fontWeight: 700,
+                fontSize: '0.78rem',
                 color: '#1e293b'
               }}
               title="ខែបន្ទាប់ (Next Month)"
@@ -579,22 +579,22 @@ export default function RosterClient({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)'
+                boxShadow: '0 2px 6px rgba(79, 70, 229, 0.2)'
               }}
             >
               <span>⚡</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+              <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div>ចាត់តាំងជាដុំ</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Bulk Assign • 批量排班</div>
+                <div style={{ fontSize: '0.65rem', opacity: 0.85 }}>Bulk Assign • 批量排班</div>
               </div>
             </button>
           )}
@@ -605,61 +605,62 @@ export default function RosterClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '6px 12px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.2)'
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ទាញយក Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
+              <div style={{ fontSize: '0.65rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
             </div>
           </button>
         </div>
       </div>
 
-      {/* 3-Language Metrics Cards */}
+      {/* 3-Language Metrics Cards (Compact Mini-Cards) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+        gap: '8px'
       }}>
         {/* Card 1: Total Staff */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#e0f2fe',
             color: '#0284c7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             👥
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បុគ្គលិកសរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Staff • 在职员工</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0284c7', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>បុគ្គលិកសរុប</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Total Staff • 在职员工</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0284c7', marginTop: '2px', lineHeight: 1 }}>
               {stats.totalStaff}
             </div>
           </div>
@@ -668,31 +669,32 @@ export default function RosterClient({
         {/* Card 2: Morning Shift */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#fef3c7',
             color: '#b45309',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             ☀️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>វេនពេលព្រឹក</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Morning Shift • 早班</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#b45309', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>វេនពេលព្រឹក</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Morning • 早班</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#b45309', marginTop: '2px', lineHeight: 1 }}>
               {stats.morning}
             </div>
           </div>
@@ -701,31 +703,32 @@ export default function RosterClient({
         {/* Card 3: Afternoon Shift */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#e0f2fe',
             color: '#0369a1',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             ⛅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>វេនពេលរសៀល</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Afternoon Shift • 中班</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0369a1', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>វេនរសៀល</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Afternoon • 中班</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0369a1', marginTop: '2px', lineHeight: 1 }}>
               {stats.afternoon}
             </div>
           </div>
@@ -734,31 +737,32 @@ export default function RosterClient({
         {/* Card 4: Night Shift */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#f3e8ff',
             color: '#6b21a8',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             🌙
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>វេនពេលយប់</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Night Shift • 夜班</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#6b21a8', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>វេនពេលយប់</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Night • 夜班</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#6b21a8', marginTop: '2px', lineHeight: 1 }}>
               {stats.night}
             </div>
           </div>
@@ -767,50 +771,51 @@ export default function RosterClient({
         {/* Card 5: Day Off */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '10px',
+          padding: '8px 12px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '10px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
             background: '#fee2e2',
             color: '#b91c1c',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '17px',
+            flexShrink: 0
           }}>
             🏖️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ថ្ងៃសម្រាក</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Days Off • 休息日</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#b91c1c', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>ថ្ងៃសម្រាក</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Days Off • 休息日</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#b91c1c', marginTop: '2px', lineHeight: 1 }}>
               {stats.off}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filter Toolbar */}
+      {/* Filter Toolbar (Compact) */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '12px',
+        gap: '8px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '14px 18px',
-        borderRadius: '14px',
+        padding: '8px 12px',
+        borderRadius: '10px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 220px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ ឬអត្តលេខ (Search Name or ID)..."
@@ -818,28 +823,28 @@ export default function RosterClient({
             onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px 9px 36px',
-              borderRadius: '10px',
+              padding: '6px 10px 6px 32px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.82rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '9px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '10px', top: '7px', color: '#94a3b8', fontSize: '13px' }}>🔍</span>
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '160px' }}>
           <select
             value={departmentFilter}
             onChange={e => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -853,16 +858,16 @@ export default function RosterClient({
         </div>
 
         {/* Page Size Selector */}
-        <div style={{ minWidth: '130px' }}>
+        <div style={{ minWidth: '120px' }}>
           <select
             value={pageSize}
             onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
@@ -887,13 +892,13 @@ export default function RosterClient({
               setCurrentPage(1);
             }}
             style={{
-              padding: '9px 14px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '8px',
               border: '1px solid #fecaca',
               background: '#fef2f2',
               color: '#dc2626',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.78rem',
               cursor: 'pointer'
             }}
             title="កំណត់ឡើងវិញ (Reset Filter)"
@@ -903,25 +908,26 @@ export default function RosterClient({
         )}
 
         {/* Legend */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginLeft: 'auto', fontSize: '0.8rem' }}>
-          <span style={{ color: '#64748b', fontWeight: 600 }}>សញ្ញាសម្គាល់ (Legend):</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginLeft: 'auto', fontSize: '0.75rem' }}>
+          <span style={{ color: '#64748b', fontWeight: 600 }}>Legend:</span>
           {Object.entries(SHIFT_CONFIG).map(([key, conf]) => (
             <span
               key={key}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px',
-                padding: '4px 8px',
-                borderRadius: '6px',
+                gap: '3px',
+                padding: '3px 6px',
+                borderRadius: '5px',
                 background: conf.bg,
                 color: conf.text,
                 border: `1px solid ${conf.border}`,
-                fontWeight: 700
+                fontWeight: 700,
+                fontSize: '0.72rem'
               }}
             >
               <span>{conf.icon}</span>
-              <span>{conf.labelKh} ({conf.labelEn})</span>
+              <span>{conf.labelKh}</span>
             </span>
           ))}
         </div>

@@ -980,6 +980,7 @@ export default function IsoProbationContractModal({
                   color: #0f172a;
                   font-weight: 800;
                   margin: 6px 0 2px 0;
+                  text-align: center;
                 }
                 .iso-title-zh {
                   font-family: 'SimSun', 'Microsoft YaHei', sans-serif;
@@ -987,6 +988,7 @@ export default function IsoProbationContractModal({
                   color: #1e3a8a;
                   font-weight: 700;
                   margin: 0 0 4px 0;
+                  text-align: center;
                 }
                 .iso-title-en {
                   font-family: 'Calibri', 'Segoe UI', sans-serif;
@@ -994,6 +996,7 @@ export default function IsoProbationContractModal({
                   color: #334155;
                   font-weight: 700;
                   margin: 0 0 6px 0;
+                  text-align: center;
                 }
                 .iso-article-title {
                   font-family: 'Khmer OS Muol Light', Moul, serif;
@@ -1056,48 +1059,25 @@ export default function IsoProbationContractModal({
               <div className="iso-page">
                 {renderIsoHeader(1)}
 
-                {/* Top Section: Title & Parties on Left, Standard 4x6 Photo on Top-Right */}
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  <div style={{ flex: 1 }}>
-                    {showKhmer && <div className="iso-title-kh">{currentConfig.titleKh}</div>}
-                    {showZh && <div className="iso-title-zh">{currentConfig.titleZh}</div>}
-                    {showEn && <div className="iso-title-en">{currentConfig.titleEn}</div>}
-
-                    <div style={{ fontSize: '0.76rem', color: '#64748b', marginBottom: '4px' }}>
-                      {showKhmer && 'រវាង '}{showEn && '(Between) '}{showZh && '(之间)'}
-                    </div>
-
-                    {/* Parties Details */}
-                    <div style={{ fontSize: '0.82rem', lineHeight: 1.45 }}>
-                      <div>
-                        <strong style={{ fontFamily: showKhmer ? 'Khmer OS Muol Light, Moul, serif' : 'sans-serif' }}>
-                          {showKhmer ? `ក្រុមហ៊ុន ${formData.companyNameKh} (ហៅកាត់ថា ភាគី ក)` : formData.companyNameEn}
-                        </strong>{' '}
-                        / {formData.companyNameEn} {showEn && '(Party A)'} {showZh && '叫方 (A)'}
-                      </div>
-                      <div style={{ color: '#475569' }}>
-                        {showKhmer ? 'អាសយដ្ឋាន ៖ ' : 'Address: '}
-                        {formData.companyAddress}
-                      </div>
-                      <div style={{ color: '#64748b', margin: '1px 0' }}>
-                        {showKhmer && 'និង '}{showEn && '(And) '}{showZh && '(和)'}
-                      </div>
-                      <div>
-                        <strong style={{ fontFamily: showKhmer ? 'Khmer OS Muol Light, Moul, serif' : 'sans-serif' }}>
-                          {showKhmer
-                            ? `កម្មករនិយោជិតឈ្មោះ ${formData.employeeNameKh} (${formData.employeeNameEn}) (ហៅកាត់ថា ភាគី ខ)`
-                            : `Employee: ${formData.employeeNameEn} (Party B)`}
-                        </strong>{' '}
-                        {showZh && '/ 员工 叫方 (B)'}
-                      </div>
-                    </div>
-                  </div>
-
+                {/* Top Section: Standard 4x6 Photo on Top-Right, Contract Title ALWAYS Centered in Middle */}
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    minHeight: '135px',
+                    marginBottom: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                  }}
+                >
                   {/* Standard 4x6 Photo Box on Top Right */}
                   <div
                     style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: 0,
                       width: '105px',
-                      minWidth: '105px',
                       height: '135px',
                       border: '1.5px dashed #64748b',
                       borderRadius: '6px',
@@ -1111,12 +1091,49 @@ export default function IsoProbationContractModal({
                       textAlign: 'center',
                       padding: '6px',
                       boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)',
+                      zIndex: 2,
                     }}
                   >
                     <span style={{ fontSize: '1.3rem', marginBottom: '2px' }}>👤</span>
                     {showKhmer && <span style={{ fontWeight: 700 }}>រូបថត 4x6</span>}
                     {showEn && <span style={{ fontSize: '0.72rem', fontWeight: 600 }}>Photo 4x6</span>}
                     {showZh && <span style={{ fontSize: '0.72rem' }}>照片 4x6</span>}
+                  </div>
+
+                  {/* Centered Contract Title (Symmetric padding 0 115px ensures exact center without overlapping photo) */}
+                  <div style={{ textAlign: 'center', width: '100%', padding: '0 115px', margin: '0 auto' }}>
+                    {showKhmer && <div className="iso-title-kh">{currentConfig.titleKh}</div>}
+                    {showZh && <div className="iso-title-zh">{currentConfig.titleZh}</div>}
+                    {showEn && <div className="iso-title-en">{currentConfig.titleEn}</div>}
+
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '6px', fontWeight: 600, textAlign: 'center' }}>
+                      {showKhmer && 'រវាង '}{showEn && '(Between) '}{showZh && '(之间)'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contracting Parties Details (Full Width) */}
+                <div style={{ fontSize: '0.82rem', lineHeight: 1.45, marginBottom: '12px' }}>
+                  <div>
+                    <strong style={{ fontFamily: showKhmer ? 'Khmer OS Muol Light, Moul, serif' : 'sans-serif' }}>
+                      {showKhmer ? `ក្រុមហ៊ុន ${formData.companyNameKh} (ហៅកាត់ថា ភាគី ក)` : formData.companyNameEn}
+                    </strong>{' '}
+                    / {formData.companyNameEn} {showEn && '(Party A)'} {showZh && '叫方 (A)'}
+                  </div>
+                  <div style={{ color: '#475569' }}>
+                    {showKhmer ? 'អាសយដ្ឋាន ៖ ' : 'Address: '}
+                    {formData.companyAddress}
+                  </div>
+                  <div style={{ color: '#64748b', margin: '2px 0' }}>
+                    {showKhmer && 'និង '}{showEn && '(And) '}{showZh && '(和)'}
+                  </div>
+                  <div>
+                    <strong style={{ fontFamily: showKhmer ? 'Khmer OS Muol Light, Moul, serif' : 'sans-serif' }}>
+                      {showKhmer
+                        ? `កម្មករនិយោជិតឈ្មោះ ${formData.employeeNameKh} (${formData.employeeNameEn}) (ហៅកាត់ថា ភាគី ខ)`
+                        : `Employee: ${formData.employeeNameEn} (Party B)`}
+                    </strong>{' '}
+                    {showZh && '/ 员工 叫方 (B)'}
                   </div>
                 </div>
 

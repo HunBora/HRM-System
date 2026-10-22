@@ -319,11 +319,11 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   paragraphs.push(createIsoHeaderTable(1));
   paragraphs.push(new Paragraph({ spacing: { after: 30 } }));
 
-  // Top Section: Title & Parties on Left (82%), Standard 4x6 Photo Box on Top Right (18%)
-  const topHeaderRuns: TextRun[] = [];
+  // Top Section: Title Centered (18% spacer, 64% centered title, 18% 4x6 photo box)
+  const titleRuns: TextRun[] = [];
 
   if (showKhmer) {
-    topHeaderRuns.push(
+    titleRuns.push(
       new TextRun({
         text: `${titleKh}\n`,
         bold: true,
@@ -334,7 +334,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     );
   }
   if (showZh) {
-    topHeaderRuns.push(
+    titleRuns.push(
       new TextRun({
         text: `${titleZh}\n`,
         bold: true,
@@ -345,7 +345,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     );
   }
   if (showEn) {
-    topHeaderRuns.push(
+    titleRuns.push(
       new TextRun({
         text: `${titleEn}\n`,
         bold: true,
@@ -356,49 +356,39 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     );
   }
 
-  topHeaderRuns.push(
-    new TextRun({ text: 'រវាង (Between / 之间)\n', size: 15, font: FONT_KHMER, color: '64748B' }),
-    new TextRun({
-      text: `ក្រុមហ៊ុន ${data.companyNameKh} (ហៅកាត់ថា ភាគី ក) / ${data.companyNameEn} (Party A / 甲方)\n`,
-      bold: true,
-      size: 17,
-      font: FONT_MOUL,
-      color: '0F172A',
-    }),
-    new TextRun({
-      text: `អាសយដ្ឋាន/Address/地址 ៖ ${data.companyAddress || 'រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា / Phnom Penh, Cambodia'}\n`,
-      size: 16,
-      font: FONT_KHMER,
-      color: '334155',
-    }),
-    new TextRun({ text: 'និង (And / 和)\n', size: 15, font: FONT_KHMER, color: '64748B' }),
-    new TextRun({
-      text: `កម្មករនិយោជិតឈ្មោះ ${data.employeeNameKh || data.employeeNameEn} (ហៅកាត់ថា ភាគី ខ) / ${data.employeeNameEn} (Party B / 乙方)`,
-      bold: true,
-      size: 17,
-      font: FONT_MOUL,
-      color: '0F172A',
-    })
+  titleRuns.push(
+    new TextRun({ text: 'រវាង (Between / 之间)', size: 15, font: FONT_KHMER, color: '64748B' })
   );
+
+  const borderNone = {
+    top: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+    bottom: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+    left: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+    right: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+  };
 
   const topHeaderTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
-    borders: {
-      top: { style: BorderStyle.NONE, size: 0, color: 'auto' },
-      bottom: { style: BorderStyle.NONE, size: 0, color: 'auto' },
-      left: { style: BorderStyle.NONE, size: 0, color: 'auto' },
-      right: { style: BorderStyle.NONE, size: 0, color: 'auto' },
-    },
+    borders: borderNone,
     rows: [
       new TableRow({
         children: [
-          // Left: Titles & Parties (82% width)
+          // Left: Spacer (18% width to balance right photo)
           new TableCell({
-            width: { size: 82, type: WidthType.PERCENTAGE },
+            width: { size: 18, type: WidthType.PERCENTAGE },
+            borders: borderNone,
+            children: [new Paragraph({ children: [] })],
+          }),
+
+          // Center: Title ALWAYS Centered in Middle (64% width)
+          new TableCell({
+            width: { size: 64, type: WidthType.PERCENTAGE },
+            borders: borderNone,
             children: [
               new Paragraph({
-                children: topHeaderRuns,
-                spacing: { line: 260, after: 25 },
+                alignment: AlignmentType.CENTER,
+                children: titleRuns,
+                spacing: { line: 260, after: 15 },
               }),
             ],
           }),
@@ -421,6 +411,37 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     ],
   });
   paragraphs.push(topHeaderTable);
+  paragraphs.push(new Paragraph({ spacing: { after: 15 } }));
+
+  // Contracting Parties: Full 100% Width below centered title
+  paragraphs.push(
+    new Paragraph({
+      spacing: { line: 260, after: 20 },
+      children: [
+        new TextRun({
+          text: `ក្រុមហ៊ុន ${data.companyNameKh} (ហៅកាត់ថា ភាគី ក) / ${data.companyNameEn} (Party A / 甲方)\n`,
+          bold: true,
+          size: 17,
+          font: FONT_MOUL,
+          color: '0F172A',
+        }),
+        new TextRun({
+          text: `អាសយដ្ឋាន/Address/地址 ៖ ${data.companyAddress || 'រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា / Phnom Penh, Cambodia'}\n`,
+          size: 16,
+          font: FONT_KHMER,
+          color: '334155',
+        }),
+        new TextRun({ text: 'និង (And / 和)\n', size: 15, font: FONT_KHMER, color: '64748B' }),
+        new TextRun({
+          text: `កម្មករនិយោជិតឈ្មោះ ${data.employeeNameKh || data.employeeNameEn} (ហៅកាត់ថា ភាគី ខ) / ${data.employeeNameEn} (Party B / 乙方)`,
+          bold: true,
+          size: 17,
+          font: FONT_MOUL,
+          color: '0F172A',
+        }),
+      ],
+    })
+  );
   paragraphs.push(new Paragraph({ spacing: { after: 20 } }));
 
   // Employee Information Table: Dynamic based on Cambodian vs Foreigner (100% Full Width)

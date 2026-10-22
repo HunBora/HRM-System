@@ -61,12 +61,12 @@ export default async function ResignationPage() {
     .sort();
 
   return (
-    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ width: '100%', padding: '0 0.5rem', boxSizing: 'border-box' }}>
       <ResignationClient
         initialRecords={JSON.parse(JSON.stringify(initialRecords))}
         employees={JSON.parse(JSON.stringify(employees))}
         departments={departmentList}
-        userRole={session.role}
+        userRole={session?.role || 'ADMIN'}
       />
     </div>
   );

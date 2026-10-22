@@ -64,7 +64,7 @@ export default async function OvertimePage() {
     .sort();
 
   return (
-    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ width: '100%', padding: '0 0.5rem', boxSizing: 'border-box' }}>
       <OvertimeClient
         initialRequests={JSON.parse(JSON.stringify(initialRequests))}
         employees={JSON.parse(JSON.stringify(employees))}

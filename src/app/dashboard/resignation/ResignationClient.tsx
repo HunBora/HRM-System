@@ -113,6 +113,13 @@ export default function ResignationClient({ initialRecords, employees, departmen
     status: 'PENDING'
   });
 
+  // Pagination State for high-volume workers
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(25);
+
+  // Quick Employee Search in Modal
+  const [modalEmpSearch, setModalEmpSearch] = useState<string>('');
+
   // Filtered Records
   const filteredRecords = useMemo(() => {
     return records.filter(rec => {
@@ -130,6 +137,29 @@ export default function ResignationClient({ initialRecords, employees, departmen
       return matchesSearch && matchesReason && matchesDept && matchesStatus;
     });
   }, [records, search, reasonFilter, departmentFilter, statusFilter]);
+
+  // Paginated records
+  const totalPages = pageSize === -1 ? 1 : Math.ceil(filteredRecords.length / pageSize) || 1;
+  const paginatedRecords = useMemo(() => {
+    if (pageSize === -1) return filteredRecords;
+    const start = (currentPage - 1) * pageSize;
+    return filteredRecords.slice(start, start + pageSize);
+  }, [filteredRecords, currentPage, pageSize]);
+
+  // Filtered employees for Quick Search in Modal
+  const filteredModalEmployees = useMemo(() => {
+    if (!modalEmpSearch.trim()) return employees.slice(0, 100);
+    const q = modalEmpSearch.toLowerCase().trim();
+    return employees
+      .filter(emp =>
+        emp.employeeId.toLowerCase().includes(q) ||
+        `${emp.firstNameEn} ${emp.lastNameEn}`.toLowerCase().includes(q) ||
+        `${emp.lastNameKh || ''} ${emp.firstNameKh || ''}`.toLowerCase().includes(q) ||
+        emp.department.toLowerCase().includes(q) ||
+        emp.position.toLowerCase().includes(q)
+      )
+      .slice(0, 100);
+  }, [employees, modalEmpSearch]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -641,44 +671,44 @@ export default function ResignationClient({ initialRecords, employees, departmen
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px',
+        gap: '12px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '16px 20px',
+        padding: '14px 18px',
         borderRadius: '14px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 220px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ ឬអ្នកទទួលការងារ..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
+              padding: '9px 12px 9px 36px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '12px', top: '9px', color: '#94a3b8' }}>🔍</span>
         </div>
 
         {/* Reason Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '170px' }}>
           <select
             value={reasonFilter}
-            onChange={e => setReasonFilter(e.target.value)}
+            onChange={e => { setReasonFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -692,16 +722,16 @@ export default function ResignationClient({ initialRecords, employees, departmen
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '170px' }}>
           <select
             value={departmentFilter}
-            onChange={e => setDepartmentFilter(e.target.value)}
+            onChange={e => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -718,13 +748,13 @@ export default function ResignationClient({ initialRecords, employees, departmen
         <div style={{ minWidth: '160px' }}>
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -736,6 +766,58 @@ export default function ResignationClient({ initialRecords, employees, departmen
             ))}
           </select>
         </div>
+
+        {/* Page Size Selector */}
+        <div style={{ minWidth: '130px' }}>
+          <select
+            value={pageSize}
+            onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+            style={{
+              width: '100%',
+              padding: '9px 12px',
+              borderRadius: '10px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.85rem',
+              background: '#ffffff',
+              outline: 'none',
+              fontWeight: 600,
+              color: '#0284c7'
+            }}
+            title="ចំនួនជួរក្នុងមួយទំព័រ (Rows per page)"
+          >
+            <option value={10}>📄 10 នាក់/ទំព័រ</option>
+            <option value={25}>📄 25 នាក់/ទំព័រ</option>
+            <option value={50}>📄 50 នាក់/ទំព័រ</option>
+            <option value={100}>📄 100 នាក់/ទំព័រ</option>
+            <option value={-1}>📄 ទាំងអស់ (All)</option>
+          </select>
+        </div>
+
+        {/* Reset Filter Button */}
+        {(search || reasonFilter !== 'ALL' || departmentFilter !== 'ALL' || statusFilter !== 'ALL') && (
+          <button
+            onClick={() => {
+              setSearch('');
+              setReasonFilter('ALL');
+              setDepartmentFilter('ALL');
+              setStatusFilter('ALL');
+              setCurrentPage(1);
+            }}
+            style={{
+              padding: '9px 14px',
+              borderRadius: '10px',
+              border: '1px solid #fecaca',
+              background: '#fef2f2',
+              color: '#dc2626',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer'
+            }}
+            title="កំណត់ឡើងវិញ (Reset Filter)"
+          >
+            🔄 សម្អាត Filter
+          </button>
+        )}
       </div>
 
       {/* Resignation Records Table (3-Languages on All TH) */}
@@ -751,77 +833,78 @@ export default function ResignationClient({ initialRecords, employees, departmen
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 {/* 1: No */}
-                <th style={{ padding: '14px 16px', width: '60px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ល.រ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>No.</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>序号</div>
+                <th style={{ padding: '9px 12px', width: '50px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ល.រ</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>No.</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>序号</div>
                 </th>
 
                 {/* 2: Employee */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
+                <th style={{ padding: '9px 12px', minWidth: '200px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ព័ត៌មានបុគ្គលិក</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>员工信息</div>
                 </th>
 
                 {/* 3: Dates */}
-                <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>កាលបរិច្ឆេទចាកចេញ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Notice & Last Working Day</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>申请与最后工作日</div>
+                <th style={{ padding: '9px 12px', minWidth: '150px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>កាលបរិច្ឆេទចាកចេញ</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Notice & Last Day</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>申请与最后工作日</div>
                 </th>
 
                 {/* 4: Primary Reason */}
-                <th style={{ padding: '14px 16px', minWidth: '200px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>មូលហេតុចម្បង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Primary Reason</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>离职主要原因</div>
+                <th style={{ padding: '9px 12px', minWidth: '190px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>មូលហេតុចម្បង</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Primary Reason</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>离职主要原因</div>
                 </th>
 
                 {/* 5: Clearance Checklist (IT, Finance, Admin, HR) */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ការប្រគល់សម្ភារៈ (Clearance)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>IT • Finance • Admin • HR</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>物品与各部门交接</div>
+                <th style={{ padding: '9px 12px', minWidth: '210px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ការប្រគល់សម្ភារៈ (Clearance)</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>IT • Finance • Admin • HR</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>物品与各部门交接</div>
                 </th>
 
                 {/* 6: Handover Person */}
-                <th style={{ padding: '14px 16px', minWidth: '150px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>អ្នកទទួលការងារ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Handover Colleague</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>交接承接人</div>
+                <th style={{ padding: '9px 12px', minWidth: '140px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>អ្នកទទួលការងារ</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Handover Colleague</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>交接承接人</div>
                 </th>
 
                 {/* 7: Status */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ស្ថានភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>状态</div>
+                <th style={{ padding: '9px 12px', minWidth: '120px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ស្ថានភាព</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Status</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>状态</div>
                 </th>
 
                 {/* 8: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '160px', textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
+                <th style={{ padding: '9px 12px', minWidth: '150px', textAlign: 'right' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>操作</div>
                 </th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredRecords.length === 0 ? (
+              {paginatedRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>📝</div>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>មិនមានកំណត់ត្រាលាលែងត្រូវបង្ហាញទេ</div>
-                    <div style={{ fontSize: '0.85rem' }}>No resignation records found</div>
+                  <td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>📝</div>
+                    <div style={{ fontWeight: 700, fontSize: '1rem' }}>មិនមានកំណត់ត្រាលាលែងត្រូវបង្ហាញទេ</div>
+                    <div style={{ fontSize: '0.82rem' }}>No resignation records found</div>
                   </td>
                 </tr>
               ) : (
-                filteredRecords.map((rec, index) => {
+                paginatedRecords.map((rec, index) => {
                   const emp = rec.employee;
                   const reasonConf = REASON_CONFIG[rec.primaryReason] || { labelKh: rec.primaryReason, labelEn: rec.primaryReason, labelZh: rec.primaryReason, icon: '💡' };
                   const statusConf = STATUS_CONFIG[rec.status] || { labelKh: rec.status, labelEn: rec.status, bg: '#f1f5f9', text: '#475569' };
+                  const rowNumber = (currentPage - 1) * (pageSize === -1 ? 0 : pageSize) + index + 1;
 
                   return (
                     <tr
@@ -833,25 +916,25 @@ export default function ResignationClient({ initialRecords, employees, departmen
                       }}
                     >
                       {/* Index */}
-                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>
-                        {index + 1}
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#64748b', fontSize: '0.85rem' }}>
+                        {rowNumber}
                       </td>
 
                       {/* Employee Info */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>
                           {emp.lastNameKh || ''} {emp.firstNameKh || ''} {(!emp.lastNameKh && !emp.firstNameKh) && `${emp.firstNameEn} ${emp.lastNameEn}`}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.75rem', color: '#4f46e5', fontWeight: 600 }}>
                           {emp.employeeId} • {emp.position}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
                           {emp.department}
                         </div>
                       </td>
 
                       {/* Dates */}
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem' }}>
+                      <td style={{ padding: '8px 12px', fontSize: '0.82rem' }}>
                         <div style={{ color: '#64748b' }}>
                           ដាក់ពាក្យ: <strong>{new Date(rec.resignationDate).toISOString().split('T')[0]}</strong>
                         </div>
@@ -861,34 +944,34 @@ export default function ResignationClient({ initialRecords, employees, departmen
                       </td>
 
                       {/* Primary Reason */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>
                           <span>{reasonConf.icon}</span>
                           <span>{reasonConf.labelKh}</span>
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
                           {reasonConf.labelEn}
                         </div>
                         {rec.reasonDetails && (
-                          <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '2px', maxWidth: '240px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px', maxWidth: '220px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {rec.reasonDetails}
                           </div>
                         )}
                       </td>
 
                       {/* 4 Clearance Badges (Clickable toggles for HR) */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                           {/* IT */}
                           <span
                             onClick={() => handleToggleClearance(rec, 'itClearance')}
                             title="ចុចដើម្បីប្តូរស្ថានភាព IT Clearance"
                             style={{
-                              padding: '4px 8px',
+                              padding: '3px 7px',
                               borderRadius: '6px',
                               background: rec.itClearance ? '#dcfce7' : '#fee2e2',
                               color: rec.itClearance ? '#15803d' : '#b91c1c',
-                              fontSize: '0.75rem',
+                              fontSize: '0.72rem',
                               fontWeight: 700,
                               cursor: isHR ? 'pointer' : 'default',
                               border: `1px solid ${rec.itClearance ? '#86efac' : '#fca5a5'}`
@@ -902,17 +985,17 @@ export default function ResignationClient({ initialRecords, employees, departmen
                             onClick={() => handleToggleClearance(rec, 'financeClearance')}
                             title="ចុចដើម្បីប្តូរស្ថានភាព Finance Clearance"
                             style={{
-                              padding: '4px 8px',
+                              padding: '3px 7px',
                               borderRadius: '6px',
                               background: rec.financeClearance ? '#dcfce7' : '#fee2e2',
                               color: rec.financeClearance ? '#15803d' : '#b91c1c',
-                              fontSize: '0.75rem',
+                              fontSize: '0.72rem',
                               fontWeight: 700,
                               cursor: isHR ? 'pointer' : 'default',
                               border: `1px solid ${rec.financeClearance ? '#86efac' : '#fca5a5'}`
                             }}
                           >
-                            💰 Finance: {rec.financeClearance ? '✓' : '✗'}
+                            💰 Fin: {rec.financeClearance ? '✓' : '✗'}
                           </span>
 
                           {/* Admin */}
@@ -920,11 +1003,11 @@ export default function ResignationClient({ initialRecords, employees, departmen
                             onClick={() => handleToggleClearance(rec, 'adminClearance')}
                             title="ចុចដើម្បីប្តូរស្ថានភាព Admin Assets Clearance"
                             style={{
-                              padding: '4px 8px',
+                              padding: '3px 7px',
                               borderRadius: '6px',
                               background: rec.adminClearance ? '#dcfce7' : '#fee2e2',
                               color: rec.adminClearance ? '#15803d' : '#b91c1c',
-                              fontSize: '0.75rem',
+                              fontSize: '0.72rem',
                               fontWeight: 700,
                               cursor: isHR ? 'pointer' : 'default',
                               border: `1px solid ${rec.adminClearance ? '#86efac' : '#fca5a5'}`
@@ -938,11 +1021,11 @@ export default function ResignationClient({ initialRecords, employees, departmen
                             onClick={() => handleToggleClearance(rec, 'hrClearance')}
                             title="ចុចដើម្បីប្តូរស្ថានភាព HR Clearance"
                             style={{
-                              padding: '4px 8px',
+                              padding: '3px 7px',
                               borderRadius: '6px',
                               background: rec.hrClearance ? '#dcfce7' : '#fee2e2',
                               color: rec.hrClearance ? '#15803d' : '#b91c1c',
-                              fontSize: '0.75rem',
+                              fontSize: '0.72rem',
                               fontWeight: 700,
                               cursor: isHR ? 'pointer' : 'default',
                               border: `1px solid ${rec.hrClearance ? '#86efac' : '#fca5a5'}`
@@ -954,28 +1037,28 @@ export default function ResignationClient({ initialRecords, employees, departmen
                       </td>
 
                       {/* Handover Colleague */}
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', fontWeight: 600, color: '#334155' }}>
+                      <td style={{ padding: '8px 12px', fontSize: '0.82rem', fontWeight: 600, color: '#334155' }}>
                         {rec.handoverPerson || <span style={{ color: '#94a3b8' }}>មិនទាន់កំណត់</span>}
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 12px' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 8px',
+                          padding: '3px 7px',
                           borderRadius: '6px',
                           background: statusConf.bg,
                           color: statusConf.text,
                           fontWeight: 700,
-                          fontSize: '0.78rem'
+                          fontSize: '0.75rem'
                         }}>
                           {statusConf.labelKh}
                         </span>
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                      <td style={{ padding: '8px 12px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end' }}>
                           {/* Slip Preview / Print */}
                           <button
                             onClick={() => setSlipRecord(rec)}
@@ -984,11 +1067,11 @@ export default function ResignationClient({ initialRecords, employees, departmen
                               background: '#eff6ff',
                               border: '1px solid #bfdbfe',
                               color: '#2563eb',
-                              padding: '6px 10px',
-                              borderRadius: '8px',
+                              padding: '5px 8px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 700,
-                              fontSize: '0.8rem'
+                              fontSize: '0.78rem'
                             }}
                           >
                             📄 សន្លឹកប្រគល់
@@ -1003,10 +1086,10 @@ export default function ResignationClient({ initialRecords, employees, departmen
                                   background: '#f8fafc',
                                   border: '1px solid #cbd5e1',
                                   color: '#334155',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '5px 8px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: '0.85rem'
+                                  fontSize: '0.82rem'
                                 }}
                               >
                                 ✏️
@@ -1018,10 +1101,10 @@ export default function ResignationClient({ initialRecords, employees, departmen
                                   background: '#fef2f2',
                                   border: '1px solid #fecaca',
                                   color: '#dc2626',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '5px 8px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: '0.85rem'
+                                  fontSize: '0.82rem'
                                 }}
                               >
                                 🗑️
@@ -1037,6 +1120,133 @@ export default function ResignationClient({ initialRecords, employees, departmen
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Pagination Bar */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 18px',
+        background: '#ffffff',
+        borderRadius: '12px',
+        border: '1px solid #e2e8f0',
+        gap: '12px'
+      }}>
+        {/* Count Info */}
+        <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+          បង្ហាញ {filteredRecords.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? filteredRecords.length : pageSize) + 1} ដល់{' '}
+          {pageSize === -1 ? filteredRecords.length : Math.min(currentPage * pageSize, filteredRecords.length)} នៃ{' '}
+          <strong style={{ color: '#0f172a' }}>{filteredRecords.length}</strong> កំណត់ត្រា
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '6px' }}>
+            (Showing {filteredRecords.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? filteredRecords.length : pageSize) + 1}-
+            {pageSize === -1 ? filteredRecords.length : Math.min(currentPage * pageSize, filteredRecords.length)} of {filteredRecords.length})
+          </span>
+        </div>
+
+        {/* Page Nav Controls */}
+        {pageSize !== -1 && totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '5px 9px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រដំបូង (First Page)"
+            >
+              ⏮️
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: '5px 11px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រមុន (Previous Page)"
+            >
+              ◀ មុន
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+              .map((p, idx, arr) => {
+                const prevP = arr[idx - 1];
+                const showEllipsis = prevP && p - prevP > 1;
+                return (
+                  <React.Fragment key={p}>
+                    {showEllipsis && <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>}
+                    <button
+                      onClick={() => setCurrentPage(p)}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: '8px',
+                        border: p === currentPage ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                        background: p === currentPage ? '#0284c7' : '#ffffff',
+                        color: p === currentPage ? '#ffffff' : '#1e293b',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        fontSize: '0.82rem'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '5px 11px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័របន្ទាប់ (Next Page)"
+            >
+              បន្ទាប់ ▶
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '5px 9px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រចុងក្រោយ (Last Page)"
+            >
+              ⏭️
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Add / Edit Resignation Modal */}
@@ -1101,6 +1311,23 @@ export default function ResignationClient({ initialRecords, employees, departmen
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>
                   បុគ្គលិកដែលលាលែង (Employee) *
                 </label>
+                {!editingRecord && (
+                  <input
+                    type="text"
+                    placeholder="🔍 ស្វែងរកអត្តលេខ ឬឈ្មោះបុគ្គលិក (Search ID or name)..."
+                    value={modalEmpSearch}
+                    onChange={e => setModalEmpSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.85rem',
+                      marginBottom: '6px',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                )}
                 <select
                   value={form.employeeId}
                   onChange={e => setForm({ ...form, employeeId: e.target.value })}
@@ -1115,9 +1342,9 @@ export default function ResignationClient({ initialRecords, employees, departmen
                     background: editingRecord ? '#f8fafc' : '#ffffff'
                   }}
                 >
-                  {employees.map(emp => (
+                  {(editingRecord ? employees : filteredModalEmployees).map(emp => (
                     <option key={emp.id} value={emp.id}>
-                      {emp.employeeId} - {emp.firstNameEn} {emp.lastNameEn} ({emp.department} - {emp.position})
+                      {emp.employeeId} - {emp.lastNameKh || ''} {emp.firstNameKh || ''} ({emp.firstNameEn} {emp.lastNameEn}) - {emp.department} ({emp.position})
                     </option>
                   ))}
                 </select>

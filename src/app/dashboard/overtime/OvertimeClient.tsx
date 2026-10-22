@@ -112,6 +112,13 @@ export default function OvertimeClient({
   const [departmentFilter, setDepartmentFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
 
+  // Pagination for high-volume workers
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(25);
+
+  // Quick Employee Search in Single Modal
+  const [modalEmpSearch, setModalEmpSearch] = useState<string>('');
+
   // Modals
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isBulkMode, setIsBulkMode] = useState<boolean>(false);
@@ -169,6 +176,29 @@ export default function OvertimeClient({
       return matchesSearch && matchesType && matchesDept && matchesStatus;
     });
   }, [requests, search, otTypeFilter, departmentFilter, statusFilter]);
+
+  // Paginated requests
+  const totalPages = pageSize === -1 ? 1 : Math.ceil(filteredRequests.length / pageSize) || 1;
+  const paginatedRequests = useMemo(() => {
+    if (pageSize === -1) return filteredRequests;
+    const start = (currentPage - 1) * pageSize;
+    return filteredRequests.slice(start, start + pageSize);
+  }, [filteredRequests, currentPage, pageSize]);
+
+  // Filtered employees for Quick Search in Modal
+  const filteredModalEmployees = useMemo(() => {
+    if (!modalEmpSearch.trim()) return employees.slice(0, 100);
+    const q = modalEmpSearch.toLowerCase().trim();
+    return employees
+      .filter(emp =>
+        emp.employeeId.toLowerCase().includes(q) ||
+        `${emp.firstNameEn} ${emp.lastNameEn}`.toLowerCase().includes(q) ||
+        `${emp.lastNameKh || ''} ${emp.firstNameKh || ''}`.toLowerCase().includes(q) ||
+        emp.department.toLowerCase().includes(q) ||
+        emp.position.toLowerCase().includes(q)
+      )
+      .slice(0, 100);
+  }, [employees, modalEmpSearch]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -693,44 +723,44 @@ export default function OvertimeClient({
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px',
+        gap: '12px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '16px 20px',
+        padding: '14px 18px',
         borderRadius: '14px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 220px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ ឬមូលហេតុ..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
+              padding: '9px 12px 9px 36px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '12px', top: '9px', color: '#94a3b8' }}>🔍</span>
         </div>
 
         {/* OT Type Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '170px' }}>
           <select
             value={otTypeFilter}
-            onChange={e => setOtTypeFilter(e.target.value)}
+            onChange={e => { setOtTypeFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -744,16 +774,16 @@ export default function OvertimeClient({
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '170px' }}>
           <select
             value={departmentFilter}
-            onChange={e => setDepartmentFilter(e.target.value)}
+            onChange={e => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -770,13 +800,13 @@ export default function OvertimeClient({
         <div style={{ minWidth: '160px' }}>
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={e => { setStatusFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -788,6 +818,58 @@ export default function OvertimeClient({
             ))}
           </select>
         </div>
+
+        {/* Page Size Selector */}
+        <div style={{ minWidth: '130px' }}>
+          <select
+            value={pageSize}
+            onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+            style={{
+              width: '100%',
+              padding: '9px 12px',
+              borderRadius: '10px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.85rem',
+              background: '#ffffff',
+              outline: 'none',
+              fontWeight: 600,
+              color: '#0284c7'
+            }}
+            title="ចំនួនសំណើក្នុងមួយទំព័រ (Rows per page)"
+          >
+            <option value={10}>📄 10 សំណើ/ទំព័រ</option>
+            <option value={25}>📄 25 សំណើ/ទំព័រ</option>
+            <option value={50}>📄 50 សំណើ/ទំព័រ</option>
+            <option value={100}>📄 100 សំណើ/ទំព័រ</option>
+            <option value={-1}>📄 ទាំងអស់ (All)</option>
+          </select>
+        </div>
+
+        {/* Reset Filter Button */}
+        {(search || otTypeFilter !== 'ALL' || departmentFilter !== 'ALL' || statusFilter !== 'ALL') && (
+          <button
+            onClick={() => {
+              setSearch('');
+              setOtTypeFilter('ALL');
+              setDepartmentFilter('ALL');
+              setStatusFilter('ALL');
+              setCurrentPage(1);
+            }}
+            style={{
+              padding: '9px 14px',
+              borderRadius: '10px',
+              border: '1px solid #fecaca',
+              background: '#fef2f2',
+              color: '#dc2626',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer'
+            }}
+            title="កំណត់ឡើងវិញ (Reset Filter)"
+          >
+            🔄 សម្អាត Filter
+          </button>
+        )}
       </div>
 
       {/* Table (3-Languages on All TH) */}
@@ -803,70 +885,71 @@ export default function OvertimeClient({
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 {/* 1: No */}
-                <th style={{ padding: '14px 16px', width: '60px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ល.រ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>No.</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>序号</div>
+                <th style={{ padding: '9px 12px', width: '50px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ល.រ</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>No.</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>序号</div>
                 </th>
 
                 {/* 2: Employee */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
+                <th style={{ padding: '9px 12px', minWidth: '200px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ព័ត៌មានបុគ្គលិក</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>员工信息</div>
                 </th>
 
                 {/* 3: OT Date & Time */}
-                <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>កាលបរិច្ឆេទ និងម៉ោង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>OT Date & Time Range</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>加班日期与时段</div>
+                <th style={{ padding: '9px 12px', minWidth: '150px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>កាលបរិច្ឆេទ និងម៉ោង</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>OT Date & Time Range</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>加班日期与时段</div>
                 </th>
 
                 {/* 4: Total Hours & Rate */}
-                <th style={{ padding: '14px 16px', minWidth: '180px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ប្រភេទ និងអត្រាថែមម៉ោង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>OT Type & Rate Multiplier</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>加班类型与倍率</div>
+                <th style={{ padding: '9px 12px', minWidth: '170px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ប្រភេទ និងអត្រាថែមម៉ោង</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>OT Type & Multiplier</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>加班类型与倍率</div>
                 </th>
 
                 {/* 5: Reason */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>មូលហេតុ និងភារកិច្ច</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Reason / Task Detail</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>加班事由与任务</div>
+                <th style={{ padding: '9px 12px', minWidth: '200px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>មូលហេតុ និងភារកិច្ច</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Reason / Task Detail</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>加班事由与任务</div>
                 </th>
 
                 {/* 6: Status */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ស្ថានភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>状态</div>
+                <th style={{ padding: '9px 12px', minWidth: '120px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>ស្ថានភាព</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Status</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>状态</div>
                 </th>
 
                 {/* 7: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '180px', textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
+                <th style={{ padding: '9px 12px', minWidth: '160px', textAlign: 'right' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.85rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>操作</div>
                 </th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredRequests.length === 0 ? (
+              {paginatedRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>⏰</div>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>មិនមានសំណើថែមម៉ោងត្រូវបង្ហាញទេ</div>
-                    <div style={{ fontSize: '0.85rem' }}>No overtime requests found</div>
+                  <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>⏰</div>
+                    <div style={{ fontWeight: 700, fontSize: '1rem' }}>មិនមានសំណើថែមម៉ោងត្រូវបង្ហាញទេ</div>
+                    <div style={{ fontSize: '0.82rem' }}>No overtime requests found</div>
                   </td>
                 </tr>
               ) : (
-                filteredRequests.map((req, index) => {
+                paginatedRequests.map((req, index) => {
                   const emp = req.employee;
                   const typeConf = OT_TYPE_CONFIG[req.otType] || { labelKh: req.otType, labelEn: req.otType, labelZh: req.otType, multiplier: '1.5x', bg: '#f1f5f9', text: '#475569', icon: '⏰' };
                   const statusConf = STATUS_CONFIG[req.status] || { labelKh: req.status, labelEn: req.status, bg: '#f1f5f9', text: '#475569' };
+                  const rowNumber = (currentPage - 1) * (pageSize === -1 ? 0 : pageSize) + index + 1;
 
                   return (
                     <tr
@@ -878,95 +961,95 @@ export default function OvertimeClient({
                       }}
                     >
                       {/* Index */}
-                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>
-                        {index + 1}
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#64748b', fontSize: '0.85rem' }}>
+                        {rowNumber}
                       </td>
 
                       {/* Employee Info */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>
                           {emp.lastNameKh || ''} {emp.firstNameKh || ''} {(!emp.lastNameKh && !emp.firstNameKh) && `${emp.firstNameEn} ${emp.lastNameEn}`}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.75rem', color: '#4f46e5', fontWeight: 600 }}>
                           {emp.employeeId} • {emp.position}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
                           {emp.department} {emp.line ? `(${emp.line})` : ''}
                         </div>
                       </td>
 
                       {/* Date & Time */}
-                      <td style={{ padding: '14px 16px', fontSize: '0.88rem' }}>
+                      <td style={{ padding: '8px 12px', fontSize: '0.85rem' }}>
                         <div style={{ fontWeight: 700, color: '#0f172a' }}>
                           {new Date(req.otDate).toISOString().split('T')[0]}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#2563eb', fontWeight: 600, marginTop: '2px' }}>
                           {req.startTime} - {req.endTime}
                         </div>
                       </td>
 
                       {/* Total Hours & Rate Badge */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontWeight: 900, fontSize: '1.05rem', color: '#0f172a' }}>
-                            {req.totalHours} <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>ម៉ោង</span>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontWeight: 900, fontSize: '0.98rem', color: '#0f172a' }}>
+                            {req.totalHours} <span style={{ fontSize: '0.72rem', fontWeight: 600 }}>ម៉ោង</span>
                           </span>
                           <span style={{
-                            padding: '3px 8px',
+                            padding: '2px 7px',
                             borderRadius: '6px',
                             background: typeConf.bg,
                             color: typeConf.text,
-                            fontSize: '0.75rem',
+                            fontSize: '0.72rem',
                             fontWeight: 800
                           }}>
                             {typeConf.icon} {typeConf.multiplier}
                           </span>
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>
                           {typeConf.labelKh}
                         </div>
                       </td>
 
                       {/* Reason */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.88rem' }}>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.85rem' }}>
                           {req.reason}
                         </div>
                         {req.notes && (
-                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>
                             {req.notes}
                           </div>
                         )}
                         {req.rejectionReason && (
-                          <div style={{ fontSize: '0.75rem', color: '#dc2626', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.72rem', color: '#dc2626', marginTop: '2px' }}>
                             មូលហេតុបដិសេធ: {req.rejectionReason}
                           </div>
                         )}
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 12px' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 10px',
+                          padding: '3px 8px',
                           borderRadius: '6px',
                           background: statusConf.bg,
                           color: statusConf.text,
                           fontWeight: 700,
-                          fontSize: '0.78rem'
+                          fontSize: '0.75rem'
                         }}>
                           {statusConf.labelKh}
                         </span>
                         {req.approvedBy && (
-                          <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>
                             ដោយ: {req.approvedBy}
                           </div>
                         )}
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                      <td style={{ padding: '8px 12px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                           {/* Print Slip */}
                           <button
                             onClick={() => setSlipRequest(req)}
@@ -975,8 +1058,8 @@ export default function OvertimeClient({
                               background: '#eff6ff',
                               border: '1px solid #bfdbfe',
                               color: '#2563eb',
-                              padding: '6px 8px',
-                              borderRadius: '8px',
+                              padding: '5px 8px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 700,
                               fontSize: '0.78rem'
@@ -995,8 +1078,8 @@ export default function OvertimeClient({
                                   background: '#dcfce7',
                                   border: '1px solid #86efac',
                                   color: '#15803d',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '5px 8px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
                                   fontWeight: 700,
                                   fontSize: '0.78rem'
@@ -1011,8 +1094,8 @@ export default function OvertimeClient({
                                   background: '#fee2e2',
                                   border: '1px solid #fca5a5',
                                   color: '#b91c1c',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '5px 8px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
                                   fontWeight: 700,
                                   fontSize: '0.78rem'
@@ -1031,8 +1114,8 @@ export default function OvertimeClient({
                                 background: '#f8fafc',
                                 border: '1px solid #cbd5e1',
                                 color: '#64748b',
-                                padding: '6px 8px',
-                                borderRadius: '8px',
+                                padding: '5px 8px',
+                                borderRadius: '6px',
                                 cursor: 'pointer',
                                 fontSize: '0.78rem'
                               }}
@@ -1049,6 +1132,133 @@ export default function OvertimeClient({
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Pagination Bar */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 18px',
+        background: '#ffffff',
+        borderRadius: '12px',
+        border: '1px solid #e2e8f0',
+        gap: '12px'
+      }}>
+        {/* Count Info */}
+        <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+          បង្ហាញ {filteredRequests.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? filteredRequests.length : pageSize) + 1} ដល់{' '}
+          {pageSize === -1 ? filteredRequests.length : Math.min(currentPage * pageSize, filteredRequests.length)} នៃ{' '}
+          <strong style={{ color: '#0f172a' }}>{filteredRequests.length}</strong> សំណើ
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '6px' }}>
+            (Showing {filteredRequests.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? filteredRequests.length : pageSize) + 1}-
+            {pageSize === -1 ? filteredRequests.length : Math.min(currentPage * pageSize, filteredRequests.length)} of {filteredRequests.length} requests)
+          </span>
+        </div>
+
+        {/* Page Nav Controls */}
+        {pageSize !== -1 && totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '5px 9px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រដំបូង (First Page)"
+            >
+              ⏮️
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: '5px 11px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រមុន (Previous Page)"
+            >
+              ◀ មុន
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+              .map((p, idx, arr) => {
+                const prevP = arr[idx - 1];
+                const showEllipsis = prevP && p - prevP > 1;
+                return (
+                  <React.Fragment key={p}>
+                    {showEllipsis && <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>}
+                    <button
+                      onClick={() => setCurrentPage(p)}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: '8px',
+                        border: p === currentPage ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                        background: p === currentPage ? '#0284c7' : '#ffffff',
+                        color: p === currentPage ? '#ffffff' : '#1e293b',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        fontSize: '0.82rem'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '5px 11px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័របន្ទាប់ (Next Page)"
+            >
+              បន្ទាប់ ▶
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '5px 9px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រចុងក្រោយ (Last Page)"
+            >
+              ⏭️
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Single / Bulk OT Requisition Modal */}
@@ -1175,15 +1385,30 @@ export default function OvertimeClient({
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>
                     បុគ្គលិកថែមម៉ោង (Employee) *
                   </label>
+                  <input
+                    type="text"
+                    placeholder="🔍 ស្វែងរកអត្តលេខ ឬឈ្មោះបុគ្គលិក (Search ID or name)..."
+                    value={modalEmpSearch}
+                    onChange={e => setModalEmpSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.85rem',
+                      marginBottom: '6px',
+                      boxSizing: 'border-box'
+                    }}
+                  />
                   <select
                     value={form.employeeId}
                     onChange={e => setForm({ ...form, employeeId: e.target.value })}
                     required
                     style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
                   >
-                    {employees.map(emp => (
+                    {filteredModalEmployees.map(emp => (
                       <option key={emp.id} value={emp.id}>
-                        {emp.employeeId} - {emp.firstNameEn} {emp.lastNameEn} ({emp.department} - {emp.position})
+                        {emp.employeeId} - {emp.lastNameKh || ''} {emp.firstNameKh || ''} ({emp.firstNameEn} {emp.lastNameEn}) - {emp.department} ({emp.position})
                       </option>
                     ))}
                   </select>

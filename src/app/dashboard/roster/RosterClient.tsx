@@ -103,6 +103,10 @@ export default function RosterClient({
   const [search, setSearch] = useState<string>('');
   const [departmentFilter, setDepartmentFilter] = useState<string>('ALL');
 
+  // Pagination for high-volume factory staff
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(25);
+
   // Single Edit / Assign Modal
   const [showCellModal, setShowCellModal] = useState<boolean>(false);
   const [selectedEmp, setSelectedEmp] = useState<Employee | null>(null);
@@ -159,6 +163,14 @@ export default function RosterClient({
       return matchesDept && matchesSearch;
     });
   }, [employees, departmentFilter, search]);
+
+  // Paginated employees for matrix
+  const totalPages = pageSize === -1 ? 1 : Math.ceil(filteredEmployees.length / pageSize) || 1;
+  const paginatedEmployees = useMemo(() => {
+    if (pageSize === -1) return filteredEmployees;
+    const start = (currentPage - 1) * pageSize;
+    return filteredEmployees.slice(start, start + pageSize);
+  }, [filteredEmployees, currentPage, pageSize]);
 
   // Monthly stats
   const stats = useMemo(() => {
@@ -790,44 +802,44 @@ export default function RosterClient({
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px',
+        gap: '12px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '16px 20px',
+        padding: '14px 18px',
         borderRadius: '14px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 220px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ ឬអត្តលេខ (Search Name or ID)..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
+              padding: '9px 12px 9px 36px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '12px', top: '9px', color: '#94a3b8' }}>🔍</span>
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '220px' }}>
+        <div style={{ minWidth: '180px' }}>
           <select
             value={departmentFilter}
-            onChange={e => setDepartmentFilter(e.target.value)}
+            onChange={e => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
             style={{
               width: '100%',
-              padding: '10px 14px',
+              padding: '9px 12px',
               borderRadius: '10px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.85rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -839,6 +851,56 @@ export default function RosterClient({
             ))}
           </select>
         </div>
+
+        {/* Page Size Selector */}
+        <div style={{ minWidth: '130px' }}>
+          <select
+            value={pageSize}
+            onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+            style={{
+              width: '100%',
+              padding: '9px 12px',
+              borderRadius: '10px',
+              border: '1px solid #cbd5e1',
+              fontSize: '0.85rem',
+              background: '#ffffff',
+              outline: 'none',
+              fontWeight: 600,
+              color: '#0284c7'
+            }}
+            title="ចំនួនបុគ្គលិកក្នុងមួយទំព័រ (Staff per page)"
+          >
+            <option value={10}>👥 10 នាក់/ទំព័រ</option>
+            <option value={25}>👥 25 នាក់/ទំព័រ</option>
+            <option value={50}>👥 50 នាក់/ទំព័រ</option>
+            <option value={100}>👥 100 នាក់/ទំព័រ</option>
+            <option value={-1}>👥 ទាំងអស់ (All)</option>
+          </select>
+        </div>
+
+        {/* Reset Filter Button */}
+        {(search || departmentFilter !== 'ALL') && (
+          <button
+            onClick={() => {
+              setSearch('');
+              setDepartmentFilter('ALL');
+              setCurrentPage(1);
+            }}
+            style={{
+              padding: '9px 14px',
+              borderRadius: '10px',
+              border: '1px solid #fecaca',
+              background: '#fef2f2',
+              color: '#dc2626',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer'
+            }}
+            title="កំណត់ឡើងវិញ (Reset Filter)"
+          >
+            🔄 សម្អាត Filter
+          </button>
+        )}
 
         {/* Legend */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginLeft: 'auto', fontSize: '0.8rem' }}>
@@ -873,37 +935,37 @@ export default function RosterClient({
         boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
         overflow: 'hidden'
       }}>
-        <div style={{ overflowX: 'auto', maxHeight: '700px' }}>
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, textAlign: 'left', minWidth: '1200px' }}>
+        <div style={{ overflowX: 'auto', maxHeight: '720px' }}>
+          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, textAlign: 'left', minWidth: '1100px' }}>
             <thead>
               <tr style={{ background: '#f8fafc', position: 'sticky', top: 0, zIndex: 10 }}>
                 {/* Employee Info Header (Sticky Left) */}
                 <th style={{
-                  padding: '12px 16px',
+                  padding: '10px 12px',
                   borderBottom: '2px solid #cbd5e1',
                   borderRight: '2px solid #e2e8f0',
                   position: 'sticky',
                   left: 0,
                   background: '#f8fafc',
                   zIndex: 20,
-                  minWidth: '220px'
+                  minWidth: '190px'
                 }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>បុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>បុគ្គលិក</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>员工信息</div>
                 </th>
 
                 {/* Department Header */}
                 <th style={{
-                  padding: '12px 14px',
+                  padding: '10px 12px',
                   borderBottom: '2px solid #cbd5e1',
                   borderRight: '1px solid #e2e8f0',
-                  minWidth: '130px',
+                  minWidth: '110px',
                   background: '#f8fafc'
                 }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>ផ្នែក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Department</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>部门</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ផ្នែក</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Department</div>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>部门</div>
                 </th>
 
                 {/* Calendar Days Columns (1..DaysInMonth) */}
@@ -911,19 +973,19 @@ export default function RosterClient({
                   <th
                     key={d.day}
                     style={{
-                      padding: '8px 4px',
+                      padding: '6px 2px',
                       borderBottom: '2px solid #cbd5e1',
                       borderRight: '1px solid #f1f5f9',
                       textAlign: 'center',
-                      minWidth: '42px',
+                      minWidth: '36px',
                       background: d.isSunday ? '#fff1f2' : d.isSaturday ? '#f8fafc' : '#ffffff',
                       color: d.isSunday ? '#e11d48' : '#1e293b'
                     }}
                   >
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase' }}>
                       {d.dayOfWeek}
                     </div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 900 }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 900 }}>
                       {d.day}
                     </div>
                   </th>
@@ -932,16 +994,16 @@ export default function RosterClient({
             </thead>
 
             <tbody>
-              {filteredEmployees.length === 0 ? (
+              {paginatedEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={daysArray.length + 2} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔍</div>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>មិនមានបុគ្គលិកត្រូវបង្ហាញទេ</div>
-                    <div style={{ fontSize: '0.85rem' }}>No active employees found matching the filter</div>
+                  <td colSpan={daysArray.length + 2} style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
+                    <div style={{ fontWeight: 700, fontSize: '1rem' }}>មិនមានបុគ្គលិកត្រូវបង្ហាញទេ</div>
+                    <div style={{ fontSize: '0.82rem' }}>No active employees found matching the filter</div>
                   </td>
                 </tr>
               ) : (
-                filteredEmployees.map((emp, idx) => (
+                paginatedEmployees.map((emp, idx) => (
                   <tr
                     key={emp.id}
                     style={{
@@ -951,7 +1013,7 @@ export default function RosterClient({
                   >
                     {/* Sticky Employee Name/ID column */}
                     <td style={{
-                      padding: '10px 16px',
+                      padding: '8px 12px',
                       borderBottom: '1px solid #e2e8f0',
                       borderRight: '2px solid #e2e8f0',
                       position: 'sticky',
@@ -959,20 +1021,20 @@ export default function RosterClient({
                       background: idx % 2 === 0 ? '#ffffff' : '#f8fafc',
                       zIndex: 5
                     }}>
-                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>
+                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>
                         {emp.lastNameKh || ''} {emp.firstNameKh || ''} {(!emp.lastNameKh && !emp.firstNameKh) && `${emp.firstNameEn} ${emp.lastNameEn}`}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#4f46e5', fontWeight: 600 }}>
+                      <div style={{ fontSize: '0.74rem', color: '#4f46e5', fontWeight: 600 }}>
                         {emp.employeeId} • {emp.position}
                       </div>
                     </td>
 
                     {/* Department */}
                     <td style={{
-                      padding: '10px 14px',
+                      padding: '8px 12px',
                       borderBottom: '1px solid #e2e8f0',
                       borderRight: '1px solid #e2e8f0',
-                      fontSize: '0.82rem',
+                      fontSize: '0.8rem',
                       fontWeight: 600,
                       color: '#475569'
                     }}>
@@ -990,7 +1052,7 @@ export default function RosterClient({
                           onClick={() => handleCellClick(emp, d.dateStr)}
                           title={rosterItem ? `${conf?.labelKh} (${conf?.labelEn}) - ${rosterItem.startTime || ''} to ${rosterItem.endTime || ''}` : 'ចុចដើម្បីចាត់តាំងវេន (Click to assign)'}
                           style={{
-                            padding: '4px 2px',
+                            padding: '3px 1px',
                             borderBottom: '1px solid #e2e8f0',
                             borderRight: '1px solid #f1f5f9',
                             textAlign: 'center',
@@ -1005,31 +1067,31 @@ export default function RosterClient({
                               flexDirection: 'column',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '8px',
+                              width: '30px',
+                              height: '30px',
+                              borderRadius: '7px',
                               background: conf.bg,
                               color: conf.text,
                               border: `1px solid ${conf.border}`,
-                              fontSize: '0.72rem',
+                              fontSize: '0.7rem',
                               fontWeight: 800,
                               margin: '0 auto',
                               boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                             }}>
                               <span style={{ fontSize: '10px', lineHeight: 1 }}>{conf.icon}</span>
-                              <span style={{ fontSize: '9px', lineHeight: 1 }}>{conf.labelKh}</span>
+                              <span style={{ fontSize: '8.5px', lineHeight: 1 }}>{conf.labelKh}</span>
                             </div>
                           ) : (
                             <div style={{
-                              width: '24px',
-                              height: '24px',
+                              width: '22px',
+                              height: '22px',
                               borderRadius: '6px',
                               margin: '0 auto',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               color: '#cbd5e1',
-                              fontSize: '12px'
+                              fontSize: '11px'
                             }}>
                               {isHR ? '·' : ''}
                             </div>
@@ -1043,6 +1105,133 @@ export default function RosterClient({
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Pagination Bar */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 18px',
+        background: '#ffffff',
+        borderRadius: '12px',
+        border: '1px solid #e2e8f0',
+        gap: '12px'
+      }}>
+        {/* Count Info */}
+        <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+          បង្ហាញ {filteredEmployees.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? filteredEmployees.length : pageSize) + 1} ដល់{' '}
+          {pageSize === -1 ? filteredEmployees.length : Math.min(currentPage * pageSize, filteredEmployees.length)} នៃ{' '}
+          <strong style={{ color: '#0f172a' }}>{filteredEmployees.length}</strong> នាក់
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '6px' }}>
+            (Showing {filteredEmployees.length === 0 ? 0 : (currentPage - 1) * (pageSize === -1 ? filteredEmployees.length : pageSize) + 1}-
+            {pageSize === -1 ? filteredEmployees.length : Math.min(currentPage * pageSize, filteredEmployees.length)} of {filteredEmployees.length} staff)
+          </span>
+        </div>
+
+        {/* Page Nav Controls */}
+        {pageSize !== -1 && totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '5px 9px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រដំបូង (First Page)"
+            >
+              ⏮️
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: '5px 11px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រមុន (Previous Page)"
+            >
+              ◀ មុន
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+              .map((p, idx, arr) => {
+                const prevP = arr[idx - 1];
+                const showEllipsis = prevP && p - prevP > 1;
+                return (
+                  <React.Fragment key={p}>
+                    {showEllipsis && <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>}
+                    <button
+                      onClick={() => setCurrentPage(p)}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: '8px',
+                        border: p === currentPage ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                        background: p === currentPage ? '#0284c7' : '#ffffff',
+                        color: p === currentPage ? '#ffffff' : '#1e293b',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        fontSize: '0.82rem'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '5px 11px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័របន្ទាប់ (Next Page)"
+            >
+              បន្ទាប់ ▶
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '5px 9px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#1e293b',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 700,
+                fontSize: '0.82rem'
+              }}
+              title="ទំព័រចុងក្រោយ (Last Page)"
+            >
+              ⏭️
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Single Cell Edit / Assign Modal */}

@@ -4,9 +4,12 @@ import LeaveForm from '@/components/LeaveForm';
 
 export default async function NewLeavePage() {
   const t = await getDictionary();
-  const employees = await prisma.employee.findMany({
-    orderBy: { employeeId: 'asc' }
-  });
+  const [employees, companySettings] = await Promise.all([
+    prisma.employee.findMany({
+      orderBy: { employeeId: 'asc' }
+    }),
+    prisma.companySettings.findUnique({ where: { id: 'default' } })
+  ]);
 
   return (
     <div>
@@ -14,7 +17,11 @@ export default async function NewLeavePage() {
         <h1 className="title kh-text">{t.leave.form.newTitle}</h1>
       </div>
       
-      <LeaveForm employees={employees} t={t} />
+      <LeaveForm 
+        employees={JSON.parse(JSON.stringify(employees))} 
+        t={t} 
+        companySettings={JSON.parse(JSON.stringify(companySettings || {}))}
+      />
     </div>
   );
 }

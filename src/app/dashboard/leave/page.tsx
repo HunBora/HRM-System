@@ -5,10 +5,28 @@ import LiveLeaveTable from '@/components/Leave/LiveLeaveTable';
 export default async function LeavePage() {
   const t = await getDictionary();
   
-  const leaveRequestsData = await prisma.leaveRequest.findMany({
-    include: { employee: true },
-    orderBy: { createdAt: 'desc' }
-  });
+  const [leaveRequestsData, companySettings, employees] = await Promise.all([
+    prisma.leaveRequest.findMany({
+      include: { employee: true },
+      orderBy: { createdAt: 'desc' }
+    }),
+    prisma.companySettings.findUnique({ where: { id: 'default' } }),
+    prisma.employee.findMany({
+      orderBy: { employeeId: 'asc' },
+      select: {
+        id: true,
+        employeeId: true,
+        firstNameKh: true,
+        lastNameKh: true,
+        firstNameEn: true,
+        lastNameEn: true,
+        gender: true,
+        position: true,
+        department: true,
+        annualLeaveDays: true,
+      }
+    })
+  ]);
 
   const leaveRequests = leaveRequestsData.map(req => ({
     ...req,
@@ -17,6 +35,11 @@ export default async function LeavePage() {
   }));
 
   return (
-    <LiveLeaveTable leaveRequests={leaveRequests as any} dictionary={t} />
+    <LiveLeaveTable 
+      leaveRequests={leaveRequests as any} 
+      dictionary={t} 
+      companySettings={JSON.parse(JSON.stringify(companySettings || {}))}
+      employees={JSON.parse(JSON.stringify(employees || []))}
+    />
   );
 }

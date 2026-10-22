@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react';
 import { createLeaveRequest } from '@/app/dashboard/leave/actions';
 import Select from 'react-select';
+import LeaveRequestPrintModal from './Leave/LeaveRequestPrintModal';
 
-export default function LeaveForm({ employees, t }: { employees: any[], t: any }) {
+export default function LeaveForm({ employees, t, companySettings }: { employees: any[]; t: any; companySettings?: any }) {
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [duration, setDuration] = useState<number | ''>(1);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  const [leaveType, setLeaveType] = useState('ANNUAL');
+  const [reason, setReason] = useState('');
+  const [showPrintModal, setShowPrintModal] = useState(false);
 
   const employeeOptions = employees.map(emp => ({
     value: emp.id,
@@ -58,7 +62,13 @@ export default function LeaveForm({ employees, t }: { employees: any[], t: any }
         
         <div>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>{t.leave.form.type} *</label>
-          <select name="leaveType" className="input-field kh-text" required>
+          <select 
+            name="leaveType" 
+            value={leaveType}
+            onChange={(e) => setLeaveType(e.target.value)}
+            className="input-field kh-text" 
+            required
+          >
             <option value="ANNUAL">{t.leave.types.ANNUAL}</option>
             <option value="SICK">{t.leave.types.SICK}</option>
             <option value="MATERNITY">{t.leave.types.MATERNITY}</option>
@@ -84,18 +94,64 @@ export default function LeaveForm({ employees, t }: { employees: any[], t: any }
 
         <div>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>{t.leave.form.reason}</label>
-          <textarea name="reason" className="input-field kh-text" rows={4} style={{ resize: 'vertical' }}></textarea>
+          <textarea 
+            name="reason" 
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="input-field kh-text" 
+            rows={4} 
+            style={{ resize: 'vertical' }}
+          ></textarea>
         </div>
       </div>
       
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
         <button type="submit" className="btn-primary kh-text" disabled={loading}>
           {loading ? t.leave.form.saving : t.leave.form.save}
+        </button>
+        <button 
+          type="button" 
+          onClick={() => setShowPrintModal(true)} 
+          className="kh-text" 
+          style={{
+            background: '#eff6ff',
+            color: '#0284c7',
+            border: '1.5px solid #0284c7',
+            borderRadius: '8px',
+            padding: '8px 16px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <span>📄</span>
+          <span>មើល និងបោះពុម្ពលិខិតសុំច្បាប់ផ្លូវការ</span>
         </button>
         <button type="button" onClick={() => window.history.back()} className="btn-secondary kh-text" disabled={loading}>
           {t.leave.form.cancel}
         </button>
       </div>
+
+      {/* Official Leave Form Modal */}
+      {showPrintModal && (
+        <LeaveRequestPrintModal
+          isOpen={showPrintModal}
+          onClose={() => setShowPrintModal(false)}
+          leaveRequest={{
+            employee: employees.find(e => e.id === selectedEmployeeId),
+            leaveType,
+            startDate,
+            endDate,
+            duration,
+            reason,
+            status: 'PENDING',
+          }}
+          employees={employees}
+          companySettings={companySettings}
+        />
+      )}
     </form>
   );
 }

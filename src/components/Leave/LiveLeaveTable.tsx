@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import LeaveStatusClient from '@/app/dashboard/leave/LeaveStatusClient';
+import LeaveRequestPrintModal from './LeaveRequestPrintModal';
 
 interface LeaveRequest {
   id: string;
@@ -18,12 +19,23 @@ interface LeaveRequest {
 interface LiveLeaveTableProps {
   leaveRequests: LeaveRequest[];
   dictionary: any;
+  companySettings?: any;
+  employees?: any[];
 }
 
-export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLeaveTableProps) {
+export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySettings, employees = [] }: LiveLeaveTableProps) {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('ALL');
+
+  // Print & Edit Leave Form Modal
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [selectedLeaveForPrint, setSelectedLeaveForPrint] = useState<any>(null);
+
+  const handleOpenPrintModal = (leave?: any) => {
+    setSelectedLeaveForPrint(leave || null);
+    setShowPrintModal(true);
+  };
 
   const totalRequests = leaveRequests.length;
   const pendingCount = useMemo(() => leaveRequests.filter(r => r.status === 'PENDING').length, [leaveRequests]);
@@ -106,23 +118,48 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
           </div>
         </div>
 
-        <Link 
-          href="/dashboard/leave/new" 
-          className="btn-primary kh-text" 
-          style={{ 
-            textDecoration: 'none', 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            padding: '10px 20px',
-            borderRadius: '10px',
-            fontWeight: 600,
-            fontSize: '0.9rem'
-          }}
-        >
-          <span>➕</span>
-          <span>{t?.leave?.newBtn || '+ បញ្ចូលច្បាប់'}</span>
-        </Link>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => handleOpenPrintModal()}
+            style={{
+              backgroundColor: '#0284c7',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '10px 18px',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)',
+            }}
+            title="មើល ឬបោះពុម្ពទម្រង់លិខិតសុំច្បាប់ផ្លូវការ (អនុលោមតាមច្បាប់ការងារ)"
+          >
+            <span>📄</span>
+            <span className="kh-text">ទម្រង់លិខិតសុំច្បាប់ផ្លូវការ (Official Form)</span>
+          </button>
+
+          <Link 
+            href="/dashboard/leave/new" 
+            className="btn-primary kh-text" 
+            style={{ 
+              textDecoration: 'none', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              fontWeight: 600,
+              fontSize: '0.9rem'
+            }}
+          >
+            <span>➕</span>
+            <span>{t?.leave?.newBtn || '+ បញ្ចូលច្បាប់'}</span>
+          </Link>
+        </div>
       </div>
 
       {/* 2. Standard Metric Cards */}
@@ -514,7 +551,30 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
                       </td>
 
                       <td style={{ ...tdStyle, textAlign: 'center' }}>
-                        <LeaveStatusClient id={leave.id} currentStatus={leave.status} t={t} />
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <LeaveStatusClient id={leave.id} currentStatus={leave.status} t={t} />
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPrintModal(leave)}
+                            title="មើល និងបោះពុម្ពលិខិតសុំច្បាប់ផ្លូវការ"
+                            style={{
+                              background: '#eff6ff',
+                              color: '#0284c7',
+                              border: '1px solid #bfdbfe',
+                              borderRadius: '6px',
+                              padding: '5px 9px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <span>📄</span>
+                            <span className="kh-text">លិខិតសុំច្បាប់</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -524,6 +584,17 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t }: LiveLea
           </table>
         </div>
       </div>
+
+      {/* Official Leave Request Print & Edit Modal (លិខិតសុំច្បាប់) */}
+      {showPrintModal && (
+        <LeaveRequestPrintModal
+          isOpen={showPrintModal}
+          onClose={() => setShowPrintModal(false)}
+          leaveRequest={selectedLeaveForPrint}
+          employees={employees}
+          companySettings={companySettings}
+        />
+      )}
     </div>
   );
 }

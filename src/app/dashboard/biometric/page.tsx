@@ -12,7 +12,7 @@ export default async function BiometricPage() {
 
   const [initialLogs, initialDevices, employees] = await Promise.all([
     prisma.biometricPunchLog.findMany({
-      take: 150,
+      take: 2000,
       include: {
         employee: {
           select: {
@@ -67,7 +67,7 @@ export default async function BiometricPage() {
   ]);
 
   return (
-    <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ width: '100%', padding: '0 0.5rem', boxSizing: 'border-box' }}>
       <BiometricClient
         initialLogs={JSON.parse(JSON.stringify(initialLogs))}
         initialDevices={JSON.parse(JSON.stringify(initialDevices))}

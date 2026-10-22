@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
 interface Employee {
   id: string;
@@ -48,6 +49,34 @@ interface BiometricPunchLog {
   createdAt: string;
 }
 
+interface DailyPunchRow {
+  rowKey: string;
+  employee: Employee;
+  dateStr: string;
+  isoDate: string;
+  displayDate: string;
+  dayOfWeek: string;
+  dayKh: string;
+  isSunday: boolean;
+  fIn: string | null;
+  fOut: string | null;
+  sIn: string | null;
+  sOut: string | null;
+  otIn: string | null;
+  otOut: string | null;
+  regDay: number;
+  workHrs: number;
+  normalOt: number;
+  nightOt: number;
+  holidayOt: number;
+  lateMins: number;
+  earlyMins: number;
+  remarks: string;
+  sourceList: string[];
+  punchesCount: number;
+  rawLogs: BiometricPunchLog[];
+}
+
 interface Props {
   initialLogs: BiometricPunchLog[];
   initialDevices: BiometricDevice[];
@@ -89,6 +118,11 @@ export default function BiometricClient({
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateFilter, setDateFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('ALL');
+
+  // View Mode & Pagination for Large Workforce (1000+ employees)
+  const [logViewMode, setLogViewMode] = useState<'DAILY_SUMMARY' | 'RAW_EVENTS'>('DAILY_SUMMARY');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number | 'ALL'>(25);
 
   // Modals
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
@@ -235,6 +269,209 @@ export default function BiometricClient({
       return khName.includes(term) || enName.includes(term) || empId.includes(term) || dev.includes(term);
     });
   }, [logs, typeFilter, departmentFilter, dateFilter, searchTerm]);
+
+  // 1-Row Per Employee Daily Attendance Grouping (Transforms raw multiple punch scans into 1 consolidated row)
+  const dailyGroupedRows = useMemo(() => {
+    const groups: Record<string, BiometricPunchLog[]> = {};
+
+    for (const log of filteredLogs) {
+      const d = new Date(log.punchTime);
+      if (isNaN(d.getTime())) continue;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateKey = `${y}-${m}-${day}`;
+      const groupKey = `${log.employeeId}_${dateKey}`;
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(log);
+    }
+
+    const rows: DailyPunchRow[] = Object.entries(groups).map(([groupKey, groupPunches]) => {
+      // Sort chronologically ascending
+      groupPunches.sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
+      const firstLog = groupPunches[0];
+      const employee = firstLog.employee;
+      const d = new Date(firstLog.punchTime);
+
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yy = String(d.getFullYear()).slice(-2);
+      const displayDate = `${dd}-${mm}-${yy}`;
+      const isoDate = `${d.getFullYear()}-${mm}-${dd}`;
+
+      const daysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const daysKh = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហ', 'សុក្រ', 'សៅរ៍'];
+      const dayIndex = d.getDay();
+      const dayOfWeek = daysEn[dayIndex];
+      const dayKh = daysKh[dayIndex];
+      const isSunday = dayIndex === 0;
+
+      const toTime = (iso: string) => {
+        const dt = new Date(iso);
+        return `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+      };
+
+      let fIn: string | null = null;
+      let fOut: string | null = null;
+      let sIn: string | null = null;
+      let sOut: string | null = null;
+      let otIn: string | null = null;
+      let otOut: string | null = null;
+
+      // Priority 1: Match by explicit punchType
+      for (const p of groupPunches) {
+        const t = toTime(p.punchTime);
+        if (p.punchType === 'CHECK_IN' && !fIn) fIn = t;
+        else if (p.punchType === 'BREAK_OUT' && !fOut) fOut = t;
+        else if (p.punchType === 'BREAK_IN' && !sIn) sIn = t;
+        else if (p.punchType === 'CHECK_OUT' && !sOut) sOut = t;
+        else if (p.punchType === 'OT_IN' && !otIn) otIn = t;
+        else if (p.punchType === 'OT_OUT' && !otOut) otOut = t;
+      }
+
+      // Priority 2: Positional fallback if device sends generic/untyped punches
+      const uniqueTypes = new Set(groupPunches.map((p) => p.punchType));
+      if (uniqueTypes.size <= 1 || (!fIn && !sOut && groupPunches.length >= 2)) {
+        if (groupPunches.length === 1) {
+          fIn = toTime(groupPunches[0].punchTime);
+        } else if (groupPunches.length === 2) {
+          fIn = toTime(groupPunches[0].punchTime);
+          sOut = toTime(groupPunches[1].punchTime);
+        } else if (groupPunches.length === 3) {
+          fIn = toTime(groupPunches[0].punchTime);
+          fOut = toTime(groupPunches[1].punchTime);
+          sOut = toTime(groupPunches[2].punchTime);
+        } else if (groupPunches.length === 4) {
+          fIn = toTime(groupPunches[0].punchTime);
+          fOut = toTime(groupPunches[1].punchTime);
+          sIn = toTime(groupPunches[2].punchTime);
+          sOut = toTime(groupPunches[3].punchTime);
+        } else if (groupPunches.length === 5) {
+          fIn = toTime(groupPunches[0].punchTime);
+          fOut = toTime(groupPunches[1].punchTime);
+          sIn = toTime(groupPunches[2].punchTime);
+          sOut = toTime(groupPunches[3].punchTime);
+          otIn = toTime(groupPunches[4].punchTime);
+        } else if (groupPunches.length >= 6) {
+          fIn = toTime(groupPunches[0].punchTime);
+          fOut = toTime(groupPunches[1].punchTime);
+          sIn = toTime(groupPunches[2].punchTime);
+          sOut = toTime(groupPunches[3].punchTime);
+          otIn = toTime(groupPunches[4].punchTime);
+          otOut = toTime(groupPunches[5].punchTime);
+        }
+      }
+
+      // Compute standard metrics
+      const metrics = calculateDayAttendanceMetrics(fIn, fOut, sIn, sOut, otIn, otOut, isSunday);
+
+      const notes = groupPunches.map((p) => p.notes).filter(Boolean).join('; ');
+      const sourceList = Array.from(new Set(groupPunches.map((p) => p.deviceName || p.source || 'Device')));
+
+      return {
+        rowKey: groupKey,
+        employee,
+        dateStr: `${dd}-${mm}-${yy}`,
+        isoDate,
+        displayDate,
+        dayOfWeek,
+        dayKh,
+        isSunday,
+        fIn,
+        fOut,
+        sIn,
+        sOut,
+        otIn,
+        otOut,
+        regDay: metrics.regDay,
+        workHrs: metrics.workHrs,
+        normalOt: metrics.normalOtHrs,
+        nightOt: metrics.nightOtHrs,
+        holidayOt: metrics.holidayOtHrs,
+        lateMins: metrics.lateMins,
+        earlyMins: metrics.earlyMins,
+        remarks: notes || (groupPunches.length >= 2 ? 'ស្កេនធម្មតា (Normal)' : 'ស្កេនមិនគ្រប់ (Missing Scan)'),
+        sourceList,
+        punchesCount: groupPunches.length,
+        rawLogs: groupPunches,
+      };
+    });
+
+    // Sort descending by date, then by employee ID
+    return rows.sort((a, b) => {
+      const cmp = b.isoDate.localeCompare(a.isoDate);
+      if (cmp !== 0) return cmp;
+      return a.employee.employeeId.localeCompare(b.employee.employeeId);
+    });
+  }, [filteredLogs]);
+
+  // Paginated Slices
+  const totalCount = logViewMode === 'DAILY_SUMMARY' ? dailyGroupedRows.length : filteredLogs.length;
+  const totalPages = pageSize === 'ALL' ? 1 : Math.max(1, Math.ceil(totalCount / (pageSize as number)));
+
+  const paginatedDailyRows = useMemo(() => {
+    if (pageSize === 'ALL') return dailyGroupedRows;
+    const start = (currentPage - 1) * (pageSize as number);
+    return dailyGroupedRows.slice(start, start + (pageSize as number));
+  }, [dailyGroupedRows, currentPage, pageSize]);
+
+  const paginatedRawLogs = useMemo(() => {
+    if (pageSize === 'ALL') return filteredLogs;
+    const start = (currentPage - 1) * (pageSize as number);
+    return filteredLogs.slice(start, start + (pageSize as number));
+  }, [filteredLogs, currentPage, pageSize]);
+
+  // Open Edit Day in Manual Modal
+  const handleOpenEditDay = (row: DailyPunchRow) => {
+    setManualEmpId(row.employee.id);
+    setFullDayDate(row.isoDate);
+    setFullDayFIn(row.fIn || '07:00');
+    setFullDayFOut(row.fOut || '11:00');
+    setFullDaySIn(row.sIn || '13:00');
+    setFullDaySOut(row.sOut || '17:00');
+    if (row.otIn || row.otOut) {
+      setHasOt(true);
+      setFullDayOtIn(row.otIn || '17:30');
+      setFullDayOtOut(row.otOut || '19:30');
+    } else {
+      setHasOt(false);
+    }
+    setFullDayRegDay(row.regDay);
+    setFullDayWorkHrs(row.workHrs);
+    setManualNotes(row.remarks);
+    setManualEntryMode('fullday');
+    setIsManualModalOpen(true);
+  };
+
+  // Delete all punches for an employee on a given day
+  const handleDeleteDayPunches = async (row: DailyPunchRow) => {
+    const confirm = await Swal.fire({
+      title: 'តើអ្នកប្រាកដទេ?',
+      text: `តើអ្នកចង់លុបកំណត់ត្រាស្កេនទាំងអស់ (${row.punchesCount} ដង) របស់ ${row.employee.firstNameEn} ${row.employee.lastNameEn} នៅថ្ងៃទី ${row.displayDate} មែនទេ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'បាទ/ចាស លុបចេញ',
+      cancelButtonText: 'បោះបង់',
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const ids = row.rawLogs.map((l) => l.id);
+      for (const id of ids) {
+        await fetch(`/api/biometric/logs?id=${id}`, { method: 'DELETE' });
+      }
+      setLogs((prev) => prev.filter((l) => !ids.includes(l.id)));
+      Swal.fire({ icon: 'success', title: 'បានលុបជោគជ័យ', timer: 1200, showConfirmButton: false });
+    } catch (err: any) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  };
 
   // Sync Biometrics to DailyAttendance
   const handleSyncAttendance = async (devId?: string) => {
@@ -455,6 +692,70 @@ export default function BiometricClient({
 
   // Export to Excel with 3 languages stacked and autoFitColumns
   const handleExportExcel = () => {
+    if (logViewMode === 'DAILY_SUMMARY') {
+      if (dailyGroupedRows.length === 0) {
+        Swal.fire('Info', 'គ្មានទិន្នន័យសម្រាប់ទាញយកទេ (No data)', 'info');
+        return;
+      }
+
+      const exportData = dailyGroupedRows.map((r, index) => {
+        const empNameKh = `${r.employee.lastNameKh || ''} ${r.employee.firstNameKh || ''}`.trim();
+        const empNameEn = `${r.employee.firstNameEn || ''} ${r.employee.lastNameEn || ''}`.trim();
+
+        return {
+          'NO\nល.រ\n序号': index + 1,
+          'DATE\nកាលបរិច្ឆេទ\n打卡日期': r.displayDate,
+          'DAY\nថ្ងៃ\n星期': `${r.dayOfWeek} (${r.dayKh})`,
+          'EMP ID\nអត្តលេខ\n工号': r.employee.employeeId,
+          'EMPLOYEE\nឈ្មោះបុគ្គលិក\n员工姓名': empNameKh ? `${empNameKh} (${empNameEn})` : empNameEn,
+          'DEPARTMENT\nនាយកដ្ឋាន\n部门': r.employee.department,
+          'POSITION\nមុខតំណែង\n职位': r.employee.position,
+          'F-IN\nចូលព្រឹក\n上午上班': r.fIn || '-',
+          'F-OUT\nចេញព្រឹក\n上午下班': r.fOut || '-',
+          'S-IN\nចូលថ្ងៃ\n下午上班': r.sIn || '-',
+          'S-OUT\nចេញថ្ងៃ\n下午下班': r.sOut || '-',
+          'OT-IN\nចូលOT\n加班上班': r.otIn || '-',
+          'OT-OUT\nចេញOT\n加班下班': r.otOut || '-',
+          'REG DAY\nថ្ងៃធ្វើការ\n正常工日': r.regDay,
+          'WORK HRS\nម៉ោងធ្វើការ\n工作工时': r.workHrs,
+          'NORMAL OT\nOTធម្មតា\n平时加班': r.normalOt,
+          'NIGHT OT\nOTយប់\n夜间加班': r.nightOt,
+          'HOLIDAY OT\nOTថ្ងៃឈប់\n节日加班': r.holidayOt,
+          'LATE (Mins)\nយឺត\n迟到': r.lateMins,
+          'EARLY (Mins)\nចេញមុន\n早退': r.earlyMins,
+          'REMARKS\nសម្គាល់\n备注': r.remarks,
+        };
+      });
+
+      const autoFitColumns = (data: any[]) => {
+        if (!data || data.length === 0) return [];
+        const keys = Object.keys(data[0]);
+        return keys.map((key) => {
+          let maxLen = key.length;
+          data.forEach((row) => {
+            const val = row[key] !== undefined && row[key] !== null ? String(row[key]) : '';
+            if (val.length > maxLen) maxLen = val.length;
+          });
+          return { wch: Math.max(maxLen + 3, 12) };
+        });
+      };
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      ws['!cols'] = autoFitColumns(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Daily_Attendance_Matrix');
+      XLSX.writeFile(wb, `Daily_Attendance_Summary_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ទាញយកជោគជ័យ (Exported)',
+        text: 'ឯកសារ Excel តារាងវត្តមានប្រចាំថ្ងៃត្រូវបានទាញយករួចរាល់!',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
     if (filteredLogs.length === 0) {
       Swal.fire('Info', 'គ្មានទិន្នន័យសម្រាប់ទាញយកទេ (No data)', 'info');
       return;
@@ -582,50 +883,50 @@ export default function BiometricClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* 1. Header Banner */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', boxSizing: 'border-box' }}>
+      {/* 1. Header Banner (Compact & Fits Screen) */}
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '16px',
+          gap: '10px',
           background: '#ffffff',
-          padding: '24px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-          border: '1px solid #f1f5f9',
+          padding: '10px 16px',
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          border: '1px solid #e2e8f0',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '14px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '28px',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+              fontSize: '20px',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.15)',
             }}
           >
             📲
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
               ប្រព័ន្ធគ្រប់គ្រងម៉ាស៊ីនស្កេនមេដៃ និងទិន្នន័យវត្តមាន
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.86rem', fontWeight: 500 }}>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.75rem', fontWeight: 500 }}>
               Biometric Fingerprint & Device Sync Management • 考勤打卡机与指纹打卡实时同步系统
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <a
             href="/dashboard/attendance"
             style={{
@@ -635,16 +936,16 @@ export default function BiometricClient({
               background: '#f8fafc',
               color: '#334155',
               border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '10px 14px',
+              borderRadius: '8px',
+              padding: '6px 12px',
               fontWeight: 700,
-              fontSize: '0.86rem',
+              fontSize: '0.8rem',
               textDecoration: 'none',
-              transition: 'all 0.2s ease',
+              transition: 'all 0.15s ease',
             }}
           >
             <span>📅</span>
-            <span>តារាងវត្តមានប្រចាំខែ (Attendance Timesheets)</span>
+            <span>តារាងវត្តមានប្រចាំខែ (Timesheets)</span>
           </a>
 
           {isHR && (
@@ -654,50 +955,47 @@ export default function BiometricClient({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.2)',
                 opacity: isSyncing ? 0.7 : 1,
               }}
             >
               <span>⚡</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                <div>{isSyncing ? 'កំពុង Sync...' : 'ធ្វើសមកាលកម្មវត្តមាន'}</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Sync to Timesheet • 同步到考勤表</div>
-              </div>
+              <span>{isSyncing ? 'កំពុង Sync...' : 'ធ្វើសមកាលកម្ម (Sync)'}</span>
             </button>
           )}
 
           {isHR && (
             <button
-              onClick={() => setIsManualModalOpen(true)}
+              onClick={() => {
+                setManualEntryMode('fullday');
+                setIsManualModalOpen(true);
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
+                boxShadow: '0 2px 8px rgba(124, 58, 237, 0.2)',
               }}
             >
               <span>➕</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                <div>កត់ត្រាស្កេនដោយដៃ</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Manual Punch • 手工补录打卡</div>
-              </div>
+              <span>កត់ត្រាដោយដៃ (Manual)</span>
             </button>
           )}
 
@@ -706,69 +1004,66 @@ export default function BiometricClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '6px 12px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)',
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-              <div>ទាញយកជា Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
-            </div>
+            <span>ទាញយក Excel</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Metrics Cards (3-Languages Stacked) */}
+      {/* 2. Metrics Cards (Compact 3-Languages Stacked) */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '10px',
         }}
       >
         {/* Metric 1 */}
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '12px',
+            padding: '8px 14px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
               background: '#eff6ff',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
             }}
           >
             📋
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>កំណត់ត្រាស្កេនសរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Punch Logs • 原始打卡总数</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563eb', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>កំណត់ត្រាស្កេនសរុប</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Total Logs • 打卡总数</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#2563eb' }}>
               {metrics.totalLogs}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
             </div>
           </div>
         </div>
@@ -777,36 +1072,36 @@ export default function BiometricClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '12px',
+            padding: '8px 14px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
               background: '#f0fdf4',
               color: '#16a34a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
             }}
           >
             📡
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ម៉ាស៊ីនស្កេនអនឡាញ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Online Devices • 在线打卡终端</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>ម៉ាស៊ីនស្កេនអនឡាញ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Online Devs • 在线终端</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a' }}>
               {metrics.onlineDevs} / {devices.length}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>គ្រឿង</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>គ្រឿង</span>
             </div>
           </div>
         </div>
@@ -815,36 +1110,36 @@ export default function BiometricClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '12px',
+            padding: '8px 14px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
               background: '#fffbeb',
               color: '#d97706',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
             }}
           >
             ☀️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ស្កេនវត្តមានថ្ងៃនេះ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Today's Punches • 今日打卡人次</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>ស្កេនវត្តមានថ្ងៃនេះ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Today's Punches • 今日打卡</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#d97706' }}>
               {metrics.todayLogs}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>នាក់</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>នាក់</span>
             </div>
           </div>
         </div>
@@ -853,36 +1148,36 @@ export default function BiometricClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '12px',
+            padding: '8px 14px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
               background: '#f5f3ff',
               color: '#7c3aed',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
             }}
           >
             🔄
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បានធ្វើសមកាលកម្ម</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Synced Records • 已同步打卡</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#7c3aed', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>បានធ្វើសមកាលកម្ម</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Synced Records • 已同步</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#7c3aed' }}>
               {metrics.syncedLogs}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>កត់ត្រា</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>កត់ត្រា</span>
             </div>
           </div>
         </div>
@@ -892,23 +1187,23 @@ export default function BiometricClient({
       <div
         style={{
           display: 'flex',
-          gap: '8px',
+          gap: '6px',
           borderBottom: '2px solid #e2e8f0',
-          paddingBottom: '8px',
+          paddingBottom: '6px',
         }}
       >
         <button
           onClick={() => setActiveTab('LOGS')}
           style={{
-            padding: '10px 20px',
-            borderRadius: '10px',
+            padding: '8px 16px',
+            borderRadius: '8px',
             border: 'none',
             background: activeTab === 'LOGS' ? '#2563eb' : '#ffffff',
             color: activeTab === 'LOGS' ? '#ffffff' : '#64748b',
             fontWeight: 700,
             cursor: 'pointer',
-            fontSize: '0.88rem',
-            boxShadow: activeTab === 'LOGS' ? '0 4px 12px rgba(37,99,235,0.2)' : 'none',
+            fontSize: '0.82rem',
+            boxShadow: activeTab === 'LOGS' ? '0 2px 8px rgba(37,99,235,0.2)' : 'none',
           }}
         >
           📄 កំណត់ត្រាស្កេនផ្ទាល់ (Live Punch Logs)
@@ -917,15 +1212,15 @@ export default function BiometricClient({
         <button
           onClick={() => setActiveTab('DEVICES')}
           style={{
-            padding: '10px 20px',
-            borderRadius: '10px',
+            padding: '8px 16px',
+            borderRadius: '8px',
             border: 'none',
             background: activeTab === 'DEVICES' ? '#2563eb' : '#ffffff',
             color: activeTab === 'DEVICES' ? '#ffffff' : '#64748b',
             fontWeight: 700,
             cursor: 'pointer',
-            fontSize: '0.88rem',
-            boxShadow: activeTab === 'DEVICES' ? '0 4px 12px rgba(37,99,235,0.2)' : 'none',
+            fontSize: '0.82rem',
+            boxShadow: activeTab === 'DEVICES' ? '0 2px 8px rgba(37,99,235,0.2)' : 'none',
           }}
         >
           🖥️ គ្រប់គ្រងម៉ាស៊ីនស្កេន (Biometric Terminals)
@@ -934,15 +1229,15 @@ export default function BiometricClient({
         <button
           onClick={() => setActiveTab('IMPORT')}
           style={{
-            padding: '10px 20px',
-            borderRadius: '10px',
+            padding: '8px 16px',
+            borderRadius: '8px',
             border: 'none',
             background: activeTab === 'IMPORT' ? '#2563eb' : '#ffffff',
             color: activeTab === 'IMPORT' ? '#ffffff' : '#64748b',
             fontWeight: 700,
             cursor: 'pointer',
-            fontSize: '0.88rem',
-            boxShadow: activeTab === 'IMPORT' ? '0 4px 12px rgba(37,99,235,0.2)' : 'none',
+            fontSize: '0.82rem',
+            boxShadow: activeTab === 'IMPORT' ? '0 2px 8px rgba(37,99,235,0.2)' : 'none',
           }}
         >
           💾 នាំចូលពី USB / Excel (Batch Import)
@@ -951,344 +1246,852 @@ export default function BiometricClient({
 
       {/* TAB 1: Live Punch Logs Feed */}
       {activeTab === 'LOGS' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Filters Toolbar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {/* Filters & View Mode Toolbar */}
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: '14px',
+              gap: '10px',
               alignItems: 'center',
+              justifyContent: 'space-between',
               background: '#ffffff',
-              padding: '16px 20px',
-              borderRadius: '14px',
-              border: '1px solid #f1f5f9',
+              padding: '10px 14px',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
             }}
           >
-            {/* Search */}
-            <div style={{ flex: '1 1 240px', position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ, ឧបករណ៍... (Search)..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+            {/* View Mode Toggle Switcher */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+              <button
+                type="button"
+                onClick={() => { setLogViewMode('DAILY_SUMMARY'); setCurrentPage(1); }}
                 style={{
-                  width: '100%',
-                  padding: '10px 14px 10px 38px',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '0.88rem',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                }}
-              />
-              <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
-            </div>
-
-            {/* Date Filter */}
-            <div style={{ minWidth: '160px' }}>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '0.88rem',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                }}
-              />
-            </div>
-
-            {/* Punch Type Filter */}
-            <div style={{ minWidth: '170px' }}>
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '0.88rem',
-                  background: '#ffffff',
-                  outline: 'none',
-                  fontWeight: 600,
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: logViewMode === 'DAILY_SUMMARY' ? '#2563eb' : 'transparent',
+                  color: logViewMode === 'DAILY_SUMMARY' ? '#ffffff' : '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: logViewMode === 'DAILY_SUMMARY' ? '0 1px 4px rgba(37,99,235,0.25)' : 'none',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                <option value="ALL">⏰ គ្រប់ប្រភេទស្កេន (All Types)</option>
-                <option value="CHECK_IN">☀️ ស្កេនចូលព្រឹក (Check In)</option>
-                <option value="CHECK_OUT">🌙 ស្កេនចេញល្ងាច (Check Out)</option>
-                <option value="OT_IN">⏰ ចូលថែមម៉ោង (OT In)</option>
-                <option value="OT_OUT">⌛ ចេញថែមម៉ោង (OT Out)</option>
-              </select>
-            </div>
-
-            {/* Department Filter */}
-            <div style={{ minWidth: '170px' }}>
-              <select
-                value={departmentFilter}
-                onChange={(e) => setDepartmentFilter(e.target.value)}
+                <span>📊</span>
+                <span>វត្តមានសង្ខេប ១នាក់ ១ជួរ (1 Row / Emp)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setLogViewMode('RAW_EVENTS'); setCurrentPage(1); }}
                 style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '0.88rem',
-                  background: '#ffffff',
-                  outline: 'none',
-                  fontWeight: 600,
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: logViewMode === 'RAW_EVENTS' ? '#2563eb' : 'transparent',
+                  color: logViewMode === 'RAW_EVENTS' ? '#ffffff' : '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: logViewMode === 'RAW_EVENTS' ? '0 1px 4px rgba(37,99,235,0.25)' : 'none',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                <option value="ALL">🏢 គ្រប់នាយកដ្ឋាន (All Depts)</option>
-                {departments.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+                <span>📋</span>
+                <span>ស្កេននីមួយៗ (Raw Logs)</span>
+              </button>
+            </div>
+
+            {/* Filters Section */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+              {/* Search */}
+              <div style={{ minWidth: '200px', flex: '1 1 200px', position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ... (Search)..."
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  style={{
+                    width: '100%',
+                    padding: '7px 12px 7px 32px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.82rem',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <span style={{ position: 'absolute', left: '10px', top: '7px', color: '#94a3b8', fontSize: '0.8rem' }}>🔍</span>
+              </div>
+
+              {/* Date Filter */}
+              <div style={{ minWidth: '140px' }}>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
+                  style={{
+                    width: '100%',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.82rem',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              {/* Punch Type Filter (Relevant if Raw Logs) */}
+              {logViewMode === 'RAW_EVENTS' && (
+                <div style={{ minWidth: '150px' }}>
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+                    style={{
+                      width: '100%',
+                      padding: '6px 10px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.82rem',
+                      background: '#ffffff',
+                      outline: 'none',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <option value="ALL">⏰ គ្រប់ប្រភេទស្កេន (All Types)</option>
+                    <option value="CHECK_IN">☀️ ស្កេនចូលព្រឹក (Check In)</option>
+                    <option value="CHECK_OUT">🌙 ស្កេនចេញល្ងាច (Check Out)</option>
+                    <option value="OT_IN">⏰ ចូលថែមម៉ោង (OT In)</option>
+                    <option value="OT_OUT">⌛ ចេញថែមម៉ោង (OT Out)</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Department Filter */}
+              <div style={{ minWidth: '150px' }}>
+                <select
+                  value={departmentFilter}
+                  onChange={(e) => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
+                  style={{
+                    width: '100%',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.82rem',
+                    background: '#ffffff',
+                    outline: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  <option value="ALL">🏢 គ្រប់នាយកដ្ឋាន (All Depts)</option>
+                  {departments.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          {/* Table with 3 languages stacked on headers */}
+          {/* TABLE CONTAINER */}
           <div
             style={{
               background: '#ffffff',
-              borderRadius: '16px',
+              borderRadius: '12px',
               border: '1px solid #e2e8f0',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
               overflow: 'hidden',
             }}
           >
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    {/* 1: Employee */}
-                    <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
-                    </th>
-
-                    {/* 2: Department */}
-                    <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>នាយកដ្ឋាន / មុខតំណែង</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Department / Position</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>部门 / 职位</div>
-                    </th>
-
-                    {/* 3: Date & Time */}
-                    <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>កាលបរិច្ឆេទ និងម៉ោង</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Punch Date & Time</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>打卡时间</div>
-                    </th>
-
-                    {/* 4: Punch Type */}
-                    <th style={{ padding: '14px 16px', minWidth: '140px' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ប្រភេទស្កេន</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Punch Type</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>打卡类型</div>
-                    </th>
-
-                    {/* 5: Verify Mode */}
-                    <th style={{ padding: '14px 16px', minWidth: '140px' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>វិធីផ្ទៀងផ្ទាត់</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Verify Mode</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>验证方式</div>
-                    </th>
-
-                    {/* 6: Device Origin */}
-                    <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ម៉ាស៊ីនស្កេន</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Device Terminal</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>打卡终端</div>
-                    </th>
-
-                    {/* 7: Actions */}
-                    <th style={{ padding: '14px 16px', minWidth: '80px', textAlign: 'center' }}>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>សកម្មភាព</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLogs.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} style={{ padding: '48px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                        <div style={{ fontSize: '40px', marginBottom: '8px' }}>📂</div>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: '#475569' }}>
-                          មិនមានកំណត់ត្រាស្កេនវត្តមានទេ (No Punch Records)
-                        </div>
-                      </td>
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              {/* VIEW 1: DAILY SUMMARY (1 ROW PER EMPLOYEE PER DAY) - EXACT IMAGE 1 FORMAT */}
+              {logViewMode === 'DAILY_SUMMARY' ? (
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.74rem' }}>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '38px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>NO</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ល.រ</div>
+                      </th>
+                      <th style={{ padding: '8px 8px', textAlign: 'center', width: '80px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>DATE</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>កាលបរិច្ឆេទ</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '50px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>DAY</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ថ្ងៃ</div>
+                      </th>
+                      <th style={{ padding: '8px 10px', minWidth: '180px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>EMPLOYEE</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>បុគ្គលិក • 员工</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#1e40af' }}>F-IN</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចូលព្រឹក</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#92400e' }}>F-OUT</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញព្រឹក</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#3730a3' }}>S-IN</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចូលថ្ងៃ</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#5b21b6' }}>S-OUT</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញថ្ងៃ</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#991b1b' }}>OT-IN</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចូលOT</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#9a3412' }}>OT-OUT</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញOT</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>REG DAY</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ថ្ងៃធ្វើការ</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>WORK HRS</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ម៉ោងធ្វើការ</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '70px' }}>
+                        <div style={{ fontWeight: 800, color: '#b45309' }}>NORMAL OT</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>OT ធម្មតា</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
+                        <div style={{ fontWeight: 800, color: '#7c3aed' }}>NIGHT OT</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>OT យប់</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '75px' }}>
+                        <div style={{ fontWeight: 800, color: '#dc2626' }}>HOLIDAY OT</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>OT ឈប់</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '55px' }}>
+                        <div style={{ fontWeight: 800, color: '#dc2626' }}>LATE</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>យឺត</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '55px' }}>
+                        <div style={{ fontWeight: 800, color: '#d97706' }}>EARLY</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញមុន</div>
+                      </th>
+                      <th style={{ padding: '8px 10px', minWidth: '120px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>REMARKS</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>សម្គាល់ • 备注</div>
+                      </th>
+                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '75px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ACTIONS</div>
+                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>សកម្មភាព</div>
+                      </th>
                     </tr>
-                  ) : (
-                    filteredLogs.map((log, idx) => {
-                      const empNameKh = `${log.employee.lastNameKh || ''} ${log.employee.firstNameKh || ''}`.trim();
-                      const empNameEn = `${log.employee.firstNameEn || ''} ${log.employee.lastNameEn || ''}`.trim();
-                      const typeConf = PUNCH_TYPE_CONFIG[log.punchType] || {
-                        labelKh: log.punchType,
-                        labelEn: log.punchType,
-                        icon: '⏰',
-                        bg: '#f1f5f9',
-                        text: '#475569',
-                      };
-                      const modeConf = VERIFY_MODE_CONFIG[log.verifyMode] || {
-                        labelKh: log.verifyMode,
-                        labelEn: log.verifyMode,
-                        icon: '👆',
-                        bg: '#f1f5f9',
-                        text: '#475569',
-                      };
+                  </thead>
+                  <tbody>
+                    {paginatedDailyRows.length === 0 ? (
+                      <tr>
+                        <td colSpan={19} style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                          <div style={{ fontSize: '32px', marginBottom: '6px' }}>📂</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#475569' }}>
+                            មិនមានកំណត់ត្រាស្កេនវត្តមានទេ (No Daily Punch Records)
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedDailyRows.map((row, idx) => {
+                        const rowNumber = pageSize === 'ALL' ? idx + 1 : ((currentPage - 1) * (pageSize as number)) + idx + 1;
+                        const empNameKh = `${row.employee.lastNameKh || ''} ${row.employee.firstNameKh || ''}`.trim();
+                        const empNameEn = `${row.employee.firstNameEn || ''} ${row.employee.lastNameEn || ''}`.trim();
 
-                      const d = new Date(log.punchTime);
-                      const dateStr = d.toLocaleDateString();
-                      const timeStr = d.toTimeString().slice(0, 8);
+                        return (
+                          <tr
+                            key={row.rowKey}
+                            style={{
+                              borderBottom: '1px solid #f1f5f9',
+                              background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
+                              transition: 'background 0.15s ease',
+                            }}
+                          >
+                            {/* NO */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: '0.78rem' }}>
+                              {rowNumber}
+                            </td>
 
-                      return (
-                        <tr
-                          key={log.id}
-                          style={{
-                            borderBottom: '1px solid #f1f5f9',
-                            background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
-                          }}
-                        >
-                          {/* Employee */}
-                          <td style={{ padding: '14px 16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              {log.employee.photoUrl ? (
-                                <img
-                                  src={log.employee.photoUrl}
-                                  alt=""
-                                  style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
-                                />
-                              ) : (
-                                <div
-                                  style={{
-                                    width: '38px',
-                                    height: '38px',
-                                    borderRadius: '50%',
-                                    background: '#e0e7ff',
-                                    color: '#4338ca',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: 700,
-                                    fontSize: '0.85rem',
-                                  }}
-                                >
-                                  {(log.employee.firstNameEn?.[0] || 'E')}
-                                </div>
-                              )}
-                              <div>
-                                <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>
-                                  {empNameKh || empNameEn}
-                                </div>
-                                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{empNameEn}</div>
-                                <div style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#4f46e5' }}>
-                                  ID: {log.employee.employeeId}
+                            {/* DATE */}
+                            <td style={{ padding: '7px 8px', textAlign: 'center' }}>
+                              <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e293b', fontSize: '0.8rem' }}>
+                                {row.displayDate}
+                              </span>
+                            </td>
+
+                            {/* DAY */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              <span
+                                style={{
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '0.72rem',
+                                  fontWeight: 700,
+                                  background: row.isSunday ? '#fee2e2' : '#f1f5f9',
+                                  color: row.isSunday ? '#dc2626' : '#475569',
+                                  border: row.isSunday ? '1px solid #fecaca' : '1px solid #e2e8f0',
+                                }}
+                                title={row.dayKh}
+                              >
+                                {row.dayOfWeek}
+                              </span>
+                            </td>
+
+                            {/* EMPLOYEE */}
+                            <td style={{ padding: '7px 10px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {row.employee.photoUrl ? (
+                                  <img
+                                    src={row.employee.photoUrl}
+                                    alt=""
+                                    style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }}
+                                  />
+                                ) : (
+                                  <div
+                                    style={{
+                                      width: '26px',
+                                      height: '26px',
+                                      borderRadius: '50%',
+                                      background: '#e0e7ff',
+                                      color: '#4338ca',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontWeight: 700,
+                                      fontSize: '0.72rem',
+                                    }}
+                                  >
+                                    {(row.employee.firstNameEn?.[0] || 'E')}
+                                  </div>
+                                )}
+                                <div>
+                                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', lineHeight: 1.2 }}>
+                                    {empNameKh || empNameEn}
+                                  </div>
+                                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                    <span style={{ fontFamily: 'monospace', color: '#2563eb', fontWeight: 700 }}>
+                                      {row.employee.employeeId}
+                                    </span>{' '}
+                                    • {row.employee.department}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </td>
+                            </td>
 
-                          {/* Dept / Position */}
-                          <td style={{ padding: '14px 16px' }}>
-                            <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.85rem' }}>
-                              {log.employee.department}
-                            </div>
-                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{log.employee.position}</div>
-                          </td>
+                            {/* F-IN */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.fIn ? (
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                  {row.fIn}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#cbd5e1' }}>-</span>
+                              )}
+                            </td>
 
-                          {/* Date & Time */}
-                          <td style={{ padding: '14px 16px' }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem', fontFamily: 'monospace' }}>
-                              {timeStr}
-                            </div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>📅 {dateStr}</div>
-                          </td>
+                            {/* F-OUT */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.fOut ? (
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#92400e', background: '#fef3c7', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                  {row.fOut}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#cbd5e1' }}>-</span>
+                              )}
+                            </td>
 
-                          {/* Punch Type Badge */}
-                          <td style={{ padding: '14px 16px' }}>
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                background: typeConf.bg,
-                                color: typeConf.text,
-                                padding: '4px 10px',
-                                borderRadius: '8px',
-                                fontWeight: 700,
-                                fontSize: '0.78rem',
-                              }}
-                            >
-                              <span>{typeConf.icon}</span>
-                              <span>{typeConf.labelKh}</span>
-                            </span>
-                          </td>
+                            {/* S-IN */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.sIn ? (
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#3730a3', background: '#e0e7ff', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                  {row.sIn}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#cbd5e1' }}>-</span>
+                              )}
+                            </td>
 
-                          {/* Verify Mode Badge */}
-                          <td style={{ padding: '14px 16px' }}>
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                background: modeConf.bg,
-                                color: modeConf.text,
-                                padding: '4px 10px',
-                                borderRadius: '8px',
-                                fontWeight: 700,
-                                fontSize: '0.78rem',
-                              }}
-                            >
-                              <span>{modeConf.icon}</span>
-                              <span>{modeConf.labelKh}</span>
-                            </span>
-                          </td>
+                            {/* S-OUT */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.sOut ? (
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#5b21b6', background: '#ede9fe', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                  {row.sOut}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#cbd5e1' }}>-</span>
+                              )}
+                            </td>
 
-                          {/* Device Origin */}
-                          <td style={{ padding: '14px 16px' }}>
-                            <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.82rem' }}>
-                              {log.deviceName || 'Biometric Terminal'}
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
-                              ប្រភព: {log.source} {log.device ? `(${log.device.deviceIp})` : ''}
-                            </div>
-                          </td>
+                            {/* OT-IN */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.otIn ? (
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#991b1b', background: '#fee2e2', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                  {row.otIn}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#cbd5e1' }}>-</span>
+                              )}
+                            </td>
 
-                          {/* Actions */}
-                          <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                            {['ADMIN'].includes(currentUserRole) && (
-                              <button
-                                title="លុបកំណត់ត្រា (Delete)"
-                                onClick={() => handleDeleteLog(log.id)}
+                            {/* OT-OUT */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.otOut ? (
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#9a3412', background: '#ffedd5', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                  {row.otOut}
+                                </span>
+                              ) : (
+                                <span style={{ color: '#cbd5e1' }}>-</span>
+                              )}
+                            </td>
+
+                            {/* REG DAY */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700 }}>
+                              <span style={{ color: row.regDay >= 1 ? '#15803d' : row.regDay > 0 ? '#b45309' : '#94a3b8' }}>
+                                {row.regDay}
+                              </span>
+                            </td>
+
+                            {/* WORK HRS */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700 }}>
+                              <span style={{ color: row.workHrs >= 8 ? '#15803d' : row.workHrs > 0 ? '#1e40af' : '#94a3b8' }}>
+                                {row.workHrs}
+                              </span>
+                            </td>
+
+                            {/* NORMAL OT */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: row.normalOt > 0 ? 800 : 500 }}>
+                              <span style={{ color: row.normalOt > 0 ? '#b45309' : '#94a3b8' }}>
+                                {row.normalOt}
+                              </span>
+                            </td>
+
+                            {/* NIGHT OT */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: row.nightOt > 0 ? 800 : 500 }}>
+                              <span style={{ color: row.nightOt > 0 ? '#7c3aed' : '#94a3b8' }}>
+                                {row.nightOt}
+                              </span>
+                            </td>
+
+                            {/* HOLIDAY OT */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: row.holidayOt > 0 ? 800 : 500 }}>
+                              <span style={{ color: row.holidayOt > 0 ? '#dc2626' : '#94a3b8' }}>
+                                {row.holidayOt}
+                              </span>
+                            </td>
+
+                            {/* LATE */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.lateMins > 0 ? (
+                                <span style={{ background: '#fee2e2', color: '#dc2626', padding: '1px 5px', borderRadius: '4px', fontWeight: 700, fontSize: '0.72rem' }}>
+                                  {row.lateMins}m
+                                </span>
+                              ) : (
+                                <span style={{ color: '#94a3b8' }}>0</span>
+                              )}
+                            </td>
+
+                            {/* EARLY */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              {row.earlyMins > 0 ? (
+                                <span style={{ background: '#fef3c7', color: '#d97706', padding: '1px 5px', borderRadius: '4px', fontWeight: 700, fontSize: '0.72rem' }}>
+                                  {row.earlyMins}m
+                                </span>
+                              ) : (
+                                <span style={{ color: '#94a3b8' }}>0</span>
+                              )}
+                            </td>
+
+                            {/* REMARKS */}
+                            <td style={{ padding: '7px 10px' }}>
+                              <span
                                 style={{
-                                  background: '#fef2f2',
-                                  border: '1px solid #fecaca',
-                                  color: '#dc2626',
-                                  padding: '6px 8px',
-                                  borderRadius: '8px',
-                                  cursor: 'pointer',
-                                  fontSize: '0.85rem',
+                                  fontSize: '0.74rem',
+                                  color: '#475569',
+                                  maxWidth: '150px',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: 'inline-block',
+                                }}
+                                title={`${row.remarks} • ${row.sourceList.join(', ')} (${row.punchesCount} ស្កេន)`}
+                              >
+                                {row.remarks}
+                              </span>
+                            </td>
+
+                            {/* ACTIONS */}
+                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                <button
+                                  type="button"
+                                  title="កែសម្រួល / បំពេញម៉ោង (Adjust Attendance)"
+                                  onClick={() => handleOpenEditDay(row)}
+                                  style={{
+                                    background: '#eff6ff',
+                                    border: '1px solid #bfdbfe',
+                                    color: '#1d4ed8',
+                                    padding: '3px 6px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.75rem',
+                                  }}
+                                >
+                                  ✏️
+                                </button>
+                                {['ADMIN'].includes(currentUserRole) && (
+                                  <button
+                                    type="button"
+                                    title="លុបកំណត់ត្រាទាំងអស់ក្នុងថ្ងៃនេះ (Delete all day punches)"
+                                    onClick={() => handleDeleteDayPunches(row)}
+                                    style={{
+                                      background: '#fef2f2',
+                                      border: '1px solid #fecaca',
+                                      color: '#dc2626',
+                                      padding: '3px 6px',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer',
+                                      fontSize: '0.75rem',
+                                    }}
+                                  >
+                                    🗑️
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                /* VIEW 2: RAW EVENT PUNCHES TABLE */
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.76rem' }}>
+                      <th style={{ padding: '10px 14px', minWidth: '200px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ព័ត៌មានបុគ្គលិក</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Employee Name & ID</div>
+                      </th>
+                      <th style={{ padding: '10px 14px', minWidth: '150px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>នាយកដ្ឋាន / មុខតំណែង</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Department / Position</div>
+                      </th>
+                      <th style={{ padding: '10px 14px', minWidth: '140px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>កាលបរិច្ឆេទ និងម៉ោង</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Punch Date & Time</div>
+                      </th>
+                      <th style={{ padding: '10px 14px', minWidth: '130px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ប្រភេទស្កេន</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Punch Type</div>
+                      </th>
+                      <th style={{ padding: '10px 14px', minWidth: '130px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>វិធីផ្ទៀងផ្ទាត់</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Verify Mode</div>
+                      </th>
+                      <th style={{ padding: '10px 14px', minWidth: '150px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ម៉ាស៊ីនស្កេន</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Device Terminal</div>
+                      </th>
+                      <th style={{ padding: '10px 14px', minWidth: '80px', textAlign: 'center' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>សកម្មភាព</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Actions</div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedRawLogs.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                          <div style={{ fontSize: '32px', marginBottom: '6px' }}>📂</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#475569' }}>
+                            មិនមានកំណត់ត្រាស្កេនវត្តមានទេ (No Punch Records)
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedRawLogs.map((log, idx) => {
+                        const empNameKh = `${log.employee.lastNameKh || ''} ${log.employee.firstNameKh || ''}`.trim();
+                        const empNameEn = `${log.employee.firstNameEn || ''} ${log.employee.lastNameEn || ''}`.trim();
+                        const typeConf = PUNCH_TYPE_CONFIG[log.punchType] || {
+                          labelKh: log.punchType,
+                          labelEn: log.punchType,
+                          icon: '⏰',
+                          bg: '#f1f5f9',
+                          text: '#475569',
+                        };
+                        const modeConf = VERIFY_MODE_CONFIG[log.verifyMode] || {
+                          labelKh: log.verifyMode,
+                          labelEn: log.verifyMode,
+                          icon: '👆',
+                          bg: '#f1f5f9',
+                          text: '#475569',
+                        };
+
+                        const d = new Date(log.punchTime);
+                        const dateStr = d.toLocaleDateString();
+                        const timeStr = d.toTimeString().slice(0, 8);
+
+                        return (
+                          <tr
+                            key={log.id}
+                            style={{
+                              borderBottom: '1px solid #f1f5f9',
+                              background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
+                            }}
+                          >
+                            <td style={{ padding: '10px 14px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {log.employee.photoUrl ? (
+                                  <img
+                                    src={log.employee.photoUrl}
+                                    alt=""
+                                    style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                  />
+                                ) : (
+                                  <div
+                                    style={{
+                                      width: '32px',
+                                      height: '32px',
+                                      borderRadius: '50%',
+                                      background: '#e0e7ff',
+                                      color: '#4338ca',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontWeight: 700,
+                                      fontSize: '0.78rem',
+                                    }}
+                                  >
+                                    {(log.employee.firstNameEn?.[0] || 'E')}
+                                  </div>
+                                )}
+                                <div>
+                                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
+                                    {empNameKh || empNameEn}
+                                  </div>
+                                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                    <span style={{ fontFamily: 'monospace', color: '#2563eb' }}>{log.employee.employeeId}</span> • {empNameEn}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td style={{ padding: '10px 14px' }}>
+                              <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.82rem' }}>
+                                {log.employee.department}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{log.employee.position}</div>
+                            </td>
+
+                            <td style={{ padding: '10px 14px' }}>
+                              <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.86rem', fontFamily: 'monospace' }}>
+                                {timeStr}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>📅 {dateStr}</div>
+                            </td>
+
+                            <td style={{ padding: '10px 14px' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  background: typeConf.bg,
+                                  color: typeConf.text,
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  fontWeight: 700,
+                                  fontSize: '0.75rem',
                                 }}
                               >
-                                🗑️
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+                                <span>{typeConf.icon}</span>
+                                <span>{typeConf.labelKh}</span>
+                              </span>
+                            </td>
+
+                            <td style={{ padding: '10px 14px' }}>
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  background: modeConf.bg,
+                                  color: modeConf.text,
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  fontWeight: 700,
+                                  fontSize: '0.75rem',
+                                }}
+                              >
+                                <span>{modeConf.icon}</span>
+                                <span>{modeConf.labelKh}</span>
+                              </span>
+                            </td>
+
+                            <td style={{ padding: '10px 14px' }}>
+                              <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.8rem' }}>
+                                {log.deviceName || 'Biometric Terminal'}
+                              </div>
+                              <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                                ប្រភព: {log.source} {log.device ? `(${log.device.deviceIp})` : ''}
+                              </div>
+                            </td>
+
+                            <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                              {['ADMIN'].includes(currentUserRole) && (
+                                <button
+                                  type="button"
+                                  title="លុបកំណត់ត្រា (Delete)"
+                                  onClick={() => handleDeleteLog(log.id)}
+                                  style={{
+                                    background: '#fef2f2',
+                                    border: '1px solid #fecaca',
+                                    color: '#dc2626',
+                                    padding: '4px 7px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                  }}
+                                >
+                                  🗑️
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+
+          {/* BOTTOM PAGINATION CONTROLS */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '8px 14px',
+              background: '#ffffff',
+              borderRadius: '10px',
+              border: '1px solid #e2e8f0',
+              gap: '10px',
+              fontSize: '0.8rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
+              <span>បង្ហាញក្នុងមួយទំព័រ:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                  setPageSize(val);
+                  setCurrentPage(1);
+                }}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.8rem',
+                  background: '#ffffff',
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value="ALL">ទាំងអស់ (All)</option>
+              </select>
+              <span>
+                • សរុប {totalCount} {logViewMode === 'DAILY_SUMMARY' ? 'ជួរ (បុគ្គលិក/ថ្ងៃ)' : 'កំណត់ត្រាស្កេន'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage(1)}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: currentPage <= 1 ? '#f8fafc' : '#ffffff',
+                  color: currentPage <= 1 ? '#cbd5e1' : '#334155',
+                  cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                ⏮
+              </button>
+              <button
+                type="button"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: currentPage <= 1 ? '#f8fafc' : '#ffffff',
+                  color: currentPage <= 1 ? '#cbd5e1' : '#334155',
+                  cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                ◀ ថយក្រោយ
+              </button>
+              <span style={{ fontWeight: 700, color: '#1e293b', padding: '0 6px', fontSize: '0.8rem' }}>
+                ទំព័រ {currentPage} / {totalPages || 1}
+              </span>
+              <button
+                type="button"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: currentPage >= totalPages ? '#f8fafc' : '#ffffff',
+                  color: currentPage >= totalPages ? '#cbd5e1' : '#334155',
+                  cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                បន្ទាប់ ▶
+              </button>
+              <button
+                type="button"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: currentPage >= totalPages ? '#f8fafc' : '#ffffff',
+                  color: currentPage >= totalPages ? '#cbd5e1' : '#334155',
+                  cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                ⏭
+              </button>
             </div>
           </div>
         </div>

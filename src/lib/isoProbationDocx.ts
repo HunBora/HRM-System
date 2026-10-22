@@ -13,6 +13,7 @@ import {
 } from 'docx';
 
 export type IsoContractType = 'PROBATION' | 'FDC' | 'UDC' | 'FOREIGN_FDC';
+export type IsoLangMode = 'trilingual' | 'bilingual_en' | 'bilingual_zh' | 'english' | 'khmer';
 
 export interface IsoContractDocxData {
   contractType?: IsoContractType;
@@ -69,7 +70,7 @@ export interface IsoContractDocxData {
   transportAllowanceUsd: number | string;
   mealAllowanceRiel: number | string;
   signedDate: string;
-  langMode?: 'trilingual' | 'bilingual_zh' | 'khmer';
+  langMode?: IsoLangMode;
 }
 
 // Backward compatibility alias
@@ -97,6 +98,7 @@ export const ISO_TYPE_DEFAULTS: Record<IsoContractType, {
   lawRefEn: string;
   preambleKh: string;
   preambleZh: string;
+  preambleEn: string;
   art1TitleKh: string;
   art1TitleZh: string;
   art1TitleEn: string;
@@ -111,6 +113,7 @@ export const ISO_TYPE_DEFAULTS: Record<IsoContractType, {
     lawRefEn: 'Pursuant to Articles 68 & 82 of the Labour Law • ISO 9001:2015 Clause 7.5',
     preambleKh: 'កិច្ចសន្យាការងារសាកល្បងនេះ ផ្តល់ជូនបុគ្គលិកនូវស្មារតីទទួលខុសត្រូវ និងទំនុកចិត្តលើភារកិច្ចរបស់ខ្លួន ព្រមទាំងកិច្ចសហការល្អរវាងនិយោជិត និងនិយោជក យកចិត្តទុកដាក់ខ្ពស់ដើម្បីរួមគ្នាសម្រេចគោលដៅបរិមាណ និងគុណភាពផលិតកម្មរបស់រោងចក្រ ស្របតាមស្តង់ដារ ISO 9001:2015។',
     preambleZh: '这份试用合同为员工提供了责任感和对自己职责的信心，以及与员工之间的良好合作，高度重视，共同实现工厂生产的数量和质量目标，符合 ISO 9001:2015 质量管理体系标准。',
+    preambleEn: 'This probation contract establishes a spirit of responsibility, confidence, and mutual cooperation between Employer and Employee to achieve factory production targets and high-quality standards compliant with ISO 9001:2015.',
     art1TitleKh: 'រយៈពេលនៃកិច្ចសន្យាសាកល្បង',
     art1TitleZh: '试用期合同期限',
     art1TitleEn: 'PROBATION DURATION',
@@ -125,6 +128,7 @@ export const ISO_TYPE_DEFAULTS: Record<IsoContractType, {
     lawRefEn: 'Pursuant to Articles 67 & 73 of the Labour Law & MLVT Instruction No. 050/19 • ISO 9001:2015 Clause 7.5',
     preambleKh: 'កិច្ចសន្យាការងារមានថិរវេលាកំណត់នេះ ត្រូវបានបង្កើតឡើងក្នុងស្មារតីសហការស្មោះត្រង់ រវាងនិយោជក និងនិយោជិត ដើម្បីរួមគ្នាសម្រេចនូវប្រសិទ្ធភាពការងារ គោលដៅផលិតកម្ម និងគុណភាពខ្ពស់ ស្របតាមប្រព័ន្ធគ្រប់គ្រងគុណភាព ISO 9001:2015 របស់រោងចក្រ។',
     preambleZh: '本固定期限劳动合同本着诚信合作精神订立，旨在共同达成高效的生产力与卓越品质，贯彻执行工厂 ISO 9001:2015 质量管理标准。',
+    preambleEn: 'This Fixed Duration Contract is established in good faith to promote high productivity, operational efficiency, and quality excellence in strict compliance with the factory ISO 9001:2015 Quality Management System.',
     art1TitleKh: 'ថិរវេលានៃកិច្ចសន្យាការងារមានកាលកំណត់ (FDC)',
     art1TitleZh: '固定期限合同期限与续签规定',
     art1TitleEn: 'FDC CONTRACT DURATION & RENEWAL',
@@ -139,6 +143,7 @@ export const ISO_TYPE_DEFAULTS: Record<IsoContractType, {
     lawRefEn: 'Pursuant to Articles 67, 74, 75 & New Article 89 of Labour Law & Prakas No. 442/18 • ISO 9001:2015',
     preambleKh: 'កិច្ចសន្យាការងារមានថិរវេលាមិនកំណត់ (UDC) នេះ បញ្ជាក់ពីទំនាក់ទំនងការងារយូរអង្វែង និងស្ថិរភាពការងាររវាងនិយោជក និងនិយោជិត ដើម្បីរួមគ្នាអភិវឌ្ឍន៍រោងចក្រ និងរក្សាគុណភាពកម្រិតស្តង់ដារអន្តរជាតិ ISO 9001:2015។',
     preambleZh: '本无固定期限劳动合同（UDC）明确了双方长期的劳动关系与岗位稳定性，携手提升企业核心竞争力，严格遵行 ISO 9001:2015 国际质量认证标准。',
+    preambleEn: 'This Undetermined Duration Contract affirms a long-term, stable employment relationship to foster organizational growth and maintain international quality standards under ISO 9001:2015.',
     art1TitleKh: 'ថិរវេលានៃកិច្ចសន្យាការងារមិនកំណត់ (UDC)',
     art1TitleZh: '无固定期限合同生效与存续',
     art1TitleEn: 'UDC CONTRACT EFFECTIVENESS & DURATION',
@@ -153,6 +158,7 @@ export const ISO_TYPE_DEFAULTS: Record<IsoContractType, {
     lawRefEn: 'Pursuant to Cambodian Labour Law, Immigration Law & MLVT Foreign Work Permit Regulations • ISO 9001:2015',
     preambleKh: 'កិច្ចសន្យាការងារបុគ្គលិកជនបរទេសនេះ ត្រូវបានចុះហត្ថលេខាឡើងដោយអនុលោមយ៉ាងម៉ឺងម៉ាត់តាមច្បាប់នៃព្រះរាជាណាចក្រកម្ពុជា ដើម្បីធានាបាននូវភាពស្របច្បាប់នៃកម្លាំងពលកម្មបរទេស ការគ្រប់គ្រងជំនាញបច្ចេកទេស និងស្តង់ដារគុណភាព ISO 9001:2015 របស់ក្រុមហ៊ុន។',
     preambleZh: '本外籍员工劳动合同严格遵循柬埔寨王国相关涉外法律法规订立，确保外籍专业技术人员合法合规就业，贯彻工厂 ISO 9001:2015 国际质量管理规范。',
+    preambleEn: 'This Foreign Employee Contract is executed in full compliance with Cambodian laws to ensure lawful expatriate employment, technical expertise transfer, and rigorous adherence to ISO 9001:2015 quality standards.',
     art1TitleKh: 'ថិរវេលាកិច្ចសន្យា និងលក្ខខណ្ឌស្នាក់នៅធ្វើការស្របច្បាប់',
     art1TitleZh: '外籍员工合同期限与合法用工条件',
     art1TitleEn: 'FOREIGN EMPLOYMENT TERM & LEGAL REQUIREMENTS',
@@ -165,7 +171,11 @@ export async function generateIsoProbationContractDocxBlob(data: IsoContractDocx
 
 export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Promise<Blob> {
   const paragraphs: (Paragraph | Table)[] = [];
-  const isTrilingual = data.langMode === 'trilingual' || !data.langMode;
+  const langMode: IsoLangMode = data.langMode || 'trilingual';
+  const showKhmer = langMode !== 'english';
+  const showZh = langMode === 'trilingual' || langMode === 'bilingual_zh';
+  const showEn = langMode === 'trilingual' || langMode === 'bilingual_en' || langMode === 'english';
+
   const contractType: IsoContractType = data.contractType || 'PROBATION';
   const typeConfig = ISO_TYPE_DEFAULTS[contractType] || ISO_TYPE_DEFAULTS.PROBATION;
 
@@ -191,10 +201,10 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: data.companyNameKh || 'ឡាងថៃ ប៊ែក (ខេមបូឌា) ឯក',
+                      text: showKhmer ? (data.companyNameKh || 'ឡាងថៃ ប៊ែក (ខេមបូឌា) ឯក') : (data.companyNameEn || 'LANGTAI BAGS (CAMBODIA) CO., LTD'),
                       bold: true,
                       size: 19,
-                      font: FONT_MOUL,
+                      font: showKhmer ? FONT_MOUL : FONT_EN,
                       color: 'B91C1C',
                     }),
                   ],
@@ -202,10 +212,10 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
                 new Paragraph({
                   children: [
                     new TextRun({
-                      text: data.companyNameEn || 'LANGTAI BAGS (CAMBODIA) CO., LTD',
+                      text: showKhmer ? (data.companyNameEn || 'LANGTAI BAGS (CAMBODIA) CO., LTD') : (data.companyNameZh || '朗泰箱包（柬埔寨）有限公司'),
                       bold: true,
                       size: 16,
-                      font: FONT_EN,
+                      font: showKhmer ? FONT_EN : FONT_ZH,
                       color: '0F172A',
                     }),
                   ],
@@ -235,134 +245,185 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     });
   };
 
-  // Helper for Section Titles (Bilingual/Trilingual)
+  // Helper for Section Titles
   const addArticleTitle = (numKh: string, numZh: string, tKh: string, tZh: string, tEn?: string) => {
-    paragraphs.push(
-      new Paragraph({
-        children: [
-          new TextRun({ text: `${numKh}- ${tKh}`, bold: true, size: 20, font: FONT_MOUL, color: '0F172A' }),
-        ],
-        spacing: { before: 100, after: 20 },
-      }),
-      new Paragraph({
-        children: [
-          new TextRun({ text: `${numZh}、${tZh}`, bold: true, size: 18, font: FONT_ZH, color: '1E3A8A' }),
-          ...(isTrilingual && tEn ? [new TextRun({ text: ` (${tEn})`, italics: true, size: 16, color: '64748B', font: FONT_EN })] : []),
-        ],
-        spacing: { after: 60 },
-      })
-    );
+    if (showKhmer) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: `${numKh}- ${tKh}`, bold: true, size: 20, font: FONT_MOUL, color: '0F172A' }),
+          ],
+          spacing: { before: 80, after: 15 },
+        })
+      );
+    }
+    if (showZh && tZh) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: `${numZh}、${tZh}`, bold: true, size: 18, font: FONT_ZH, color: '1E3A8A' }),
+          ],
+          spacing: { after: 15 },
+        })
+      );
+    }
+    if (showEn && tEn) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: `Article ${numZh}: ${tEn}`, bold: true, size: 16, color: '334155', font: FONT_EN }),
+          ],
+          spacing: { after: 40 },
+        })
+      );
+    }
   };
 
   // Helper for Clause Content
-  const addClauseText = (kh: string, zh: string, en?: string) => {
-    paragraphs.push(
-      new Paragraph({
-        children: [
-          new TextRun({ text: kh, size: 18, font: FONT_KHMER, color: '1E293B' }),
-        ],
-        spacing: { line: 280, after: 20 },
-      }),
-      new Paragraph({
-        children: [
-          new TextRun({ text: zh, size: 17, font: FONT_ZH, color: '334155' }),
-          ...(isTrilingual && en ? [new TextRun({ text: `\n${en}`, italics: true, size: 15, color: '64748B', font: FONT_EN })] : []),
-        ],
-        spacing: { line: 260, after: 70 },
-      })
-    );
+  const addClauseText = (kh: string, zh?: string, en?: string) => {
+    if (showKhmer && kh) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: kh, size: 17, font: FONT_KHMER, color: '1E293B' }),
+          ],
+          spacing: { line: 260, after: 15 },
+        })
+      );
+    }
+    if (showZh && zh) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: zh, size: 16, font: FONT_ZH, color: '334155' }),
+          ],
+          spacing: { line: 250, after: 15 },
+        })
+      );
+    }
+    if (showEn && en) {
+      paragraphs.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: en, italics: true, size: 15, color: '64748B', font: FONT_EN }),
+          ],
+          spacing: { line: 250, after: 40 },
+        })
+      );
+    }
   };
 
   // ==========================================
   // PAGE 1: HEADER, PARTIES, EMPLOYEE TABLE, ARTICLE 1 & 2
   // ==========================================
   paragraphs.push(createIsoHeaderTable(1));
-  paragraphs.push(new Paragraph({ spacing: { after: 60 } }));
+  paragraphs.push(new Paragraph({ spacing: { after: 30 } }));
 
-  // Main Contract Title
-  paragraphs.push(
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({
-          text: titleKh,
-          bold: true,
-          size: 26,
-          font: FONT_MOUL,
-          color: '0F172A',
-        }),
-      ],
-      spacing: { after: 20 },
+  // Top Section: Title & Parties on Left (82%), Standard 4x6 Photo Box on Top Right (18%)
+  const topHeaderRuns: TextRun[] = [];
+
+  if (showKhmer) {
+    topHeaderRuns.push(
+      new TextRun({
+        text: `${titleKh}\n`,
+        bold: true,
+        size: 24,
+        font: FONT_MOUL,
+        color: '0F172A',
+      })
+    );
+  }
+  if (showZh) {
+    topHeaderRuns.push(
+      new TextRun({
+        text: `${titleZh}\n`,
+        bold: true,
+        size: 19,
+        font: FONT_ZH,
+        color: '1E3A8A',
+      })
+    );
+  }
+  if (showEn) {
+    topHeaderRuns.push(
+      new TextRun({
+        text: `${titleEn}\n`,
+        bold: true,
+        size: 16,
+        font: FONT_EN,
+        color: '475569',
+      })
+    );
+  }
+
+  topHeaderRuns.push(
+    new TextRun({ text: 'រវាង (Between / 之间)\n', size: 15, font: FONT_KHMER, color: '64748B' }),
+    new TextRun({
+      text: `ក្រុមហ៊ុន ${data.companyNameKh} (ហៅកាត់ថា ភាគី ក) / ${data.companyNameEn} (Party A / 甲方)\n`,
+      bold: true,
+      size: 17,
+      font: FONT_MOUL,
+      color: '0F172A',
     }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({
-          text: titleZh,
-          bold: true,
-          size: 22,
-          font: FONT_ZH,
-          color: '1E3A8A',
-        }),
-        ...(isTrilingual
-          ? [
-              new TextRun({
-                text: ` • ${titleEn}`,
-                bold: true,
-                size: 17,
-                color: '475569',
-                font: FONT_EN,
+    new TextRun({
+      text: `អាសយដ្ឋាន/Address/地址 ៖ ${data.companyAddress || 'រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា / Phnom Penh, Cambodia'}\n`,
+      size: 16,
+      font: FONT_KHMER,
+      color: '334155',
+    }),
+    new TextRun({ text: 'និង (And / 和)\n', size: 15, font: FONT_KHMER, color: '64748B' }),
+    new TextRun({
+      text: `កម្មករនិយោជិតឈ្មោះ ${data.employeeNameKh || data.employeeNameEn} (ហៅកាត់ថា ភាគី ខ) / ${data.employeeNameEn} (Party B / 乙方)`,
+      bold: true,
+      size: 17,
+      font: FONT_MOUL,
+      color: '0F172A',
+    })
+  );
+
+  const topHeaderTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+      bottom: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+      left: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+      right: { style: BorderStyle.NONE, size: 0, color: 'auto' },
+    },
+    rows: [
+      new TableRow({
+        children: [
+          // Left: Titles & Parties (82% width)
+          new TableCell({
+            width: { size: 82, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                children: topHeaderRuns,
+                spacing: { line: 260, after: 25 },
               }),
-            ]
-          : []),
-      ],
-      spacing: { after: 30 },
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({ text: 'រវាង (之间 / BETWEEN)', size: 16, font: FONT_KHMER, color: '64748B' }),
-      ],
-      spacing: { after: 30 },
-    })
-  );
+            ],
+          }),
 
-  // Contracting Parties Box
-  paragraphs.push(
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: `ក្រុមហ៊ុន ${data.companyNameKh} (ហៅកាត់ថា ភាគី ក) / ${data.companyNameEn} 叫方 (A)\n`,
-          bold: true,
-          size: 18,
-          font: FONT_MOUL,
-          color: '0F172A',
-        }),
-        new TextRun({
-          text: `អាសយដ្ឋាន/地址 ៖ ${data.companyAddress || 'រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា / Phnom Penh, Cambodia'}\n`,
-          size: 17,
-          font: FONT_KHMER,
-          color: '334155',
-        }),
-        new TextRun({
-          text: 'និង (和 / AND)\n',
-          size: 16,
-          font: FONT_KHMER,
-          color: '64748B',
-        }),
-        new TextRun({
-          text: `កម្មករនិយោជិតឈ្មោះ ${data.employeeNameKh || data.employeeNameEn} (ហៅកាត់ថា ភាគី ខ) / 员工 叫方 (B)`,
-          bold: true,
-          size: 18,
-          font: FONT_MOUL,
-          color: '0F172A',
-        }),
-      ],
-      spacing: { line: 280, after: 60 },
-    })
-  );
+          // Right: Standard 4x6 Photo Box on Top Right (18% width)
+          new TableCell({
+            width: { size: 18, type: WidthType.PERCENTAGE },
+            borders: borderThin,
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: '\n\n\n\n\nរូបថត 4x6\nPhoto\n照片\n\n\n\n', size: 15, font: FONT_KHMER, color: '94A3B8' }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+  paragraphs.push(topHeaderTable);
+  paragraphs.push(new Paragraph({ spacing: { after: 20 } }));
 
-  // Employee Information Table: Dynamic based on Cambodian vs Foreigner
+  // Employee Information Table: Dynamic based on Cambodian vs Foreigner (100% Full Width)
   const employeeRows: TableRow[] = [
     // Row 1: Name, Sex, Age
     new TableRow({
@@ -372,7 +433,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: 'ឈ្មោះ / 名字: ', bold: true, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: 'ឈ្មោះ / Name / 名字: ', bold: true, size: 17, font: FONT_KHMER }),
                 new TextRun({ text: `${data.employeeNameKh} (${data.employeeNameEn})`, bold: true, size: 17, font: FONT_KHMER, color: '1E3A8A' }),
               ],
             }),
@@ -383,7 +444,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: 'ភេទ / 性别: ', bold: true, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: 'ភេទ / Sex / 性别: ', bold: true, size: 17, font: FONT_KHMER }),
                 new TextRun({ text: `${data.genderKh} (${data.genderZh})`, size: 17, font: FONT_KHMER }),
               ],
             }),
@@ -394,8 +455,8 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: 'អាយុ / 年龄: ', bold: true, size: 17, font: FONT_KHMER }),
-                new TextRun({ text: `${data.age} ឆ្នាំ/岁`, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: 'អាយុ / Age / 年龄: ', bold: true, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: `${data.age} ឆ្នាំ/Years/岁`, size: 17, font: FONT_KHMER }),
               ],
             }),
           ],
@@ -410,7 +471,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: 'ថ្ងៃខែឆ្នាំកំណើត / 出生日期:\n', bold: true, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: 'ថ្ងៃខែឆ្នាំកំណើត / DOB / 出生日期:\n', bold: true, size: 17, font: FONT_KHMER }),
                 new TextRun({ text: data.dob, size: 17, font: FONT_KHMER }),
               ],
             }),
@@ -420,8 +481,8 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: 'កម្រិតវប្បធម៌ / 教育程度:\n', bold: true, size: 17, font: FONT_KHMER }),
-                new TextRun({ text: data.education || 'មធ្យមសិក្សា / 中学', size: 17, font: FONT_KHMER }),
+                new TextRun({ text: 'កម្រិតវប្បធម៌ / Education / 教育:\n', bold: true, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: data.education || 'មធ្យមសិក្សា / Secondary School', size: 17, font: FONT_KHMER }),
               ],
             }),
           ],
@@ -430,7 +491,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
           children: [
             new Paragraph({
               children: [
-                new TextRun({ text: 'មុខតំណែង / 职位:\n', bold: true, size: 17, font: FONT_KHMER }),
+                new TextRun({ text: 'មុខតំណែង / Position / 职位:\n', bold: true, size: 17, font: FONT_KHMER }),
                 new TextRun({ text: data.position, bold: true, size: 17, color: '0284C7', font: FONT_KHMER }),
               ],
             }),
@@ -450,8 +511,8 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'សញ្ជាតិ / 國籍 / Nationality:\n', bold: true, size: 17, font: FONT_KHMER }),
-                  new TextRun({ text: data.nationality || 'Chinese / 中国', size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'សញ្ជាតិ / Nationality / 國籍:\n', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: data.nationality || 'Foreign / 外籍', size: 17, font: FONT_KHMER }),
                 ],
               }),
             ],
@@ -461,7 +522,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'លេខលិខិតឆ្លងដែន / 护照号码 / Passport No: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'លេខលិខិតឆ្លងដែន / Passport No / 护照号码: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: `${data.passportNo || 'E12345678'} (Exp: ${data.passportExpiry || '2028'})`, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -476,7 +537,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'ទិដ្ឋាការការងារ / 商务签证 / Visa E:\n', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'ទិដ្ឋាការ / Visa E / 商务签证:\n', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: `${data.visaNo || 'CB-2026-99'} (Exp: ${data.visaExpiry || '2027'})`, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -487,7 +548,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'ប័ណ្ណការងារ / 劳工证 / Work Permit: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'ប័ណ្ណការងារ / Work Permit / 劳工证: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: `${data.workPermitNo || 'WP-MLVT-2026-088'} (Exp: ${data.workPermitExpiry || '2027'})`, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -502,7 +563,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'ថ្ងៃចូលធ្វើការ / 进厂日期: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'ថ្ងៃចូលធ្វើការ / Join Date / 进厂: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.joinDate, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -513,7 +574,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'អត្តលេខ / 工号: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'អត្តលេខ / ID / 工号: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.employeeId, bold: true, size: 17, color: '1E3A8A', font: FONT_KHMER }),
                 ],
               }),
@@ -529,7 +590,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'អាសយដ្ឋានបច្ចុប្បន្ន / 现住地址: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'អាសយដ្ឋាន / Address / 现住地址: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.address, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -548,7 +609,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'អត្តសញ្ញាណប័ណ្ណ / 身份证号码:\n', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'អត្តសញ្ញាណប័ណ្ណ / National ID / 身份证:\n', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.nationalId, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -559,7 +620,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'លេខកាត ប.ស.ស / NSSF 号码: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'លេខកាត ប.ស.ស / NSSF No / 社保号: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.nssfNo || 'N/A', size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -574,7 +635,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'ថ្ងៃចូលធ្វើការ / 进厂日期: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'ថ្ងៃចូលធ្វើការ / Join Date / 进厂: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.joinDate, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -585,7 +646,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'អត្តលេខ / 工号: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'អត្តលេខ / Employee ID / 工号: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.employeeId, bold: true, size: 17, color: '1E3A8A', font: FONT_KHMER }),
                 ],
               }),
@@ -601,7 +662,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'អាសយដ្ឋានបច្ចុប្បន្ន / 现住地址: ', bold: true, size: 17, font: FONT_KHMER }),
+                  new TextRun({ text: 'អាសយដ្ឋានបច្ចុប្បន្ន / Current Address / 现住地址: ', bold: true, size: 17, font: FONT_KHMER }),
                   new TextRun({ text: data.address, size: 17, font: FONT_KHMER }),
                 ],
               }),
@@ -620,32 +681,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   paragraphs.push(employeeTable);
 
   // ISO Quality Preamble
-  paragraphs.push(
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({ text: '\nភាគីទាំងពីរបានព្រមព្រៀងគ្នាក្នុងកិច្ចសន្យាការងារដូចខាងក្រោម ៖\n', bold: true, size: 18, font: FONT_MOUL }),
-        new TextRun({ text: '双方同意聘用合同如下：\n', bold: true, size: 17, font: FONT_ZH, color: '1E3A8A' }),
-        new TextRun({
-          text: typeConfig.preambleKh,
-          size: 17,
-          font: FONT_KHMER,
-        }),
-      ],
-      spacing: { line: 260, after: 30 },
-    }),
-    new Paragraph({
-      children: [
-        new TextRun({
-          text: typeConfig.preambleZh,
-          size: 16,
-          font: FONT_ZH,
-          color: '334155',
-        }),
-      ],
-      spacing: { line: 260, after: 60 },
-    })
-  );
+  addClauseText(typeConfig.preambleKh, typeConfig.preambleZh, typeConfig.preambleEn);
 
   // ARTICLE 1: Dynamic based on Type
   let art1Kh = '';
@@ -693,7 +729,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   // ==========================================
   paragraphs.push(new Paragraph({ children: [new PageBreak()] }));
   paragraphs.push(createIsoHeaderTable(2));
-  paragraphs.push(new Paragraph({ spacing: { after: 60 } }));
+  paragraphs.push(new Paragraph({ spacing: { after: 40 } }));
 
   addClauseText(
     `គ/- គណៈគ្រប់គ្រងមានសិទ្ធិកែប្រែម៉ោងធ្វើការ ឬម៉ោងទទួលទានអាហារ ដរាបណាម៉ោងធ្វើការធម្មតាមិនលើសពី ៨ ម៉ោងក្នុងមួយថ្ងៃ (ឬ ៤៨ ម៉ោងក្នុងមួយសប្តាហ៍) អនុលោមតាមមាត្រា ១៣៧ នៃច្បាប់ស្តីពីការងារ។\nឃ/- ក្រុមហ៊ុនផ្តល់ជូនកម្មករនិយោជិតនូវថ្ងៃឈប់សម្រាកបុណ្យជាតិដែលមានប្រាក់ឈ្នួល ៖\n• ថ្ងៃឈប់បុណ្យជាតិ ៖ គោរពតាមសេចក្តីប្រកាសប្រចាំឆ្នាំរបស់ក្រសួងការងារ និងបណ្តុះបណ្តាលវិជ្ជាជីវៈ។\n• ច្បាប់ឈឺ ៖ អនុវត្តតាមច្បាប់ការងារ និងបទបញ្ជាផ្ទៃក្នុង (ត្រូវភ្ជាប់វិញ្ញាបនបត្រពេទ្យស្របច្បាប់)។\n• គ្រោះថ្នាក់ការងារ ៖ ធានារ៉ាប់រងដោយរបបសន្តិសុខសង្គម ប.ស.ស. (NSSF)។\n• ច្បាប់ពិសេសក្នុងគ្រួសារ ៖ យោងមាត្រា ១៦៩ នៃច្បាប់ការងារ (អាពាហ៍ពិពាហ៍, បុណ្យសព, សម្រាលកូន)។`,
@@ -716,15 +752,15 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   if (contractType === 'FDC') {
     art3ExtraKh = `\n• ប្រាក់បំណាច់បញ្ចប់កិច្ចសន្យា ៥% (Severance Indemnity 5%) ៖ នៅពេលកិច្ចសន្យា FDC នេះផុតកំណត់ដោយបរិបូណ៌ កម្មករនិយោជិតមានសិទ្ធិទទួលបានប្រាក់បំណាច់បញ្ចប់កិច្ចសន្យាចំនួន ៥% នៃប្រាក់ឈ្នួលសរុបដែលបានបើកជូនក្នុងអំឡុងពេលនៃកិច្ចសន្យា ស្របតាមមាត្រា ៧៣ នៃច្បាប់ស្តីពីការងារ។`;
     art3ExtraZh = `\n• 5% 期满遣散补偿金（Severance 5%）：固定期限合同期满正常终止时，乙方依法享有相当于合同期内已发全部工资总额 5% 的遣散补偿金，依照《劳动法》第73条。`;
-    art3ExtraEn = `\n• 5% Severance Indemnity: Upon normal expiry of this FDC, Employee is entitled to 5% of all wages paid throughout the contract duration per Article 73.`;
+    art3ExtraEn = `\n• 5% Severance Indemnity: Upon normal expiry of this FDC, Employee is entitled to 5% of all wages paid throughout the contract duration per Article 73 of the Labour Law.`;
   } else if (contractType === 'UDC') {
     art3ExtraKh = `\n• ប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) ៖ កម្មករនិយោជិតមានសិទ្ធិទទួលបានប្រាក់បំណាច់អតីតភាពការងារចំនួន ១៥ ថ្ងៃក្នុងមួយឆ្នាំ ដោយត្រូវចែកបើកជា ២ លើក (៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ) ស្របតាមមាត្រា ៨៩ ថ្មី នៃច្បាប់ការងារ និងប្រកាសលេខ ៤៤២/១៨។`;
     art3ExtraZh = `\n• 工龄年资补偿金（Seniority Indemnity）：乙方每年享有15天工资的工龄年资补偿，分两次全额发放（6月份7.5天，12月份7.5天），严格依照《劳动法》新第89条及劳工部第442/18号令。`;
     art3ExtraEn = `\n• Seniority Indemnity: Employee is entitled to 15 days/year of seniority indemnity, paid semi-annually (7.5 days in June, 7.5 days in Dec) pursuant to New Article 89 & Prakas 442/18.`;
   } else if (contractType === 'FOREIGN_FDC') {
-    art3ExtraKh = `\n• ពន្ធលើប្រាក់បៀវត្ស ៖ ប្រាក់ឈ្នួលត្រូវបានគណនាជា USD។ និយោជិតត្រូវស្ថិតនៅក្រោមកាតព្វកិច្ចពន្ធកាត់ទុកលើប្រាក់បៀវត្ស (Tax on Salary) ស្របតាមច្បាប់សារពើពន្ធកម្ពុជា។ ក្រុមហ៊ុនទទួលបន្ទុកកាត់ពន្ធ និងបង់ជូនអគ្គនាយកដ្ឋានពន្ធដារ។`;
-    art3ExtraZh = `\n• 薪酬个税代扣：薪资以美元（USD）核算。乙方须依法承担柬埔寨王国个人薪酬所得税（Tax on Salary），由甲方依法代扣代缴。`;
-    art3ExtraEn = `\n• Salary Tax: Salary is in USD and subject to withholding tax on salary under Cambodian tax law, deducted and remitted by Employer.`;
+    art3ExtraKh = `\n• ពន្ធលើប្រាក់បៀវត្ស និងការធ្វើមាតុភូមិនិវត្តន៍ ៖ ប្រាក់ឈ្នួលត្រូវបានគណនាជា USD។ និយោជិតត្រូវស្ថិតនៅក្រោមកាតព្វកិច្ចពន្ធកាត់ទុកលើប្រាក់បៀវត្ស (Tax on Salary) ស្របតាមច្បាប់សារពើពន្ធកម្ពុជា។ ការទូទាត់សោហ៊ុយធ្វើដំណើរត្រឡប់ទៅប្រទេសដើមវិញ (Repatriation) ត្រូវអនុវត្តតាមការព្រមព្រៀងជាក់ស្តែងរវាងភាគីទាំងពីរ។`;
+    art3ExtraZh = `\n• 薪酬个税代扣及遣返条款：薪资以美元（USD）核算。乙方须依法承担柬埔寨王国个人薪酬所得税（Tax on Salary），由甲方依法代扣代缴。期满回国交通补助依据双方聘用意向执行。`;
+    art3ExtraEn = `\n• Salary Tax & Repatriation: Salary in USD, subject to withholding Tax on Salary under Cambodian tax laws. Repatriation flight/expenses handled per mutual agreement.`;
   }
 
   addClauseText(
@@ -766,7 +802,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   // ==========================================
   paragraphs.push(new Paragraph({ children: [new PageBreak()] }));
   paragraphs.push(createIsoHeaderTable(3));
-  paragraphs.push(new Paragraph({ spacing: { after: 60 } }));
+  paragraphs.push(new Paragraph({ spacing: { after: 40 } }));
 
   // ARTICLE 6: Absenteeism
   addArticleTitle(
@@ -829,7 +865,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   // ==========================================
   paragraphs.push(new Paragraph({ children: [new PageBreak()] }));
   paragraphs.push(createIsoHeaderTable(4));
-  paragraphs.push(new Paragraph({ spacing: { after: 60 } }));
+  paragraphs.push(new Paragraph({ spacing: { after: 40 } }));
 
   // ARTICLE 12: Termination - Dynamic based on Type
   let art12SpecificKh = '';
@@ -882,19 +918,21 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     `Executed in 2 original copies with equal legal validity: 1 copy for Employer (Party A) and 1 copy for Employee (Party B). Both parties shall strictly abide by Cambodian Labour Law and internal factory rules.`
   );
 
-  // Date and Signatures Box (甲方签字与盖章, 乙方签字与手印)
+  // Date and Signatures Box
+  const dateStrKh = `ធ្វើនៅរាជធានីភ្នំពេញ, ថ្ងៃទី ${data.signedDate || '...................'} ខែ ............ ឆ្នាំ២០២៦`;
+  const dateStrEn = `Done in Phnom Penh, Date: ${data.signedDate || '...... / ...... / 2026'}`;
+  const dateStrZh = `于金边市签订，日期：${data.signedDate || '......年...月...日'}`;
+
+  const dateRuns: TextRun[] = [];
+  if (showKhmer) dateRuns.push(new TextRun({ text: `${dateStrKh}\n`, size: 17, font: FONT_KHMER, color: '334155' }));
+  if (showEn) dateRuns.push(new TextRun({ text: `${dateStrEn}\n`, size: 15, font: FONT_EN, color: '475569', italics: true }));
+  if (showZh) dateRuns.push(new TextRun({ text: dateStrZh, size: 16, font: FONT_ZH, color: '64748B' }));
+
   paragraphs.push(
     new Paragraph({
       alignment: AlignmentType.RIGHT,
-      children: [
-        new TextRun({
-          text: `ធ្វើនៅរាជធានីភ្នំពេញ, ថ្ងៃទី ${data.signedDate || '...................'} ខែ ............ ឆ្នាំ២០២៦\n于金边市签订，日期：${data.signedDate || '......年...月...日'}`,
-          size: 17,
-          font: FONT_KHMER,
-          color: '334155',
-        }),
-      ],
-      spacing: { before: 80, after: 100 },
+      children: dateRuns,
+      spacing: { before: 60, after: 80 },
     })
   );
 
@@ -912,16 +950,17 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: 'តំណាងភាគី និយោជក (ភាគី ក)\n', bold: true, size: 18, font: FONT_MOUL, color: '0F172A' }),
-                  new TextRun({ text: '甲方（签字与盖章）\nEmployer / Party A (Signature & Stamp)', bold: true, size: 16, font: FONT_ZH, color: '1E3A8A' }),
+                  ...(showKhmer ? [new TextRun({ text: 'តំណាងភាគី និយោជក (ភាគី ក)\n', bold: true, size: 18, font: FONT_MOUL, color: '0F172A' })] : []),
+                  ...(showEn ? [new TextRun({ text: 'Employer / Party A (Signature & Stamp)\n', bold: true, size: 15, font: FONT_EN, color: '0369A1' })] : []),
+                  ...(showZh ? [new TextRun({ text: '甲方（签字与盖章）\n', bold: true, size: 16, font: FONT_ZH, color: '1E3A8A' })] : []),
                 ],
-                spacing: { after: 160 },
+                spacing: { after: 140 },
               }),
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: '(ហត្ថលេខា និងត្រាក្រុមហ៊ុន / Stamp & Signature)\n\n\n\n\n', italics: true, size: 15, color: '94A3B8' }),
-                  new TextRun({ text: 'ឈ្មោះ / 姓名: __________________________', size: 16, font: FONT_KHMER }),
+                  new TextRun({ text: '(ហត្ថលេខា និងត្រាក្រុមហ៊ុន / Company Stamp / 盖章)\n\n\n\n\n', italics: true, size: 15, color: '94A3B8' }),
+                  new TextRun({ text: 'ឈ្មោះ / Name / 姓名: __________________________', size: 16, font: FONT_KHMER }),
                 ],
               }),
             ],
@@ -935,16 +974,17 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: 'កម្មករនិយោជិត (ភាគី ខ)\n', bold: true, size: 18, font: FONT_MOUL, color: '0F172A' }),
-                  new TextRun({ text: '乙方（签字与手印）\nEmployee / Party B (Signature & Thumbprint)', bold: true, size: 16, font: FONT_ZH, color: '1E3A8A' }),
+                  ...(showKhmer ? [new TextRun({ text: 'កម្មករនិយោជិត (ភាគី ខ)\n', bold: true, size: 18, font: FONT_MOUL, color: '0F172A' })] : []),
+                  ...(showEn ? [new TextRun({ text: 'Employee / Party B (Signature & Thumbprint)\n', bold: true, size: 15, font: FONT_EN, color: '0369A1' })] : []),
+                  ...(showZh ? [new TextRun({ text: '乙方（签字与手印）\n', bold: true, size: 16, font: FONT_ZH, color: '1E3A8A' })] : []),
                 ],
-                spacing: { after: 160 },
+                spacing: { after: 140 },
               }),
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: '(ស្នាមមេដៃស្តាំ / 右手大拇指印 / Right Thumbprint)\n\n\n\n\n', italics: true, size: 15, color: '94A3B8' }),
-                  new TextRun({ text: `ឈ្មោះ / 姓名: ${data.employeeNameKh || data.employeeNameEn}`, bold: true, size: 16, font: FONT_KHMER, color: '0F172A' }),
+                  new TextRun({ text: '(ស្នាមមេដៃស្តាំ / Right Thumbprint / 右手大拇指印)\n\n\n\n\n', italics: true, size: 15, color: '94A3B8' }),
+                  new TextRun({ text: `ឈ្មោះ / Name / 姓名: ${data.employeeNameKh || data.employeeNameEn}`, bold: true, size: 16, font: FONT_KHMER, color: '0F172A' }),
                 ],
               }),
             ],
@@ -961,7 +1001,7 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
       children: [
         new TextRun({ text: '\nការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015 (Document Control Approval Matrix) ៖', bold: true, size: 16, font: FONT_MOUL, color: '0369A1' }),
       ],
-      spacing: { before: 80, after: 40 },
+      spacing: { before: 60, after: 30 },
     })
   );
 

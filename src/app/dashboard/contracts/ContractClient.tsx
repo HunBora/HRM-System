@@ -642,10 +642,10 @@ export default function ContractClient({
       const matchesSearch =
         !q ||
         c.contractNo.toLowerCase().includes(q) ||
-        c.employee.employeeId.toLowerCase().includes(q) ||
-        `${c.employee.firstNameEn} ${c.employee.lastNameEn}`.toLowerCase().includes(q) ||
-        `${c.employee.lastNameKh} ${c.employee.firstNameKh}`.toLowerCase().includes(q) ||
-        (c.employee.nationalId && c.employee.nationalId.toLowerCase().includes(q));
+        (c.employee?.employeeId && c.employee.employeeId.toLowerCase().includes(q)) ||
+        `${c.employee?.firstNameEn || ''} ${c.employee?.lastNameEn || ''}`.toLowerCase().includes(q) ||
+        `${c.employee?.lastNameKh || ''} ${c.employee?.firstNameKh || ''}`.toLowerCase().includes(q) ||
+        (c.employee?.nationalId && c.employee.nationalId.toLowerCase().includes(q));
 
       const alerts = contractAlertsMap.get(c.id) || [];
       let matchesAlertCategory = true;
@@ -1341,10 +1341,10 @@ export default function ContractClient({
                       {/* 3. Employee Name & ID */}
                       <td style={{ padding: '6px 10px', borderRight: '1px solid #f1f5f9' }}>
                         <div style={{ fontWeight: 600, color: '#0f172a' }}>
-                          {c.employee.lastNameKh} {c.employee.firstNameKh} ({c.employee.firstNameEn} {c.employee.lastNameEn})
+                          {c.employee?.lastNameKh || ''} {c.employee?.firstNameKh || ''} ({c.employee?.firstNameEn || ''} {c.employee?.lastNameEn || ''})
                         </div>
                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          អត្តលេខ: <strong>{c.employee.employeeId}</strong> {c.isForeigner && '🌐 (ជនបរទេស/外籍)'}
+                          អត្តលេខ: <strong>{c.employee?.employeeId || 'N/A'}</strong> {c.isForeigner && '🌐 (ជនបរទេស/外籍)'}
                         </div>
                       </td>
 

@@ -65,8 +65,6 @@ export default function IsoProbationContractModal({
     }
   }, [initialEmployee, companySettings, initialContractType]);
 
-  if (!isOpen) return null;
-
   function initIsoData(emp: any, settings: any, cType: IsoContractType): IsoContractDocxData {
     const today = new Date();
     const dStart = new Date(today);
@@ -338,6 +336,8 @@ export default function IsoProbationContractModal({
       </div>
     </div>
   );
+
+  if (!isOpen) return null;
 
   return (
     <div

@@ -15,6 +15,7 @@ import {
 } from '@/lib/contractTemplates';
 import { generateContractDocxBlob } from '@/lib/contractDocx';
 import { analyzeContractAlert, ContractAlertItem } from '@/lib/contractAlerts';
+import IsoProbationContractModal from './IsoProbationContractModal';
 
 interface EmployeeItem {
   id: string;
@@ -83,6 +84,8 @@ export default function ContractClient({
     setMounted(true);
   }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showIsoProbationModal, setShowIsoProbationModal] = useState(false);
+  const [selectedIsoEmployee, setSelectedIsoEmployee] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'preview' | 'form' | 'clauses'>('preview');
   const [searchEmpQuery, setSearchEmpQuery] = useState('');
   const [isEmpDropdownOpen, setIsEmpDropdownOpen] = useState(false);
@@ -987,6 +990,30 @@ export default function ContractClient({
             {isSendingTelegram ? 'កំពុងផ្ញើ...' : 'ផ្ញើ Alert ទៅ Telegram'}
           </button>
           <button
+            onClick={() => {
+              setSelectedIsoEmployee(null);
+              setShowIsoProbationModal(true);
+            }}
+            style={{
+              background: '#047857',
+              color: '#ffffff',
+              fontWeight: 700,
+              padding: '0.45rem 1rem',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.86rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+            }}
+            title="ទម្រង់កិច្ចសន្យាសាកល្បង ISO 9001:2015 តាមរោងចក្រ ឡាងថៃ ប៊ែក / Langtai Bags (4 ទំព័រ / 4-page)"
+          >
+            <span>🏭</span>
+            កិច្ចសន្យាសាកល្បង ISO 9001:2015 (Langtai / 试用工)
+          </button>
+          <button
             onClick={handleOpenNewModal}
             style={{
               background: '#ffffff',
@@ -1464,6 +1491,26 @@ export default function ContractClient({
                           }}
                         >
                           👁️ មើល / កែប្រែ
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedIsoEmployee(c.employee);
+                            setShowIsoProbationModal(true);
+                          }}
+                          title="កិច្ចសន្យាសាកល្បង ISO 9001:2015 (Langtai Bags / 试用工 4 ទំព័រ)"
+                          style={{
+                            background: '#ecfdf5',
+                            color: '#059669',
+                            border: '1px solid #a7f3d0',
+                            borderRadius: '6px',
+                            padding: '0.3rem 0.55rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontSize: '0.78rem',
+                            marginLeft: '4px',
+                          }}
+                        >
+                          🏭 ISO 9001
                         </button>
                       </td>
                     </tr>
@@ -3003,6 +3050,15 @@ export default function ContractClient({
         </div>,
         document.body
       )}
+
+      {/* ISO 9001:2015 Probation Contract Modal (Langtai Bags / 4 Pages) */}
+      <IsoProbationContractModal
+        isOpen={showIsoProbationModal}
+        onClose={() => setShowIsoProbationModal(false)}
+        employees={employees}
+        companySettings={companySettings}
+        initialEmployee={selectedIsoEmployee}
+      />
     </div>
   );
 }

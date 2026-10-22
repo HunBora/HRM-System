@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import {
   generateIsoContractDocxBlob,
@@ -9,6 +9,7 @@ import {
   IsoLangMode,
   ISO_TYPE_DEFAULTS,
 } from '@/lib/isoProbationDocx';
+import { analyzeContractAlert } from '@/lib/contractAlerts';
 
 interface Props {
   isOpen: boolean;
@@ -278,6 +279,41 @@ export default function IsoProbationContractModal({
   };
 
   const currentConfig = ISO_TYPE_DEFAULTS[contractType] || ISO_TYPE_DEFAULTS.PROBATION;
+
+  // Live Smart Alert Analysis for Current Contract in Modal
+  const liveAlerts = useMemo(() => {
+    return analyzeContractAlert({
+      id: 'current-modal-contract',
+      contractNo: formData.docCode || currentConfig.docCode,
+      contractType: contractType,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      isForeigner: formData.isForeigner,
+      workPermitExpiry: formData.workPermitExpiry,
+      visaExpiry: formData.visaExpiry,
+      passportExpiry: formData.passportExpiry,
+      employee: {
+        employeeId: formData.employeeId,
+        firstNameKh: formData.employeeNameKh,
+        firstNameEn: formData.employeeNameEn,
+        position: formData.position,
+      },
+    });
+  }, [
+    contractType,
+    formData.docCode,
+    formData.startDate,
+    formData.endDate,
+    formData.isForeigner,
+    formData.workPermitExpiry,
+    formData.visaExpiry,
+    formData.passportExpiry,
+    formData.employeeId,
+    formData.employeeNameKh,
+    formData.employeeNameEn,
+    formData.position,
+    currentConfig.docCode,
+  ]);
   
   // Multilingual Visibility Flags
   const showKhmer = langMode !== 'english';
@@ -1052,6 +1088,129 @@ export default function IsoProbationContractModal({
                   padding: 6px 8px;
                 }
               `}</style>
+
+              {/* SMART ALERT BANNER (HIDDEN IN PRINT) */}
+              <div
+                className="no-print"
+                style={{
+                  marginBottom: '16px',
+                  background:
+                    liveAlerts.length > 0
+                      ? liveAlerts[0].alertLevel === 'CRITICAL'
+                        ? '#fef2f2'
+                        : liveAlerts[0].alertLevel === 'WARNING'
+                        ? '#fffbeb'
+                        : '#f0f9ff'
+                      : contractType === 'UDC'
+                      ? '#ecfdf5'
+                      : '#f0fdf4',
+                  border: `1.5px solid ${
+                    liveAlerts.length > 0
+                      ? liveAlerts[0].alertLevel === 'CRITICAL'
+                        ? '#f87171'
+                        : liveAlerts[0].alertLevel === 'WARNING'
+                        ? '#fbbf24'
+                        : '#38bdf8'
+                      : contractType === 'UDC'
+                      ? '#34d399'
+                      : '#86efac'
+                  }`,
+                  borderRadius: '12px',
+                  padding: '12px 18px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.3rem' }}>
+                      {liveAlerts.length > 0
+                        ? liveAlerts[0].alertLevel === 'CRITICAL'
+                          ? '🚨'
+                          : liveAlerts[0].alertLevel === 'WARNING'
+                          ? '⚠️'
+                          : 'ℹ️'
+                        : contractType === 'UDC'
+                        ? '🛡️'
+                        : '✅'}
+                    </span>
+                    <strong
+                      style={{
+                        fontSize: '0.92rem',
+                        color:
+                          liveAlerts.length > 0
+                            ? liveAlerts[0].alertLevel === 'CRITICAL'
+                              ? '#991b1b'
+                              : liveAlerts[0].alertLevel === 'WARNING'
+                              ? '#92400e'
+                              : '#0369a1'
+                            : contractType === 'UDC'
+                            ? '#065f46'
+                            : '#166534',
+                      }}
+                    >
+                      Smart Alert (ស្ថានភាពគតិយុត្តិ & សុពលភាពកិច្ចសន្យា ISO 9001:2015) ៖{' '}
+                      {liveAlerts.length > 0
+                        ? liveAlerts[0].titleKh
+                        : contractType === 'UDC'
+                        ? 'កិច្ចសន្យា UDC អចិន្ត្រៃយ៍គ្មានកាលបរិច្ឆេទផុតកំណត់'
+                        : contractType === 'PROBATION'
+                        ? 'កិច្ចសន្យាសាកល្បងការងារមានសុពលភាពស្របច្បាប់'
+                        : contractType === 'FOREIGN_FDC'
+                        ? 'កិច្ចសន្យាបុគ្គលិកជនបរទេសមានសុពលភាពស្របច្បាប់'
+                        : 'កិច្ចសន្យា FDC មានសុពលភាពស្របច្បាប់'}
+                    </strong>
+                  </div>
+
+                  {liveAlerts.length > 0 && (
+                    <span
+                      style={{
+                        background:
+                          liveAlerts[0].alertLevel === 'CRITICAL'
+                            ? '#ef4444'
+                            : liveAlerts[0].alertLevel === 'WARNING'
+                            ? '#d97706'
+                            : '#0284c7',
+                        color: '#ffffff',
+                        padding: '3px 10px',
+                        borderRadius: '12px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {liveAlerts[0].daysRemaining >= 0
+                        ? `នៅសល់ ${liveAlerts[0].daysRemaining} ថ្ងៃ`
+                        : `ហួស ${Math.abs(liveAlerts[0].daysRemaining)} ថ្ងៃ`}
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '0.83rem',
+                    lineHeight: 1.55,
+                    color:
+                      liveAlerts.length > 0
+                        ? liveAlerts[0].alertLevel === 'CRITICAL'
+                          ? '#7f1d1d'
+                          : liveAlerts[0].alertLevel === 'WARNING'
+                          ? '#78350f'
+                          : '#075985'
+                        : contractType === 'UDC'
+                        ? '#064e3b'
+                        : '#14532d',
+                  }}
+                >
+                  {liveAlerts.length > 0
+                    ? liveAlerts[0].messageKh
+                    : contractType === 'UDC'
+                    ? 'កិច្ចសន្យាមានថិរវេលាមិនកំណត់ (UDC) ស្របតាមមាត្រា ៦៧ & ៧៤ នៃច្បាប់ការងារ។ ក្រុមហ៊ុនមានកាតព្វកិច្ចបើកប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) ចំនួន ១៥ ថ្ងៃ/ឆ្នាំ (៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ តាមប្រកាស ៤៤៣)។'
+                    : contractType === 'PROBATION'
+                    ? `រយៈពេលសាកល្បង ${formData.probationDurationMonths || 2} ខែ ចាប់ពី ${formData.startDate} ដល់ ${formData.endDate} (អនុលោមតាមមាត្រា ៦៨ & ៨២ នៃច្បាប់ការងារ)។ ប្រព័ន្ធនឹងជូនដំណឹង ១៤ ថ្ងៃមុនបញ្ចប់ ដើម្បីវាយតម្លៃសម្រេចចុះកុងត្រា FDC/UDC។`
+                    : contractType === 'FOREIGN_FDC'
+                    ? `កិច្ចសន្យាបុគ្គលិកជនបរទេសពី ${formData.startDate} ដល់ ${formData.endDate}។ ប័ណ្ណការងារ (Work Permit): ${formData.workPermitNo || 'N/A'} (ផុតកំណត់: ${formData.workPermitExpiry || 'N/A'}) | ទិដ្ឋាការ (Visa): ${formData.visaNo || 'N/A'} (ផុតកំណត់: ${formData.visaExpiry || 'N/A'}) | លិខិតឆ្លងដែន: ${formData.passportNo || 'N/A'} (ផុតកំណត់: ${formData.passportExpiry || 'N/A'})។`
+                    : `កិច្ចសន្យា FDC មានថិរវេលាកំណត់ពី ${formData.startDate} ដល់ ${formData.endDate} (សរុប ${formData.durationText || '១ ឆ្នាំ'})។ ច្បាប់តម្រូវឱ្យជូនដំណឹងមុន ១០-១៥ ថ្ងៃមុនផុតកំណត់តាមមាត្រា ៧៣ ដើម្បីកុំឱ្យកុងត្រាក្លាយជា UDC។`}
+                </div>
+              </div>
 
               {/* ======================================================== */}
               {/* PAGE 1: HEADER, PARTIES, EMPLOYEE TABLE, ARTICLE 1 & 2 */}

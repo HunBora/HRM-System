@@ -7,7 +7,20 @@ export interface ContractAlertItem {
   position: string;
   contractType: string;
   isForeigner: boolean;
-  alertType: 'FDC_CRITICAL' | 'FDC_WARNING' | 'FOREIGN_WP_CRITICAL' | 'FOREIGN_WP_WARNING' | 'FOREIGN_VISA_CRITICAL' | 'FOREIGN_VISA_WARNING' | 'PROBATION_ENDING' | 'EXPIRED' | 'NORMAL';
+  alertType:
+    | 'FDC_CRITICAL'
+    | 'FDC_WARNING'
+    | 'FDC_2YEAR_CAP'
+    | 'FOREIGN_WP_CRITICAL'
+    | 'FOREIGN_WP_WARNING'
+    | 'FOREIGN_VISA_CRITICAL'
+    | 'FOREIGN_VISA_WARNING'
+    | 'FOREIGN_PASSPORT_CRITICAL'
+    | 'FOREIGN_PASSPORT_WARNING'
+    | 'PROBATION_ENDING'
+    | 'UDC_SENIORITY'
+    | 'EXPIRED'
+    | 'NORMAL';
   alertLevel: 'CRITICAL' | 'WARNING' | 'INFO' | 'NORMAL';
   titleKh: string;
   titleEn: string;
@@ -87,7 +100,7 @@ export function analyzeContractAlert(contract: {
         statutoryNoticeDays,
       });
     } else if (contract.contractType === 'PROBATION') {
-      if (diffDays <= 7) {
+      if (diffDays <= 14) {
         alerts.push({
           contractId: contract.id,
           contractNo: contract.contractNo,
@@ -101,7 +114,7 @@ export function analyzeContractAlert(contract: {
           alertLevel: diffDays <= 3 ? 'CRITICAL' : 'WARNING',
           titleKh: 'សាកល្បងការងារជិតចប់',
           titleEn: 'Probation Ending Soon',
-          messageKh: `រយៈពេលសាកល្បងការងារនៅសល់ ${diffDays} ថ្ងៃ។ សូមធ្វើការវាយតម្លៃដើម្បីសម្រេចបន្តកុងត្រា FDC ឬ UDC!`,
+          messageKh: `រយៈពេលសាកល្បងការងារនៅសល់ ${diffDays} ថ្ងៃ (មាត្រា ៦៨ & ៨២)។ សូមធ្វើការវាយតម្លៃដើម្បីសម្រេចបន្តកុងត្រា FDC ឬ UDC!`,
           daysRemaining: diffDays,
           targetDate: end.toISOString().split('T')[0],
         });
@@ -147,6 +160,27 @@ export function analyzeContractAlert(contract: {
           statutoryNoticeDays,
         });
       }
+
+      // FDC 2-Year Statutory Limit Alert (Labour Law Art 67 & Instruction 050/19)
+      if (contract.contractType === 'FDC' && totalTermDays > 730) {
+        alerts.push({
+          contractId: contract.id,
+          contractNo: contract.contractNo,
+          employeeId: empId,
+          employeeName: empName,
+          department: dept,
+          position: pos,
+          contractType: contract.contractType,
+          isForeigner: Boolean(contract.isForeigner),
+          alertType: 'FDC_2YEAR_CAP',
+          alertLevel: 'WARNING',
+          titleKh: '⚠️ FDC លើស ២ ឆ្នាំ (ត្រូវប្តូរជា UDC)',
+          titleEn: 'FDC Exceeds 2-Year Cap',
+          messageKh: `កិច្ចសន្យា FDC នេះមានថិរវេលាសរុប ${totalTermDays} ថ្ងៃ (លើស ២ ឆ្នាំ)។ យោងតាមមាត្រា ៦៧ នៃច្បាប់ការងារ និងសេចក្តីណែនាំ ០៥០/១៩ ត្រូវប្តូរទៅជាកិច្ចសន្យា UDC ដោយស្វ័យប្រវត្តិ។`,
+          daysRemaining: diffDays,
+          targetDate: end.toISOString().split('T')[0],
+        });
+      }
     }
   }
 
@@ -170,7 +204,7 @@ export function analyzeContractAlert(contract: {
         alertLevel: 'CRITICAL',
         titleKh: '🚨 ប័ណ្ណការងារ MLVT ត្រូវបន្តបន្ទាន់ (<= ៣០ ថ្ងៃ)',
         titleEn: 'Urgent Work Permit Renewal',
-        messageKh: `ប័ណ្ណការងារជនបរទេសនៅសល់ ${diffWp} ថ្ងៃ (ផុតកំណត់: ${wpDate.toISOString().split('T')[0]})។ ត្រូវដាក់ពាក្យបន្តតាមប្រព័ន្ធ FWEMS ក្រសួងការងារជាបន្ទាន់!`,
+        messageKh: `ប័ណ្ណការងារជនបរទេសនៅសល់ ${diffWp} ថ្ងៃ (ផុតកំណត់: ${wpDate.toISOString().split('T')[0]})។ ត្រូវដាក់ពាក្យបន្តតាមប្រព័ន្ធ FWCMS/MLVT ជាបន្ទាន់!`,
         daysRemaining: diffWp,
         targetDate: wpDate.toISOString().split('T')[0],
       });
@@ -236,6 +270,87 @@ export function analyzeContractAlert(contract: {
         messageKh: `ទិដ្ឋាការ (Visa) នៅសល់ ${diffVisa} ថ្ងៃ។ សូមត្រៀមលិខិតបញ្ជាក់ការងារពីក្រុមហ៊ុន។`,
         daysRemaining: diffVisa,
         targetDate: visaDate.toISOString().split('T')[0],
+      });
+    }
+  }
+
+  // 4. Foreign Employee: Passport Expiry Alert (<= 180 days for Immigration Compliance)
+  if (contract.isForeigner && contract.passportExpiry) {
+    const passportDate = new Date(contract.passportExpiry);
+    passportDate.setHours(0, 0, 0, 0);
+    const diffPassport = Math.ceil((passportDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffPassport <= 60 && diffPassport >= 0) {
+      alerts.push({
+        contractId: contract.id,
+        contractNo: contract.contractNo,
+        employeeId: empId,
+        employeeName: empName,
+        department: dept,
+        position: pos,
+        contractType: contract.contractType,
+        isForeigner: true,
+        alertType: 'FOREIGN_PASSPORT_CRITICAL',
+        alertLevel: 'CRITICAL',
+        titleKh: '🚨 Passport ជិតផុតកំណត់ (<= ៦០ ថ្ងៃ)',
+        titleEn: 'Urgent Passport Renewal',
+        messageKh: `លិខិតឆ្លងដែនជនបរទេសនៅសល់តែ ${diffPassport} ថ្ងៃប៉ុណ្ណោះ! ច្បាប់អន្តោប្រវេសន៍នឹងមិនអនុញ្ញាតឱ្យបន្ត Visa និង Work Permit ឡើយ។ ត្រូវបន្ត Passport ជាបន្ទាន់!`,
+        daysRemaining: diffPassport,
+        targetDate: passportDate.toISOString().split('T')[0],
+      });
+    } else if (diffPassport > 60 && diffPassport <= 180) {
+      alerts.push({
+        contractId: contract.id,
+        contractNo: contract.contractNo,
+        employeeId: empId,
+        employeeName: empName,
+        department: dept,
+        position: pos,
+        contractType: contract.contractType,
+        isForeigner: true,
+        alertType: 'FOREIGN_PASSPORT_WARNING',
+        alertLevel: 'WARNING',
+        titleKh: '🟡 Passport នៅសល់ក្រោម ៦ ខែ',
+        titleEn: 'Passport Valid Under 6 Months',
+        messageKh: `លិខិតឆ្លងដែននៅសល់ ${diffPassport} ថ្ងៃ (ក្រោម ៦ ខែ)។ សូមរំលឹកបុគ្គលិកជនបរទេសឱ្យត្រៀមបន្តលិខិតឆ្លងដែន ដើម្បីកុំឱ្យស្ទះការបន្ត Visa និងប័ណ្ណការងារ។`,
+        daysRemaining: diffPassport,
+        targetDate: passportDate.toISOString().split('T')[0],
+      });
+    }
+  }
+
+  // 5. UDC: Seniority Indemnity (ប.អ.ក) Payout Alert (June & December per MLVT Prakas 443 & New Art 89)
+  if (contract.contractType === 'UDC') {
+    const currentMonth = now.getMonth(); // 0-based: 5 is June, 11 is December
+    const currentYear = now.getFullYear();
+
+    // Check Semester 1 (June 30) or Semester 2 (December 31)
+    const targetPayoutDate =
+      currentMonth <= 5
+        ? new Date(currentYear, 5, 30) // June 30
+        : new Date(currentYear, 11, 31); // Dec 31
+    targetPayoutDate.setHours(0, 0, 0, 0);
+
+    const diffSeniority = Math.ceil((targetPayoutDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffSeniority >= 0 && diffSeniority <= 45) {
+      const semesterText = currentMonth <= 5 ? 'ឆមាសទី១ (ខែមិថុនា)' : 'ឆមាសទី២ (ខែធ្នូ)';
+      alerts.push({
+        contractId: contract.id,
+        contractNo: contract.contractNo,
+        employeeId: empId,
+        employeeName: empName,
+        department: dept,
+        position: pos,
+        contractType: contract.contractType,
+        isForeigner: Boolean(contract.isForeigner),
+        alertType: 'UDC_SENIORITY',
+        alertLevel: 'INFO',
+        titleKh: `🛡️ ត្រៀមបើកប្រាក់បំណាច់អតីតភាព (${semesterText})`,
+        titleEn: `Seniority Indemnity Due (${currentMonth <= 5 ? 'June' : 'December'})`,
+        messageKh: `កិច្ចសន្យា UDC ត្រូវបើកប្រាក់បំណាច់អតីតភាពការងារ (៧.៥ ថ្ងៃ) សម្រាប់${semesterText} នៅសល់ ${diffSeniority} ថ្ងៃ ស្របតាមមាត្រា ៨៩ ថ្មី និងប្រកាស ៤៤៣ ក្រសួងការងារ។`,
+        daysRemaining: diffSeniority,
+        targetDate: targetPayoutDate.toISOString().split('T')[0],
       });
     }
   }

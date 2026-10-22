@@ -156,31 +156,43 @@ export default function ContractClient({
     return map;
   }, [contracts]);
 
-  // Aggregated Smart Alert Counts
+  // Aggregated Smart Alert Counts across all contract types
   const alertStats = useMemo(() => {
     let fdcNoticeCount = 0;
-    let foreignWpCount = 0;
-    let foreignVisaCount = 0;
+    let foreignDocsCount = 0;
     let probationCount = 0;
+    let udcSeniorityCount = 0;
     let expiredCount = 0;
 
     contractAlertsMap.forEach((alerts) => {
       alerts.forEach((a) => {
-        if (a.alertType === 'FDC_CRITICAL' || a.alertType === 'FDC_WARNING') fdcNoticeCount++;
-        if (a.alertType === 'FOREIGN_WP_CRITICAL' || a.alertType === 'FOREIGN_WP_WARNING') foreignWpCount++;
-        if (a.alertType === 'FOREIGN_VISA_CRITICAL' || a.alertType === 'FOREIGN_VISA_WARNING') foreignVisaCount++;
+        if (a.alertType === 'FDC_CRITICAL' || a.alertType === 'FDC_WARNING' || a.alertType === 'FDC_2YEAR_CAP') {
+          fdcNoticeCount++;
+        }
+        if (
+          a.alertType === 'FOREIGN_WP_CRITICAL' ||
+          a.alertType === 'FOREIGN_WP_WARNING' ||
+          a.alertType === 'FOREIGN_VISA_CRITICAL' ||
+          a.alertType === 'FOREIGN_VISA_WARNING' ||
+          a.alertType === 'FOREIGN_PASSPORT_CRITICAL' ||
+          a.alertType === 'FOREIGN_PASSPORT_WARNING'
+        ) {
+          foreignDocsCount++;
+        }
         if (a.alertType === 'PROBATION_ENDING') probationCount++;
+        if (a.alertType === 'UDC_SENIORITY') udcSeniorityCount++;
         if (a.alertType === 'EXPIRED') expiredCount++;
       });
     });
 
     return {
       fdcNoticeCount,
-      foreignWpCount,
-      foreignVisaCount,
+      foreignWpCount: foreignDocsCount,
+      foreignVisaCount: 0,
       probationCount,
+      udcSeniorityCount,
       expiredCount,
-      totalAlerts: fdcNoticeCount + foreignWpCount + foreignVisaCount + probationCount + expiredCount,
+      totalAlerts: fdcNoticeCount + foreignDocsCount + probationCount + udcSeniorityCount + expiredCount,
     };
   }, [contractAlertsMap]);
 
@@ -638,17 +650,23 @@ export default function ContractClient({
       const alerts = contractAlertsMap.get(c.id) || [];
       let matchesAlertCategory = true;
       if (alertFilterCategory === 'FDC_NOTICE') {
-        matchesAlertCategory = alerts.some((a) => a.alertType === 'FDC_CRITICAL' || a.alertType === 'FDC_WARNING');
+        matchesAlertCategory = alerts.some(
+          (a) => a.alertType === 'FDC_CRITICAL' || a.alertType === 'FDC_WARNING' || a.alertType === 'FDC_2YEAR_CAP'
+        );
       } else if (alertFilterCategory === 'FOREIGN_WP_VISA') {
         matchesAlertCategory = alerts.some(
           (a) =>
             a.alertType === 'FOREIGN_WP_CRITICAL' ||
             a.alertType === 'FOREIGN_WP_WARNING' ||
             a.alertType === 'FOREIGN_VISA_CRITICAL' ||
-            a.alertType === 'FOREIGN_VISA_WARNING'
+            a.alertType === 'FOREIGN_VISA_WARNING' ||
+            a.alertType === 'FOREIGN_PASSPORT_CRITICAL' ||
+            a.alertType === 'FOREIGN_PASSPORT_WARNING'
         );
       } else if (alertFilterCategory === 'PROBATION') {
         matchesAlertCategory = alerts.some((a) => a.alertType === 'PROBATION_ENDING');
+      } else if (alertFilterCategory === 'UDC_SENIORITY') {
+        matchesAlertCategory = alerts.some((a) => a.alertType === 'UDC_SENIORITY');
       } else if (alertFilterCategory === 'EXPIRED') {
         matchesAlertCategory = alerts.some((a) => a.alertType === 'EXPIRED');
       }
@@ -1057,7 +1075,7 @@ export default function ContractClient({
             borderColor: alertFilterCategory === 'FDC_NOTICE' ? '#ef4444' : '#fecdd3',
             color: '#991b1b',
           }}
-          title="កិច្ចសន្យា FDC ត្រូវជូនដំណឹង ១០-១៥ ថ្ងៃ (មាត្រា ៧៣) / FDC Notice Due"
+          title="កិច្ចសន្យា FDC ត្រូវជូនដំណឹង ១០-១៥ ថ្ងៃ (មាត្រា ៧៣) ឬលើស ២ ឆ្នាំ / FDC Notice Due"
         >
           <span>🔔 FDC ត្រូវជូនដំណឹង (10-15d)</span>
           <span style={{ background: '#ef4444', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
@@ -1065,7 +1083,7 @@ export default function ContractClient({
           </span>
         </div>
 
-        {/* Chip 2: Foreign WP & Visa */}
+        {/* Chip 2: Foreign WP, Visa & Passport */}
         <div
           onClick={() => {
             setAlertFilterCategory(alertFilterCategory === 'FOREIGN_WP_VISA' ? 'ALL' : 'FOREIGN_WP_VISA');
@@ -1077,11 +1095,11 @@ export default function ContractClient({
             borderColor: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#7c3aed' : '#ddd6fe',
             color: '#5b21b6',
           }}
-          title="Work Permit & Visa ជនបរទេស ៣០-៦០ ថ្ងៃ (រៀបចំ MLVT) / Foreign WP & Visa"
+          title="ប័ណ្ណការងារ MLVT, Visa & Passport ជនបរទេស (៣០-៦០ ថ្ងៃ) / Foreign Compliance"
         >
-          <span>🌐 Work Permit & Visa (30-60d)</span>
+          <span>🌐 ជនបរទេស WP, Visa, Passport</span>
           <span style={{ background: '#7c3aed', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {alertStats.foreignWpCount + alertStats.foreignVisaCount}
+            {alertStats.foreignWpCount}
           </span>
         </div>
 
@@ -1097,15 +1115,35 @@ export default function ContractClient({
             borderColor: alertFilterCategory === 'PROBATION' ? '#d97706' : '#fde68a',
             color: '#92400e',
           }}
-          title="សាកល្បងការងារជិតចប់ នៅសល់ ≤ ៧ ថ្ងៃ / Probation Ending ≤ 7 Days"
+          title="សាកល្បងការងារជិតចប់ នៅសល់ ≤ ១៤ ថ្ងៃ / Probation Ending ≤ 14 Days"
         >
-          <span>⏳ សាកល្បងជិតចប់ (≤ 7d)</span>
+          <span>⏳ សាកល្បងជិតចប់ (≤ 14d)</span>
           <span style={{ background: '#d97706', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
             {alertStats.probationCount}
           </span>
         </div>
 
-        {/* Chip 4: Expired */}
+        {/* Chip 4: UDC Seniority Indemnity */}
+        <div
+          onClick={() => {
+            setAlertFilterCategory(alertFilterCategory === 'UDC_SENIORITY' ? 'ALL' : 'UDC_SENIORITY');
+            setCurrentPage(1);
+          }}
+          className={styles.alertChip}
+          style={{
+            background: alertFilterCategory === 'UDC_SENIORITY' ? '#eff6ff' : '#f0f9ff',
+            borderColor: alertFilterCategory === 'UDC_SENIORITY' ? '#0284c7' : '#bae6fd',
+            color: '#0369a1',
+          }}
+          title="កិច្ចសន្យា UDC ត្រៀមបើកប្រាក់បំណាច់អតីតភាព (ប.អ.ក ខែមិថុនា & ធ្នូ - មាត្រា ៨៩ ថ្មី) / UDC Seniority"
+        >
+          <span>🛡️ UDC អតីតភាព (ប.អ.ក)</span>
+          <span style={{ background: '#0284c7', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+            {alertStats.udcSeniorityCount}
+          </span>
+        </div>
+
+        {/* Chip 5: Expired */}
         <div
           onClick={() => {
             setAlertFilterCategory(alertFilterCategory === 'EXPIRED' ? 'ALL' : 'EXPIRED');
@@ -1351,13 +1389,25 @@ export default function ContractClient({
                                   ? '#fee2e2'
                                   : primaryAlert.alertLevel === 'WARNING'
                                   ? '#fef3c7'
+                                  : primaryAlert.alertLevel === 'INFO'
+                                  ? '#e0f2fe'
                                   : '#f1f5f9',
                               color:
                                 primaryAlert.alertLevel === 'CRITICAL'
                                   ? '#b91c1c'
                                   : primaryAlert.alertLevel === 'WARNING'
                                   ? '#b45309'
+                                  : primaryAlert.alertLevel === 'INFO'
+                                  ? '#0369a1'
                                   : '#475569',
+                              border:
+                                primaryAlert.alertLevel === 'CRITICAL'
+                                  ? '1px solid #fca5a5'
+                                  : primaryAlert.alertLevel === 'WARNING'
+                                  ? '1px solid #fcd34d'
+                                  : primaryAlert.alertLevel === 'INFO'
+                                  ? '1px solid #7dd3fc'
+                                  : '1px solid #cbd5e1',
                               padding: '0.25rem 0.55rem',
                               borderRadius: '6px',
                               fontSize: '0.75rem',
@@ -1374,11 +1424,27 @@ export default function ContractClient({
                                 : `ហួស ${Math.abs(primaryAlert.daysRemaining)} ថ្ងៃ`}
                             </div>
                           </div>
+                        ) : c.contractType === 'UDC' ? (
+                          <span
+                            style={{
+                              background: '#ecfdf5',
+                              color: '#047857',
+                              border: '1px solid #a7f3d0',
+                              padding: '0.2rem 0.5rem',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                            }}
+                            title="កិច្ចសន្យាអចិន្ត្រៃយ៍ UDC គ្មានកាលបរិច្ឆេទផុតកំណត់ / Undetermined Duration"
+                          >
+                            🛡️ UDC អចិន្ត្រៃយ៍ (Active)
+                          </span>
                         ) : (
                           <span
                             style={{
                               background: '#ecfdf5',
                               color: '#059669',
+                              border: '1px solid #a7f3d0',
                               padding: '0.2rem 0.5rem',
                               borderRadius: '6px',
                               fontSize: '0.75rem',

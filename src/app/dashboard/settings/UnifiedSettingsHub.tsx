@@ -31,8 +31,8 @@ export default function UnifiedSettingsHub({ settings }: UnifiedSettingsHubProps
     },
     {
       id: 'payroll' as const,
-      labelKh: 'កាលវិភាគបើកប្រាក់ខែ',
-      labelEn: 'Payroll Schedule',
+      labelKh: 'កាលវិភាគ & គោលការណ៍ប្រាក់ឧបត្ថម្ភ',
+      labelEn: 'Payroll & Allowances',
       icon: '💰',
     },
     {

@@ -18,6 +18,13 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
   const advancePolicy = settings?.advanceRepaymentPolicy || 'NEXT_PAYROLL';
   const companyName = settings?.companyName || 'HRM System';
 
+  // Company Allowance Policies (Dynamic from settings)
+  const transportRate = settings?.transportationAllowance ?? 7.0;
+  const attBonusRate = settings?.attendanceBonus ?? 15.0;
+  const lunchRate = settings?.lunchAllowancePerDay ?? 0.50;
+  const otMealRate = settings?.otMealAllowance ?? 0.50;
+  const dayCareRate = settings?.dayCareAllowancePerChild ?? 0.0;
+
   // Navigation states
   const [subTab, setSubTab] = useState<'formulas' | 'simulator' | 'lifecycle' | 'attendance' | 'advance' | 'law'>('formulas');
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +40,7 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
   const [simPosition, setSimPosition] = useState<number>(15);
   const [simSkill, setSimSkill] = useState<number>(10);
   const [simAdvance, setSimAdvance] = useState<number>(0);
+  const [simChildren, setSimChildren] = useState<number>(0);
   const [simSeniorityYears, setSimSeniorityYears] = useState<number>(2);
   const [simIsSeniorityPayoutMonth, setSimIsSeniorityPayoutMonth] = useState<boolean>(false);
   const [simHasNssf, setSimHasNssf] = useState<boolean>(true);
@@ -55,11 +63,12 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
     const sunOtWage = hourlyRate * 2.0 * simSunOt;
     const nightOtWage = hourlyRate * 2.0 * simNightOt;
 
-    const lunchAllowance = simDays * 0.50; // $0.50 (2,000 KHR per working day)
+    const lunchAllowance = simDays * lunchRate;
     const totalOtHours = simNormalOt + simSunOt + simNightOt;
-    const otMealAllowance = totalOtHours >= 2 ? 0.50 : 0;
-    const transportation = 7.00; // Fixed $7.00
-    const attendanceBonus = simAbsentDays > 0 ? 0 : 15.00; // $15.00 if 0 absences
+    const otMealAllowance = totalOtHours >= 2 ? otMealRate : 0;
+    const transportation = transportRate;
+    const attendanceBonus = simAbsentDays > 0 ? 0 : attBonusRate;
+    const dayCareAllowance = simChildren * dayCareRate;
 
     const payScaleIncentive = simPosition || 0;
     const adjustmentSkill = simSkill || 0;
@@ -70,7 +79,7 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
     const seniorityIndemnity = simIsSeniorityPayoutMonth ? dailyRate * 7.5 : 0;
 
     const totalSalary = workingSalary + payScaleIncentive + adjustmentSkill + otWage + sunOtWage + nightOtWage
-      + attendanceBonus + transportation + lunchAllowance + otMealAllowance + seniorityAllowance + seniorityIndemnity;
+      + attendanceBonus + transportation + lunchAllowance + otMealAllowance + dayCareAllowance + seniorityAllowance + seniorityIndemnity;
 
     const severancePay = simHasFdc ? totalSalary * 0.05 : 0; // 5% FDC severance
 
@@ -109,6 +118,7 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
       otMealAllowance,
       transportation,
       attendanceBonus,
+      dayCareAllowance,
       payScaleIncentive,
       adjustmentSkill,
       seniorityAllowance,
@@ -132,11 +142,17 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
     simPosition,
     simSkill,
     simAdvance,
+    simChildren,
     simSeniorityYears,
     simIsSeniorityPayoutMonth,
     simHasNssf,
     simHasFdc,
     exchangeRate,
+    transportRate,
+    attBonusRate,
+    lunchRate,
+    otMealRate,
+    dayCareRate,
   ]);
 
   return (
@@ -547,10 +563,10 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
               <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <strong className="kh-text" style={{ color: '#166534' }}>🍚 ថ្លៃបាយថ្ងៃត្រង់ (Lunch)</strong>
-                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>$0.50 / ថ្ងៃ</span>
+                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>${lunchRate.toFixed(2)} / ថ្ងៃ</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d' }}>
-                  គណនាស្មើនឹង <strong>Working Days × $0.50</strong> (ស្មើ ២,០០០ រៀលក្នុងមួយថ្ងៃធ្វើការជាក់ស្តែង)។
+                  គណនាស្មើនឹង <strong>Working Days × ${lunchRate.toFixed(2)}</strong> (កំណត់ដោយក្រុមហ៊ុន)។
                 </p>
               </div>
 
@@ -558,10 +574,10 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
               <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <strong className="kh-text" style={{ color: '#166534' }}>🍱 ថ្លៃបាយថែមម៉ោង (OT Meal)</strong>
-                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>$0.50 / លើក</span>
+                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>${otMealRate.toFixed(2)} / លើក</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d' }}>
-                  ផ្តល់ជូន <strong>$0.50</strong> នៅពេលបុគ្គលិកថែមម៉ោងសរុប (OT) ចាប់ពី <strong>២ ម៉ោងឡើងទៅ</strong> ក្នុងមួយថ្ងៃ។
+                  ផ្តល់ជូន <strong>${otMealRate.toFixed(2)}</strong> នៅពេលបុគ្គលិកថែមម៉ោងសរុប (OT) ចាប់ពី <strong>២ ម៉ោងឡើងទៅ</strong> ក្នុងមួយថ្ងៃ។
                 </p>
               </div>
 
@@ -569,10 +585,10 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
               <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <strong className="kh-text" style={{ color: '#166534' }}>🚌 ថ្លៃធ្វើដំណើរ (Transport)</strong>
-                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>$7.00 / ខែ</span>
+                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>${transportRate.toFixed(2)} / ខែ</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d' }}>
-                  ប្រាក់ឧបត្ថម្ភថ្លៃធ្វើដំណើរ និងស្នាក់នៅកំណត់ថេរ <strong>$7.00 ក្នុងមួយខែ</strong> សម្រាប់បុគ្គលិកទាំងអស់។
+                  ប្រាក់ឧបត្ថម្ភថ្លៃធ្វើដំណើរ និងស្នាក់នៅកំណត់ <strong>${transportRate.toFixed(2)} ក្នុងមួយខែ</strong> សម្រាប់បុគ្គលិកទាំងអស់។
                 </p>
               </div>
 
@@ -580,10 +596,21 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
               <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <strong className="kh-text" style={{ color: '#166534' }}>🏆 រង្វាន់ឧស្សាហ៍ព្យាយាម (Attendance)</strong>
-                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>$15.00 / ខែ</span>
+                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>${attBonusRate.toFixed(2)} / ខែ</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d' }}>
-                  ផ្តល់ជូន <strong>$15.00</strong> ប្រសិនបើបុគ្គលិក <strong>គ្មានអវត្តមានឥតច្បាប់ (Absent Days = 0)</strong> ក្នុងខែនោះ។
+                  ផ្តល់ជូន <strong>${attBonusRate.toFixed(2)}</strong> ប្រសិនបើបុគ្គលិក <strong>គ្មានអវត្តមានឥតច្បាប់ (Absent Days = 0)</strong> ក្នុងខែនោះ។
+                </p>
+              </div>
+
+              {/* Child Care Allowance */}
+              <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <strong className="kh-text" style={{ color: '#166534' }}>👶 ប្រាក់កូនតូច (Day Care)</strong>
+                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>${dayCareRate.toFixed(2)} / កូន</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d' }}>
+                  ផ្តល់ជូន <strong>${dayCareRate.toFixed(2)} ក្នុងមួយកូន</strong> តាមចំនួនកូនជាក់ស្តែងក្នុងបន្ទុក (កំណត់ដោយក្រុមហ៊ុន)។
                 </p>
               </div>
 
@@ -1118,16 +1145,34 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                   </div>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: '4px', color: '#334155' }}>
-                    ប្រាក់បើកមុន / កម្ចី (Advance Deduction USD) :
-                  </label>
-                  <input
-                    type="number"
-                    value={simAdvance}
-                    onChange={(e) => setSimAdvance(parseFloat(e.target.value) || 0)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: '4px', color: '#334155' }}>
+                      👶 កូនក្នុងបន្ទុក (Children) :
+                    </label>
+                    <input
+                      type="number"
+                      value={simChildren}
+                      onChange={(e) => setSimChildren(Math.max(0, parseInt(e.target.value) || 0))}
+                      min={0}
+                      max={15}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
+                    />
+                    <div style={{ fontSize: '0.72rem', color: '#be185d', marginTop: '2px', fontWeight: 600 }}>
+                      +${dayCareRate.toFixed(2)}/កូន/ខែ
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: '4px', color: '#334155' }}>
+                      ប្រាក់បើកមុន / កម្ចី (Advance) :
+                    </label>
+                    <input
+                      type="number"
+                      value={simAdvance}
+                      onChange={(e) => setSimAdvance(parseFloat(e.target.value) || 0)}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
+                    />
+                  </div>
                 </div>
 
                 {/* Toggles */}
@@ -1215,6 +1260,12 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                   <span style={{ color: '#475569' }}>ប្រាក់តួនាទី + ប្រាក់ជំនាញ:</span>
                   <strong>${(simResults.payScaleIncentive + simResults.adjustmentSkill).toFixed(2)}</strong>
                 </div>
+                {simResults.dayCareAllowance > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#be185d' }}>+ ប្រាក់កូនតូច ({simChildren} នាក់):</span>
+                    <strong style={{ color: '#be185d' }}>+${simResults.dayCareAllowance.toFixed(2)}</strong>
+                  </div>
+                )}
                 {simResults.seniorityAllowance > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: '#166534' }}>+ ប្រាក់អតីតភាព ({simSeniorityYears} ឆ្នាំ):</span>

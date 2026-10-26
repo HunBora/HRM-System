@@ -263,6 +263,13 @@ model CompanySettings {
   advanceEligibilityMonths  Int      @default(3)
   advanceRepaymentPolicy    String   @default("NEXT_PAYROLL")
 
+  // Allowances & Incentives Settings (Customizable per company/factory)
+  transportationAllowance   Float    @default(7.0)
+  attendanceBonus           Float    @default(15.0)
+  lunchAllowancePerDay      Float    @default(0.50)
+  otMealAllowance           Float    @default(0.50)
+  dayCareAllowancePerChild  Float    @default(0.0)
+
   updatedAt         DateTime @updatedAt
 }
 

@@ -195,16 +195,24 @@ export async function generatePayroll(month: number, year: number) {
         const sunOtWage = hourlyRate * 2.0 * sunOtHours; // 200% for Sunday/Holiday Overtime
         const nightOtWage = hourlyRate * 2.0 * nightOtHours; // 200% for Night Overtime
 
-        // Allowances & Incentives
-        const lunchAllowance = workingDays * 0.50; // 2000៛ ($0.50) per working day
-        const otMealAllowance = otDaysWithMeal > 0 ? otDaysWithMeal * 0.50 : 0; // Meal allowance $0.50 per day if OT >= 2 hrs
-        const transportation = 7; // Fixed $7 transportation allowance
-        const attendanceBonus = absentDays > 0 ? 0 : 15; // $15 bonus if no unexcused absences
+        // Allowances & Incentives configured dynamically by the company/factory
+        const lunchRate = companySettings?.lunchAllowancePerDay ?? 0.50;
+        const lunchAllowance = workingDays * lunchRate;
+        
+        const otMealRate = companySettings?.otMealAllowance ?? 0.50;
+        const otMealAllowance = otDaysWithMeal > 0 ? otDaysWithMeal * otMealRate : 0;
+        
+        const transportation = companySettings?.transportationAllowance ?? 7.0;
+        
+        const attBonusSetting = companySettings?.attendanceBonus ?? 15.0;
+        const attendanceBonus = absentDays > 0 ? 0 : attBonusSetting;
         
         const payScaleIncentive = emp.positionAllowance1 || 0; // Connect to employee position allowance
         const adjustmentSkill = emp.skillAllowance1 || 0; // Connect to employee skill allowance
         const annualLeaveAmount = 0;
-        const dayCareAllowance = 0;
+        
+        const dayCareRate = companySettings?.dayCareAllowancePerChild ?? 0.0;
+        const dayCareAllowance = (emp.numberOfChildren || 0) * dayCareRate;
         // Seniority Allowance ($2 - $11/mo): based on full years from hireDate (Cambodian Labor Standard)
         let seniority = 0;
         if (emp.hireDate) {
@@ -408,5 +416,94 @@ export async function updateExchangeRateAndRecalculate(newRate: number, month?: 
   } catch (err: any) {
     console.error('Error updating exchange rate:', err);
     return { success: false, error: err.message };
+  }
+}
+
+export async function recalculateDraftsWithNewAllowances(month?: number, year?: number) {
+  try {
+    const settings = await prisma.companySettings.findUnique({ where: { id: 'default' } });
+    const exchangeRate = settings?.exchangeRate || 4000;
+    const lunchRate = settings?.lunchAllowancePerDay ?? 0.50;
+    const otMealRate = settings?.otMealAllowance ?? 0.50;
+    const transpRate = settings?.transportationAllowance ?? 7.0;
+    const attBonusRate = settings?.attendanceBonus ?? 15.0;
+    const dayCareRate = settings?.dayCareAllowancePerChild ?? 0.0;
+
+    const whereClause: any = { status: 'DRAFT' };
+    if (month && year) {
+      whereClause.month = month;
+      whereClause.year = year;
+    }
+
+    const draftPayrolls = await prisma.payroll.findMany({
+      where: whereClause,
+      include: { employee: true }
+    });
+
+    const r2 = (num: number) => Math.round(num * 100) / 100;
+
+    for (const p of draftPayrolls) {
+      const emp = p.employee;
+      const workingDays = p.workingDays;
+      const absentDays = p.absentDays;
+
+      // Re-calculate allowances based on new company settings
+      const lunchAllowance = r2(workingDays * lunchRate);
+      const otMealAllowance = p.otMealAllowance > 0 && otMealRate > 0 ? r2((p.otMealAllowance / 0.50) * otMealRate) : p.otMealAllowance;
+      const transportation = r2(transpRate);
+      const attendanceBonus = absentDays > 0 ? 0 : r2(attBonusRate);
+      const dayCareAllowance = r2((emp.numberOfChildren || 0) * dayCareRate);
+
+      // Re-calculate total salary
+      const totalSalary = r2(
+        p.workingSalary + p.payScaleIncentive + p.otWage + p.sunOtWage + p.nightOtWage
+        + p.annualLeaveAmount + attendanceBonus + transportation + lunchAllowance
+        + otMealAllowance + dayCareAllowance + p.seniority + p.seniorityIndemnity
+        + p.productionIncentive + p.adjustmentSkill + (p.otherAllowance || 0)
+      );
+
+      const severancePay = r2(totalSalary * 0.05);
+
+      const netSalaryUsd = r2(
+        totalSalary + severancePay - (p.loanPension || 0) - (p.nssf || 0) - (p.taxPayment || 0) - (p.unionDeduction || 0)
+      );
+
+      // Currency split
+      let paidSalaryUsd = 0;
+      let netSalaryRiel = 0;
+      if (netSalaryUsd > 0) {
+        paidSalaryUsd = Math.floor(netSalaryUsd / 10) * 10;
+        let remainder = netSalaryUsd - paidSalaryUsd;
+        if (remainder < 7.50 && paidSalaryUsd > 0) {
+          paidSalaryUsd -= 10;
+          remainder = netSalaryUsd - paidSalaryUsd;
+        }
+        netSalaryRiel = remainder * exchangeRate;
+        netSalaryRiel = Math.floor(netSalaryRiel / 100) * 100;
+      }
+
+      await prisma.payroll.update({
+        where: { id: p.id },
+        data: {
+          lunchAllowance,
+          otMealAllowance,
+          transportation,
+          attendanceBonus,
+          dayCareAllowance,
+          totalSalary,
+          severancePay,
+          netSalaryUsd,
+          paidSalaryUsd,
+          netSalaryRiel,
+        }
+      });
+    }
+
+    revalidatePath('/dashboard/payroll');
+    revalidatePath('/dashboard/settings');
+    return { success: true, count: draftPayrolls.length };
+  } catch (error: any) {
+    console.error('Failed to recalculate draft allowances:', error);
+    return { success: false, error: error.message };
   }
 }

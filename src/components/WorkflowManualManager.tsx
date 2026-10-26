@@ -33,6 +33,8 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
   const [simPosition, setSimPosition] = useState<number>(15);
   const [simSkill, setSimSkill] = useState<number>(10);
   const [simAdvance, setSimAdvance] = useState<number>(0);
+  const [simSeniorityYears, setSimSeniorityYears] = useState<number>(2);
+  const [simIsSeniorityPayoutMonth, setSimIsSeniorityPayoutMonth] = useState<boolean>(false);
   const [simHasNssf, setSimHasNssf] = useState<boolean>(true);
   const [simHasFdc, setSimHasFdc] = useState<boolean>(true);
 
@@ -62,8 +64,13 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
     const payScaleIncentive = simPosition || 0;
     const adjustmentSkill = simSkill || 0;
 
+    // Seniority Allowance: 1 full year = $2, 2 = $3, ..., 10+ = $11 max
+    const seniorityAllowance = simSeniorityYears >= 1 ? Math.min(simSeniorityYears + 1, 11) : 0;
+    // Seniority Indemnity for UDC: 7.5 days paid semi-annually (June/Dec)
+    const seniorityIndemnity = simIsSeniorityPayoutMonth ? dailyRate * 7.5 : 0;
+
     const totalSalary = workingSalary + payScaleIncentive + adjustmentSkill + otWage + sunOtWage + nightOtWage
-      + attendanceBonus + transportation + lunchAllowance + otMealAllowance;
+      + attendanceBonus + transportation + lunchAllowance + otMealAllowance + seniorityAllowance + seniorityIndemnity;
 
     const severancePay = simHasFdc ? totalSalary * 0.05 : 0; // 5% FDC severance
 
@@ -104,6 +111,8 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
       attendanceBonus,
       payScaleIncentive,
       adjustmentSkill,
+      seniorityAllowance,
+      seniorityIndemnity,
       totalSalary,
       severancePay,
       nssf,
@@ -123,6 +132,8 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
     simPosition,
     simSkill,
     simAdvance,
+    simSeniorityYears,
+    simIsSeniorityPayoutMonth,
     simHasNssf,
     simHasFdc,
     exchangeRate,
@@ -269,24 +280,103 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
         </div>
 
         {/* Quick Search */}
-        <div style={{ position: 'relative', minWidth: '220px' }}>
+        <div style={{ position: 'relative', minWidth: '240px' }}>
           <input
             type="text"
-            placeholder="ស្វែងរកក្នុងសៀវភៅណែនាំ..."
+            placeholder="ស្វែងរកក្នុងសៀវភៅណែនាំ (ឧ. អតីតភាព, OT)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              padding: '7px 12px 7px 32px',
+              padding: '7px 28px 7px 32px',
               borderRadius: '8px',
               border: '1px solid var(--border-color)',
               fontSize: '0.83rem',
               outline: 'none',
+              backgroundColor: 'var(--card-bg, #ffffff)',
             }}
           />
           <span style={{ position: 'absolute', left: '10px', top: '7px', fontSize: '0.9rem', color: '#94a3b8' }}>🔍</span>
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '7px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                color: '#94a3b8',
+                fontSize: '0.85rem',
+              }}
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Quick Search Tag Filters & Results Jump */}
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', padding: '0 4px' }}>
+        <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>🏷️ ប្រធានបទរហ័ស (Quick Jump):</span>
+        {[
+          { label: '🎖️ ប្រាក់អតីតភាព & បំណាច់អតីតភាព (Seniority)', tab: 'formulas', query: 'អតីតភាព' },
+          { label: '💰 រូបមន្តប្រាក់ខែ (Daily/Hourly)', tab: 'formulas', query: '' },
+          { label: '🧮 ម៉ាស៊ីនគណនាផ្ទាល់ (Simulator)', tab: 'simulator', query: '' },
+          { label: '⏱️ ថែមម៉ោង OT (150% - 200%)', tab: 'formulas', query: 'OT' },
+          { label: '⚖️ ច្បាប់ការងារ & ប.ស.ស', tab: 'law', query: 'ច្បាប់' },
+        ].map((item, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => {
+              setSubTab(item.tab as any);
+              setSearchQuery(item.query);
+            }}
+            style={{
+              padding: '4px 10px',
+              borderRadius: '16px',
+              border: '1px solid #cbd5e1',
+              backgroundColor: (searchQuery === item.query && subTab === item.tab) || (item.query === 'អតីតភាព' && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority'))) ? '#eff6ff' : 'var(--surface-color, #ffffff)',
+              borderColor: (searchQuery === item.query && subTab === item.tab) || (item.query === 'អតីតភាព' && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority'))) ? '#3b82f6' : 'var(--border-color, #cbd5e1)',
+              color: (searchQuery === item.query && subTab === item.tab) || (item.query === 'អតីតភាព' && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority'))) ? '#1d4ed8' : 'var(--text-color, #475569)',
+              fontSize: '0.76rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Active Search Highlights Notice */}
+      {searchQuery && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority')) && (
+        <div style={{ padding: '10px 16px', borderRadius: '8px', backgroundColor: '#eff6ff', border: '1px solid #93c5fd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '0.82rem', color: '#1e40af' }}>
+          <div>
+            ✨ រកឃើញព័ត៌មាន <strong>ប្រាក់អតីតភាពការងារ និងប្រាក់បំណាច់អតីតភាព</strong> ៖ (១) រូបមន្តគណនាលម្អិតក្នុងផ្ទាំង «រូបមន្តគណនាប្រាក់ខែ» (២) សាកល្បងគណនាក្នុង «ម៉ាស៊ីនសាកល្បងគណនាផ្ទាល់» និង (៣) មាត្រា ៨៩ ថ្មី ក្នុង «យោងច្បាប់ការងារ»។
+          </div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              type="button"
+              onClick={() => setSubTab('formulas')}
+              style={{ padding: '3px 8px', borderRadius: '6px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontSize: '0.74rem', cursor: 'pointer', fontWeight: 600 }}
+            >
+              មើលរូបមន្ត
+            </button>
+            <button
+              type="button"
+              onClick={() => setSubTab('simulator')}
+              style={{ padding: '3px 8px', borderRadius: '6px', backgroundColor: '#059669', color: '#ffffff', border: 'none', fontSize: '0.74rem', cursor: 'pointer', fontWeight: 600 }}
+            >
+              សាកល្បងគណនា
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* TAB 1: FORMULAS & CALCULATION MANUAL                                      */}
@@ -508,6 +598,17 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 </p>
               </div>
 
+              {/* Monthly Seniority Allowance Card */}
+              <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <strong className="kh-text" style={{ color: '#166534' }}>🎖️ ប្រាក់អតីតភាព (Seniority Allowance)</strong>
+                  <span style={{ fontWeight: 800, color: '#15803d', fontSize: '0.85rem' }}>$2.00 - $11.00 / ខែ</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d' }}>
+                  ផ្តល់ជូន <strong>$2.00</strong> នៅពេលធ្វើការពេញ ១ ឆ្នាំ និងកើន <strong>$1.00</strong> ក្នុង ១ ឆ្នាំបន្ថែម រហូតដល់ <strong>$11.00/ខែ</strong> (ឆ្នាំទី១០ ឡើងទៅ)។
+                </p>
+              </div>
+
               {/* Severance 5% FDC */}
               <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
@@ -521,10 +622,258 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
             </div>
           </div>
 
-          {/* Group 4: Deductions, NSSF & Currency Payout Splitting */}
+          {/* Group 4: Seniority Calculations SOP */}
+          <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1.5px solid #3b82f6', backgroundColor: '#ffffff', boxShadow: '0 4px 16px rgba(37, 99, 235, 0.06)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h2 className="kh-text" style={{ margin: 0, fontSize: '1.25rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>4️⃣</span> របៀបគណនាប្រាក់អតីតភាពការងារ និងប្រាក់បំណាច់អតីតភាព (Seniority Calculations Hub)
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
+                  សេចក្តីណែនាំលម្អិតអំពីរូបមន្តគណនាប្រាក់អតីតភាពប្រចាំខែ និងប្រាក់បំណាច់អតីតភាពការងារ ស្របតាមមាត្រា ៨៩ ថ្មី នៃច្បាប់ការងារ និងប្រកាស ៤៤២/១៨ &amp; ៤២៣/១៩
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <span style={{ fontSize: '0.76rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
+                  មាត្រា ៨៩ ថ្មី នៃច្បាប់ការងារ
+                </span>
+                <span style={{ fontSize: '0.76rem', backgroundColor: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '20px', fontWeight: 700 }}>
+                  ប្រកាស ៤៤២/១៨ &amp; ៤២៣/១៩
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Context Summary Banner */}
+            <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', marginBottom: '20px', fontSize: '0.85rem', color: '#0369a1', lineHeight: 1.6 }}>
+              💡 <strong>ចំណុចគន្លឹះសំខាន់៖</strong> ក្នុងច្បាប់ការងារកម្ពុជា ប្រាក់អតីតភាពមាន ២ ប្រភេទផ្សេងគ្នាដាច់ខាត៖
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px', marginTop: '8px' }}>
+                <div style={{ backgroundColor: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e0f2fe' }}>
+                  <strong style={{ color: '#0284c7' }}>១. ប្រាក់រង្វាន់អតីតភាពការងារប្រចាំខែ (Seniority Bonus):</strong> ផ្តល់ជូនជាប្រចាំខែ ($2 ដល់ $11/ខែ) តាមចំនួនឆ្នាំបម្រើការងារ។
+                </div>
+                <div style={{ backgroundColor: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e0f2fe' }}>
+                  <strong style={{ color: '#0284c7' }}>២. ប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity):</strong> ផ្តល់ជូន ១៥ ថ្ងៃ/ឆ្នាំ សម្រាប់កិច្ចសន្យា UDC (ចែកបើក ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ)។
+                </div>
+              </div>
+            </div>
+
+            {/* PART 1: Monthly Seniority Allowance */}
+            <div style={{ marginBottom: '24px', padding: '18px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>🎖️</span> ផ្នែកទី ១៖ របៀបគណនាប្រាក់រង្វាន់អតីតភាពការងារប្រចាំខែ (Monthly Seniority Allowance)
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => handleCopy('SeniorityAllowance = Math.min(Math.floor(SeniorityYears) + 1, 11)', 'seniorityAllowance')}
+                  style={{ fontSize: '0.75rem', cursor: 'pointer', background: '#e2e8f0', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 600 }}
+                >
+                  {copiedKey === 'seniorityAllowance' ? '✓ បានចម្លងរូបមន្ត' : '📋 ចម្លងរូបមន្ត'}
+                </button>
+              </div>
+
+              <div style={{ padding: '12px 16px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px dashed #cbd5e1', fontFamily: 'monospace', fontWeight: 700, color: '#166534', fontSize: '0.94rem', marginBottom: '12px' }}>
+                ប្រាក់អតីតភាពប្រចាំខែ = Math.min(ចំនួនឆ្នាំអតីតភាព + 1, 11) ដុល្លារ (អនុវត្តចាប់ពី ១ ឆ្នាំពេញឡើងទៅ)
+              </div>
+
+              <p style={{ margin: '0 0 12px', fontSize: '0.84rem', color: '#475569', lineHeight: 1.5 }}>
+                អនុលោមតាមសេចក្តីប្រកាសរបស់ក្រសួងការងារ និងបណ្តុះបណ្តាលវិជ្ជាជីវៈ (MLVT) កម្មករនិយោជិតដែលបានបំពេញការងារចាប់ពី ១ ឆ្នាំពេញឡើងទៅ ទទួលបានប្រាក់រង្វាន់អតីតភាពការងារប្រចាំខែដូចខាងក្រោម៖
+              </p>
+
+              {/* Seniority Steps Grid Table */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+                {[
+                  { years: 'ពេញ ១ ឆ្នាំ', amt: '$2.00 / ខែ', desc: 'ឆ្នាំទី ១ ដល់ក្រោម ២ ឆ្នាំ' },
+                  { years: 'ពេញ ២ ឆ្នាំ', amt: '$3.00 / ខែ', desc: 'ឆ្នាំទី ២ ដល់ក្រោម ៣ ឆ្នាំ' },
+                  { years: 'ពេញ ៣ ឆ្នាំ', amt: '$4.00 / ខែ', desc: 'ឆ្នាំទី ៣ ដល់ក្រោម ៤ ឆ្នាំ' },
+                  { years: 'ពេញ ៤ ឆ្នាំ', amt: '$5.00 / ខែ', desc: 'ឆ្នាំទី ៤ ដល់ក្រោម ៥ ឆ្នាំ' },
+                  { years: 'ពេញ ៥ ឆ្នាំ', amt: '$6.00 / ខែ', desc: 'ឆ្នាំទី ៥ ដល់ក្រោម ៦ ឆ្នាំ' },
+                  { years: 'ពេញ ៦ ឆ្នាំ', amt: '$7.00 / ខែ', desc: 'ឆ្នាំទី ៦ ដល់ក្រោម ៧ ឆ្នាំ' },
+                  { years: 'ពេញ ៧ ឆ្នាំ', amt: '$8.00 / ខែ', desc: 'ឆ្នាំទី ៧ ដល់ក្រោម ៨ ឆ្នាំ' },
+                  { years: 'ពេញ ៨ ឆ្នាំ', amt: '$9.00 / ខែ', desc: 'ឆ្នាំទី ៨ ដល់ក្រោម ៩ ឆ្នាំ' },
+                  { years: 'ពេញ ៩ ឆ្នាំ', amt: '$10.00 / ខែ', desc: 'ឆ្នាំទី ៩ ដល់ក្រោម ១០ ឆ្នាំ' },
+                  { years: 'ចាប់ពី ១០ ឆ្នាំ+', amt: '$11.00 / ខែ', desc: 'ពិដានអតិបរមា (Max Cap)' },
+                ].map((item, idx) => (
+                  <div key={idx} style={{ backgroundColor: '#ffffff', padding: '10px', borderRadius: '8px', border: idx === 9 ? '1.5px solid #16a34a' : '1px solid #e2e8f0', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>{item.years}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 800, color: idx === 9 ? '#15803d' : '#0f172a', margin: '2px 0' }}>{item.amt}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{item.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ padding: '8px 12px', borderRadius: '6px', backgroundColor: '#f1f5f9', fontSize: '0.8rem', color: '#475569' }}>
+                📌 <strong>ឧទាហរណ៍ជាក់ស្តែង៖</strong> បុគ្គលិកចូលធ្វើការនៅថ្ងៃ <strong>01/01/2023</strong> គិតត្រឹមខែ <strong>01/2026</strong> មានអតីតភាពការងារចំនួន <strong>៣ ឆ្នាំពេញ</strong> ➔ ទទួលបានប្រាក់រង្វាន់អតីតភាព <strong>$4.00 ក្នុងមួយខែ</strong> បូកបញ្ចូលក្នុងតារាងប្រាក់ខែសរុប (Total Salary)។
+              </div>
+            </div>
+
+            {/* PART 2: Seniority Indemnity for UDC (15 days/year) */}
+            <div style={{ marginBottom: '24px', padding: '18px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>⚖️</span> ផ្នែកទី ២៖ របៀបគណនាប្រាក់បំណាច់អតីតភាពការងារ ១៥ ថ្ងៃ/ឆ្នាំ (Seniority Indemnity - UDC)
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => handleCopy('SeniorityIndemnity = DailyRate * 7.5', 'seniorityIndemnity')}
+                  style={{ fontSize: '0.75rem', cursor: 'pointer', background: '#e2e8f0', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 600 }}
+                >
+                  {copiedKey === 'seniorityIndemnity' ? '✓ បានចម្លងរូបមន្ត' : '📋 ចម្លងរូបមន្ត'}
+                </button>
+              </div>
+
+              <p style={{ margin: '0 0 12px', fontSize: '0.84rem', color: '#475569', lineHeight: 1.5 }}>
+                ស្របតាម <strong>មាត្រា ៨៩ ថ្មី នៃច្បាប់ស្តីពីការងារ</strong> និង <strong>ប្រកាសលេខ ៤៤២/១៨ ក.ប/ប្រ.ក</strong> កម្មករនិយោជិតដែលមាន <strong>កិច្ចសន្យាការងារមិនកំណត់ថិរវេលា (UDC)</strong> ត្រូវទទួលបានប្រាក់បំណាច់អតីតភាពការងារចំនួន <strong>១៥ ថ្ងៃក្នុងមួយឆ្នាំ</strong> នៃប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំជាមធ្យម ដោយបែងចែកបើកជា ២ លើក៖
+              </p>
+
+              {/* Semi-annual Payout Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+                {/* June Payout */}
+                <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#ffffff', border: '1.5px solid #93c5fd' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <strong className="kh-text" style={{ color: '#1d4ed8', fontSize: '0.92rem' }}>☀️ លើកទី ១៖ បើកក្នុងខែមិថុនា (June Payout)</strong>
+                    <span style={{ fontSize: '0.75rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>៧.៥ ថ្ងៃ</span>
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.5 }}>
+                    • <strong>រយៈពេលគិតគូរ៖</strong> ពីខែមករា ដល់ ខែមិថុនា (ឆមាសទី ១)<br />
+                    • <strong>ចំនួនទឹកប្រាក់៖</strong> ស្មើនឹង <strong>៧.៥ ថ្ងៃ</strong> នៃប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំជាមធ្យម<br />
+                    • <strong>កាលបរិច្ឆេទបើក៖</strong> ជាមួយប្រាក់ឈ្នួលនៃខែមិថុនា
+                  </div>
+                </div>
+
+                {/* December Payout */}
+                <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#ffffff', border: '1.5px solid #93c5fd' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <strong className="kh-text" style={{ color: '#1d4ed8', fontSize: '0.92rem' }}>❄️ លើកទី ២៖ បើកក្នុងខែធ្នូ (December Payout)</strong>
+                    <span style={{ fontSize: '0.75rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>៧.៥ ថ្ងៃ</span>
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.5 }}>
+                    • <strong>រយៈពេលគិតគូរ៖</strong> ពីខែកក្កដា ដល់ ខែធ្នូ (ឆមាសទី ២)<br />
+                    • <strong>ចំនួនទឹកប្រាក់៖</strong> ស្មើនឹង <strong>៧.៥ ថ្ងៃ</strong> នៃប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំជាមធ្យម<br />
+                    • <strong>កាលបរិច្ឆេទបើក៖</strong> ជាមួយប្រាក់ឈ្នួលនៃខែធ្នូ
+                  </div>
+                </div>
+              </div>
+
+              {/* Exact Calculation Formulas */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
+                    ជំហានទី ១៖ គណនាប្រាក់ឈ្នួលមធ្យមក្នុង ១ ថ្ងៃ (Average Daily Rate)
+                  </span>
+                  <code style={{ display: 'block', backgroundColor: '#f8fafc', padding: '8px', borderRadius: '6px', fontSize: '0.82rem', color: '#2563eb', fontWeight: 700 }}>
+                    Daily Rate = ប្រាក់ឈ្នួលសរុប ៦ ខែចុងក្រោយ ÷ (២៦ ថ្ងៃ × ៦ ខែ)
+                  </code>
+                </div>
+
+                <div style={{ padding: '12px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
+                    ជំហានទី ២៖ គណនាប្រាក់បំណាច់អតីតភាពក្នុងឆមាស (Semi-Annual Payout)
+                  </span>
+                  <code style={{ display: 'block', backgroundColor: '#f8fafc', padding: '8px', borderRadius: '6px', fontSize: '0.82rem', color: '#059669', fontWeight: 700 }}>
+                    Seniority Indemnity = Daily Rate × 7.5 ថ្ងៃ
+                  </code>
+                </div>
+              </div>
+
+              {/* Practical Calculation Example */}
+              <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', fontSize: '0.82rem', color: '#1e40af', lineHeight: 1.6 }}>
+                <strong>💡 ឧទាហរណ៍គណនាក្នុងខែមិថុនា ឬខែធ្នូ៖</strong><br />
+                • បុគ្គលិកមានប្រាក់ខែគោល = <strong>$260.00</strong> (Daily Rate = $260 ÷ 26 = <strong>$10.00 / ថ្ងៃ</strong>)<br />
+                • ប្រាក់បំណាច់អតីតភាពបើកក្នុងខែមិថុនា = $10.00 × 7.5 ថ្ងៃ = <strong>$75.00</strong><br />
+                • ប្រាក់បំណាច់អតីតភាពបើកក្នុងខែធ្នូ = $10.00 × 7.5 ថ្ងៃ = <strong>$75.00</strong><br />
+                • សរុបប្រាក់បំណាច់អតីតភាពការងារក្នុងមួយឆ្នាំពេញ = $75.00 + $75.00 = <strong>$150.00 (ស្មើ ១៥ ថ្ងៃពេញ)</strong>
+              </div>
+
+              {/* Eligibility Condition */}
+              <div style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '6px', backgroundColor: '#fef3c7', border: '1px solid #fde68a', fontSize: '0.78rem', color: '#92400e' }}>
+                ⚠️ <strong>លក្ខខណ្ឌសិទ្ធិទទួលបានក្នុងឆមាសនីមួយៗ (Prakas 442/18)៖</strong><br />
+                - បុគ្គលិកដែលបានបំពេញការងារចាប់ពី <strong>១ ខែ ដល់ ៦ ខែ</strong> និងបានបំពេញការងារជាក់ស្តែង <strong>យ៉ាងតិច ២១ ថ្ងៃ</strong> មានសិទ្ធិទទួលបានប្រាក់បំណាច់អតីតភាព ៧.៥ ថ្ងៃពេញ។<br />
+                - បុគ្គលិកដែលបំពេញការងារមិនបាន ២១ ថ្ងៃ មិនទទួលបានឡើយ។
+              </div>
+            </div>
+
+            {/* PART 3: Back-Pay Seniority Indemnity (Before 2019) */}
+            <div style={{ marginBottom: '24px', padding: '16px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <h3 className="kh-text" style={{ margin: '0 0 8px', fontSize: '1.02rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>📜</span> ផ្នែកទី ៣៖ ប្រាក់បំណាច់អតីតភាពការងារអតីតកាល មុនឆ្នាំ ២០១៩ (Back-Pay Seniority Indemnity)
+              </h3>
+              <p style={{ margin: '0 0 10px', fontSize: '0.83rem', color: '#475569', lineHeight: 1.5 }}>
+                យោងតាម <strong>ប្រកាសលេខ ៤២៣/១៩ ក.ប/ប្រ.ក</strong> ស្តីពីការទូទាត់ប្រាក់បំណាច់អតីតភាពការងារអតីតកាលមុនឆ្នាំ ២០១៩ និយោជកត្រូវបន្តទូទាត់សំណងអតីតភាពការងារកន្លងមកជូនកម្មករនិយោជិត UDC រហូតដល់ចប់សព្វគ្រប់៖
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
+                <div style={{ backgroundColor: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                  <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.85rem' }}>វិស័យវាយនភណ្ឌ កាត់ដេរ និងផលិតស្បែកជើង</div>
+                  <div style={{ fontSize: '0.8rem', color: '#166534', fontWeight: 700, margin: '4px 0' }}>ទូទាត់ចំនួន ៦ ថ្ងៃ / ឆ្នាំ</div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b' }}>ចែកជា ២ លើក៖ ៣ ថ្ងៃក្នុងខែមិថុនា និង ៣ ថ្ងៃក្នុងខែធ្នូ។</div>
+                </div>
+                <div style={{ backgroundColor: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                  <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.85rem' }}>សហគ្រាស និងវិស័យផ្សេងៗទៀត</div>
+                  <div style={{ fontSize: '0.8rem', color: '#1d4ed8', fontWeight: 700, margin: '4px 0' }}>ទូទាត់ចំនួន ១៥ ថ្ងៃ / ឆ្នាំ</div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b' }}>ចែកជា ២ លើក៖ ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ។</div>
+                </div>
+              </div>
+            </div>
+
+            {/* PART 4: FDC Severance vs UDC Seniority Comparison Table */}
+            <div style={{ marginBottom: '20px', padding: '16px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <h3 className="kh-text" style={{ margin: '0 0 10px', fontSize: '1.02rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>🔄</span> ផ្នែកទី ៤៖ តារាងប្រៀបធៀបរវាង FDC (កិច្ចសន្យាមានកំណត់) និង UDC (កិច្ចសន្យាគ្មានកំណត់)
+              </h3>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', backgroundColor: '#ffffff', borderRadius: '8px', overflow: 'hidden' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#1e40af', color: '#ffffff', textAlign: 'left' }}>
+                      <th style={{ padding: '10px 12px' }}>លក្ខខណ្ឌប្រៀបធៀប</th>
+                      <th style={{ padding: '10px 12px' }}>កិច្ចសន្យា FDC (មានកំណត់ថិរវេលា)</th>
+                      <th style={{ padding: '10px 12px' }}>កិច្ចសន្យា UDC (គ្មានកំណត់ថិរវេលា)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#334155' }}>អត្ថប្រយោជន៍ច្បាប់</td>
+                      <td style={{ padding: '8px 12px', color: '#059669', fontWeight: 700 }}>ប្រាក់ដំណាច់ ៥% (Severance Pay)</td>
+                      <td style={{ padding: '8px 12px', color: '#2563eb', fontWeight: 700 }}>ប្រាក់បំណាច់អតីតភាព ១៥ ថ្ងៃ/ឆ្នាំ (Seniority Indemnity)</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#334155' }}>យោងមាត្រាច្បាប់</td>
+                      <td style={{ padding: '8px 12px' }}>មាត្រា ៧៣ នៃច្បាប់ការងារ</td>
+                      <td style={{ padding: '8px 12px' }}>មាត្រា ៨៩ ថ្មី នៃច្បាប់ការងារ &amp; ប្រកាស ៤៤២/១៨</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#334155' }}>កាលវិភាគបើកផ្តល់</td>
+                      <td style={{ padding: '8px 12px' }}>ដំណាច់កិច្ចសន្យា ឬដំណាច់ខែនីមួយៗ</td>
+                      <td style={{ padding: '8px 12px' }}>២ លើកក្នុងមួយឆ្នាំ (ខែមិថុនា និង ខែធ្នូ)</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#334155' }}>រូបមន្តគណនា</td>
+                      <td style={{ padding: '8px 12px', fontFamily: 'monospace' }}>Total Salary × 5%</td>
+                      <td style={{ padding: '8px 12px', fontFamily: 'monospace' }}>Daily Rate × 7.5 ថ្ងៃ ក្នុងមួយឆមាស</td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '8px 12px', fontWeight: 700, color: '#334155' }}>ការបញ្ចប់កិច្ចសន្យា</td>
+                      <td style={{ padding: '8px 12px' }}>ទូទាត់ប្រាក់ដំណាច់ ៥% នៃប្រាក់ឈ្នួលសរុប</td>
+                      <td style={{ padding: '8px 12px' }}>ទូទាត់ប្រាក់បំណាច់អតីតភាពនៅសល់ + សំណងជំងឺចិត្ត</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* PART 5: Offboarding Settlement */}
+            <div style={{ padding: '14px 18px', borderRadius: '10px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', fontSize: '0.82rem', color: '#991b1b', lineHeight: 1.6 }}>
+              <strong>🚪 ផ្នែកទី ៥៖ របៀបគណនាប្រាក់បំណាច់អតីតភាពពេលបញ្ចប់ការងារ (Offboarding &amp; Termination Settlement)៖</strong><br />
+              • ប្រសិនបើនិយោជកបញ្ឈប់កម្មករនិយោជិត UDC ដោយ <strong>គ្មានកំហុសធ្ងន់ធ្ងរ (No Offense / Layoff)</strong> និយោជកត្រូវទូទាត់៖<br />
+              &nbsp;&nbsp; 1. ប្រាក់បំណាច់អតីតភាពការងារដែលនៅសល់ក្នុងឆមាសបច្ចុប្បន្ន (គិតតាមចំនួនខែបំពេញការងារ)<br />
+              &nbsp;&nbsp; 2. ប្រាក់សំណងជំងឺចិត្ត (Damages Pay) ស្មើនឹងទឹកប្រាក់បំណាច់អតីតភាពការងារដែលទទួលបាន<br />
+              &nbsp;&nbsp; 3. ប្រាក់សំណងជួសការជូនដំណឹងជាមុន (Notice Indemnity) ប្រសិនបើមិនបានជូនដំណឹងតាមកំណត់ច្បាប់ (មាត្រា ៧៥)។<br />
+              • ករណីកំហុសធ្ងន់ធ្ងរ (មាត្រា ៨៣)៖ និយោជកមានសិទ្ធិបញ្ឈប់ដោយមិនបាច់ទូទាត់ប្រាក់បំណាច់អតីតភាព និងសំណងជំងឺចិត្តឡើយ។
+            </div>
+          </div>
+
+          {/* Group 5: Deductions, NSSF & Currency Payout Splitting */}
           <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
             <h2 className="kh-text" style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>4️⃣</span> ការកាត់កង, ប.ស.ស និងការបំបែកបើកជាប្រាក់ដុល្លារ/រៀល
+              <span>5️⃣</span> ការកាត់កង, ប.ស.ស និងការបំបែកបើកជាប្រាក់ដុល្លារ/រៀល
             </h2>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
@@ -745,6 +1094,30 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                   </div>
                 </div>
 
+                {/* Seniority input in Simulator */}
+                <div style={{ padding: '12px', borderRadius: '8px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '0.84rem', fontWeight: 700, color: '#1e40af' }}>
+                      🎖️ អតីតភាពការងារ (Seniority Years) :
+                    </label>
+                    <span style={{ fontSize: '0.78rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                      +{simResults.seniorityAllowance > 0 ? `$${simResults.seniorityAllowance.toFixed(2)}/ខែ` : '$0/ខែ'}
+                    </span>
+                  </div>
+                  <input
+                    type="number"
+                    value={simSeniorityYears}
+                    onChange={(e) => setSimSeniorityYears(Math.max(0, parseFloat(e.target.value) || 0))}
+                    min={0}
+                    max={25}
+                    step={1}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem', backgroundColor: '#ffffff' }}
+                  />
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                    * ពេញ ១ ឆ្នាំ = $2, ២ ឆ្នាំ = $3, ..., ១០ ឆ្នាំឡើង = $11 (ពិដានអតិបរមា)
+                  </div>
+                </div>
+
                 <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: '4px', color: '#334155' }}>
                     ប្រាក់បើកមុន / កម្ចី (Advance Deduction USD) :
@@ -758,22 +1131,34 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 </div>
 
                 {/* Toggles */}
-                <div style={{ display: 'flex', gap: '16px', marginTop: '6px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem', cursor: 'pointer', fontWeight: 600 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem', cursor: 'pointer', fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={simHasNssf}
+                        onChange={(e) => setSimHasNssf(e.target.checked)}
+                      />
+                      មានកាត ប.ស.ស (2%)
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem', cursor: 'pointer', fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={simHasFdc}
+                        onChange={(e) => setSimHasFdc(e.target.checked)}
+                      />
+                      ប្រាក់ដំណាច់ 5% (FDC)
+                    </label>
+                  </div>
+
+                  {/* Seniority Indemnity June/December Toggle */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', cursor: 'pointer', fontWeight: 700, color: '#1e40af', backgroundColor: '#e0f2fe', padding: '6px 10px', borderRadius: '6px', border: '1px dashed #7dd3fc' }}>
                     <input
                       type="checkbox"
-                      checked={simHasNssf}
-                      onChange={(e) => setSimHasNssf(e.target.checked)}
+                      checked={simIsSeniorityPayoutMonth}
+                      onChange={(e) => setSimIsSeniorityPayoutMonth(e.target.checked)}
                     />
-                    មានកាត ប.ស.ស (2%)
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem', cursor: 'pointer', fontWeight: 600 }}>
-                    <input
-                      type="checkbox"
-                      checked={simHasFdc}
-                      onChange={(e) => setSimHasFdc(e.target.checked)}
-                    />
-                    ប្រាក់ដំណាច់ 5% (FDC)
+                    🎁 ខែបើកប្រាក់បំណាច់អតីតភាព UDC (ខែមិថុនា ឬ ធ្នូ - ៧.៥ ថ្ងៃ)
                   </label>
                 </div>
               </div>
@@ -830,6 +1215,18 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                   <span style={{ color: '#475569' }}>ប្រាក់តួនាទី + ប្រាក់ជំនាញ:</span>
                   <strong>${(simResults.payScaleIncentive + simResults.adjustmentSkill).toFixed(2)}</strong>
                 </div>
+                {simResults.seniorityAllowance > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#166534' }}>+ ប្រាក់អតីតភាព ({simSeniorityYears} ឆ្នាំ):</span>
+                    <strong style={{ color: '#166534' }}>+${simResults.seniorityAllowance.toFixed(2)}</strong>
+                  </div>
+                )}
+                {simResults.seniorityIndemnity > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#eff6ff', padding: '4px 6px', borderRadius: '4px' }}>
+                    <span style={{ color: '#1d4ed8', fontWeight: 700 }}>+ ប្រាក់បំណាច់អតីតភាព UDC (៧.៥ ថ្ងៃ):</span>
+                    <strong style={{ color: '#1d4ed8' }}>+${simResults.seniorityIndemnity.toFixed(2)}</strong>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed #cbd5e1', paddingTop: '6px' }}>
                   <span style={{ color: '#0f172a', fontWeight: 700 }}>ប្រាក់ខែសរុប (Total Salary):</span>
                   <strong style={{ color: '#2563eb' }}>${simResults.totalSalary.toFixed(2)}</strong>
@@ -937,7 +1334,7 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.82rem', color: '#64748b', lineHeight: 1.6 }}>
                     <li><strong>កិច្ចសន្យាសាកល្បង (Probation):</strong> កំណត់ពី ១ ដល់ ៣ ខែ ទៅតាមមុខតំណែងជំនាញ និងធម្មតារបស់បុគ្គលិក។</li>
                     <li><strong>កិច្ចសន្យា FDC (មានកំណត់ថិរវេលា):</strong> មានសិទ្ធិទទួលបានប្រាក់ដំណាច់ ៥% (Severance Pay) រៀងរាល់ដំណាច់កិច្ចសន្យា ឬដំណាច់ខែ។</li>
-                    <li><strong>កិច្ចសន្យា UDC (គ្មានកំណត់ថិរវេលា):</strong> ទទួលបានប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) ១៥ ថ្ងៃក្នុងមួយឆ្នាំ (បើក ២ ដង/ឆ្នាំ)។</li>
+                    <li><strong>កិច្ចសន្យា UDC (គ្មានកំណត់ថិរវេលា):</strong> ទទួលបានប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) ១៥ ថ្ងៃក្នុងមួយឆ្នាំ (បើក ២ លើក៖ ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ) ស្របតាមមាត្រា ៨៩ ថ្មី និងប្រកាស ៤៤២/១៨។</li>
                   </ul>
                 </div>
               </div>
@@ -975,7 +1372,7 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                   </p>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.82rem', color: '#64748b', lineHeight: 1.6 }}>
                     <li><strong>ការជូនដំណឹងជាមុន (Notice Period):</strong> ស្របតាមមាត្រា ៧៥ នៃច្បាប់ការងារ (៧ ថ្ងៃ ដល់ ៣ ខែ តាមអតីតភាព)។</li>
-                    <li><strong>គណនាប្រាក់ខែចុងក្រោយ៖</strong> គិតតាមចំនួនថ្ងៃធ្វើការជាក់ស្តែង + ប្រាក់ថែមម៉ោង + ប្រាក់ដំណាច់ ៥% (បើរជា FDC) + ប្រាក់បំណាច់ថ្ងៃច្បាប់ប្រចាំឆ្នាំដែលនៅសល់ (Annual Leave Compensation)។</li>
+                    <li><strong>គណនាប្រាក់ខែចុងក្រោយ៖</strong> គិតតាមចំនួនថ្ងៃធ្វើការជាក់ស្តែង + ប្រាក់ថែមម៉ោង + ប្រាក់ដំណាច់ ៥% (បើជា FDC) + ប្រាក់បំណាច់ថ្ងៃច្បាប់ប្រចាំឆ្នាំដែលនៅសល់ (Annual Leave Compensation) + ប្រាក់បំណាច់អតីតភាពដែលនៅសល់ក្នុងឆមាស និងប្រាក់សំណងជំងឺចិត្ត (បើជា UDC បញ្ឈប់ដោយគ្មានកំហុសធ្ងន់ធ្ងរ)។</li>
                     <li><strong>កាត់កងបំណុល/ប្រាក់ខ្ចី៖</strong> ដកប្រាក់បុរេប្រទាន ឬកម្ចីដែលនៅជំពាក់ទាំងអស់ចេញពីប្រាក់ដំណាច់។</li>
                   </ul>
                 </div>
@@ -1165,6 +1562,24 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 <strong style={{ color: '#0f172a', fontSize: '0.92rem' }}>ច្បាប់ស្តីពីរបបសន្តិសុខសង្គម (ប.ស.ស - NSSF Law)</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
                   កំណត់កាតព្វកិច្ចចុះបញ្ជី និងបង់ភាគទានរបបសន្តិសុខសង្គមផ្នែកថែទាំសុខភាព ហានិភ័យការងារ និងរបបសោធន (២% ភាគីនិយោជិត និង ២% ភាគីនិយោជក) ក្រោមពិដានកំណត់អតិបរមា $300 ($6.00/ខែ)។
+                </p>
+              </div>
+
+              <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#eff6ff', border: '1.5px solid #93c5fd' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '6px' }}>
+                  <strong style={{ color: '#1e40af', fontSize: '0.94rem' }}>មាត្រា ៨៩ ថ្មី នៃច្បាប់ស្តីពីការងារ និងប្រកាសលេខ ៤៤២/១៨ &amp; ៤២៣/១៩ (ប្រាក់បំណាច់អតីតភាព)</strong>
+                  <span style={{ fontSize: '0.74rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>MLVT Standards</span>
+                </div>
+                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#334155', lineHeight: 1.6 }}>
+                  • <strong>ប្រាក់បំណាច់អតីតភាពការងារថ្មី (Seniority Indemnity)៖</strong> និយោជកត្រូវផ្តល់ជូនកម្មករនិយោជិតដែលមានកិច្ចសន្យា UDC ចំនួន <strong>១៥ ថ្ងៃក្នុងមួយឆ្នាំ</strong> (ចែកជា ២ លើក៖ ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ) គិតលើប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំជាមធ្យម។<br />
+                  • <strong>ប្រាក់បំណាច់អតីតភាពការងារអតីតកាល មុនឆ្នាំ ២០១៩ (Back-Pay)៖</strong> ទូទាត់ ៦ ថ្ងៃក្នុងមួយឆ្នាំ (៣ ថ្ងៃខែមិថុនា និង ៣ ថ្ងៃខែធ្នូ) សម្រាប់វិស័យកាត់ដេរ និង ១៥ ថ្ងៃ/ឆ្នាំ សម្រាប់វិស័យផ្សេងៗ រហូតដល់ទូទាត់ចប់សព្វគ្រប់។
+                </p>
+              </div>
+
+              <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+                <strong style={{ color: '#166534', fontSize: '0.92rem' }}>សេចក្តីប្រកាសស្តីពីប្រាក់រង្វាន់អតីតភាពការងារប្រចាំខែ (Seniority Bonus $2 - $11/ខែ)</strong>
+                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#334155', lineHeight: 1.5 }}>
+                  ផ្តល់ជូនកម្មករនិយោជិតដែលមានអតីតភាពការងារចាប់ពី ១ ឆ្នាំឡើងទៅ ចាប់ពី $2.00 ក្នុងមួយខែ និងកើនឡើង $1.00 ក្នុងរៀងរាល់ ១ ឆ្នាំបន្ថែម រហូតដល់អតិបរមា $11.00 ក្នុងមួយខែ (ចាប់ពី ១០ ឆ្នាំឡើងទៅ)។
                 </p>
               </div>
 

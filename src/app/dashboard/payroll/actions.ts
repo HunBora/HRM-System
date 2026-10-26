@@ -205,8 +205,25 @@ export async function generatePayroll(month: number, year: number) {
         const adjustmentSkill = emp.skillAllowance1 || 0; // Connect to employee skill allowance
         const annualLeaveAmount = 0;
         const dayCareAllowance = 0;
-        const seniority = 0;
-        const seniorityIndemnity = 0;
+        // Seniority Allowance ($2 - $11/mo): based on full years from hireDate (Cambodian Labor Standard)
+        let seniority = 0;
+        if (emp.hireDate) {
+          const hire = new Date(emp.hireDate);
+          const targetDate = new Date(year, month - 1, 1);
+          const diffMonths = (targetDate.getFullYear() - hire.getFullYear()) * 12 + (targetDate.getMonth() - hire.getMonth());
+          const fullYears = Math.floor(diffMonths / 12);
+          if (fullYears >= 1) {
+            seniority = Math.min(fullYears + 1, 11); // 1yr=$2, 2yr=$3, ..., 10+yr=$11
+          }
+        }
+
+        // Seniority Indemnity (UDC 15 days/year: 7.5 days in June [month 6] and December [month 12] - New Article 89 & Prakas 442/18)
+        let seniorityIndemnity = 0;
+        const isSeniorityMonth = month === 6 || month === 12;
+        const isUdc = !emp.regularContract1;
+        if (isSeniorityMonth && isUdc && workingDays >= 21) {
+          seniorityIndemnity = dailyRate * 7.5;
+        }
         const productionIncentive = 0;
         const otherAllowance = 0;
         const otherAllowanceDesc = '';

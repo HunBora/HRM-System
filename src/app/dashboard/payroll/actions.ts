@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
+import { calculateNssf } from '@/lib/nssf';
 
 export async function generatePayroll(month: number, year: number) {
   try {
@@ -255,14 +256,17 @@ export async function generatePayroll(month: number, year: number) {
         
         const totalAdvance = advances.reduce((sum, adv) => sum + adv.amount, 0);
 
-        // NSSF Calculation: 2% of contributory wage (max capped at $300 = $6.00 deduction) if registered
-        const nssf = emp.nssfNo && basicSalary > 0 ? Math.min(basicSalary, 300) * 0.02 : 0; 
+        const exchangeRate = defaultExchangeRate;
+
+        // NSSF Contribution: 2% of contributory wage based on Cambodian Law
+        // - Prior to Nov 2026: Min 400,000 KHR ($100), Ceiling 1,200,000 KHR ($300) -> Max $6.00
+        // - From Nov 2026 onwards (Prakas 234/26 & Notice 3134/26): Min 600,000 KHR ($150), Ceiling 1,500,000 KHR ($375) -> Max $7.50
+        const nssf = calculateNssf(basicSalary, !!emp.nssfNo, month, year, exchangeRate);
         const taxPayment = 0; 
         const unionDeduction = 0;
         const loanPension = totalAdvance;
         
         const netSalaryUsd = totalSalary + severancePay - loanPension - nssf - taxPayment - unionDeduction;
-        const exchangeRate = defaultExchangeRate;
         
         // Auto-calculate Paid USD and Riel based on Factory Logic
         let paidSalaryUsd = 0;
@@ -464,8 +468,11 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
 
       const severancePay = r2(totalSalary * 0.05);
 
+      // Re-calculate NSSF according to statutory floor & ceiling for this month/year
+      const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate);
+
       const netSalaryUsd = r2(
-        totalSalary + severancePay - (p.loanPension || 0) - (p.nssf || 0) - (p.taxPayment || 0) - (p.unionDeduction || 0)
+        totalSalary + severancePay - (p.loanPension || 0) - nssf - (p.taxPayment || 0) - (p.unionDeduction || 0)
       );
 
       // Currency split
@@ -492,6 +499,7 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
           dayCareAllowance,
           totalSalary,
           severancePay,
+          nssf,
           netSalaryUsd,
           paidSalaryUsd,
           netSalaryRiel,
@@ -504,6 +512,70 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
     return { success: true, count: draftPayrolls.length };
   } catch (error: any) {
     console.error('Failed to recalculate draft allowances:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Recalculate NSSF and re-split currency for draft payrolls based on latest NSSF Prakas 234/26
+ */
+export async function recalculateNssfOnDrafts(month?: number, year?: number) {
+  try {
+    const settings = await prisma.companySettings.findUnique({ where: { id: 'default' } });
+    const exchangeRate = settings?.exchangeRate || 4000;
+
+    const whereClause: any = { status: 'DRAFT' };
+    if (month && year) {
+      whereClause.month = month;
+      whereClause.year = year;
+    }
+
+    const draftPayrolls = await prisma.payroll.findMany({
+      where: whereClause,
+      include: { employee: true }
+    });
+
+    const r2 = (num: number) => Math.round(num * 100) / 100;
+
+    for (const p of draftPayrolls) {
+      const emp = p.employee;
+      const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate);
+
+      const totalSalary = p.totalSalary;
+      const severancePay = p.severancePay;
+      const netSalaryUsd = r2(
+        totalSalary + severancePay - (p.loanPension || 0) - nssf - (p.taxPayment || 0) - (p.unionDeduction || 0)
+      );
+
+      let paidSalaryUsd = 0;
+      let netSalaryRiel = 0;
+      if (netSalaryUsd > 0) {
+        paidSalaryUsd = Math.floor(netSalaryUsd / 10) * 10;
+        let remainder = netSalaryUsd - paidSalaryUsd;
+        if (remainder < 7.50 && paidSalaryUsd > 0) {
+          paidSalaryUsd -= 10;
+          remainder = netSalaryUsd - paidSalaryUsd;
+        }
+        netSalaryRiel = remainder * exchangeRate;
+        netSalaryRiel = Math.floor(netSalaryRiel / 100) * 100;
+      }
+
+      await prisma.payroll.update({
+        where: { id: p.id },
+        data: {
+          nssf,
+          netSalaryUsd,
+          paidSalaryUsd,
+          netSalaryRiel,
+        }
+      });
+    }
+
+    revalidatePath('/dashboard/payroll');
+    revalidatePath('/dashboard/settings');
+    return { success: true, count: draftPayrolls.length };
+  } catch (error: any) {
+    console.error('Failed to recalculate NSSF on drafts:', error);
     return { success: false, error: error.message };
   }
 }

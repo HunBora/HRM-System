@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { calculateNssf, NSSF_CONFIG } from '@/lib/nssf';
 
 interface WorkflowManualManagerProps {
   settings?: any;
@@ -83,8 +84,9 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
 
     const severancePay = simHasFdc ? totalSalary * 0.05 : 0; // 5% FDC severance
 
-    // NSSF: 2% of contributory wage, max capped at $300 ($6.00 max)
-    const nssf = simHasNssf && simBasic > 0 ? Math.min(simBasic, 300) * 0.02 : 0;
+    // NSSF: 2% of contributory wage based on Cambodian Law (Prakas 234/26 & Notice 3134/26)
+    // Effective Nov 2026: Min 600,000 KHR ($150), Ceiling 1,500,000 KHR ($375) -> Max $7.50, Min $3.00
+    const nssf = simHasNssf && simBasic > 0 ? calculateNssf(simBasic, true, 11, 2026, exchangeRate) : 0;
     const taxPayment = 0;
     const loanPension = simAdvance || 0;
 
@@ -908,14 +910,16 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
               <div style={{ padding: '18px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1.5px solid #cbd5e1' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <strong className="kh-text" style={{ color: '#0f172a', fontSize: '0.95rem' }}>🏥 ប.ស.ស (NSSF Deduction)</strong>
-                  <span style={{ fontSize: '0.75rem', backgroundColor: '#e2e8f0', color: '#334155', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>2% នៃពិដាន</span>
+                  <span style={{ fontSize: '0.75rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>ច្បាប់ថ្មី វិច្ឆិកា ២០២៦</span>
                 </div>
-                <div style={{ padding: '8px 12px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px dashed #cbd5e1', fontFamily: 'monospace', fontWeight: 700, color: '#0369a1', fontSize: '0.9rem', marginBottom: '8px' }}>
-                  NSSF = Math.min(BasicSalary, 300) × 0.02
+                <div style={{ padding: '8px 12px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px dashed #cbd5e1', fontFamily: 'monospace', fontWeight: 700, color: '#0369a1', fontSize: '0.85rem', marginBottom: '8px' }}>
+                  NSSF = Clamp(WageKHR, 600,000, 1,500,000) × 2% ÷ Rate
                 </div>
                 <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
-                  <li>កាត់កងភាគទានសោធន <strong>២%</strong> នៃប្រាក់បៀវត្សជាប់កាតព្វកិច្ច (ពិដានអតិបរមា $300)។</li>
-                  <li>ការកាត់កងអតិបរមាក្នុងមួយខែគឺត្រឹម <strong>$6.00</strong> សម្រាប់បុគ្គលិកដែលមានកាត ប.ស.ស។</li>
+                  <li><strong>យោងប្រកាសអន្តរក្រសួងលេខ ២៣៤/២៦ &amp; លិខិតលេខ ៣១៣៤/២៦ ប.ស.ស.៖</strong> អនុវត្តចាប់ពីខែ <strong>វិច្ឆិកា ឆ្នាំ ២០២៦</strong> តទៅ។</li>
+                  <li><strong>ប្រាក់ឈ្នួលជាប់ភាគទានពិដាន (អតិបរមា)៖</strong> <strong>១ ៥០០ ០០០ ៛</strong> ($375 តាមអត្រា ៤,០០០៛) → កាត់កងអតិបរមា ២% ស្មើនឹង <strong>៣០ ០០០ ៛ ($7.50)</strong>។</li>
+                  <li><strong>ប្រាក់ឈ្នួលជាប់ភាគទានអប្បបរមា៖</strong> <strong>៦០០ ០០០ ៛</strong> ($150 តាមអត្រា ៤,០០០៛) → កាត់កងអប្បបរមា ២% ស្មើនឹង <strong>១២ ០០០ ៛ ($3.00)</strong>។</li>
+                  <li style={{ color: '#64748b', fontSize: '0.78rem', marginTop: '4px' }}><em>* សម្រាប់តារាងប្រាក់ខែមុនខែវិច្ឆិកា ឆ្នាំ២០២៦៖ ប្រព័ន្ធរក្សាពិដានចាស់ $300 (១ ២០០ ០០០៛) កាត់អតិបរមាត្រឹម $6.00។</em></li>
                 </ul>
               </div>
 
@@ -1609,10 +1613,13 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 </p>
               </div>
 
-              <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                <strong style={{ color: '#0f172a', fontSize: '0.92rem' }}>ច្បាប់ស្តីពីរបបសន្តិសុខសង្គម (ប.ស.ស - NSSF Law)</strong>
+              <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#f8fafc', border: '1.5px solid #cbd5e1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <strong style={{ color: '#0f172a', fontSize: '0.92rem' }}>ច្បាប់ស្តីពីរបបសន្តិសុខសង្គម (ប.ស.ស - NSSF Law &amp; Prakas 234/26)</strong>
+                  <span style={{ fontSize: '0.72rem', backgroundColor: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>អនុវត្ត វិច្ឆិកា ២០២៦</span>
+                </div>
                 <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
-                  កំណត់កាតព្វកិច្ចចុះបញ្ជី និងបង់ភាគទានរបបសន្តិសុខសង្គមផ្នែកថែទាំសុខភាព ហានិភ័យការងារ និងរបបសោធន (២% ភាគីនិយោជិត និង ២% ភាគីនិយោជក) ក្រោមពិដានកំណត់អតិបរមា $300 ($6.00/ខែ)។
+                  កំណត់កាតព្វកិច្ចចុះបញ្ជី និងបង់ភាគទានរបបសន្តិសុខសង្គមផ្នែកថែទាំសុខភាព ហានិភ័យការងារ និងរបបសោធន (២% ភាគីនិយោជិត និង ២% ភាគីនិយោជក)។ យោងប្រកាសអន្តរក្រសួងលេខ ២៣៤/២៦ និងសេចក្តីជូនដំណឹងលេខ ៣១៣៤/២៦ ប.ស.ស. អនុវត្តចាប់ពីខែវិច្ឆិកា ឆ្នាំ២០២៦ តទៅ៖ ប្រាក់ឈ្នួលជាប់ភាគទានអប្បបរមាកំណត់ <strong>៦០០ ០០០ ៛ ($150)</strong> និងពិដានកំណត់អតិបរមា <strong>១ ៥០០ ០០០ ៛ ($375)</strong> ដោយការកាត់កងភាគទានសោធន ២% គឺចន្លោះពី <strong>$3.00</strong> ទៅ <strong>$7.50</strong> ក្នុងមួយខែ។
                 </p>
               </div>
 

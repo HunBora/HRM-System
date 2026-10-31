@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { updatePayrollRecord } from '@/app/dashboard/payroll/actions';
+import { calculateNssf } from '@/lib/nssf';
 
 export default function PayrollEditForm({ payroll }: { payroll: any }) {
   const [loading, setLoading] = useState(false);
@@ -368,8 +369,44 @@ export default function PayrollEditForm({ payroll }: { payroll: any }) {
             <input type="number" step="0.01" name="unionDeduction" value={formData.unionDeduction} onChange={handleChange} className="input-field" style={{ margin: 0, width: '120px' }} />
           </div>
           <div style={rowStyle}>
-            <label className="kh-text">ប.ស.ស (NSSF)</label>
-            <input type="number" step="0.01" name="nssf" value={formData.nssf} onChange={handleChange} className="input-field" style={{ margin: 0, width: '120px' }} />
+            <div>
+              <label className="kh-text" style={{ display: 'block' }}>ប.ស.ស (NSSF)</label>
+              <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                {(payroll.year > 2026 || (payroll.year === 2026 && payroll.month >= 11))
+                  ? 'ច្បាប់ថ្មី (ពិដាន $375 / Max $7.50)'
+                  : 'ច្បាប់ចាស់ (ពិដាន $300 / Max $6.00)'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <input type="number" step="0.01" name="nssf" value={formData.nssf} onChange={handleChange} className="input-field" style={{ margin: 0, width: '110px' }} />
+              <button
+                type="button"
+                onClick={() => {
+                  const hasNssf = !!(payroll.employee?.nssfNo || formData.nssf > 0);
+                  const autoNssf = calculateNssf(
+                    parseFloat(formData.basicSalary) || 0,
+                    hasNssf,
+                    payroll.month || 11,
+                    payroll.year || 2026,
+                    parseFloat(formData.exchangeRate) || 4000
+                  );
+                  setFormData((prev: any) => ({ ...prev, nssf: autoNssf }));
+                }}
+                title="គណនាអូតូតាមច្បាប់ ប.ស.ស."
+                style={{
+                  padding: '5px 8px',
+                  backgroundColor: '#e0f2fe',
+                  color: '#0284c7',
+                  border: '1px solid #bae6fd',
+                  borderRadius: '4px',
+                  fontSize: '0.74rem',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                ⚡ គណនា
+              </button>
+            </div>
           </div>
 
           <div style={{ marginTop: '30px', padding: '15px', backgroundColor: 'var(--surface-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>

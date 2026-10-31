@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { updatePayrollDates } from '@/app/dashboard/payrollSettingsActions';
-import { updateExchangeRateAndRecalculate, recalculateDraftsWithNewAllowances } from '@/app/dashboard/payroll/actions';
+import { updateExchangeRateAndRecalculate, recalculateDraftsWithNewAllowances, recalculateNssfOnDrafts } from '@/app/dashboard/payroll/actions';
 import { notify } from '@/lib/notify';
+import { NSSF_CONFIG } from '@/lib/nssf';
 
 export default function PayrollSettingsManager({ initialSettings }: { initialSettings: any }) {
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
   const [isSaving, setIsSaving] = useState(false);
   const [isRecalculatingRate, setIsRecalculatingRate] = useState(false);
   const [isRecalculatingAllowances, setIsRecalculatingAllowances] = useState(false);
+  const [isRecalculatingNssf, setIsRecalculatingNssf] = useState(false);
   const [message, setMessage] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +107,35 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
       notify.error('បរាជ័យក្នុងការគណនា', err.message);
     } finally {
       setIsRecalculatingAllowances(false);
+    }
+  };
+
+  const handleRecalculateNssfDrafts = async () => {
+    const confirmed = await notify.confirm({
+      title: 'គណនាភាគទាន ប.ស.ស. ឡើងវិញលើតារាងព្រាង',
+      text: 'តើអ្នកពិតជាចង់អនុវត្តរូបមន្ត ប.ស.ស. តាមច្បាប់ថ្មី (ប្រកាសលេខ ២៣៤/២៦ និងសេចក្តីជូនដំណឹងលេខ ៣១៣៤/២៦ ប.ស.ស.) លើតារាងប្រាក់ខែព្រាងទាំងអស់មែនទេ? (ពិដានថ្មី ១ ៥០០ ០០០៛ / $375 ចាប់ពីខែ ១១/២០២៦)',
+      icon: 'question',
+      confirmButtonText: 'យល់ព្រមអនុវត្ត',
+    });
+    if (!confirmed) return;
+
+    setIsRecalculatingNssf(true);
+    setMessage('');
+    try {
+      const res = await recalculateNssfOnDrafts();
+      if (res.success) {
+        const successMsg = `ជោគជ័យ! បានគណនាភាគទាន ប.ស.ស. ឡើងវិញលើតារាងប្រាក់ខែព្រាងចំនួន ${res.count || 0} នាក់រួចរាល់។`;
+        setMessage(successMsg);
+        notify.success('បានធ្វើបច្ចុប្បន្នភាព ប.ស.ស. ដោយជោគជ័យ', successMsg);
+      } else {
+        setMessage('កំហុស៖ ' + res.error);
+        notify.error('បរាជ័យក្នុងការគណនា ប.ស.ស.', res.error);
+      }
+    } catch (err: any) {
+      setMessage('កំហុសក្នុងការគណនា ប.ស.ស.៖ ' + err.message);
+      notify.error('បរាជ័យក្នុងការគណនា', err.message);
+    } finally {
+      setIsRecalculatingNssf(false);
     }
   };
 
@@ -503,7 +534,99 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
         </div>
 
         {/* ========================================================================= */}
-        {/* 3. PAYROLL SCHEDULE DATES                                                 */}
+        {/* 3. NSSF (ប.ស.ស) STATUTORY REGULATIONS CARD                              */}
+        {/* ========================================================================= */}
+        <div style={{ backgroundColor: '#ffffff', padding: '22px', borderRadius: '14px', border: '1.5px solid #0284c7', boxShadow: '0 4px 16px rgba(2, 132, 199, 0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
+            <h3 style={{ margin: 0, color: '#0369a1', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>🏥</span> បទប្បញ្ញត្តិរបបសន្តិសុខសង្គម ប.ស.ស. (NSSF Law - Prakas 234/26)
+            </h3>
+            <span style={{ fontSize: '0.78rem', backgroundColor: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '20px', fontWeight: 700, border: '1px solid #bae6fd' }}>
+              អនុវត្តចាប់ពីខែ វិច្ឆិកា ឆ្នាំ ២០២៦ តទៅ
+            </span>
+          </div>
+
+          <p style={{ fontSize: '0.84rem', color: '#475569', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+            អនុលោមតាម<strong>ប្រកាសអន្តរក្រសួងលេខ ២៣៤/២៦ ក.ប/ប្រ.ក.ប.ស.ស</strong> និង<strong>សេចក្តីជូនដំណឹងលេខ ៣១៣៤/២៦ ប.ស.ស.</strong> ចុះថ្ងៃទី ២៨ ខែតុលា ឆ្នាំ២០២៦ ស្តីពីការកែសម្រួលកម្រិតអប្បបរមានិងពិដាននៃប្រាក់ឈ្នួលជាប់ភាគទាន។
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+            {/* Box 1: Minimum Contributory Wage */}
+            <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#f0f9ff', border: '1px solid #bae6fd' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#0369a1', marginBottom: '4px' }}>
+                ប្រាក់ឈ្នួលជាប់ភាគទានអប្បបរមា
+              </div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0284c7' }}>
+                ៦០០ ០០០ ៛ <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>(${(600000 / formData.exchangeRate).toFixed(2)})</span>
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#64748b', marginTop: '4px' }}>
+                ភាគទានអប្បបរមា ២% ស្មើនឹង <strong>១២ ០០០ ៛ ($3.00)</strong>
+              </div>
+            </div>
+
+            {/* Box 2: Maximum Ceiling */}
+            <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#15803d', marginBottom: '4px' }}>
+                ប្រាក់ឈ្នួលជាប់ភាគទានពិដាន (អតិបរមា)
+              </div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#16a34a' }}>
+                ១ ៥០០ ០០០ ៛ <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>(${(1500000 / formData.exchangeRate).toFixed(2)})</span>
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#64748b', marginTop: '4px' }}>
+                ភាគទានអតិបរមា ២% ស្មើនឹង <strong>៣០ ០០០ ៛ ($7.50)</strong>
+              </div>
+            </div>
+
+            {/* Box 3: Rate Breakdown */}
+            <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#fdf4ff', border: '1px solid #f5d0fe' }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#86198f', marginBottom: '4px' }}>
+                អត្រាភាគទានសោធន (Pension Scheme)
+              </div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#a21caf' }}>
+                ២% <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#64748b' }}>(កាត់កងពីប្រាក់ខែ)</span>
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#64748b', marginTop: '4px' }}>
+                និយោជកបង់ ២% បន្ថែម (សរុប ៤% ចូល ប.ស.ស.)
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding: '12px 16px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1', fontSize: '0.82rem', color: '#334155', lineHeight: 1.6, marginBottom: '14px' }}>
+            💡 <strong>ប្រព័ន្ធដំណើរការដោយស្វ័យប្រវត្តិ៖</strong>
+            <ul style={{ margin: '4px 0 0', paddingLeft: '18px' }}>
+              <li><strong>ខែវិច្ឆិកា ឆ្នាំ២០២៦ តទៅ៖</strong> គណនាក្នុងចន្លោះពី ៦០០ ០០០៛ ($150) ដល់ពិដាន ១ ៥០០ ០០០៛ ($375) ដោយកាត់ចន្លោះពី $3.00 ដល់ $7.50។</li>
+              <li><strong>មុនខែវិច្ឆិកា ឆ្នាំ២០២៦៖</strong> រក្សាពិដានចាស់ ត្រឹម $300 (កាត់អតិបរមា $6.00) មិនប៉ះពាល់ដល់ទិន្នន័យប្រវត្តិសាស្ត្រចាស់ៗឡើយ។</li>
+            </ul>
+          </div>
+
+          <div>
+            <button
+              type="button"
+              disabled={isRecalculatingNssf}
+              onClick={handleRecalculateNssfDrafts}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: '#0284c7',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                cursor: isRecalculatingNssf ? 'not-allowed' : 'pointer',
+                opacity: isRecalculatingNssf ? 0.7 : 1,
+                boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
+              }}
+            >
+              <span>{isRecalculatingNssf ? 'កំពុងគណនា ប.ស.ស...' : '🔄 អនុវត្តរូបមន្ត ប.ស.ស ថ្មីលើតារាងព្រាង (Apply NSSF to Drafts)'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 4. PAYROLL SCHEDULE DATES                                                 */}
         {/* ========================================================================= */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
           <div style={{ backgroundColor: '#f8fafc', padding: '18px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>

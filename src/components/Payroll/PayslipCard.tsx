@@ -28,7 +28,12 @@ export default function PayslipCard({
 
   const joinDate = emp.hireDate ? new Date(emp.hireDate).toLocaleDateString('en-GB') : '-';
 
-  // Overtime Breakdown
+  // Overtime Hours & Wage Breakdown
+  const regularOtHours = Number((payroll.otHours || 0).toFixed(2));
+  const sunOtHours = Number((payroll.sunOtHours || 0).toFixed(2));
+  const nightOtHours = Number((payroll.nightOtHours || 0).toFixed(2));
+  const totalOtHours = Number((regularOtHours + sunOtHours + nightOtHours).toFixed(2));
+
   const regularOt = payroll.otWage || 0;
   const sunOt = payroll.sunOtWage || 0;
   const nightOt = payroll.nightOtWage || 0;
@@ -199,10 +204,45 @@ export default function PayslipCard({
             <span>ប្រាក់ខែគោល (Basic Salary)</span>
             <strong>${payroll.basicSalary.toFixed(2)}</strong>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-            <span>ប្រាក់ថែមម៉ោង (OT)</span>
-            <span>${totalOt.toFixed(2)}</span>
-          </div>
+          {/* Overtime with Total Hours & Distinct Breakdown */}
+          {(totalOt > 0 || totalOtHours > 0) ? (
+            <div style={{ marginBottom: compact ? '2px' : '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
+                <span className="kh-text">ប្រាក់ថែមម៉ោងសរុប (Total OT: {totalOtHours} ម៉ោង)</span>
+                <strong>${totalOt.toFixed(2)}</strong>
+              </div>
+              <div
+                style={{
+                  paddingLeft: compact ? '8px' : '10px',
+                  margin: compact ? '1px 0 2px 4px' : '2px 0 3px 6px',
+                  borderLeft: '2px solid #cbd5e1',
+                  fontSize: compact ? '0.72rem' : '0.8rem',
+                  color: '#475569',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>• ថែមម៉ោងធម្មតា (Normal 1.5x: {regularOtHours} ម៉ោង)</span>
+                  <span>${regularOt.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>• ថែមម៉ោងបុណ្យជាតិ/អាទិត្យ (Sun/Hol 2.0x: {sunOtHours} ម៉ោង)</span>
+                  <span>${sunOt.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>• ថែមម៉ោងវេនយប់ (Night 2.0x: {nightOtHours} ម៉ោង)</span>
+                  <span>${nightOt.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+              <span className="kh-text">ប្រាក់ថែមម៉ោង (OT: 0 ម៉ោង)</span>
+              <span>$0.00</span>
+            </div>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
             <span>ប្រាក់រង្វាន់ (Bonus)</span>
             <span>${bonus.toFixed(2)}</span>

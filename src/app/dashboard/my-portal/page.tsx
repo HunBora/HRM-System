@@ -131,6 +131,13 @@ export default async function MyPortalPage({
       year: p.year,
       basicSalary: p.basicSalary || 0,
       otPay: (p.otWage || 0) + (p.sunOtWage || 0) + (p.nightOtWage || 0),
+      otHours: p.otHours || 0,
+      otWage: p.otWage || 0,
+      sunOtHours: p.sunOtHours || 0,
+      sunOtWage: p.sunOtWage || 0,
+      nightOtHours: p.nightOtHours || 0,
+      nightOtWage: p.nightOtWage || 0,
+      totalOtHours: Number(((p.otHours || 0) + (p.sunOtHours || 0) + (p.nightOtHours || 0)).toFixed(2)),
       bonus: p.attendanceBonus || 0,
       allowances:
         (p.lunchAllowance || 0) +

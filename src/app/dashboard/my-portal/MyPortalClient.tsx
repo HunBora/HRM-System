@@ -27,6 +27,13 @@ interface PayrollRecord {
   year: number;
   basicSalary: number;
   otPay: number;
+  otHours?: number;
+  otWage?: number;
+  sunOtHours?: number;
+  sunOtWage?: number;
+  nightOtHours?: number;
+  nightOtWage?: number;
+  totalOtHours?: number;
   bonus: number;
   allowances: number;
   deductions: number;
@@ -1100,10 +1107,36 @@ export default function MyPortalClient({
                   <span style={{ color: '#334155' }}>ប្រាក់ខែមូលដ្ឋាន (Basic Salary):</span>
                   <strong>${selectedPayroll.basicSalary.toFixed(2)}</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                  <span style={{ color: '#16a34a' }}>ប្រាក់ថែមម៉ោង (Overtime Pay):</span>
-                  <strong style={{ color: '#16a34a' }}>+${(selectedPayroll.otPay || 0).toFixed(2)}</strong>
-                </div>
+                {/* Overtime with breakdown */}
+                {((selectedPayroll.otPay || 0) > 0 || (selectedPayroll.totalOtHours || 0) > 0) ? (
+                  <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#16a34a', fontWeight: 600 }}>
+                        ប្រាក់ថែមម៉ោងសរុប (Total OT: {selectedPayroll.totalOtHours || 0} ម៉ោង):
+                      </span>
+                      <strong style={{ color: '#16a34a' }}>+${(selectedPayroll.otPay || 0).toFixed(2)}</strong>
+                    </div>
+                    <div style={{ paddingLeft: '8px', margin: '3px 0 1px 4px', borderLeft: '2px solid #cbd5e1', fontSize: '0.78rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>• ធម្មតា (Normal 1.5x: {selectedPayroll.otHours || 0} ម៉ោង)</span>
+                        <span>${(selectedPayroll.otWage || 0).toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>• បុណ្យជាតិ/អាទិត្យ (Sun/Hol 2.0x: {selectedPayroll.sunOtHours || 0} ម៉ោង)</span>
+                        <span>${(selectedPayroll.sunOtWage || 0).toFixed(2)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>• វេនយប់ (Night 2.0x: {selectedPayroll.nightOtHours || 0} ម៉ោង)</span>
+                        <span>${(selectedPayroll.nightOtWage || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                    <span style={{ color: '#64748b' }}>ប្រាក់ថែមម៉ោង (OT: 0 ម៉ោង):</span>
+                    <span>$0.00</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
                   <span style={{ color: '#16a34a' }}>ប្រាក់ឧបត្ថម្ភ & ប្រាក់រង្វាន់ (Allowances):</span>
                   <strong style={{ color: '#16a34a' }}>+${((selectedPayroll.allowances || 0) + (selectedPayroll.bonus || 0)).toFixed(2)}</strong>

@@ -22,6 +22,20 @@ export async function sendPayslipToTelegram(payrollId: string) {
     const m = payroll.month.toString().padStart(2, '0');
     const y = payroll.year;
 
+    // Overtime Breakdown
+    const regOtH = Number((payroll.otHours || 0).toFixed(2));
+    const sunOtH = Number((payroll.sunOtHours || 0).toFixed(2));
+    const nightOtH = Number((payroll.nightOtHours || 0).toFixed(2));
+    const totalOtH = Number((regOtH + sunOtH + nightOtH).toFixed(2));
+    const totalOtW = (payroll.otWage || 0) + (payroll.sunOtWage || 0) + (payroll.nightOtWage || 0);
+
+    const otText = (totalOtW > 0 || totalOtH > 0)
+      ? `• <b>ប្រាក់ថែមម៉ោងសរុប (Total OT: ${totalOtH} ម៉ោង):</b> $${totalOtW.toFixed(2)}
+  - ថែមម៉ោងធម្មតា (Normal 1.5x: ${regOtH} ម៉ោង): $${(payroll.otWage || 0).toFixed(2)}
+  - ថែមម៉ោងបុណ្យជាតិ/អាទិត្យ (Holiday 2.0x: ${sunOtH} ម៉ោង): $${(payroll.sunOtWage || 0).toFixed(2)}
+  - ថែមម៉ោងវេនយប់ (Night 2.0x: ${nightOtH} ម៉ោង): $${(payroll.nightOtWage || 0).toFixed(2)}`
+      : `• <b>ប្រាក់ថែមម៉ោង (OT: 0 ម៉ោង):</b> $0.00`;
+
     const msg = `💰 <b>វិក្កយបត្រប្រាក់ខែ (PAYSLIP) • ${m}/${y}</b>
 ━━━━━━━━━━━━━━━━━━━━
 👤 <b>ឈ្មោះ (Name):</b> ${payroll.employee.firstNameKh || ''} ${payroll.employee.lastNameKh || ''} (${payroll.employee.firstNameEn} ${payroll.employee.lastNameEn})
@@ -34,9 +48,7 @@ export async function sendPayslipToTelegram(payrollId: string) {
 🚫 <b>អវត្តមាន (Absent Days):</b> ${payroll.absentDays} ថ្ងៃ
 
 ➕ <b>ប្រាក់ចំណូលបន្ថែម (EARNINGS):</b>
-• ថែមម៉ោងធម្មតា (Regular OT): $${payroll.otWage.toFixed(2)} (${payroll.otHours} ម៉ោង)
-• ថែមម៉ោងថ្ងៃអាទិត្យ/បុណ្យ (Sun/Holiday OT): $${payroll.sunOtWage.toFixed(2)} (${payroll.sunOtHours} ម៉ោង)
-• ថែមម៉ោងយប់ (Night OT): $${payroll.nightOtWage.toFixed(2)} (${payroll.nightOtHours} ម៉ោង)
+${otText}
 • ប្រាក់រង្វាន់ការងារ (Bonus): $${payroll.attendanceBonus.toFixed(2)}
 • ប្រាក់អាហារ និងធ្វើដំណើរ: $${(payroll.lunchAllowance + payroll.transportation).toFixed(2)}
 • ប្រាក់ដំណែង/ជំនាញ: $${(payroll.payScaleIncentive + payroll.adjustmentSkill).toFixed(2)}

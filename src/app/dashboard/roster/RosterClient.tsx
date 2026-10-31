@@ -73,9 +73,9 @@ const SHIFT_CONFIG: Record<string, { labelKh: string; labelEn: string; labelZh: 
     border: '#fecaca'
   },
   SPLIT: {
-    labelKh: 'បំបែក',
-    labelEn: 'Split',
-    labelZh: '分段',
+    labelKh: 'ព្រឹក-រសៀល',
+    labelEn: 'Split (Morning-Afternoon)',
+    labelZh: '两班/分段',
     bg: '#ecfdf5',
     text: '#047857',
     icon: '🔄',
@@ -178,18 +178,21 @@ export default function RosterClient({
     let afternoon = 0;
     let night = 0;
     let off = 0;
+    let split = 0;
     rosters.forEach(r => {
       if (r.shiftType === 'MORNING') morning++;
       else if (r.shiftType === 'AFTERNOON') afternoon++;
       else if (r.shiftType === 'NIGHT') night++;
       else if (r.shiftType === 'OFF') off++;
+      else if (r.shiftType === 'SPLIT') split++;
     });
     return {
       totalStaff: employees.length,
       morning,
       afternoon,
       night,
-      off
+      off,
+      split
     };
   }, [rosters, employees]);
 
@@ -394,9 +397,9 @@ export default function RosterClient({
           employeeId: bulkEmpId,
           bulkDates: datesToAssign,
           shiftType: bulkShiftType,
-          startTime: bulkShiftType === 'MORNING' ? '08:00' : bulkShiftType === 'AFTERNOON' ? '13:00' : '21:00',
-          endTime: bulkShiftType === 'MORNING' ? '17:00' : bulkShiftType === 'AFTERNOON' ? '21:00' : '06:00',
-          notes: 'ចាត់តាំងជាដុំ (Bulk Assigned)'
+          startTime: bulkShiftType === 'MORNING' ? '08:00' : bulkShiftType === 'AFTERNOON' ? '13:00' : bulkShiftType === 'NIGHT' ? '21:00' : bulkShiftType === 'SPLIT' ? '08:00' : '',
+          endTime: bulkShiftType === 'MORNING' ? '17:00' : bulkShiftType === 'AFTERNOON' ? '21:00' : bulkShiftType === 'NIGHT' ? '06:00' : bulkShiftType === 'SPLIT' ? '17:00' : '',
+          notes: bulkShiftType === 'SPLIT' ? 'វេនព្រឹក-រសៀល (08:00-12:00 & 13:00-17:00)' : 'ចាត់តាំងជាដុំ (Bulk Assigned)'
         })
       });
 
@@ -798,6 +801,40 @@ export default function RosterClient({
             <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Days Off • 休息日</div>
             <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#b91c1c', marginTop: '2px', lineHeight: 1 }}>
               {stats.off}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 6: Split / Double Shift */}
+        <div style={{
+          background: '#ffffff',
+          borderRadius: '10px',
+          padding: '8px 12px',
+          border: '1px solid #f1f5f9',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <div style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
+            background: '#ecfdf5',
+            color: '#047857',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '17px',
+            flexShrink: 0
+          }}>
+            🔄
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a' }}>វេនព្រឹក-រសៀល</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Split / 2-Shift • 两班</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#047857', marginTop: '2px', lineHeight: 1 }}>
+              {stats.split}
             </div>
           </div>
         </div>
@@ -1309,8 +1346,9 @@ export default function RosterClient({
                           setCellForm({
                             ...cellForm,
                             shiftType: typeKey,
-                            startTime: typeKey === 'MORNING' ? '08:00' : typeKey === 'AFTERNOON' ? '13:00' : typeKey === 'NIGHT' ? '21:00' : '',
-                            endTime: typeKey === 'MORNING' ? '17:00' : typeKey === 'AFTERNOON' ? '21:00' : typeKey === 'NIGHT' ? '06:00' : ''
+                            startTime: typeKey === 'MORNING' ? '08:00' : typeKey === 'AFTERNOON' ? '13:00' : typeKey === 'NIGHT' ? '21:00' : typeKey === 'SPLIT' ? '08:00' : '',
+                            endTime: typeKey === 'MORNING' ? '17:00' : typeKey === 'AFTERNOON' ? '21:00' : typeKey === 'NIGHT' ? '06:00' : typeKey === 'SPLIT' ? '17:00' : '',
+                            notes: typeKey === 'SPLIT' ? (cellForm.notes || 'វេនព្រឹក-រសៀល (08:00-12:00 & 13:00-17:00)') : cellForm.notes
                           });
                         }}
                         style={{
@@ -1527,7 +1565,7 @@ export default function RosterClient({
                   >
                     {employees.map(emp => (
                       <option key={emp.id} value={emp.id}>
-                        {emp.employeeId} - {emp.firstNameEn} {emp.lastNameEn} ({emp.department})
+                        {emp.employeeId} - {emp.firstNameKh ? `${emp.firstNameKh} ${emp.lastNameKh} (${emp.firstNameEn} ${emp.lastNameEn})` : `${emp.firstNameEn} ${emp.lastNameEn}`} ({emp.department})
                       </option>
                     ))}
                   </select>

@@ -477,9 +477,32 @@ export default function ExportHubClient({ t }: Props) {
                       data.map((row, i) => (
                         reportType === 'PAYSLIP_STRIPS' ? (
                           <React.Fragment key={i}>
-                            <tr style={{ backgroundColor: '#1e3a8a', color: '#ffffff' }}>
-                              <td colSpan={columns.length} style={{ padding: '6px 12px', fontWeight: 'bold', fontSize: '0.82rem' }} className="kh-text">
-                                📋 ប័ណ្ណប្រាក់បៀវត្សរ៍ (Payslip Strip) #{row.no} • {row.nameKh} {row.nameEn ? `(${row.nameEn})` : ''} - អត្តលេខ: {row.id} • {row.dept} ({month}/{year})
+                            <tr style={{ backgroundColor: '#eff6ff', borderTop: '2px solid #3b82f6', borderBottom: '1.5px solid #bfdbfe' }}>
+                              <td colSpan={columns.length} style={{ padding: '8px 12px' }} className="kh-text">
+                                <div style={{ position: 'sticky', left: '12px', display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                  <span style={{ backgroundColor: '#2563eb', color: '#ffffff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.74rem', fontWeight: 700 }}>
+                                    #{row.no}
+                                  </span>
+                                  <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1e3a8a' }}>
+                                    {row.nameKh}
+                                  </span>
+                                  {row.nameEn && (
+                                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#2563eb' }}>
+                                      ({row.nameEn})
+                                    </span>
+                                  )}
+                                  <span style={{ backgroundColor: '#ffffff', color: '#0f172a', padding: '2px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.76rem', fontWeight: 700 }}>
+                                    ID: {row.id}
+                                  </span>
+                                  {row.dept && (
+                                    <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '4px', border: '1px solid #fde68a', fontSize: '0.76rem', fontWeight: 600 }}>
+                                      {row.dept}
+                                    </span>
+                                  )}
+                                  <span style={{ color: '#64748b', fontSize: '0.76rem', fontWeight: 500 }}>
+                                    ({month}/{year})
+                                  </span>
+                                </div>
                               </td>
                             </tr>
                             <tr style={{ backgroundColor: '#f1f5f9' }}>

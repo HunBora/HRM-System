@@ -145,8 +145,8 @@ export async function GET(request: Request) {
       sheet.mergeCells(`A${currentRow}:${lastColLetter}${currentRow}`);
       const titleCell = sheet.getCell(`A${currentRow}`);
       titleCell.value = `📋 ប័ណ្ណប្រាក់បៀវត្សរ៍ / Payslip Strip #${index + 1} • ${emp.firstNameKh || ''} ${emp.lastNameKh || ''} (${emp.firstNameEn || ''} ${emp.lastNameEn || ''}) - អត្តលេខ: ${emp.employeeId} • ${companyName} (${month}/${year})`;
-      titleCell.font = { name: 'Khmer OS Siemreap', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-      titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+      titleCell.font = { name: 'Khmer OS Siemreap', size: 10, bold: true, color: { argb: 'FF1E3A8A' } };
+      titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
       titleCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
       sheet.getRow(currentRow).height = 24;
       currentRow++;

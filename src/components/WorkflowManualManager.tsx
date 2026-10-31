@@ -178,73 +178,78 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
   ]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Top Banner / Sync Indicator */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* Top Banner / Sync Indicator - Compact Fit Box */}
       <div
         className="card"
         style={{
-          padding: '24px',
-          borderRadius: '16px',
+          padding: '10px 16px',
+          borderRadius: '10px',
           background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)',
           color: '#ffffff',
-          boxShadow: '0 8px 24px rgba(30, 58, 138, 0.25)',
+          boxShadow: '0 4px 12px rgba(30, 58, 138, 0.18)',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
         <div style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '1.8rem' }}>📖</span>
-                <h1 className="title kh-text" style={{ margin: 0, fontSize: '1.55rem', color: '#ffffff', fontWeight: 800 }}>
-                  សៀវភៅណែនាំនីតិវិធីការងារ & រូបមន្តគណនាប្រាក់ខែ (Workflow & Payroll SOP Hub)
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.3rem' }}>📖</span>
+              <div>
+                <h1 className="title kh-text" style={{ margin: 0, fontSize: '1.15rem', color: '#ffffff', fontWeight: 800 }}>
+                  សៀវភៅណែនាំនីតិវិធីការងារ & រូបមន្តគណនា (Workflow & Payroll SOP Hub)
                 </h1>
+                <p style={{ margin: '1px 0 0', fontSize: '0.76rem', color: '#bfdbfe' }}>
+                  ឯកសារណែនាំប្រតិបត្តិការងារស្តង់ដារ (SOP) និងរូបមន្តបៀវត្សរ៍ស្របតាមច្បាប់ការងារ ({companyName})
+                </p>
               </div>
-              <p style={{ margin: 0, fontSize: '0.92rem', color: '#bfdbfe', maxWidth: '780px', lineHeight: 1.5 }}>
-                ឯកសារណែនាំប្រតិបត្តិការងារស្តង់ដារ (SOP) និងរូបមន្តគណនាប្រាក់បៀវត្សរ៍ ប្រាក់ឧបត្ថម្ភ និងអត្ថប្រយោជន៍នានា ស្របតាមច្បាប់ស្តីពីការងារនៃព្រះរាជាណាចក្រកម្ពុជា។ រូបមន្តត្រូវបានធ្វើសមកាលកម្មដោយស្វ័យប្រវត្តិតាមការកំណត់បច្ចុប្បន្នរបស់ប្រព័ន្ធ ({companyName})។
-              </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => window.print()}
+                title="បោះពុម្ពឯកសារ ឬរក្សាទុកជា PDF"
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '4px',
                   backgroundColor: '#ffffff',
                   color: '#1e40af',
                   border: 'none',
-                  padding: '9px 18px',
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
+                  padding: '4px 10px',
+                  height: '28px',
+                  borderRadius: '6px',
+                  fontWeight: 600,
+                  fontSize: '0.78rem',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
                   transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 <span>🖨️</span>
-                <span className="kh-text">បោះពុម្ពឯកសារ (Print / PDF)</span>
+                <span className="kh-text">Print / PDF</span>
               </button>
 
               <div
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '5px',
                   backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                  padding: '8px 14px',
-                  borderRadius: '10px',
-                  fontSize: '0.82rem',
+                  padding: '4px 8px',
+                  height: '28px',
+                  borderRadius: '6px',
+                  fontSize: '0.76rem',
                   border: '1px solid rgba(255, 255, 255, 0.3)',
                   backdropFilter: 'blur(4px)',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4ade80' }}></span>
-                <span>Auto-Synced: <strong>1$ = {exchangeRate.toLocaleString()} ៛</strong></span>
+                <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#4ade80' }}></span>
+                <span>1$ = <strong>{exchangeRate.toLocaleString()} ៛</strong></span>
               </div>
             </div>
           </div>
@@ -265,30 +270,30 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
         />
       </div>
 
-      {/* Navigation Sub-Tabs */}
+      {/* Navigation Sub-Tabs - Compact Fit Box Bar */}
       <div
         className="card"
         style={{
-          padding: '12px 16px',
-          borderRadius: '12px',
+          padding: '6px 10px',
+          borderRadius: '8px',
           border: '1px solid var(--border-color)',
           backgroundColor: 'var(--surface-color)',
           display: 'flex',
-          gap: '8px',
+          gap: '6px',
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
           {[
-            { id: 'formulas', icon: '💰', titleKh: 'រូបមន្តគណនាប្រាក់ខែ & អត្ថប្រយោជន៍', titleEn: 'Payroll Formulas' },
-            { id: 'columns', icon: '📊', titleKh: 'មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ (Master 46-Column SOP)', titleEn: '46-Column Guide' },
-            { id: 'simulator', icon: '🧮', titleKh: 'ម៉ាស៊ីនសាកល្បងគណនាផ្ទាល់', titleEn: 'Live Simulator' },
-            { id: 'lifecycle', icon: '👤', titleKh: 'វដ្តជីវិតបុគ្គលិក (Onboarding/Offboarding)', titleEn: 'Employee Lifecycle' },
-            { id: 'attendance', icon: '⏱️', titleKh: 'វត្តមាន, ថែមម៉ោង & ច្បាប់ឈប់សម្រាក', titleEn: 'Attendance & OT SOP' },
-            { id: 'advance', icon: '💸', titleKh: 'គោលការណ៍ប្រាក់បុរេប្រទាន & បើកលើកទី១/ទី២', titleEn: 'Salary Advance & Payouts' },
-            { id: 'law', icon: '⚖️', titleKh: 'យោងច្បាប់ការងារ & ប.ស.ស', titleEn: 'Labor Law Standards' },
+            { id: 'formulas', icon: '💰', titleKh: 'រូបមន្ត', titleEn: 'Formulas', full: 'រូបមន្តគណនាប្រាក់ខែ & អត្ថប្រយោជន៍ (Payroll Formulas)' },
+            { id: 'columns', icon: '📊', titleKh: '៤៦ ជួរឈរ', titleEn: '46 Cols', full: 'មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ (Master 46-Column SOP)' },
+            { id: 'simulator', icon: '🧮', titleKh: 'សាកល្បង', titleEn: 'Simulator', full: 'ម៉ាស៊ីនសាកល្បងគណនាផ្ទាល់ (Live Simulator)' },
+            { id: 'lifecycle', icon: '👤', titleKh: 'ជីវិតបុគ្គលិក', titleEn: 'Lifecycle', full: 'វដ្តជីវិតបុគ្គលិក (Onboarding/Offboarding)' },
+            { id: 'attendance', icon: '⏱️', titleKh: 'វត្តមាន & OT', titleEn: 'Attendance', full: 'វត្តមាន, ថែមម៉ោង & ច្បាប់ឈប់សម្រាក (Attendance & OT SOP)' },
+            { id: 'advance', icon: '💸', titleKh: 'បើកលើក ១&២', titleEn: 'Payouts', full: 'គោលការណ៍ប្រាក់បុរេប្រទាន & បើកលើកទី១/ទី២ (Salary Advance & Payouts)' },
+            { id: 'law', icon: '⚖️', titleKh: 'ច្បាប់ & ប.ស.ស', titleEn: 'Law & NSSF', full: 'យោងច្បាប់ការងារ & ប.ស.ស (Labor Law Standards)' },
           ].map((tab) => {
             const isActive = subTab === tab.id;
             return (
@@ -296,59 +301,64 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 key={tab.id}
                 type="button"
                 onClick={() => setSubTab(tab.id as any)}
+                title={tab.full}
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 14px',
-                  borderRadius: '8px',
+                  gap: '4px',
+                  padding: '5px 9px',
+                  height: '30px',
+                  borderRadius: '6px',
                   border: isActive ? '1.5px solid #2563eb' : '1px solid transparent',
                   backgroundColor: isActive ? 'rgba(37, 99, 235, 0.1)' : 'transparent',
                   color: isActive ? '#1d4ed8' : '#475569',
                   fontWeight: isActive ? 700 : 500,
-                  fontSize: '0.85rem',
+                  fontSize: '0.78rem',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <span>{tab.icon}</span>
+                <span style={{ fontSize: '0.9rem' }}>{tab.icon}</span>
                 <span className="kh-text">{tab.titleKh}</span>
+                <span style={{ fontSize: '0.68rem', color: isActive ? '#2563eb' : '#94a3b8' }}>({tab.titleEn})</span>
               </button>
             );
           })}
         </div>
 
         {/* Quick Search */}
-        <div style={{ position: 'relative', minWidth: '240px' }}>
+        <div style={{ position: 'relative', width: '200px', minWidth: '160px' }}>
           <input
             type="text"
-            placeholder="ស្វែងរកក្នុងសៀវភៅណែនាំ (ឧ. អតីតភាព, OT)..."
+            placeholder="ស្វែងរកក្នុងសៀវភៅណែនាំ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              padding: '7px 28px 7px 32px',
-              borderRadius: '8px',
+              padding: '4px 22px 4px 26px',
+              height: '30px',
+              borderRadius: '6px',
               border: '1px solid var(--border-color)',
-              fontSize: '0.83rem',
+              fontSize: '0.78rem',
               outline: 'none',
               backgroundColor: 'var(--card-bg, #ffffff)',
             }}
           />
-          <span style={{ position: 'absolute', left: '10px', top: '7px', fontSize: '0.9rem', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '8px', top: '7px', fontSize: '0.78rem', color: '#94a3b8' }}>🔍</span>
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
               style={{
                 position: 'absolute',
-                right: '8px',
-                top: '7px',
+                right: '6px',
+                top: '5px',
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
                 color: '#94a3b8',
-                fontSize: '0.85rem',
+                fontSize: '0.78rem',
               }}
             >
               ✕
@@ -357,36 +367,39 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
         </div>
       </div>
 
-      {/* Quick Search Tag Filters & Results Jump */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', padding: '0 4px' }}>
-        <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>🏷️ ប្រធានបទរហ័ស (Quick Jump):</span>
+      {/* Quick Search Tag Filters & Results Jump - Compact Fit Box */}
+      <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap', padding: '0 2px' }}>
+        <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>🏷️ លោតរហ័ស:</span>
         {[
-          { label: '📊 មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ (Columns 1-46)', tab: 'columns', query: '' },
-          { label: '💵 បើកលើកទី១ & លើកទី២ (1st & 2nd Payout)', tab: 'formulas', query: 'លើកទី១' },
-          { label: '🎖️ ប្រាក់អតីតភាព & បំណាច់ (Seniority)', tab: 'formulas', query: 'អតីតភាព' },
-          { label: '💰 រូបមន្តប្រាក់ខែ (Daily/Hourly)', tab: 'formulas', query: '' },
-          { label: '🧮 ម៉ាស៊ីនគណនាផ្ទាល់ (Simulator)', tab: 'simulator', query: '' },
-          { label: '⏱️ ថែមម៉ោង OT (150% - 200%)', tab: 'formulas', query: 'OT' },
-          { label: '⚖️ ច្បាប់ការងារ & ប.ស.ស', tab: 'law', query: 'ច្បាប់' },
+          { label: '📊 ៤៦ ជួរឈរ', full: 'មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ (Columns 1-46)', tab: 'columns', query: '' },
+          { label: '💵 បើកលើក ១&២', full: 'បើកលើកទី១ & លើកទី២ (1st & 2nd Payout)', tab: 'formulas', query: 'លើកទី១' },
+          { label: '🎖️ អតីតភាព', full: 'ប្រាក់អតីតភាព & បំណាច់ (Seniority)', tab: 'formulas', query: 'អតីតភាព' },
+          { label: '💰 ប្រាក់ខែ/ម៉ោង', full: 'រូបមន្តប្រាក់ខែ (Daily/Hourly)', tab: 'formulas', query: '' },
+          { label: '🧮 Simulator', full: 'ម៉ាស៊ីនគណនាផ្ទាល់ (Simulator)', tab: 'simulator', query: '' },
+          { label: '⏱️ ថែមម៉ោង OT', full: 'ថែមម៉ោង OT (150% - 200%)', tab: 'formulas', query: 'OT' },
+          { label: '⚖️ ច្បាប់ & NSSF', full: 'ច្បាប់ការងារ & ប.ស.ស', tab: 'law', query: 'ច្បាប់' },
         ].map((item, idx) => (
           <button
             key={idx}
             type="button"
+            title={item.full}
             onClick={() => {
               setSubTab(item.tab as any);
               setSearchQuery(item.query);
             }}
             style={{
-              padding: '4px 10px',
-              borderRadius: '16px',
+              padding: '2px 8px',
+              height: '24px',
+              borderRadius: '12px',
               border: '1px solid #cbd5e1',
               backgroundColor: (searchQuery === item.query && subTab === item.tab) || (item.query === 'អតីតភាព' && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority'))) ? '#eff6ff' : 'var(--surface-color, #ffffff)',
               borderColor: (searchQuery === item.query && subTab === item.tab) || (item.query === 'អតីតភាព' && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority'))) ? '#3b82f6' : 'var(--border-color, #cbd5e1)',
               color: (searchQuery === item.query && subTab === item.tab) || (item.query === 'អតីតភាព' && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority'))) ? '#1d4ed8' : 'var(--text-color, #475569)',
-              fontSize: '0.76rem',
+              fontSize: '0.72rem',
               fontWeight: 600,
               cursor: 'pointer',
               transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
             }}
           >
             {item.label}
@@ -396,22 +409,22 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
 
       {/* Active Search Highlights Notice */}
       {searchQuery && (searchQuery.includes('អតីតភាព') || searchQuery.toLowerCase().includes('seniority')) && (
-        <div style={{ padding: '10px 16px', borderRadius: '8px', backgroundColor: '#eff6ff', border: '1px solid #93c5fd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '0.82rem', color: '#1e40af' }}>
+        <div style={{ padding: '8px 12px', borderRadius: '6px', backgroundColor: '#eff6ff', border: '1px solid #93c5fd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px', fontSize: '0.78rem', color: '#1e40af' }}>
           <div>
-            ✨ រកឃើញព័ត៌មាន <strong>ប្រាក់អតីតភាពការងារ និងប្រាក់បំណាច់អតីតភាព</strong> ៖ (១) រូបមន្តគណនាលម្អិតក្នុងផ្ទាំង «រូបមន្តគណនាប្រាក់ខែ» (២) សាកល្បងគណនាក្នុង «ម៉ាស៊ីនសាកល្បងគណនាផ្ទាល់» និង (៣) មាត្រា ៨៩ ថ្មី ក្នុង «យោងច្បាប់ការងារ»។
+            ✨ រកឃើញព័ត៌មាន <strong>ប្រាក់អតីតភាពការងារ និងប្រាក់បំណាច់អតីតភាព</strong> ៖ (១) រូបមន្តគណនាលម្អិត (២) សាកល្បងគណនាផ្ទាល់ និង (៣) មាត្រា ៨៩ ថ្មី។
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
               type="button"
               onClick={() => setSubTab('formulas')}
-              style={{ padding: '3px 8px', borderRadius: '6px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontSize: '0.74rem', cursor: 'pointer', fontWeight: 600 }}
+              style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: '#2563eb', color: '#ffffff', border: 'none', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
             >
               មើលរូបមន្ត
             </button>
             <button
               type="button"
               onClick={() => setSubTab('simulator')}
-              style={{ padding: '3px 8px', borderRadius: '6px', backgroundColor: '#059669', color: '#ffffff', border: 'none', fontSize: '0.74rem', cursor: 'pointer', fontWeight: 600 }}
+              style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: '#059669', color: '#ffffff', border: 'none', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 600 }}
             >
               សាកល្បងគណនា
             </button>
@@ -423,49 +436,50 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
       {/* TAB 1: FORMULAS & CALCULATION MANUAL                                      */}
       {/* ========================================================================= */}
       {subTab === 'formulas' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Dynamic Sync Notice Card */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Dynamic Sync Notice Card - Compact Fit Box */}
           <div
             style={{
-              padding: '16px 20px',
-              borderRadius: '12px',
+              padding: '8px 14px',
+              borderRadius: '8px',
               backgroundColor: '#eff6ff',
               border: '1px solid #bfdbfe',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: '12px',
+              gap: '8px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '1.6rem' }}>⚡</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.1rem' }}>⚡</span>
               <div>
-                <strong className="kh-text" style={{ color: '#1e40af', fontSize: '0.95rem' }}>
-                  រូបមន្តធ្វើសមកាលកម្មស្វ័យប្រវត្តិតាមការកំណត់បច្ចុប្បន្ន (Live Formula Auto-Sync)
-                </strong>
-                <p style={{ margin: '2px 0 0', fontSize: '0.83rem', color: '#3b82f6' }}>
-                  រាល់ពេលមានការផ្លាស់ប្តូរអត្រាប្តូរប្រាក់ ({exchangeRate.toLocaleString()} ៛) ឬកាលបរិច្ឆេទបើកប្រាក់ខែក្នុងប្រព័ន្ធ នោះសៀវភៅណែនាំនេះនឹងកែសម្រួលតម្លៃជាក់ស្តែងដោយស្វ័យប្រវត្តិ។
-                </p>
+                <span className="kh-text" style={{ color: '#1e40af', fontSize: '0.82rem', fontWeight: 700 }}>
+                  រូបមន្តធ្វើសមកាលកម្មស្វ័យប្រវត្តិ (Live Auto-Sync):
+                </span>
+                <span style={{ fontSize: '0.78rem', color: '#2563eb', marginLeft: '6px' }}>
+                  អត្រាប្តូរប្រាក់ <strong>1$ = {exchangeRate.toLocaleString()} ៛</strong> | កាលបរិច្ឆេទបើកប្រាក់ខែធ្វើបច្ចុប្បន្នភាពតាមប្រព័ន្ធ
+                </span>
               </div>
             </div>
             <span
               style={{
-                fontSize: '0.78rem',
+                fontSize: '0.72rem',
                 backgroundColor: '#dbeafe',
                 color: '#1d4ed8',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
               }}
             >
-              🔄 Version: 2025/2026 Live Dynamic
+              🔄 2025/2026 Live
             </span>
           </div>
 
           {/* Group 1: Base Rates */}
-          <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-            <h2 className="kh-text" style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="card" style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <h2 className="kh-text" style={{ margin: '0 0 12px', fontSize: '1.08rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>1️⃣</span> ប្រាក់ឈ្នួលប្រចាំថ្ងៃ និងប្រចាំម៉ោង (Daily & Hourly Wage Rate)
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
@@ -529,8 +543,8 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
           </div>
 
           {/* Group 2: Overtime Calculations */}
-          <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-            <h2 className="kh-text" style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="card" style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <h2 className="kh-text" style={{ margin: '0 0 12px', fontSize: '1.08rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>2️⃣</span> ការគណនាប្រាក់ថែមម៉ោង (Overtime / OT Calculations)
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
@@ -579,8 +593,8 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
           </div>
 
           {/* Group 3: Allowances & Statutory Benefits */}
-          <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-            <h2 className="kh-text" style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="card" style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <h2 className="kh-text" style={{ margin: '0 0 12px', fontSize: '1.08rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>3️⃣</span> ប្រាក់ឧបត្ថម្ភ និងអត្ថប្រយោជន៍ (Allowances & Benefits)
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
@@ -675,10 +689,10 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
           </div>
 
           {/* Group 4: Seniority Calculations SOP */}
-          <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1.5px solid #3b82f6', backgroundColor: '#ffffff', boxShadow: '0 4px 16px rgba(37, 99, 235, 0.06)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+          <div className="card" style={{ padding: '16px 20px', borderRadius: '10px', border: '1.5px solid #3b82f6', backgroundColor: '#ffffff', boxShadow: '0 2px 10px rgba(37, 99, 235, 0.05)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
               <div>
-                <h2 className="kh-text" style={{ margin: 0, fontSize: '1.25rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 className="kh-text" style={{ margin: 0, fontSize: '1.08rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span>4️⃣</span> របៀបគណនាប្រាក់អតីតភាពការងារ និងប្រាក់បំណាច់អតីតភាព (Seniority Calculations Hub)
                 </h2>
                 <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
@@ -923,8 +937,8 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
           </div>
 
           {/* Group 5: Deductions, NSSF & Currency Payout Splitting */}
-          <div className="card" style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
-            <h2 className="kh-text" style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="card" style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            <h2 className="kh-text" style={{ margin: '0 0 12px', fontSize: '1.08rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>5️⃣</span> ការកាត់កង, ប.ស.ស និងការបំបែកបើកជាប្រាក់ដុល្លារ/រៀល
             </h2>
 
@@ -1069,32 +1083,32 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
       {/* TAB 2: MASTER 46-COLUMN PAYROLL FIELD GUIDE & SOP MATRIX                   */}
       {/* ========================================================================= */}
       {subTab === 'columns' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Header Card */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Header Card - Compact Fit Box */}
           <div
             className="card"
             style={{
-              padding: '20px 24px',
-              borderRadius: '14px',
+              padding: '12px 18px',
+              borderRadius: '10px',
               border: '1.5px solid #3b82f6',
               backgroundColor: '#ffffff',
-              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.08)',
+              boxShadow: '0 2px 10px rgba(59, 130, 246, 0.06)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '1.8rem' }}>📊</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.4rem' }}>📊</span>
                 <div>
-                  <h2 className="kh-text" style={{ margin: 0, fontSize: '1.25rem', color: '#1e40af' }}>
+                  <h2 className="kh-text" style={{ margin: 0, fontSize: '1.15rem', color: '#1e40af' }}>
                     មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ នៃតារាងប្រាក់ខែបុគ្គលិក (Master 46-Column SOP Matrix)
                   </h2>
-                  <p style={{ margin: '2px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
-                    ឯកសារយោង និងរូបមន្តគណនាគ្រប់ជួរឈរទាំង ៤៦ នៃតារាង Employee Salary (员工工资表) ស្របតាមស្តង់ដាររោងចក្រ និងច្បាប់ការងារកម្ពុជា
+                  <p style={{ margin: '1px 0 0', fontSize: '0.78rem', color: '#64748b' }}>
+                    ឯកសារយោង និងរូបមន្តគណនាគ្រប់ជួរឈរទាំង ៤៦ នៃតារាង Employee Salary (员工工资表)
                   </p>
                 </div>
               </div>
-              <span style={{ fontSize: '0.8rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '20px', fontWeight: 700 }}>
-                ៤៦ ជួរឈរពេញលេញ (Complete 46 Columns)
+              <span style={{ fontSize: '0.74rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '3px 10px', borderRadius: '12px', fontWeight: 700 }}>
+                ៤៦ ជួរឈរពេញលេញ
               </span>
             </div>
 

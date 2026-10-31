@@ -23,75 +23,80 @@ export default function UnifiedSettingsHub({ settings, initialTab }: UnifiedSett
   const tabs = [
     {
       id: 'general' as const,
-      labelKh: 'ការកំណត់ទូទៅ & Telegram',
-      labelEn: 'General & Bot',
+      labelKh: 'ទូទៅ & Telegram',
+      labelEn: 'General',
+      fullTitle: 'ការកំណត់ទូទៅ & Telegram (General & Bot)',
       icon: '⚙️',
       badge: 'មេ',
     },
     {
       id: 'groups' as const,
       labelKh: 'ក្រុមផ្នែក & ពណ៌',
-      labelEn: 'Department Groups',
+      labelEn: 'Groups',
+      fullTitle: 'ក្រុមផ្នែក & ពណ៌ (Department Groups)',
       icon: '👥',
     },
     {
       id: 'payroll' as const,
-      labelKh: 'កាលវិភាគ & គោលការណ៍ប្រាក់ឧបត្ថម្ភ',
-      labelEn: 'Payroll & Allowances',
+      labelKh: 'បៀវត្ស & ឧបត្ថម្ភ',
+      labelEn: 'Payroll',
+      fullTitle: 'កាលវិភាគ & គោលការណ៍ប្រាក់ឧបត្ថម្ភ (Payroll & Allowances)',
       icon: '💰',
     },
     {
       id: 'advance' as const,
-      labelKh: 'គោលការណ៍ប្រាក់បុរេប្រទាន',
-      labelEn: 'Advance Policy',
+      labelKh: 'បុរេប្រទាន',
+      labelEn: 'Advance',
+      fullTitle: 'គោលការណ៍ប្រាក់បុរេប្រទាន (Advance Policy)',
       icon: '💸',
     },
     {
       id: 'kpi' as const,
-      labelKh: 'ការកំណត់ KPI & រូបមន្ត',
-      labelEn: 'KPI Master & Config',
+      labelKh: 'KPI & រូបមន្ត',
+      labelEn: 'KPI',
+      fullTitle: 'ការកំណត់ KPI & រូបមន្ត (KPI Master & Config)',
       icon: '📈',
     },
     {
       id: 'manual' as const,
-      labelKh: 'សៀវភៅណែនាំ & រូបមន្តគណនា',
-      labelEn: 'Workflow Manual & Formulas',
+      labelKh: 'សៀវភៅណែនាំ',
+      labelEn: 'SOP',
+      fullTitle: 'សៀវភៅណែនាំ & រូបមន្តគណនា (Workflow Manual & Formulas)',
       icon: '📖',
       badge: 'SOP',
     },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Top Header Card with Stats & Tabs Bar */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Top Header Card with Stats & Tabs Bar - Compact Fit Box */}
       <div
         className="card"
         style={{
-          padding: '16px 20px',
-          borderRadius: '12px',
+          padding: '12px 16px',
+          borderRadius: '10px',
           border: '1px solid var(--border-color)',
           background: 'var(--surface-color)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
           <div>
-            <h1 className="title kh-text" style={{ margin: 0, fontSize: '1.45rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h1 className="title kh-text" style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>⚙️</span> មជ្ឈមណ្ឌលគ្រប់គ្រងការកំណត់ប្រព័ន្ធ (Master Settings Hub)
             </h1>
-            <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#64748b' }}>
-              គ្រប់គ្រងការកំណត់ក្រុមហ៊ុន, វេនការងារ, Telegram, ស្បែកពណ៌, ក្រុមផ្នែក, កាលបរិច្ឆេទបើកប្រាក់ខែ និង KPI នៅកន្លែងតែមួយ
+            <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
+              គ្រប់គ្រងក្រុមហ៊ុន, វេនការងារ, Telegram, ស្បែកពណ៌, ក្រុមផ្នែក, កាលវិភាគបើកប្រាក់ និង KPI
             </p>
           </div>
         </div>
 
-        {/* Tab Navigation Buttons */}
+        {/* Tab Navigation Buttons - Compact Fit Box */}
         <div
           style={{
             display: 'flex',
-            gap: '8px',
+            gap: '6px',
             flexWrap: 'wrap',
-            borderBottom: '1px solid var(--border-color)',
-            paddingBottom: '10px',
+            alignItems: 'center',
           }}
         >
           {tabs.map((tab) => {
@@ -101,35 +106,38 @@ export default function UnifiedSettingsHub({ settings, initialTab }: UnifiedSett
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
+                title={tab.fullTitle}
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '9px 16px',
-                  borderRadius: '10px',
-                  border: isActive ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                  gap: '5px',
+                  padding: '5px 11px',
+                  height: '32px',
+                  borderRadius: '6px',
+                  border: isActive ? '1.5px solid #2563eb' : '1px solid var(--border-color, #cbd5e1)',
                   backgroundColor: isActive ? 'rgba(37, 99, 235, 0.08)' : 'var(--card-bg, #ffffff)',
                   color: isActive ? '#2563eb' : '#334155',
                   fontWeight: isActive ? 700 : 500,
-                  fontSize: '0.88rem',
+                  fontSize: '0.8rem',
                   cursor: 'pointer',
-                  transition: 'all 0.18s ease',
-                  boxShadow: isActive ? '0 2px 8px rgba(37, 99, 235, 0.15)' : 'none',
+                  transition: 'all 0.15s ease',
+                  boxShadow: isActive ? '0 1px 4px rgba(37, 99, 235, 0.12)' : 'none',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <span style={{ fontSize: '1.1rem' }}>{tab.icon}</span>
+                <span style={{ fontSize: '0.95rem' }}>{tab.icon}</span>
                 <span className="kh-text">{tab.labelKh}</span>
-                <span style={{ fontSize: '0.74rem', color: isActive ? '#3b82f6' : '#94a3b8' }}>
+                <span style={{ fontSize: '0.72rem', color: isActive ? '#3b82f6' : '#94a3b8' }}>
                   ({tab.labelEn})
                 </span>
                 {tab.badge && (
                   <span
                     style={{
-                      fontSize: '0.62rem',
-                      backgroundColor: '#2563eb',
+                      fontSize: '0.6rem',
+                      backgroundColor: isActive ? '#2563eb' : '#64748b',
                       color: '#ffffff',
-                      padding: '1px 6px',
-                      borderRadius: '10px',
+                      padding: '1px 5px',
+                      borderRadius: '8px',
                       fontWeight: 700,
                     }}
                   >

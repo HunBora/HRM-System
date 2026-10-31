@@ -10,10 +10,15 @@ import WorkflowManualManager from '@/components/WorkflowManualManager';
 
 interface UnifiedSettingsHubProps {
   settings: any;
+  initialTab?: string;
 }
 
-export default function UnifiedSettingsHub({ settings }: UnifiedSettingsHubProps) {
-  const [activeTab, setActiveTab] = useState<'general' | 'groups' | 'payroll' | 'advance' | 'kpi' | 'manual'>('general');
+export default function UnifiedSettingsHub({ settings, initialTab }: UnifiedSettingsHubProps) {
+  const [activeTab, setActiveTab] = useState<'general' | 'groups' | 'payroll' | 'advance' | 'kpi' | 'manual'>(
+    initialTab && ['general', 'groups', 'payroll', 'advance', 'kpi', 'manual'].includes(initialTab)
+      ? (initialTab as any)
+      : 'general'
+  );
 
   const tabs = [
     {

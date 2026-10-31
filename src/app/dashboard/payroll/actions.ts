@@ -290,8 +290,11 @@ export async function generatePayroll(month: number, year: number) {
         
         const dataToSave = {
           workingDays, 
+          absentDays: r2(absentDays),
+          permissionDays: r2(leaveDays),
           workingSalary: r2(workingSalary), 
           basicSalary: r2(basicSalary),
+          basicPayScale: r2(emp.basicSalary1 || 0),
           otHours, 
           otWage: r2(otWage), 
           sunOtHours, 
@@ -500,6 +503,7 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
           totalSalary,
           severancePay,
           nssf,
+          basicPayScale: emp.basicSalary1 || p.basicPayScale || 0,
           netSalaryUsd,
           paidSalaryUsd,
           netSalaryRiel,

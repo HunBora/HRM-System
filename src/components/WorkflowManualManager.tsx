@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { calculateNssf, NSSF_CONFIG } from '@/lib/nssf';
+import { MASTER_46_COLUMNS, PAYROLL_CATEGORIES, PayrollColumnDoc } from '@/lib/payrollColumnsGuide';
 
 interface WorkflowManualManagerProps {
   settings?: any;
@@ -27,9 +28,28 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
   const dayCareRate = settings?.dayCareAllowancePerChild ?? 0.0;
 
   // Navigation states
-  const [subTab, setSubTab] = useState<'formulas' | 'simulator' | 'lifecycle' | 'attendance' | 'advance' | 'law'>('formulas');
+  const [subTab, setSubTab] = useState<'formulas' | 'columns' | 'simulator' | 'lifecycle' | 'attendance' | 'advance' | 'law'>('formulas');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [colCategory, setColCategory] = useState<string>('all');
+
+  // Filter 46 columns guide dynamically
+  const filteredColumns = useMemo(() => {
+    return MASTER_46_COLUMNS.filter((c) => {
+      const matchCat = colCategory === 'all' || c.category === colCategory;
+      if (!matchCat) return false;
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        c.col.toString() === q ||
+        c.kh.toLowerCase().includes(q) ||
+        c.en.toLowerCase().includes(q) ||
+        c.zh.toLowerCase().includes(q) ||
+        c.descriptionKh.toLowerCase().includes(q) ||
+        c.formula.toLowerCase().includes(q)
+      );
+    });
+  }, [colCategory, searchQuery]);
 
   // Interactive Live Simulator States
   const [simBasic, setSimBasic] = useState<number>(250);
@@ -263,10 +283,11 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {[
             { id: 'formulas', icon: '💰', titleKh: 'រូបមន្តគណនាប្រាក់ខែ & អត្ថប្រយោជន៍', titleEn: 'Payroll Formulas' },
+            { id: 'columns', icon: '📊', titleKh: 'មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ (Master 46-Column SOP)', titleEn: '46-Column Guide' },
             { id: 'simulator', icon: '🧮', titleKh: 'ម៉ាស៊ីនសាកល្បងគណនាផ្ទាល់', titleEn: 'Live Simulator' },
             { id: 'lifecycle', icon: '👤', titleKh: 'វដ្តជីវិតបុគ្គលិក (Onboarding/Offboarding)', titleEn: 'Employee Lifecycle' },
             { id: 'attendance', icon: '⏱️', titleKh: 'វត្តមាន, ថែមម៉ោង & ច្បាប់ឈប់សម្រាក', titleEn: 'Attendance & OT SOP' },
-            { id: 'advance', icon: '💸', titleKh: 'គោលការណ៍ប្រាក់បុរេប្រទាន & កម្ចី', titleEn: 'Salary Advance' },
+            { id: 'advance', icon: '💸', titleKh: 'គោលការណ៍ប្រាក់បុរេប្រទាន & បើកលើកទី១/ទី២', titleEn: 'Salary Advance & Payouts' },
             { id: 'law', icon: '⚖️', titleKh: 'យោងច្បាប់ការងារ & ប.ស.ស', titleEn: 'Labor Law Standards' },
           ].map((tab) => {
             const isActive = subTab === tab.id;
@@ -340,7 +361,9 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', padding: '0 4px' }}>
         <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>🏷️ ប្រធានបទរហ័ស (Quick Jump):</span>
         {[
-          { label: '🎖️ ប្រាក់អតីតភាព & បំណាច់អតីតភាព (Seniority)', tab: 'formulas', query: 'អតីតភាព' },
+          { label: '📊 មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ (Columns 1-46)', tab: 'columns', query: '' },
+          { label: '💵 បើកលើកទី១ & លើកទី២ (1st & 2nd Payout)', tab: 'formulas', query: 'លើកទី១' },
+          { label: '🎖️ ប្រាក់អតីតភាព & បំណាច់ (Seniority)', tab: 'formulas', query: 'អតីតភាព' },
           { label: '💰 រូបមន្តប្រាក់ខែ (Daily/Hourly)', tab: 'formulas', query: '' },
           { label: '🧮 ម៉ាស៊ីនគណនាផ្ទាល់ (Simulator)', tab: 'simulator', query: '' },
           { label: '⏱️ ថែមម៉ោង OT (150% - 200%)', tab: 'formulas', query: 'OT' },
@@ -937,6 +960,63 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 </p>
               </div>
 
+              {/* Payment 1 and Payment 2 SOP Box */}
+              <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: '#eff6ff', border: '1.5px solid #3b82f6', gridColumn: '1 / -1' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                  <strong className="kh-text" style={{ color: '#1e40af', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>💰</span> គោលការណ៍បើកប្រាក់ឈ្នួល ២ ដងក្នុងមួយខែ (Payment 1 &amp; Payment 2 SOP)
+                  </strong>
+                  <span style={{ fontSize: '0.78rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '3px 10px', borderRadius: '12px', fontWeight: 700 }}>
+                    យោងមាត្រា ១១៦ នៃច្បាប់ការងារ &amp; ប្រកាស ៤៤២/១៨
+                  </span>
+                </div>
+                <p style={{ margin: '0 0 14px', fontSize: '0.84rem', color: '#1e3a8a', lineHeight: 1.5 }}>
+                  ស្របតាមច្បាប់ការងារ និងប្រកាសលេខ ៤៤២/១៨ របស់ក្រសួងការងារ និងបណ្តុះបណ្តាលវិជ្ជាជីវៈ សហគ្រាស/រោងចក្រត្រូវបើកប្រាក់ឈ្នួលជូនកម្មករនិយោជិតចំនួន <strong>២ ដងក្នុងមួយខែ</strong> ៖
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+                  {/* Payment 1 */}
+                  <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: 700, color: '#1e40af', fontSize: '0.94rem' }} className="kh-text">
+                        📅 បើកលើកទី១ (1st Salary Paid - ជួរទី ៤០)
+                      </span>
+                      <span style={{ fontSize: '0.74rem', backgroundColor: '#eff6ff', color: '#2563eb', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>ថ្ងៃទី {p1Start}-{p1End}</span>
+                    </div>
+                    <div style={{ padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '6px', fontFamily: 'monospace', fontWeight: 700, color: '#0369a1', fontSize: '0.88rem', marginBottom: '8px' }}>
+                      1st Payment = Total Approved Advance / Loan
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.8rem', color: '#475569', lineHeight: 1.6 }}>
+                      <li>ជាប្រាក់បុរេប្រទាន (Advance Salary) ដែលបុគ្គលិកបានខ្ចី ឬបើកមុនក្នុងអំឡុងពាក់កណ្តាលខែដំបូង។</li>
+                      <li>ទឹកប្រាក់នេះត្រូវបានកត់ត្រាក្នុងតារាងប្រាក់ខែជួរទី ៣៩ (ប្រាក់ខ្ចី) និងជួរទី ៤០ (បើកលើកទី១)។</li>
+                      <li>បើបុគ្គលិកមិនបានខ្ចីមុន នោះប្រាក់បើកលើកទី១ = <strong>$0.00</strong>។</li>
+                    </ul>
+                  </div>
+
+                  {/* Payment 2 */}
+                  <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: 700, color: '#15803d', fontSize: '0.94rem' }} className="kh-text">
+                        📅 បើកលើកទី២ (2nd Salary Paid - ជួរទី ៤២)
+                      </span>
+                      <span style={{ fontSize: '0.74rem', backgroundColor: '#f0fdf4', color: '#16a34a', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>ថ្ងៃទី {p2Start}-{p2End}</span>
+                    </div>
+                    <div style={{ padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '6px', fontFamily: 'monospace', fontWeight: 700, color: '#15803d', fontSize: '0.88rem', marginBottom: '8px' }}>
+                      2nd Payment = Total + 5% - Tax - Loan - NSSF - Union
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.8rem', color: '#475569', lineHeight: 1.6 }}>
+                      <li>ជាប្រាក់បៀវត្សសុទ្ធ (Net Salary USD) ដែលត្រូវបើកបង្គ្រប់នៅចុងខែ បន្ទាប់ពីកាត់ប្រាក់បើកលើកទី១ រួច។</li>
+                      <li>ទឹកប្រាក់នេះត្រូវបានបំបែកបើកជា <strong>ដុល្លារ (ជួរ ៤៣)</strong> និង <strong>រៀល (ជួរ ៤៤)</strong>។</li>
+                      <li>ធានាថាកម្មករនិយោជិតទទួលបានប្រាក់គ្រប់ចំនួនដោយគ្មានការបាត់បង់។</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '14px', padding: '10px 14px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px dashed #86efac', fontSize: '0.82rem', color: '#166534', lineHeight: 1.6 }}>
+                  ✅ <strong>សមភាពគណនេយ្យពេញលេញ៖</strong> សរុបប្រាក់ចំណូលសុទ្ធដែលបុគ្គលិកទទួលបានប្រចាំខែ = <strong>បើកលើកទី១ (ជួរ ៤០) + បើកលើកទី២ (ជួរ ៤២)</strong>។ ប្រព័ន្ធធានាភាពត្រឹមត្រូវ ១០០% ដោយគ្មានការបាត់បង់សូម្បី ១ សេន។
+                </div>
+              </div>
+
               {/* Dynamic Currency Splitting Engine */}
               <div style={{ padding: '18px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1.5px solid #86efac', gridColumn: '1 / -1' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -986,7 +1066,216 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: INTERACTIVE LIVE FORMULA SIMULATOR                                 */}
+      {/* TAB 2: MASTER 46-COLUMN PAYROLL FIELD GUIDE & SOP MATRIX                   */}
+      {/* ========================================================================= */}
+      {subTab === 'columns' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Header Card */}
+          <div
+            className="card"
+            style={{
+              padding: '20px 24px',
+              borderRadius: '14px',
+              border: '1.5px solid #3b82f6',
+              backgroundColor: '#ffffff',
+              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.8rem' }}>📊</span>
+                <div>
+                  <h2 className="kh-text" style={{ margin: 0, fontSize: '1.25rem', color: '#1e40af' }}>
+                    មគ្គុទ្ទេសក៍ ៤៦ ជួរឈរ នៃតារាងប្រាក់ខែបុគ្គលិក (Master 46-Column SOP Matrix)
+                  </h2>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
+                    ឯកសារយោង និងរូបមន្តគណនាគ្រប់ជួរឈរទាំង ៤៦ នៃតារាង Employee Salary (员工工资表) ស្របតាមស្តង់ដាររោងចក្រ និងច្បាប់ការងារកម្ពុជា
+                  </p>
+                </div>
+              </div>
+              <span style={{ fontSize: '0.8rem', backgroundColor: '#dbeafe', color: '#1e40af', padding: '6px 14px', borderRadius: '20px', fontWeight: 700 }}>
+                ៤៦ ជួរឈរពេញលេញ (Complete 46 Columns)
+              </span>
+            </div>
+
+            {/* Quick Summary Pill Highlight on 1st & 2nd Payment */}
+            <div style={{ marginTop: '14px', padding: '12px 16px', backgroundColor: '#f0fdf4', borderRadius: '10px', border: '1px solid #86efac', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', fontSize: '0.84rem' }}>
+              <div style={{ color: '#166534', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>💡</span>
+                <span>
+                  <strong>ការបើកប្រាក់ឈ្នួល ២ ដងក្នុងមួយខែ៖</strong> <strong>លើកទី១ (ជួរទី ៤០)</strong> ជាប្រាក់បុរេប្រទាន/ខ្ចីមុន | <strong>លើកទី២ (ជួរទី ៤២)</strong> ជាប្រាក់ខែសុទ្ធចុងក្រោយ | <strong>សរុបប្រចាំខែ</strong> = លើកទី១ + លើកទី២។
+                </span>
+              </div>
+              <span style={{ fontSize: '0.74rem', backgroundColor: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                មាត្រា ១១៦ &amp; ប្រកាស ៤៤២/១៨
+              </span>
+            </div>
+
+            {/* Category Filter Buttons */}
+            <div style={{ marginTop: '16px', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginRight: '4px' }}>តម្រងផ្នែក៖</span>
+              {PAYROLL_CATEGORIES.map((cat) => {
+                const count = cat.id === 'all' 
+                  ? MASTER_46_COLUMNS.length 
+                  : MASTER_46_COLUMNS.filter(c => c.category === cat.id).length;
+                const isSelected = colCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setColCategory(cat.id)}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: '20px',
+                      border: isSelected ? `1.5px solid ${cat.color}` : '1px solid #cbd5e1',
+                      backgroundColor: isSelected ? `${cat.color}15` : '#ffffff',
+                      color: isSelected ? cat.color : '#475569',
+                      fontSize: '0.78rem',
+                      fontWeight: isSelected ? 700 : 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <span>{cat.labelKh}</span>
+                    <span style={{ fontSize: '0.7rem', opacity: 0.8, backgroundColor: isSelected ? cat.color : '#e2e8f0', color: isSelected ? '#ffffff' : '#64748b', padding: '1px 5px', borderRadius: '10px' }}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Columns Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
+            {filteredColumns.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px dashed #cbd5e1', gridColumn: '1 / -1' }}>
+                <span style={{ fontSize: '2rem' }}>🔍</span>
+                <p style={{ margin: '8px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+                  រកមិនឃើញជួរឈរដែលត្រូវនឹង &quot;{searchQuery}&quot; ឡើយ។
+                </p>
+              </div>
+            ) : (
+              filteredColumns.map((col) => (
+                <div
+                  key={`col-${col.col}`}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    padding: '18px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div>
+                    {/* Top Row: Col number, Trilingual Name & Category */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span
+                          style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '6px',
+                            backgroundColor: col.categoryColor,
+                            color: '#ffffff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            flexShrink: 0
+                          }}
+                        >
+                          {col.col}
+                        </span>
+                        <div>
+                          <strong className="kh-text" style={{ fontSize: '1rem', color: '#0f172a', display: 'block' }}>
+                            {col.kh}
+                          </strong>
+                          <span style={{ fontSize: '0.76rem', color: '#64748b' }}>
+                            {col.zh} • {col.en}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span
+                        style={{
+                          fontSize: '0.7rem',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          backgroundColor: `${col.categoryColor}15`,
+                          color: col.categoryColor,
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {col.categoryLabelKh}
+                      </span>
+                    </div>
+
+                    {/* Formula Box */}
+                    <div style={{ margin: '10px 0', padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: '0.82rem', color: '#1e40af', fontWeight: 700, overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                        {col.formula}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(col.formula, `col-${col.col}`)}
+                        title="ចម្លងរូបមន្ត"
+                        style={{
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          backgroundColor: copiedKey === `col-${col.col}` ? '#dcfce7' : '#e2e8f0',
+                          color: copiedKey === `col-${col.col}` ? '#15803d' : '#475569',
+                          border: 'none',
+                          fontSize: '0.7rem',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          flexShrink: 0
+                        }}
+                      >
+                        {copiedKey === `col-${col.col}` ? '✓ បានចម្លង' : '📋'}
+                      </button>
+                    </div>
+
+                    {/* Description */}
+                    <p style={{ margin: '0 0 10px 0', fontSize: '0.82rem', color: '#334155', lineHeight: 1.5 }}>
+                      {col.descriptionKh}
+                    </p>
+                  </div>
+
+                  <div style={{ paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.76rem' }}>
+                    <div style={{ color: '#64748b' }}>
+                      <strong style={{ color: '#475569' }}>ប្រភពទិន្នន័យ៖</strong> {col.dataSource}
+                    </div>
+                    {col.exampleKh && (
+                      <div style={{ color: '#0369a1' }}>
+                        <strong>ឧទាហរណ៍៖</strong> {col.exampleKh}
+                      </div>
+                    )}
+                    {col.lawReference && (
+                      <div style={{ color: '#b45309', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>⚖️</span>
+                        <span><strong>ច្បាប់យោង៖</strong> {col.lawReference}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 3: INTERACTIVE LIVE FORMULA SIMULATOR                                 */}
       {/* ========================================================================= */}
       {subTab === 'simulator' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -1307,15 +1596,39 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
               </div>
 
               {/* Grand Total Net Salary */}
-              <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '10px', border: '1.5px solid #3b82f6', marginBottom: '14px' }}>
+              <div style={{ backgroundColor: '#ffffff', padding: '14px', borderRadius: '10px', border: '1.5px solid #3b82f6', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Net Salary USD</span>
+                    <span style={{ fontSize: '0.76rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
+                      ប្រាក់ខែសុទ្ធលើកទី២ (2nd Payment Net USD - ជួរទី ៤២)
+                    </span>
                     <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#1e40af' }}>
                       ${simResults.netSalaryUsd.toFixed(2)}
                     </div>
                   </div>
                   <span style={{ fontSize: '1.5rem' }}>💵</span>
+                </div>
+              </div>
+
+              {/* Payment 1 & Payment 2 Breakdown Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ backgroundColor: '#f0f9ff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+                  <span style={{ fontSize: '0.72rem', color: '#0369a1', display: 'block', fontWeight: 700 }}>
+                    📅 បើកលើកទី១ (1st Pay - ជួរ ៤០)
+                  </span>
+                  <strong style={{ fontSize: '1.1rem', color: '#0284c7' }}>${simResults.loanPension.toFixed(2)}</strong>
+                  <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', marginTop: '2px' }}>
+                    ប្រាក់បុរេប្រទាន (ថ្ងៃទី {p1Start}-{p1End})
+                  </span>
+                </div>
+                <div style={{ backgroundColor: '#f0fdf4', padding: '10px 12px', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+                  <span style={{ fontSize: '0.72rem', color: '#15803d', display: 'block', fontWeight: 700 }}>
+                    📅 បើកលើកទី២ (2nd Pay - ជួរ ៤២)
+                  </span>
+                  <strong style={{ fontSize: '1.1rem', color: '#16a34a' }}>${simResults.netSalaryUsd.toFixed(2)}</strong>
+                  <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', marginTop: '2px' }}>
+                    ប្រាក់ខែសុទ្ធ (ថ្ងៃទី {p2Start}-{p2End})
+                  </span>
                 </div>
               </div>
 

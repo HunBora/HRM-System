@@ -14,6 +14,8 @@ export async function updatePayrollDates(data: {
   lunchAllowancePerDay?: number;
   otMealAllowance?: number;
   dayCareAllowancePerChild?: number;
+  unionMonthlyFee?: number;
+  unionDeductionPolicy?: string;
 }) {
   const exchangeRate = data.exchangeRate !== undefined ? Number(data.exchangeRate) : undefined;
   const transportationAllowance = data.transportationAllowance !== undefined ? Number(data.transportationAllowance) : undefined;
@@ -21,6 +23,8 @@ export async function updatePayrollDates(data: {
   const lunchAllowancePerDay = data.lunchAllowancePerDay !== undefined ? Number(data.lunchAllowancePerDay) : undefined;
   const otMealAllowance = data.otMealAllowance !== undefined ? Number(data.otMealAllowance) : undefined;
   const dayCareAllowancePerChild = data.dayCareAllowancePerChild !== undefined ? Number(data.dayCareAllowancePerChild) : undefined;
+  const unionMonthlyFee = data.unionMonthlyFee !== undefined ? Number(data.unionMonthlyFee) : undefined;
+  const unionDeductionPolicy = data.unionDeductionPolicy !== undefined ? String(data.unionDeductionPolicy) : undefined;
 
   await prisma.companySettings.upsert({
     where: { id: 'default' },
@@ -35,6 +39,8 @@ export async function updatePayrollDates(data: {
       ...(lunchAllowancePerDay !== undefined ? { lunchAllowancePerDay } : {}),
       ...(otMealAllowance !== undefined ? { otMealAllowance } : {}),
       ...(dayCareAllowancePerChild !== undefined ? { dayCareAllowancePerChild } : {}),
+      ...(unionMonthlyFee !== undefined ? { unionMonthlyFee } : {}),
+      ...(unionDeductionPolicy !== undefined ? { unionDeductionPolicy } : {}),
     },
     create: {
       id: 'default',
@@ -48,6 +54,8 @@ export async function updatePayrollDates(data: {
       lunchAllowancePerDay: lunchAllowancePerDay ?? 0.50,
       otMealAllowance: otMealAllowance ?? 0.50,
       dayCareAllowancePerChild: dayCareAllowancePerChild ?? 0.0,
+      unionMonthlyFee: unionMonthlyFee ?? 1.0,
+      unionDeductionPolicy: unionDeductionPolicy ?? 'VOLUNTARY',
     }
   });
   

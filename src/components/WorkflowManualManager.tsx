@@ -974,6 +974,22 @@ export default function WorkflowManualManager({ settings }: WorkflowManualManage
                 </p>
               </div>
 
+              {/* Union Deduction */}
+              <div style={{ padding: '18px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1.5px solid #86efac' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <strong className="kh-text" style={{ color: '#166534', fontSize: '0.95rem' }}>🤝 សហជីព (Union Deduction - ជួរទី ៤១)</strong>
+                  <span style={{ fontSize: '0.75rem', backgroundColor: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>កំណត់តាមចិត្តរោងចក្រ</span>
+                </div>
+                <div style={{ padding: '8px 12px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px dashed #86efac', fontFamily: 'monospace', fontWeight: 700, color: '#15803d', fontSize: '0.88rem', marginBottom: '8px' }}>
+                  Union Fee = Configured Rate ($1.00 / Custom) if Member
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.82rem', color: '#14532d', lineHeight: 1.5 }}>
+                  <li><strong>កំណត់តាមចិត្តរោងចក្រ៖</strong> ក្រុមហ៊ុនអាចកំណត់ទំហំទឹកប្រាក់វិភាគទានសហជីពប្រចាំខែតាមចិត្ត ($0, $0.50, $1.00, $1.50, $2.00...) ក្នុងទំព័រ Settings។</li>
+                  <li><strong>យោងមាត្រា ៤៨ នៃច្បាប់ស្តីពីសហជីព៖</strong> ការកាត់វិភាគទានសហជីពពីប្រាក់ឈ្នួល ត្រូវធ្វើឡើងតាមការព្រមព្រៀង និងការស្ម័គ្រចិត្តរបស់កម្មករនិយោជិត។</li>
+                  <li><strong>ជម្រើសអនុវត្ត៖</strong> អាចជ្រើសរើសកាត់តែកម្មករដែលជាសមាជិកស្ម័គ្រចិត្ត ឬអនុវត្តលើបុគ្គលិកទាំងអស់ ឬបិទការកាត់។</li>
+                </ul>
+              </div>
+
               {/* Payment 1 and Payment 2 SOP Box */}
               <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: '#eff6ff', border: '1.5px solid #3b82f6', gridColumn: '1 / -1' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>

@@ -77,6 +77,8 @@ model Employee {
   nssfNo             String?
   spouseName         String?
   remark             String?
+  isUnionMember      Boolean  @default(false)
+  unionFee           Float?
   // -------------------------------------------
 
   status           String   @default("ACTIVE") // ACTIVE, TERMINATED, ALUMNI
@@ -269,6 +271,10 @@ model CompanySettings {
   lunchAllowancePerDay      Float    @default(0.50)
   otMealAllowance           Float    @default(0.50)
   dayCareAllowancePerChild  Float    @default(0.0)
+
+  // Union Settings (Customizable per company/factory & voluntary consent)
+  unionMonthlyFee           Float    @default(1.0)
+  unionDeductionPolicy      String   @default("VOLUNTARY")
 
   updatedAt         DateTime @updatedAt
 }

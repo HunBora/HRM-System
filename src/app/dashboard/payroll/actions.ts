@@ -263,7 +263,19 @@ export async function generatePayroll(month: number, year: number) {
         // - From Nov 2026 onwards (Prakas 234/26 & Notice 3134/26): Min 600,000 KHR ($150), Ceiling 1,500,000 KHR ($375) -> Max $7.50
         const nssf = calculateNssf(basicSalary, !!emp.nssfNo, month, year, exchangeRate);
         const taxPayment = 0; 
-        const unionDeduction = 0;
+        
+        // Union Contribution Deduction based on Company Policy & Worker's Voluntary Consent (Article 48)
+        let unionDeduction = 0;
+        const unionPolicy = companySettings?.unionDeductionPolicy || 'VOLUNTARY';
+        const defaultUnionFee = companySettings?.unionMonthlyFee ?? 1.0;
+        if (unionPolicy === 'ALL') {
+          unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
+        } else if (unionPolicy === 'VOLUNTARY') {
+          if (emp.isUnionMember) {
+            unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
+          }
+        }
+
         const loanPension = totalAdvance;
         
         const netSalaryUsd = totalSalary + severancePay - loanPension - nssf - taxPayment - unionDeduction;
@@ -474,8 +486,21 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
       // Re-calculate NSSF according to statutory floor & ceiling for this month/year
       const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate);
 
+      // Re-calculate union deduction based on company policy & employee voluntary status
+      let unionDeduction = 0;
+      const unionPolicy = settings?.unionDeductionPolicy || 'VOLUNTARY';
+      const defaultUnionFee = settings?.unionMonthlyFee ?? 1.0;
+      if (unionPolicy === 'ALL') {
+        unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
+      } else if (unionPolicy === 'VOLUNTARY') {
+        if (emp.isUnionMember) {
+          unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
+        }
+      }
+      unionDeduction = r2(unionDeduction);
+
       const netSalaryUsd = r2(
-        totalSalary + severancePay - (p.loanPension || 0) - nssf - (p.taxPayment || 0) - (p.unionDeduction || 0)
+        totalSalary + severancePay - (p.loanPension || 0) - nssf - (p.taxPayment || 0) - unionDeduction
       );
 
       // Currency split
@@ -500,6 +525,7 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
           transportation,
           attendanceBonus,
           dayCareAllowance,
+          unionDeduction,
           totalSalary,
           severancePay,
           nssf,

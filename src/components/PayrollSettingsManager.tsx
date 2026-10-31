@@ -18,6 +18,8 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
     lunchAllowancePerDay: initialSettings?.lunchAllowancePerDay ?? 0.50,
     otMealAllowance: initialSettings?.otMealAllowance ?? 0.50,
     dayCareAllowancePerChild: initialSettings?.dayCareAllowancePerChild ?? 0.0,
+    unionMonthlyFee: initialSettings?.unionMonthlyFee ?? 1.0,
+    unionDeductionPolicy: initialSettings?.unionDeductionPolicy || 'VOLUNTARY',
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -26,9 +28,12 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
   const [isRecalculatingNssf, setIsRecalculatingNssf] = useState(false);
   const [message, setMessage] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'number' ? (parseFloat(value) || 0) : value 
+    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -81,7 +86,7 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
   const handleRecalculateAllowancesDrafts = async () => {
     const confirmed = await notify.confirm({
       title: 'អនុវត្តគោលការណ៍ប្រាក់ឧបត្ថម្ភលើតារាងព្រាង',
-      text: `តើអ្នកពិតជាចង់យកអត្រាប្រាក់ឧបត្ថម្ភថ្មី (ធ្វើដំណើរ $${formData.transportationAllowance}, រង្វាន់ទៀងទាត់ $${formData.attendanceBonus}, ថ្លៃបាយ $${formData.lunchAllowancePerDay}, កូនតូច $${formData.dayCareAllowancePerChild}/កូន) ទៅគណនាឡើងវិញលើតារាងប្រាក់ខែព្រាង (Draft Payrolls) ទាំងអស់មែនទេ?`,
+      text: `តើអ្នកពិតជាចង់យកអត្រាប្រាក់ឧបត្ថម្ភ និងសហជីពថ្មី (ធ្វើដំណើរ ${formData.transportationAllowance}, រង្វាន់ទៀងទាត់ ${formData.attendanceBonus}, ថ្លៃបាយ ${formData.lunchAllowancePerDay}, កូនតូច ${formData.dayCareAllowancePerChild}/កូន, សហជីព ${formData.unionMonthlyFee}) ទៅគណនាឡើងវិញលើតារាងប្រាក់ខែព្រាង (Draft Payrolls) ទាំងអស់មែនទេ?`,
       icon: 'question',
       confirmButtonText: 'យល់ព្រមអនុវត្តអូតូ',
     });
@@ -412,6 +417,96 @@ export default function PayrollSettingsManager({ initialSettings }: { initialSet
                       ${val} / កូន
                     </button>
                   ))}
+                </div>
+              </div>
+            </div>
+            {/* 6. Union Contribution Settings (សហជីព និងប្រាក់វិភាគទានសមាជិកសហជីព) */}
+            <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#f0fdf4', border: '1.5px solid #86efac', gridColumn: '1 / -1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                <label style={{ fontSize: '0.92rem', fontWeight: 700, color: '#166534', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🤝</span> សហជីព និងប្រាក់វិភាគទានសមាជិក (Union & Membership Contribution)
+                </label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#15803d', backgroundColor: '#dcfce7', padding: '3px 10px', borderRadius: '12px' }}>
+                    ${formData.unionMonthlyFee.toFixed(2)} / ខែ
+                  </span>
+                  <span style={{ fontSize: '0.74rem', backgroundColor: '#bbf7d0', color: '#14532d', padding: '3px 8px', borderRadius: '8px', fontWeight: 600 }}>
+                    {formData.unionDeductionPolicy === 'VOLUNTARY' ? '✓ កាត់តាមការស្ម័គ្រចិត្ត (Voluntary)' : formData.unionDeductionPolicy === 'ALL' ? 'បុគ្គលិកទាំងអស់ (All)' : 'បិទការកាត់ (Disabled)'}
+                  </span>
+                </div>
+              </div>
+
+              <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: '#14532d', lineHeight: 1.5 }}>
+                ក្រុមហ៊ុន ឬរោងចក្រអាចកំណត់ទំហំទឹកប្រាក់វិភាគទានសហជីពប្រចាំខែតាមចិត្ត។ យោងតាម <strong>មាត្រា ៤៨ នៃច្បាប់ស្តីពីសហជីព</strong> ការកាត់ប្រាក់វិភាគទានសហជីពពីប្រាក់ឈ្នួល ត្រូវធ្វើឡើងតាមការព្រមព្រៀង និងការស្ម័គ្រចិត្តរបស់កម្មករនិយោជិត (កត់ត្រាជាសមាជិកក្នុងប្រព័ន្ធ)។
+              </p>
+
+              {/* Deduction Policy Selector & Monthly Fee Amount */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', alignItems: 'center' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#166534', marginBottom: '6px' }}>
+                    គោលការណ៍កាត់កងសហជីព (Deduction Policy):
+                  </label>
+                  <select
+                    name="unionDeductionPolicy"
+                    value={formData.unionDeductionPolicy}
+                    onChange={(e) => setFormData(prev => ({ ...prev, unionDeductionPolicy: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      border: '1.5px solid #86efac',
+                      backgroundColor: '#ffffff',
+                      fontWeight: 600,
+                      fontSize: '0.86rem',
+                      color: '#14532d',
+                      outline: 'none',
+                    }}
+                  >
+                    <option value="VOLUNTARY">🙋‍♂️ ស្ម័គ្រចិត្ត - កាត់តែកម្មករដែលមានការព្រមព្រៀង (Voluntary Members Only - ច្បាប់សហជីព)</option>
+                    <option value="ALL">🏢 ទាំងអស់ - កាត់លើបុគ្គលិកទាំងអស់ក្នុងរោងចក្រ (All Employees)</option>
+                    <option value="DISABLED">🚫 មិនកាត់ - បិទការកាត់សហជីព ($0.00)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#166534', marginBottom: '6px' }}>
+                    ទំហំប្រាក់វិភាគទានប្រចាំខែ (Monthly Fee Amount USD):
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', maxWidth: '140px' }}>
+                      <span style={{ fontWeight: 700, color: '#166534' }}>$</span>
+                      <input
+                        type="number"
+                        step="0.25"
+                        min="0"
+                        name="unionMonthlyFee"
+                        value={formData.unionMonthlyFee}
+                        onChange={handleChange}
+                        style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1.5px solid #86efac', fontWeight: 700, fontSize: '0.92rem' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      {[0, 0.50, 1.00, 1.50, 2.00].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, unionMonthlyFee: val }))}
+                          style={{
+                            padding: '4px 8px',
+                            borderRadius: '5px',
+                            border: formData.unionMonthlyFee === val ? '1.5px solid #15803d' : '1px solid #bbf7d0',
+                            backgroundColor: formData.unionMonthlyFee === val ? '#bbf7d0' : '#ffffff',
+                            color: '#14532d',
+                            fontSize: '0.76rem',
+                            cursor: 'pointer',
+                            fontWeight: 700
+                          }}
+                        >
+                          ${val.toFixed(2)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -62,6 +62,8 @@ export async function createEmployee(formData: FormData) {
       nssfNo: formData.get('nssfNo') as string || null,
       spouseName: formData.get('spouseName') as string || null,
       remark: formData.get('remark') as string || null,
+      isUnionMember: formData.get('isUnionMember') === 'on' || formData.get('isUnionMember') === 'true',
+      unionFee: formData.get('unionFee') ? parseFloat(formData.get('unionFee') as string) : null,
     }
   });
 
@@ -124,6 +126,8 @@ export async function updateEmployee(formData: FormData) {
     nssfNo: formData.get('nssfNo') as string || null,
     spouseName: formData.get('spouseName') as string || null,
     remark: formData.get('remark') as string || null,
+    isUnionMember: formData.get('isUnionMember') === 'on' || formData.get('isUnionMember') === 'true',
+    unionFee: formData.get('unionFee') ? parseFloat(formData.get('unionFee') as string) : null,
   };
 
   if (photoUrl) {

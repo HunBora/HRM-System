@@ -233,6 +233,41 @@ export default function EmployeeForm({ employee, t }: { employee?: any, t: any }
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>សំបុត្រពេទ្យ (Health Certificate)</label>
           <input type="text" name="healthCertificate" defaultValue={employee?.healthCertificate} className="input-field kh-text" />
         </div>
+
+        {/* Union Membership */}
+        <div style={{ gridColumn: '1 / -1', padding: '14px 16px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: 600, color: '#1e40af', margin: 0 }}>
+              <input 
+                type="checkbox" 
+                name="isUnionMember" 
+                defaultChecked={employee?.isUnionMember || false}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }} 
+              />
+              <span className="kh-text" style={{ fontSize: '0.92rem' }}>
+                🤝 ជាសមាជិកសហជីព និងស្ម័គ្រចិត្តបង់វិភាគទាន (Voluntary Union Member)
+              </span>
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label className="kh-text" style={{ fontSize: '0.84rem', color: '#1e40af', margin: 0 }}>
+                វិភាគទានផ្ទាល់ខ្លួន ($):
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                name="unionFee" 
+                defaultValue={employee?.unionFee ?? ''} 
+                placeholder="តាមក្រុមហ៊ុន" 
+                className="input-field" 
+                style={{ width: '110px', margin: 0, padding: '4px 8px', height: '32px', backgroundColor: '#ffffff' }} 
+              />
+            </div>
+          </div>
+          <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#3b82f6' }}>
+            * យោងច្បាប់ស្តីពីសហជីព មាត្រា ៤៨៖ ការកាត់វិភាគទានសហជីពត្រូវធ្វើឡើងដោយមានការយល់ព្រមស្ម័គ្រចិត្តពីកម្មករនិយោជិត។ ប្រសិនបើទុកប្រអប់ប្រាក់ទទេ នោះប្រព័ន្ធនឹងកាត់តាមកំណត់ទូទៅរបស់ក្រុមហ៊ុន។
+          </p>
+        </div>
+
         <div style={{ gridColumn: '1 / -1' }}>
           <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>ផ្សេងៗ (Remark)</label>
           <textarea name="remark" defaultValue={employee?.remark} className="input-field kh-text" rows={2}></textarea>

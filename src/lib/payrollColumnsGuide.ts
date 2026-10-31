@@ -581,10 +581,11 @@ export const MASTER_46_COLUMNS: PayrollColumnDoc[] = [
     category: 'deductions',
     categoryLabelKh: 'ប្រាក់កាត់កង',
     categoryColor: '#dc2626',
-    formula: 'Configured Union Membership Fee ($1.00 / month)',
-    dataSource: 'បញ្ជីឈ្មោះសមាជិកសហជីព',
-    descriptionKh: 'ប្រាក់វិភាគទានសមាជិកសហជីពប្រចាំខែ (កាត់កងតាមការព្រមព្រៀង និងស្ម័គ្រចិត្តរបស់កម្មករនិយោជិត)។',
-    exampleKh: '$1.00, $0.00...',
+    formula: 'Configured Union Fee (Default $1.00 or Custom) if Voluntary Member',
+    dataSource: 'ការកំណត់រោងចក្រ & បញ្ជីឈ្មោះសមាជិកសហជីព (Settings & Employee Union Membership)',
+    descriptionKh: 'ប្រាក់វិភាគទានសមាជិកសហជីពប្រចាំខែ ដែលរោងចក្រអាចកំណត់តាមចិត្តបាន ហើយកាត់កងតាមការព្រមព្រៀង និងស្ម័គ្រចិត្តរបស់កម្មករនិយោជិត (យោងមាត្រា ៤៨ នៃច្បាប់ស្តីពីសហជីព)។',
+    lawReference: 'មាត្រា ៤៨ នៃច្បាប់ស្តីពីសហជីព',
+    exampleKh: '$1.00 (សមាជិកស្ម័គ្រចិត្ត), $0.00 (មិនចូលរួម)...',
   },
 
   // 40 & 42: Payout 1 and Payout 2 (Labor Law Standard)

@@ -53,6 +53,7 @@ export default function EmployeeDocumentsTab({ employeeId, documents }: { employ
           <select name="type" required style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }} className="kh-text">
             <option value="ID_CARD">អត្តសញ្ញាណប័ណ្ណ (ID Card)</option>
             <option value="CONTRACT">កិច្ចសន្យាការងារ (Contract)</option>
+            <option value="UNION_AGREEMENT">🤝 លិខិតព្រមព្រៀងសហជីព (Union Agreement)</option>
             <option value="CV">ប្រវត្តិរូបសង្ខេប (CV)</option>
             <option value="CERTIFICATE">សញ្ញាបត្រ (Certificate)</option>
             <option value="OTHER">ផ្សេងៗ (Other)</option>

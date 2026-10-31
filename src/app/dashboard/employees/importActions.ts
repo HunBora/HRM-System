@@ -204,6 +204,7 @@ export async function importEmployeeExcel(formData: FormData) {
                 else if (text.includes('spouse') || text.includes('ប្តី') || text.includes('ប្រពន្ធ') || text.includes('配偶')) headersMap['spouseName'] = colNumber;
                 else if (text.includes('phone') || text.includes('ទូរស័ព្ទ') || text.includes('电话')) headersMap['phone'] = colNumber;
                 else if (text.includes('telegram') || text.includes('chat id') || text.includes('តេឡេក្រាម') || text.includes('飞机')) headersMap['telegramChatId'] = colNumber;
+                else if (text.includes('union') || text.includes('សហជីព') || text.includes('工会')) headersMap['isUnionMember'] = colNumber;
               });
             }
             break;
@@ -253,6 +254,8 @@ export async function importEmployeeExcel(formData: FormData) {
         let spouseName = '';
         let phone = '';
         let telegramChatId = '';
+        let isUnionMember = false;
+        let unionFeeVal: number | null = null;
 
         if (formatDetected === 'system38') {
           // =====================================
@@ -373,6 +376,21 @@ export async function importEmployeeExcel(formData: FormData) {
           if (headersMap['spouseName']) spouseName = getCellText(row.getCell(headersMap['spouseName']));
           if (headersMap['phone']) phone = getCellText(row.getCell(headersMap['phone']));
           if (headersMap['telegramChatId']) telegramChatId = getCellText(row.getCell(headersMap['telegramChatId']));
+          if (headersMap['isUnionMember']) {
+            const uVal = getCellVal(row.getCell(headersMap['isUnionMember']));
+            if (uVal !== null && uVal !== undefined && uVal !== '') {
+              const uStr = String(uVal).trim().toLowerCase();
+              if (uStr === 'yes' || uStr === '1' || uStr === 'true' || uStr === 'y' || uStr.includes('សមាជិក') || uStr.includes('ចូល') || uStr.includes('ព្រម')) {
+                isUnionMember = true;
+              } else {
+                const parsed = parseFloat(uStr.replace(/[^0-9.]/g, ''));
+                if (!isNaN(parsed) && parsed > 0) {
+                  isUnionMember = true;
+                  unionFeeVal = parsed;
+                }
+              }
+            }
+          }
         }
 
         // Fallback for employeeId if not detected
@@ -431,6 +449,8 @@ export async function importEmployeeExcel(formData: FormData) {
           spouseName,
           phone,
           telegramChatId,
+          isUnionMember,
+          unionFee: unionFeeVal,
         });
       });
     } catch (excelJsError) {
@@ -676,6 +696,8 @@ export async function importEmployeeExcel(formData: FormData) {
         spouseName: item.spouseName || null,
         ...(item.phone ? { phone: item.phone } : {}),
         ...(item.telegramChatId ? { telegramChatId: item.telegramChatId } : {}),
+        isUnionMember: item.isUnionMember || false,
+        unionFee: item.unionFee || null,
       };
 
       if (existing) {

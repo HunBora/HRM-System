@@ -54,15 +54,16 @@ export default function ImportFingerprintModal() {
         }}
         className="kh-text"
         style={{
-          padding: '8px 12px',
+          height: '32px',
+          padding: '0 10px',
           borderRadius: '6px',
           border: '1px solid #cbd5e1',
-          background: '#f1f5f9',
+          background: '#f8fafc',
           cursor: 'pointer',
-          fontWeight: 500,
+          fontWeight: 600,
           color: '#334155',
           outline: 'none',
-          fontSize: '0.95rem'
+          fontSize: '0.82rem'
         }}
       >
         <option value="">⚙️ ទិន្នន័យវត្តមាន (Attendance Data)</option>

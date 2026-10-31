@@ -43,6 +43,11 @@ export default function IsoProbationContractModal({
   const [isGeneratingDocx, setIsGeneratingDocx] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Employee Search & Autocomplete State
+  const [searchEmpQuery, setSearchEmpQuery] = useState('');
+  const [isEmpDropdownOpen, setIsEmpDropdownOpen] = useState(false);
+  const [selectedEmpId, setSelectedEmpId] = useState(() => initialEmployee?.id || '');
+
   // Form State
   const [formData, setFormData] = useState<IsoContractDocxData>(() =>
     initIsoData(initialEmployee, companySettings, contractType)
@@ -62,8 +67,35 @@ export default function IsoProbationContractModal({
       }
       setContractType(detectedType);
       setFormData(initIsoData(initialEmployee, companySettings, detectedType));
+      setSelectedEmpId(initialEmployee.id || '');
+      const name = `${initialEmployee.firstNameKh || initialEmployee.firstNameEn || ''} ${initialEmployee.lastNameKh || initialEmployee.lastNameEn || ''}`.trim();
+      setSearchEmpQuery(initialEmployee.employeeId ? `${initialEmployee.employeeId} - ${name}` : name);
     }
   }, [initialEmployee, companySettings, initialContractType]);
+
+  const filteredEmployees = useMemo(() => {
+    if (!employees || employees.length === 0) return [];
+    if (!searchEmpQuery.trim()) return employees.slice(0, 50);
+    const q = searchEmpQuery.toLowerCase().trim();
+    return employees.filter((emp) => {
+      const empId = (emp.employeeId || '').toLowerCase();
+      const fnKh = (emp.firstNameKh || '').toLowerCase();
+      const lnKh = (emp.lastNameKh || '').toLowerCase();
+      const nameKh = `${lnKh} ${fnKh}`.toLowerCase();
+      const fnEn = (emp.firstNameEn || '').toLowerCase();
+      const lnEn = (emp.lastNameEn || '').toLowerCase();
+      const nameEn = `${fnEn} ${lnEn}`.toLowerCase();
+      const pos = (emp.position || '').toLowerCase();
+      const nid = (emp.nationalId || '').toLowerCase();
+      return (
+        empId.includes(q) ||
+        nameKh.includes(q) ||
+        nameEn.includes(q) ||
+        pos.includes(q) ||
+        nid.includes(q)
+      );
+    });
+  }, [employees, searchEmpQuery]);
 
   function initIsoData(emp: any, settings: any, cType: IsoContractType): IsoContractDocxData {
     const today = new Date();
@@ -190,37 +222,66 @@ export default function IsoProbationContractModal({
     });
   };
 
-  // Handle employee picker change
+  // Apply selected employee from either typing search or dropdown
+  const applySelectedEmployee = (found: any) => {
+    if (!found) return;
+    setSelectedEmpId(found.id || '');
+    const nameKh = `${found.firstNameKh || ''} ${found.lastNameKh || ''}`.trim();
+    const nameEn = `${found.firstNameEn || ''} ${found.lastNameEn || ''}`.trim();
+    setSearchEmpQuery(`${found.employeeId || ''} - ${nameKh || nameEn}`.trim());
+    setIsEmpDropdownOpen(false);
+
+    const isForeign =
+      Boolean(found.nationality) &&
+      found.nationality.toLowerCase() !== 'cambodian' &&
+      found.nationality.toLowerCase() !== 'ខ្មែរ';
+
+    const suggestedType: IsoContractType = isForeign ? 'FOREIGN_FDC' : contractType;
+    if (isForeign && contractType !== 'FOREIGN_FDC') {
+      setContractType('FOREIGN_FDC');
+    }
+
+    const formatDate = (d: any) => {
+      if (!d) return '';
+      const dateObj = new Date(d);
+      if (isNaN(dateObj.getTime())) return '';
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      return `${day}/${month}/${dateObj.getFullYear()}`;
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      contractType: suggestedType,
+      isForeigner: isForeign,
+      employeeNameKh: nameKh || prev.employeeNameKh,
+      employeeNameEn: nameEn || prev.employeeNameEn,
+      genderKh: found.gender === 'FEMALE' ? 'ស្រី' : 'ប្រុស',
+      genderZh: found.gender === 'FEMALE' ? '女' : '男',
+      position: found.position || prev.position,
+      employeeId: found.employeeId || prev.employeeId,
+      dob: found.dob ? formatDate(found.dob) : prev.dob,
+      nationalId: found.nationalId || prev.nationalId,
+      nssfNo: found.nssfNumber || found.nssfNo || prev.nssfNo,
+      address: found.address || prev.address,
+      basicSalaryUsd: found.basicSalary || prev.basicSalaryUsd,
+      nationality: found.nationality || prev.nationality,
+      passportNo: found.passportNumber || prev.passportNo,
+      workPermitNo: found.workPermitNumber || prev.workPermitNo,
+    }));
+  };
+
+  // Handle employee picker change from dropdown
   const handleSelectEmployee = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
+    if (!selectedId) {
+      setSelectedEmpId('');
+      setSearchEmpQuery('');
+      return;
+    }
     const found = employees.find((x) => x.id === selectedId);
     if (found) {
-      const isForeign =
-        Boolean(found.nationality) &&
-        found.nationality.toLowerCase() !== 'cambodian' &&
-        found.nationality.toLowerCase() !== 'ខ្មែរ';
-
-      const suggestedType: IsoContractType = isForeign ? 'FOREIGN_FDC' : contractType;
-      if (isForeign && contractType !== 'FOREIGN_FDC') {
-        setContractType('FOREIGN_FDC');
-      }
-
-      const nameKh = `${found.firstNameKh || ''} ${found.lastNameKh || ''}`.trim();
-      const nameEn = `${found.firstNameEn || ''} ${found.lastNameEn || ''}`.trim();
-      setFormData((prev) => ({
-        ...prev,
-        contractType: suggestedType,
-        isForeigner: isForeign,
-        employeeNameKh: nameKh || prev.employeeNameKh,
-        employeeNameEn: nameEn || prev.employeeNameEn,
-        genderKh: found.gender === 'FEMALE' ? 'ស្រី' : 'ប្រុស',
-        genderZh: found.gender === 'FEMALE' ? '女' : '男',
-        position: found.position || prev.position,
-        employeeId: found.employeeId || prev.employeeId,
-        nationalId: found.nationalId || prev.nationalId,
-        address: found.address || prev.address,
-        basicSalaryUsd: found.basicSalary || prev.basicSalaryUsd,
-      }));
+      applySelectedEmployee(found);
     }
   };
 
@@ -625,30 +686,252 @@ export default function IsoProbationContractModal({
                 ✏️ កែប្រែព័ត៌មានកិច្ចសន្យា ISO 9001:2015 ({currentConfig.titleKh})
               </h3>
 
-              {/* Employee Quick Picker */}
+              {/* Employee Quick Picker - Dual Mode: Type ID/Name Auto-suggest OR Dropdown */}
               {employees && employees.length > 0 && (
-                <div style={{ marginBottom: '16px', padding: '12px', background: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-                  <label style={{ display: 'block', fontWeight: 700, fontSize: '0.82rem', color: '#1e3a8a', marginBottom: '6px' }}>
-                    🔍 ទាញយកទិន្នន័យពីបុគ្គលិកដែលមានស្រាប់ (Quick Fill from Database):
-                  </label>
-                  <select
-                    onChange={handleSelectEmployee}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: '1px solid #93c5fd',
-                      fontSize: '0.85rem',
-                      background: '#ffffff',
-                    }}
-                  >
-                    <option value="">-- ជ្រើសរើសបុគ្គលិកដើម្បីទាញយកព័ត៌មាន --</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.employeeId} - {emp.firstNameKh || emp.firstNameEn} {emp.lastNameKh || emp.lastNameEn} ({emp.position || 'No Position'}) {emp.nationality ? `[${emp.nationality}]` : ''}
-                      </option>
-                    ))}
-                  </select>
+                <div
+                  style={{
+                    marginBottom: '16px',
+                    padding: '12px 14px',
+                    background: 'linear-gradient(180deg, #f0f7ff 0%, #e0f2fe 100%)',
+                    borderRadius: '10px',
+                    border: '1.5px solid #93c5fd',
+                    boxShadow: '0 2px 5px rgba(37, 99, 235, 0.06)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                    <label style={{ fontWeight: 800, fontSize: '0.84rem', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>🔍</span>
+                      <span>ទាញយកទិន្នន័យពីបុគ្គលិកដែលមានស្រាប់ (Quick Fill from Database):</span>
+                    </label>
+                    <span style={{ fontSize: '0.74rem', color: '#0369a1', background: '#ffffff', padding: '2px 8px', borderRadius: '12px', fontWeight: 700, border: '1px solid #bae6fd' }}>
+                      {employees.length} នាក់ក្នុងប្រព័ន្ធ
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '10px', alignItems: 'flex-start' }}>
+                    {/* Method 1: Auto-search by typing ID or Name */}
+                    <div style={{ position: 'relative' }}>
+                      <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 700, color: '#1e40af', marginBottom: '4px' }}>
+                        ⌨️ វាយបញ្ចូល ID ឬ ឈ្មោះ (Auto-search / Suggest):
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type="text"
+                          placeholder="វាយ ID (EM-0002) ឬ ឈ្មោះ (Bora, ហ៊ុន)..."
+                          value={searchEmpQuery}
+                          onChange={(e) => {
+                            setSearchEmpQuery(e.target.value);
+                            setIsEmpDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsEmpDropdownOpen(true)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && filteredEmployees.length > 0) {
+                              e.preventDefault();
+                              applySelectedEmployee(filteredEmployees[0]);
+                            } else if (e.key === 'Escape') {
+                              setIsEmpDropdownOpen(false);
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '7px 28px 7px 10px',
+                            borderRadius: '6px',
+                            border: '1.5px solid #3b82f6',
+                            fontSize: '0.84rem',
+                            background: '#ffffff',
+                            color: '#0f172a',
+                            fontWeight: 600,
+                            outline: 'none',
+                          }}
+                        />
+                        {searchEmpQuery && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSearchEmpQuery('');
+                              setSelectedEmpId('');
+                              setIsEmpDropdownOpen(false);
+                            }}
+                            style={{
+                              position: 'absolute',
+                              right: '6px',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'transparent',
+                              border: 'none',
+                              color: '#94a3b8',
+                              cursor: 'pointer',
+                              fontWeight: 700,
+                              fontSize: '0.8rem',
+                              padding: '2px 4px',
+                            }}
+                            title="សម្អាត"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Auto-suggest dropdown popup */}
+                      {isEmpDropdownOpen && (
+                        <>
+                          <div
+                            style={{
+                              position: 'fixed',
+                              inset: 0,
+                              zIndex: 9998,
+                            }}
+                            onClick={() => setIsEmpDropdownOpen(false)}
+                          />
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: 'calc(100% + 4px)',
+                              left: 0,
+                              right: 0,
+                              background: '#ffffff',
+                              borderRadius: '8px',
+                              boxShadow: '0 10px 25px rgba(0,0,0,0.18)',
+                              border: '1.5px solid #60a5fa',
+                              zIndex: 9999,
+                              maxHeight: '260px',
+                              overflowY: 'auto',
+                            }}
+                          >
+                            {filteredEmployees.length === 0 ? (
+                              <div style={{ padding: '10px 12px', fontSize: '0.78rem', color: '#94a3b8', textAlign: 'center' }}>
+                                មិនមានបុគ្គលិកត្រូវតាមការស្វែងរក &quot;{searchEmpQuery}&quot;
+                              </div>
+                            ) : (
+                              <>
+                                <div style={{ padding: '4px 10px', fontSize: '0.7rem', color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontWeight: 600 }}>
+                                  លទ្ធផលស្វែងរក ({filteredEmployees.length} នាក់) - ចុចលើឈ្មោះដើម្បីជ្រើសរើស៖
+                                </div>
+                                {filteredEmployees.map((emp) => {
+                                  const nameKh = `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim();
+                                  const nameEn = `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim();
+                                  const isSelected = emp.id === selectedEmpId;
+                                  return (
+                                    <div
+                                      key={emp.id}
+                                      onClick={() => applySelectedEmployee(emp)}
+                                      style={{
+                                        padding: '7px 10px',
+                                        borderBottom: '1px solid #f1f5f9',
+                                        cursor: 'pointer',
+                                        background: isSelected ? '#eff6ff' : '#ffffff',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        transition: 'background 0.1s',
+                                      }}
+                                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f9ff')}
+                                      onMouseLeave={(e) => (e.currentTarget.style.background = isSelected ? '#eff6ff' : '#ffffff')}
+                                    >
+                                      <div>
+                                        <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e3a8a' }}>
+                                          <span style={{ color: '#2563eb', marginRight: '6px' }}>[{emp.employeeId}]</span>
+                                          {nameKh || nameEn}
+                                          {nameKh && nameEn && (
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b', marginLeft: '6px' }}>
+                                              ({nameEn})
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>
+                                          {emp.position || 'No Position'} • {emp.department || 'General'}
+                                          {emp.nationalId ? ` • ID: ${emp.nationalId}` : ''}
+                                          {emp.nationality ? ` [${emp.nationality}]` : ''}
+                                        </div>
+                                      </div>
+                                      {isSelected && (
+                                        <span style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700 }}>
+                                          ✓ ជាប់
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Method 2: Select from Dropdown list */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 700, color: '#1e40af', marginBottom: '4px' }}>
+                        📋 ឬជ្រើសរើសពីបញ្ជី (Select Dropdown):
+                      </label>
+                      <select
+                        value={selectedEmpId}
+                        onChange={handleSelectEmployee}
+                        style={{
+                          width: '100%',
+                          padding: '7px 10px',
+                          borderRadius: '6px',
+                          border: '1px solid #93c5fd',
+                          fontSize: '0.84rem',
+                          background: '#ffffff',
+                          color: '#0f172a',
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="">-- ជ្រើសរើសបុគ្គលិកដើម្បីទាញយកព័ត៌មាន --</option>
+                        {employees.map((emp) => (
+                          <option key={emp.id} value={emp.id}>
+                            {emp.employeeId} - {emp.firstNameKh || emp.firstNameEn} {emp.lastNameKh || emp.lastNameEn} ({emp.position || 'No Position'}) {emp.nationality ? `[${emp.nationality}]` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Active selected pill summary */}
+                  {selectedEmpId && (
+                    <div
+                      style={{
+                        marginTop: '8px',
+                        padding: '6px 10px',
+                        background: '#dcfce7',
+                        border: '1px solid #86efac',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '0.78rem',
+                        color: '#166534',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>✅</span>
+                        <span>
+                          <strong>បានជ្រើសរើស៖</strong> {formData.employeeId} - {formData.employeeNameKh} ({formData.employeeNameEn}) • {formData.position}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedEmpId('');
+                          setSearchEmpQuery('');
+                        }}
+                        style={{
+                          background: '#fee2e2',
+                          color: '#dc2626',
+                          border: '1px solid #fca5a5',
+                          borderRadius: '4px',
+                          padding: '2px 6px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ✕ សម្អាត (Reset)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -2030,86 +2030,129 @@ export default function ContractClient({
                     🔍 ១. ស្វែងរកបុគ្គលិកដោយស្វ័យប្រវត្តិ (Auto-fill Employee)
                   </h3>
 
-                  <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
-                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem', fontSize: '0.9rem' }}>
-                      វាយបញ្ចូល អត្តលេខ / ឈ្មោះ (ខ្មែរ/ឡាតាំង) / លេខអត្តសញ្ញាណប័ណ្ណ៖
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="ឧ. EMP-001 ឬ Sokha ឬ 010203..."
-                      value={searchEmpQuery}
-                      onChange={(e) => {
-                        setSearchEmpQuery(e.target.value);
-                        setIsEmpDropdownOpen(true);
-                      }}
-                      onFocus={() => setIsEmpDropdownOpen(true)}
-                      style={{
-                        width: '100%',
-                        padding: '0.65rem 0.9rem',
-                        borderRadius: '8px',
-                        border: '2px solid #3b82f6',
-                        fontSize: '0.95rem',
-                      }}
-                    />
-
-                    {/* Auto-suggest dropdown */}
-                    {isEmpDropdownOpen && filteredEmployees.length > 0 && (
-                      <div
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', marginBottom: '1.25rem' }}>
+                    {/* Method 1: Auto-search by ID / Name / National ID */}
+                    <div style={{ position: 'relative' }}>
+                      <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.35rem', fontSize: '0.84rem', color: '#1e3a8a' }}>
+                        ⌨️ វាយបញ្ចូល ID ឬ ឈ្មោះ (Auto-search / Suggest):
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="ឧ. EM-001 ឬ Sokha ឬ 010203..."
+                        value={searchEmpQuery}
+                        onChange={(e) => {
+                          setSearchEmpQuery(e.target.value);
+                          setIsEmpDropdownOpen(true);
+                        }}
+                        onFocus={() => setIsEmpDropdownOpen(true)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && filteredEmployees.length > 0) {
+                            e.preventDefault();
+                            handleSelectEmployee(filteredEmployees[0]);
+                          } else if (e.key === 'Escape') {
+                            setIsEmpDropdownOpen(false);
+                          }
+                        }}
                         style={{
-                          position: 'absolute',
-                          top: '100%',
-                          left: 0,
-                          right: 0,
-                          background: '#ffffff',
+                          width: '100%',
+                          padding: '0.55rem 0.85rem',
                           borderRadius: '8px',
-                          boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                          border: '2px solid #3b82f6',
+                          fontSize: '0.88rem',
+                          outline: 'none',
+                        }}
+                      />
+
+                      {/* Auto-suggest dropdown */}
+                      {isEmpDropdownOpen && filteredEmployees.length > 0 && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            background: '#ffffff',
+                            borderRadius: '8px',
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                            border: '1px solid #cbd5e1',
+                            zIndex: 50,
+                            maxHeight: '260px',
+                            overflowY: 'auto',
+                            marginTop: '4px',
+                          }}
+                        >
+                          {filteredEmployees.map((emp) => (
+                            <div
+                              key={emp.id}
+                              onClick={() => handleSelectEmployee(emp)}
+                              style={{
+                                padding: '0.65rem 0.9rem',
+                                borderBottom: '1px solid #f1f5f9',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                transition: 'background 0.15s',
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.background = '#eff6ff')}
+                              onMouseLeave={(e) => (e.currentTarget.style.background = '#ffffff')}
+                            >
+                              <div>
+                                <strong style={{ color: '#1e3a8a' }}>{emp.employeeId}</strong> -{' '}
+                                {emp.lastNameKh} {emp.firstNameKh} ({emp.firstNameEn} {emp.lastNameEn})
+                                <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                                  ផ្នែក៖ {emp.department} • មុខតំណែង៖ {emp.position} • អត្តសញ្ញាណប័ណ្ណ៖{' '}
+                                  {emp.nationalId || 'N/A'}
+                                </div>
+                              </div>
+                              <span
+                                style={{
+                                  background: '#dbeafe',
+                                  color: '#1d4ed8',
+                                  padding: '0.2rem 0.55rem',
+                                  borderRadius: '12px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                ជ្រើសរើស ➔
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Method 2: Select from Dropdown list */}
+                    <div>
+                      <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.35rem', fontSize: '0.84rem', color: '#1e3a8a' }}>
+                        📋 ឬជ្រើសរើសពីបញ្ជី (Dropdown List):
+                      </label>
+                      <select
+                        value={formData.employeeId}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const emp = employees.find((x) => x.employeeId === val || x.id === val);
+                          if (emp) handleSelectEmployee(emp);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.85rem',
+                          borderRadius: '8px',
                           border: '1px solid #cbd5e1',
-                          zIndex: 50,
-                          maxHeight: '260px',
-                          overflowY: 'auto',
-                          marginTop: '4px',
+                          fontSize: '0.88rem',
+                          background: '#ffffff',
+                          cursor: 'pointer',
                         }}
                       >
-                        {filteredEmployees.map((emp) => (
-                          <div
-                            key={emp.id}
-                            onClick={() => handleSelectEmployee(emp)}
-                            style={{
-                              padding: '0.65rem 0.9rem',
-                              borderBottom: '1px solid #f1f5f9',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.background = '#eff6ff')}
-                            onMouseLeave={(e) => (e.currentTarget.style.background = '#ffffff')}
-                          >
-                            <div>
-                              <strong style={{ color: '#1e3a8a' }}>{emp.employeeId}</strong> -{' '}
-                              {emp.lastNameKh} {emp.firstNameKh} ({emp.firstNameEn} {emp.lastNameEn})
-                              <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                                ផ្នែក៖ {emp.department} • មុខតំណែង៖ {emp.position} • អត្តសញ្ញាណប័ណ្ណ៖{' '}
-                                {emp.nationalId || 'N/A'}
-                              </div>
-                            </div>
-                            <span
-                              style={{
-                                background: '#dbeafe',
-                                color: '#1d4ed8',
-                                padding: '0.2rem 0.55rem',
-                                borderRadius: '12px',
-                                fontSize: '0.75rem',
-                                fontWeight: 600,
-                              }}
-                            >
-                              ជ្រើសរើស ➔
-                            </span>
-                          </div>
+                        <option value="">-- ជ្រើសរើសបុគ្គលិកពីបញ្ជី --</option>
+                        {employees.map((emp) => (
+                          <option key={emp.id} value={emp.employeeId}>
+                            {emp.employeeId} - {emp.lastNameKh || ''} {emp.firstNameKh || ''} ({emp.firstNameEn} {emp.lastNameEn}) - {emp.department}
+                          </option>
                         ))}
-                      </div>
-                    )}
+                      </select>
+                    </div>
                   </div>
 
                   <h3 style={{ borderBottom: '2px solid #e2e8f0', paddingBottom: '0.65rem', margin: '1.75rem 0 1.25rem 0', color: '#1e3a8a', fontSize: '1.1rem' }}>

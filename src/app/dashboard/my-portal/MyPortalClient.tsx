@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 
@@ -168,6 +168,34 @@ export default function MyPortalClient({
   const empNameKh = `${employee.lastNameKh || ''} ${employee.firstNameKh || ''}`.trim();
   const empNameEn = `${employee.firstNameEn || ''} ${employee.lastNameEn || ''}`.trim();
 
+  // Employee Switcher State (Auto-search ID/Name OR Dropdown)
+  const [portalSearchQuery, setPortalSearchQuery] = useState('');
+  const [isPortalSearchOpen, setIsPortalSearchOpen] = useState(false);
+
+  const filteredPortalEmployees = useMemo(() => {
+    if (!allEmployees || allEmployees.length === 0) return [];
+    if (!portalSearchQuery.trim()) return allEmployees.slice(0, 40);
+    const q = portalSearchQuery.toLowerCase().trim();
+    return allEmployees.filter((e) => {
+      const empId = (e.employeeId || '').toLowerCase();
+      const fnKh = (e.firstNameKh || '').toLowerCase();
+      const lnKh = (e.lastNameKh || '').toLowerCase();
+      const nameKh = `${lnKh} ${fnKh}`.toLowerCase();
+      const fnEn = (e.firstNameEn || '').toLowerCase();
+      const lnEn = (e.lastNameEn || '').toLowerCase();
+      const nameEn = `${fnEn} ${lnEn}`.toLowerCase();
+      const dept = (e.department || '').toLowerCase();
+      const pos = (e.position || '').toLowerCase();
+      return (
+        empId.includes(q) ||
+        nameKh.includes(q) ||
+        nameEn.includes(q) ||
+        dept.includes(q) ||
+        pos.includes(q)
+      );
+    });
+  }, [allEmployees, portalSearchQuery]);
+
   // Switch employee preview (for admin/HR)
   const handleSwitchEmployee = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -305,31 +333,174 @@ export default function MyPortalClient({
             </div>
           </div>
 
-          {/* Admin / HR Employee Switcher */}
+          {/* Admin / HR Employee Switcher - Dual Mode (Auto-search ID/Name OR Dropdown) */}
           {isHR && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-              <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>
-                មើលជាបុគ្គលិកផ្សេងទៀត (Admin Preview):
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
+              <span style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 700 }}>
+                👀 មើលជាបុគ្គលិកផ្សេងទៀត (Admin Preview):
               </span>
-              <select
-                value={employee.id}
-                onChange={handleSwitchEmployee}
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  background: '#f8fafc',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  outline: 'none',
-                }}
-              >
-                {allEmployees.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.employeeId} - {e.lastNameKh || ''} {e.firstNameKh || ''} ({e.firstNameEn} {e.lastNameEn}) - {e.department}
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                {/* Method 1: Auto-search by ID / Name */}
+                <div style={{ position: 'relative', width: '210px' }}>
+                  <input
+                    type="text"
+                    placeholder="🔍 វាយ ID ឬ ឈ្មោះ..."
+                    value={portalSearchQuery}
+                    onChange={(e) => {
+                      setPortalSearchQuery(e.target.value);
+                      setIsPortalSearchOpen(true);
+                    }}
+                    onFocus={() => setIsPortalSearchOpen(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && filteredPortalEmployees.length > 0) {
+                        e.preventDefault();
+                        setIsPortalSearchOpen(false);
+                        router.push(`/dashboard/my-portal?employeeId=${filteredPortalEmployees[0].id}`);
+                      } else if (e.key === 'Escape') {
+                        setIsPortalSearchOpen(false);
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '6px 24px 6px 9px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #3b82f6',
+                      background: '#ffffff',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      outline: 'none',
+                    }}
+                  />
+                  {portalSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPortalSearchQuery('');
+                        setIsPortalSearchOpen(false);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '6px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#94a3b8',
+                        cursor: 'pointer',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        padding: '2px',
+                      }}
+                      title="សម្អាត"
+                    >
+                      ✕
+                    </button>
+                  )}
+
+                  {/* Auto-suggest Dropdown Popup */}
+                  {isPortalSearchOpen && (
+                    <>
+                      <div
+                        style={{ position: 'fixed', inset: 0, zIndex: 998 }}
+                        onClick={() => setIsPortalSearchOpen(false)}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 'calc(100% + 4px)',
+                          right: 0,
+                          width: '320px',
+                          background: '#ffffff',
+                          borderRadius: '8px',
+                          boxShadow: '0 10px 25px rgba(0,0,0,0.18)',
+                          border: '1.5px solid #60a5fa',
+                          zIndex: 999,
+                          maxHeight: '260px',
+                          overflowY: 'auto',
+                        }}
+                      >
+                        {filteredPortalEmployees.length === 0 ? (
+                          <div style={{ padding: '10px', fontSize: '0.78rem', color: '#94a3b8', textAlign: 'center' }}>
+                            រកមិនឃើញ &quot;{portalSearchQuery}&quot;
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{ padding: '4px 10px', fontSize: '0.7rem', color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontWeight: 600 }}>
+                              លទ្ធផលស្វែងរក ({filteredPortalEmployees.length} នាក់) - ចុចដើម្បីប្តូរ៖
+                            </div>
+                            {filteredPortalEmployees.map((e) => {
+                              const nameKh = `${e.lastNameKh || ''} ${e.firstNameKh || ''}`.trim();
+                              const nameEn = `${e.firstNameEn || ''} ${e.lastNameEn || ''}`.trim();
+                              const isCurrent = e.id === employee.id;
+                              return (
+                                <div
+                                  key={e.id}
+                                  onClick={() => {
+                                    setIsPortalSearchOpen(false);
+                                    setPortalSearchQuery('');
+                                    router.push(`/dashboard/my-portal?employeeId=${e.id}`);
+                                  }}
+                                  style={{
+                                    padding: '7px 10px',
+                                    borderBottom: '1px solid #f1f5f9',
+                                    cursor: 'pointer',
+                                    background: isCurrent ? '#eff6ff' : '#ffffff',
+                                    transition: 'background 0.1s',
+                                    textAlign: 'left',
+                                  }}
+                                  onMouseEnter={(el) => (el.currentTarget.style.background = '#f0f9ff')}
+                                  onMouseLeave={(el) => (el.currentTarget.style.background = isCurrent ? '#eff6ff' : '#ffffff')}
+                                >
+                                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e3a8a' }}>
+                                    <span style={{ color: '#2563eb', marginRight: '5px' }}>[{e.employeeId}]</span>
+                                    {nameKh || nameEn}
+                                    {nameKh && nameEn && (
+                                      <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 500, marginLeft: '5px' }}>
+                                        ({nameEn})
+                                      </span>
+                                    )}
+                                    {isCurrent && (
+                                      <span style={{ color: '#059669', fontSize: '0.72rem', fontWeight: 700, marginLeft: '6px' }}>
+                                        ✓ កំពុងមើល
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>
+                                    {e.position} • {e.department}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Method 2: Select from Dropdown list */}
+                <select
+                  value={employee.id}
+                  onChange={handleSwitchEmployee}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    maxWidth: '280px',
+                  }}
+                >
+                  {allEmployees.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.employeeId} - {e.lastNameKh || ''} {e.firstNameKh || ''} ({e.firstNameEn} {e.lastNameEn}) - {e.department}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
         </div>

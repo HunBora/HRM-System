@@ -975,218 +975,304 @@ export default function ContractClient({
 
   return (
     <div className={styles.container}>
-      {/* --- 1. ULTRA-COMPACT SLIM HEADER BAR (FIT-CONTENT) --- */}
-      <div className={styles.headerCard}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <span style={{ fontSize: '1.4rem' }}>📜</span>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, lineHeight: 1.3 }}>
-            កិច្ចសន្យាការងារ & Smart Alert (៣ ភាសា)
-          </h1>
-          <span style={{ fontSize: '0.78rem', opacity: 0.85, marginLeft: '4px' }}>
-            Contracts • 劳动合同管理
-          </span>
+      {/* --- 1. FIT-BOX UNIFIED HEADER & SMART ALERT TOOLBAR --- */}
+      <div className={styles.fitBoxContainer}>
+        {/* Row 1: Header Bar with Title and Action Buttons */}
+        <div className={styles.fitBoxTopRow}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <span style={{ fontSize: '1.15rem' }}>📜</span>
+            <h1 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, lineHeight: 1.2, color: '#ffffff' }}>
+              កិច្ចសន្យាការងារ & Smart Alert
+            </h1>
+            <span
+              style={{
+                fontSize: '0.72rem',
+                opacity: 0.9,
+                background: 'rgba(255,255,255,0.18)',
+                padding: '0.1rem 0.45rem',
+                borderRadius: '4px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Contracts • 劳动合同管理
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Telegram Alert Button */}
+            <button
+              onClick={handleSendTelegramAlerts}
+              disabled={isSendingTelegram}
+              style={{
+                background: 'rgba(255, 255, 255, 0.18)',
+                color: '#ffffff',
+                fontWeight: 600,
+                padding: '0.28rem 0.65rem',
+                height: '30px',
+                borderRadius: '6px',
+                border: '1px solid rgba(255,255,255,0.3)',
+                cursor: 'pointer',
+                fontSize: '0.78rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+              title="ផ្ញើ Smart Alerts ទៅកាន់ Telegram Bot"
+            >
+              <span>📢</span>
+              <span>{isSendingTelegram ? 'កំពុងផ្ញើ...' : 'Alert ទៅ Telegram'}</span>
+            </button>
+
+            {/* ISO 9001:2015 Button */}
+            <button
+              onClick={() => {
+                setSelectedIsoEmployee(null);
+                setSelectedIsoContractType('PROBATION');
+                setShowIsoProbationModal(true);
+              }}
+              style={{
+                background: '#047857',
+                color: '#ffffff',
+                fontWeight: 600,
+                padding: '0.28rem 0.75rem',
+                height: '30px',
+                borderRadius: '6px',
+                border: '1px solid #065f46',
+                cursor: 'pointer',
+                fontSize: '0.78rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+              }}
+              title="ទម្រង់កិច្ចសន្យា ISO 9001:2015 ៤ ទំព័រ (FDC, UDC, បុគ្គលិកជនបរទេស, សាកល្បង / 试用工)"
+            >
+              <span>🏭</span>
+              <span>កិច្ចសន្យា ISO 9001:2015</span>
+            </button>
+
+            {/* Create New Contract Button */}
+            <button
+              onClick={handleOpenNewModal}
+              style={{
+                background: '#ffffff',
+                color: '#1e3a8a',
+                fontWeight: 700,
+                padding: '0.28rem 0.85rem',
+                height: '30px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+              }}
+            >
+              <span>➕</span>
+              <span>បង្កើតកិច្ចសន្យាថ្មី (New)</span>
+            </button>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={handleSendTelegramAlerts}
-            disabled={isSendingTelegram}
+        {/* Row 2: Slim Alert Chips Toolbar */}
+        <div className={styles.fitBoxAlertRow}>
+          <div
             style={{
-              background: 'rgba(255, 255, 255, 0.18)',
-              color: '#ffffff',
-              fontWeight: 600,
-              padding: '0.45rem 0.9rem',
-              borderRadius: '8px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-            }}
-          >
-            <span>📢</span>
-            {isSendingTelegram ? 'កំពុងផ្ញើ...' : 'ផ្ញើ Alert ទៅ Telegram'}
-          </button>
-          <button
-            onClick={() => {
-              setSelectedIsoEmployee(null);
-              setSelectedIsoContractType('PROBATION');
-              setShowIsoProbationModal(true);
-            }}
-            style={{
-              background: '#047857',
-              color: '#ffffff',
+              gap: '0.25rem',
               fontWeight: 700,
-              padding: '0.45rem 1rem',
-              borderRadius: '8px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.86rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-            }}
-            title="ទម្រង់កិច្ចសន្យា ISO 9001:2015 ៤ ទំព័រ (FDC, UDC, បុគ្គលិកជនបរទេស, សាកល្បង / 试用工)"
-          >
-            <span>🏭</span>
-            កិច្ចសន្យា ISO 9001:2015 (FDC • UDC • បរទេស • សាកល្បង)
-          </button>
-          <button
-            onClick={handleOpenNewModal}
-            style={{
-              background: '#ffffff',
-              color: '#1e3a8a',
-              fontWeight: 700,
-              padding: '0.45rem 1.1rem',
-              borderRadius: '8px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.88rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+              fontSize: '0.78rem',
+              color: '#334155',
+              marginRight: '0.2rem',
             }}
           >
-            <span>➕</span>
-            បង្កើតកិច្ចសន្យាថ្មី (New Contract)
-          </button>
-        </div>
-      </div>
+            <span>🚨</span>
+            <span>Alerts:</span>
+          </div>
 
-      {/* --- 2. ULTRA-COMPACT SMART ALERT STRIP (SLIM CHIPS BAR) --- */}
-      <div className={styles.alertStrip}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, fontSize: '0.82rem', color: '#1e293b', marginRight: '0.25rem' }}>
-          <span>🚨</span>
-          <span>Alerts:</span>
-        </div>
-
-        {/* Chip 1: FDC Notice */}
-        <div
-          onClick={() => {
-            setAlertFilterCategory(alertFilterCategory === 'FDC_NOTICE' ? 'ALL' : 'FDC_NOTICE');
-            setCurrentPage(1);
-          }}
-          className={styles.alertChip}
-          style={{
-            background: alertFilterCategory === 'FDC_NOTICE' ? '#fef2f2' : '#fff1f2',
-            borderColor: alertFilterCategory === 'FDC_NOTICE' ? '#ef4444' : '#fecdd3',
-            color: '#991b1b',
-          }}
-          title="កិច្ចសន្យា FDC ត្រូវជូនដំណឹង ១០-១៥ ថ្ងៃ (មាត្រា ៧៣) ឬលើស ២ ឆ្នាំ / FDC Notice Due"
-        >
-          <span>🔔 FDC ត្រូវជូនដំណឹង (10-15d)</span>
-          <span style={{ background: '#ef4444', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {alertStats.fdcNoticeCount}
-          </span>
-        </div>
-
-        {/* Chip 2: Foreign WP, Visa & Passport */}
-        <div
-          onClick={() => {
-            setAlertFilterCategory(alertFilterCategory === 'FOREIGN_WP_VISA' ? 'ALL' : 'FOREIGN_WP_VISA');
-            setCurrentPage(1);
-          }}
-          className={styles.alertChip}
-          style={{
-            background: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#f5f3ff' : '#f3e8ff',
-            borderColor: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#7c3aed' : '#ddd6fe',
-            color: '#5b21b6',
-          }}
-          title="ប័ណ្ណការងារ MLVT, Visa & Passport ជនបរទេស (៣០-៦០ ថ្ងៃ) / Foreign Compliance"
-        >
-          <span>🌐 ជនបរទេស WP, Visa, Passport</span>
-          <span style={{ background: '#7c3aed', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {alertStats.foreignWpCount}
-          </span>
-        </div>
-
-        {/* Chip 3: Probation Ending */}
-        <div
-          onClick={() => {
-            setAlertFilterCategory(alertFilterCategory === 'PROBATION' ? 'ALL' : 'PROBATION');
-            setCurrentPage(1);
-          }}
-          className={styles.alertChip}
-          style={{
-            background: alertFilterCategory === 'PROBATION' ? '#fffbeb' : '#fef3c7',
-            borderColor: alertFilterCategory === 'PROBATION' ? '#d97706' : '#fde68a',
-            color: '#92400e',
-          }}
-          title="សាកល្បងការងារជិតចប់ នៅសល់ ≤ ១៤ ថ្ងៃ / Probation Ending ≤ 14 Days"
-        >
-          <span>⏳ សាកល្បងជិតចប់ (≤ 14d)</span>
-          <span style={{ background: '#d97706', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {alertStats.probationCount}
-          </span>
-        </div>
-
-        {/* Chip 4: UDC Seniority Indemnity */}
-        <div
-          onClick={() => {
-            setAlertFilterCategory(alertFilterCategory === 'UDC_SENIORITY' ? 'ALL' : 'UDC_SENIORITY');
-            setCurrentPage(1);
-          }}
-          className={styles.alertChip}
-          style={{
-            background: alertFilterCategory === 'UDC_SENIORITY' ? '#eff6ff' : '#f0f9ff',
-            borderColor: alertFilterCategory === 'UDC_SENIORITY' ? '#0284c7' : '#bae6fd',
-            color: '#0369a1',
-          }}
-          title="កិច្ចសន្យា UDC ត្រៀមបើកប្រាក់បំណាច់អតីតភាព (ប.អ.ក ខែមិថុនា & ធ្នូ - មាត្រា ៨៩ ថ្មី) / UDC Seniority"
-        >
-          <span>🛡️ UDC អតីតភាព (ប.អ.ក)</span>
-          <span style={{ background: '#0284c7', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {alertStats.udcSeniorityCount}
-          </span>
-        </div>
-
-        {/* Chip 5: Expired */}
-        <div
-          onClick={() => {
-            setAlertFilterCategory(alertFilterCategory === 'EXPIRED' ? 'ALL' : 'EXPIRED');
-            setCurrentPage(1);
-          }}
-          className={styles.alertChip}
-          style={{
-            background: alertFilterCategory === 'EXPIRED' ? '#f1f5f9' : '#f8fafc',
-            borderColor: alertFilterCategory === 'EXPIRED' ? '#475569' : '#e2e8f0',
-            color: '#334155',
-          }}
-          title="កិច្ចសន្យាបានផុតកំណត់កាលបរិច្ឆេទហើយ / Expired Contracts"
-        >
-          <span>⚠️ ផុតកំណត់ហើយ</span>
-          <span style={{ background: '#475569', color: '#ffffff', padding: '0.1rem 0.45rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            {alertStats.expiredCount}
-          </span>
-        </div>
-
-        {alertFilterCategory !== 'ALL' && (
-          <button
+          {/* Chip 1: FDC Notice */}
+          <div
             onClick={() => {
-              setAlertFilterCategory('ALL');
+              setAlertFilterCategory(alertFilterCategory === 'FDC_NOTICE' ? 'ALL' : 'FDC_NOTICE');
               setCurrentPage(1);
             }}
+            className={styles.alertChip}
             style={{
-              background: '#e0f2fe',
-              color: '#0369a1',
-              border: 'none',
-              padding: '0.25rem 0.6rem',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginLeft: 'auto',
+              background: alertFilterCategory === 'FDC_NOTICE' ? '#fee2e2' : '#fff1f2',
+              borderColor: alertFilterCategory === 'FDC_NOTICE' ? '#ef4444' : '#fecdd3',
+              color: '#991b1b',
+              fontWeight: alertFilterCategory === 'FDC_NOTICE' ? 700 : 600,
             }}
+            title="កិច្ចសន្យា FDC ត្រូវជូនដំណឹង ១០-១៥ ថ្ងៃ (មាត្រា ៧៣) ឬលើស ២ ឆ្នាំ / FDC Notice Due"
           >
-            សម្អាត Filter (Reset) ✕
-          </button>
-        )}
+            <span>🔔 FDC ជូនដំណឹង (10-15d)</span>
+            <span
+              style={{
+                background: '#ef4444',
+                color: '#ffffff',
+                padding: '0.05rem 0.38rem',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}
+            >
+              {alertStats.fdcNoticeCount}
+            </span>
+          </div>
+
+          {/* Chip 2: Foreign WP, Visa & Passport */}
+          <div
+            onClick={() => {
+              setAlertFilterCategory(alertFilterCategory === 'FOREIGN_WP_VISA' ? 'ALL' : 'FOREIGN_WP_VISA');
+              setCurrentPage(1);
+            }}
+            className={styles.alertChip}
+            style={{
+              background: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#ede9fe' : '#f5f3ff',
+              borderColor: alertFilterCategory === 'FOREIGN_WP_VISA' ? '#7c3aed' : '#ddd6fe',
+              color: '#5b21b6',
+              fontWeight: alertFilterCategory === 'FOREIGN_WP_VISA' ? 700 : 600,
+            }}
+            title="ប័ណ្ណការងារ MLVT, Visa & Passport ជនបរទេស (៣០-៦០ ថ្ងៃ) / Foreign Compliance"
+          >
+            <span>🌐 ជនបរទេស WP, Visa, Passport</span>
+            <span
+              style={{
+                background: '#7c3aed',
+                color: '#ffffff',
+                padding: '0.05rem 0.38rem',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}
+            >
+              {alertStats.foreignWpCount}
+            </span>
+          </div>
+
+          {/* Chip 3: Probation Ending */}
+          <div
+            onClick={() => {
+              setAlertFilterCategory(alertFilterCategory === 'PROBATION' ? 'ALL' : 'PROBATION');
+              setCurrentPage(1);
+            }}
+            className={styles.alertChip}
+            style={{
+              background: alertFilterCategory === 'PROBATION' ? '#fef3c7' : '#fffbeb',
+              borderColor: alertFilterCategory === 'PROBATION' ? '#d97706' : '#fde68a',
+              color: '#92400e',
+              fontWeight: alertFilterCategory === 'PROBATION' ? 700 : 600,
+            }}
+            title="សាកល្បងការងារជិតចប់ នៅសល់ ≤ ១៤ ថ្ងៃ / Probation Ending ≤ 14 Days"
+          >
+            <span>⏳ សាកល្បងជិតចប់ (≤ 14d)</span>
+            <span
+              style={{
+                background: '#d97706',
+                color: '#ffffff',
+                padding: '0.05rem 0.38rem',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}
+            >
+              {alertStats.probationCount}
+            </span>
+          </div>
+
+          {/* Chip 4: UDC Seniority Indemnity */}
+          <div
+            onClick={() => {
+              setAlertFilterCategory(alertFilterCategory === 'UDC_SENIORITY' ? 'ALL' : 'UDC_SENIORITY');
+              setCurrentPage(1);
+            }}
+            className={styles.alertChip}
+            style={{
+              background: alertFilterCategory === 'UDC_SENIORITY' ? '#e0f2fe' : '#f0f9ff',
+              borderColor: alertFilterCategory === 'UDC_SENIORITY' ? '#0284c7' : '#bae6fd',
+              color: '#0369a1',
+              fontWeight: alertFilterCategory === 'UDC_SENIORITY' ? 700 : 600,
+            }}
+            title="កិច្ចសន្យា UDC ត្រៀមបើកប្រាក់បំណាច់អតីតភាព (ប.អ.ក ខែមិថុនា & ធ្នូ - មាត្រា ៨៩ ថ្មី) / UDC Seniority"
+          >
+            <span>🛡️ UDC អតីតភាព (ប.អ.ក)</span>
+            <span
+              style={{
+                background: '#0284c7',
+                color: '#ffffff',
+                padding: '0.05rem 0.38rem',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}
+            >
+              {alertStats.udcSeniorityCount}
+            </span>
+          </div>
+
+          {/* Chip 5: Expired */}
+          <div
+            onClick={() => {
+              setAlertFilterCategory(alertFilterCategory === 'EXPIRED' ? 'ALL' : 'EXPIRED');
+              setCurrentPage(1);
+            }}
+            className={styles.alertChip}
+            style={{
+              background: alertFilterCategory === 'EXPIRED' ? '#e2e8f0' : '#f8fafc',
+              borderColor: alertFilterCategory === 'EXPIRED' ? '#475569' : '#cbd5e1',
+              color: '#334155',
+              fontWeight: alertFilterCategory === 'EXPIRED' ? 700 : 600,
+            }}
+            title="កិច្ចសន្យាបានផុតកំណត់កាលបរិច្ឆេទហើយ / Expired Contracts"
+          >
+            <span>⚠️ ផុតកំណត់ហើយ</span>
+            <span
+              style={{
+                background: '#475569',
+                color: '#ffffff',
+                padding: '0.05rem 0.38rem',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}
+            >
+              {alertStats.expiredCount}
+            </span>
+          </div>
+
+          {alertFilterCategory !== 'ALL' && (
+            <button
+              onClick={() => {
+                setAlertFilterCategory('ALL');
+                setCurrentPage(1);
+              }}
+              style={{
+                background: '#e0f2fe',
+                color: '#0369a1',
+                border: '1px solid #bae6fd',
+                padding: '0.15rem 0.5rem',
+                height: '24px',
+                borderRadius: '5px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginLeft: 'auto',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+              }}
+            >
+              ✕ Reset Filter
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* --- 3. TABLE CARD & TOOLBAR (FIT CONTENT & HIGH CAPACITY) --- */}
+      {/* --- 2. TABLE CARD & TOOLBAR (FIT CONTENT & HIGH CAPACITY) --- */}
       <div className={styles.tableCard}>
         {/* Compact Toolbar */}
         <div
@@ -1195,21 +1281,21 @@ export default function ContractClient({
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '0.6rem',
-            marginBottom: '0.65rem',
+            gap: '0.5rem',
+            marginBottom: '0.45rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <h2 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
               បញ្ជីកិច្ចសន្យាការងារ (Issued Contracts)
             </h2>
             <span
               style={{
                 background: '#e0f2fe',
                 color: '#0369a1',
-                padding: '0.15rem 0.55rem',
-                borderRadius: '16px',
-                fontSize: '0.8rem',
+                padding: '0.1rem 0.45rem',
+                borderRadius: '12px',
+                fontSize: '0.76rem',
                 fontWeight: 700,
               }}
             >
@@ -1218,7 +1304,7 @@ export default function ContractClient({
           </div>
 
           {/* Filter Inputs (Search, Dept, Contract Type) */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               type="text"
               placeholder="ស្វែងរកតាមលេខកុងត្រា ឈ្មោះ អត្តលេខ..."
@@ -1228,12 +1314,13 @@ export default function ContractClient({
                 setCurrentPage(1);
               }}
               style={{
-                padding: '0.45rem 0.75rem',
+                padding: '0.35rem 0.65rem',
+                height: '32px',
                 borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 fontFamily: 'inherit',
-                width: '240px',
+                width: '230px',
               }}
             />
 
@@ -1245,10 +1332,11 @@ export default function ContractClient({
                 setCurrentPage(1);
               }}
               style={{
-                padding: '0.45rem 0.65rem',
+                padding: '0.35rem 0.65rem',
+                height: '32px',
                 borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 fontFamily: 'inherit',
                 background: '#ffffff',
                 maxWidth: '180px',
@@ -1270,10 +1358,11 @@ export default function ContractClient({
                 setCurrentPage(1);
               }}
               style={{
-                padding: '0.45rem 0.65rem',
+                padding: '0.35rem 0.65rem',
+                height: '32px',
                 borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 fontFamily: 'inherit',
                 background: '#ffffff',
               }}

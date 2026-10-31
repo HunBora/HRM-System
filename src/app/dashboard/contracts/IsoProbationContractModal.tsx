@@ -1405,7 +1405,9 @@ export default function IsoProbationContractModal({
                 }
                 .iso-table td, .iso-table th {
                   border: 1px solid #334155;
-                  padding: 6px 8px;
+                  padding: 8px 10px;
+                  line-height: 1.7;
+                  font-family: 'Noto Sans Khmer', 'Khmer OS Battambang', 'Khmer OS Siemreap', 'Segoe UI', Tahoma, sans-serif;
                 }
               `}</style>
 
@@ -2222,35 +2224,72 @@ export default function IsoProbationContractModal({
                   </tbody>
                 </table>
 
-                {/* ISO 9001:2015 Approval Matrix Table */}
-                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0369a1', margin: '14px 0 4px 0' }}>
-                  {showKhmer && 'ការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015 ៖'}
-                  {showEn && ' ISO 9001:2015 Document Approval Matrix:'}
+                {/* ISO 9001:2015 Approval Matrix Table - 3 Languages (Khmer first, English last) */}
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0369a1', margin: '16px 0 6px 0', fontFamily: "'Noto Sans Khmer', sans-serif" }}>
+                  {showKhmer && 'ការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015'}
+                  {showZh && ' / 文件审核批准矩阵'}
+                  {showEn && ' / ISO 9001:2015 Document Approval Matrix ៖'}
                 </div>
-                <table className="iso-table" style={{ fontSize: '0.76rem', margin: 0 }}>
+                <table className="iso-table" style={{ fontSize: '0.78rem', margin: 0, borderCollapse: 'collapse', width: '100%' }}>
                   <thead>
                     <tr style={{ background: '#f8fafc' }}>
-                      <th style={{ textAlign: 'center', width: '33.3%' }}>Prepared By / រៀបចំដោយ</th>
-                      <th style={{ textAlign: 'center', width: '33.3%' }}>Reviewed By / ពិនិត្យដោយ</th>
-                      <th style={{ textAlign: 'center', width: '33.4%' }}>Approved By / អនុម័តដោយ</th>
+                      <th style={{ textAlign: 'center', width: '33.3%', padding: '8px 6px', lineHeight: 1.7, verticalAlign: 'middle' }}>
+                        <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontSize: '0.84rem', fontWeight: 700, color: '#0f172a' }}>
+                          រៀបចំដោយ
+                        </div>
+                        <div style={{ fontSize: '0.73rem', color: '#475569', fontWeight: 600 }}>
+                          {showZh && '编制 / '}{showEn && 'Prepared By'}
+                        </div>
+                      </th>
+                      <th style={{ textAlign: 'center', width: '33.3%', padding: '8px 6px', lineHeight: 1.7, verticalAlign: 'middle' }}>
+                        <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontSize: '0.84rem', fontWeight: 700, color: '#0f172a' }}>
+                          ពិនិត្យដោយ
+                        </div>
+                        <div style={{ fontSize: '0.73rem', color: '#475569', fontWeight: 600 }}>
+                          {showZh && '审核 / '}{showEn && 'Reviewed By'}
+                        </div>
+                      </th>
+                      <th style={{ textAlign: 'center', width: '33.4%', padding: '8px 6px', lineHeight: 1.7, verticalAlign: 'middle' }}>
+                        <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontSize: '0.84rem', fontWeight: 700, color: '#0f172a' }}>
+                          អនុម័តដោយ
+                        </div>
+                        <div style={{ fontSize: '0.73rem', color: '#475569', fontWeight: 600 }}>
+                          {showZh && '批准 / '}{showEn && 'Approved By'}
+                        </div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td style={{ textAlign: 'center', padding: '8px' }}>
-                        <div style={{ fontWeight: 600 }}>HR Manager / ប្រធានផ្នែកធនធានមនុស្ស</div>
-                        <div style={{ color: '#94a3b8', margin: '20px 0 4px 0' }}>Sign: ______________</div>
-                        <div>Date: 01/01/2026</div>
+                      <td style={{ textAlign: 'center', padding: '10px 8px', verticalAlign: 'top', lineHeight: 1.7 }}>
+                        <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>
+                          ប្រធានផ្នែកធនធានមនុស្ស
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
+                          {showZh && '人事经理 / '}{showEn && 'HR Manager'}
+                        </div>
+                        <div style={{ color: '#94a3b8', margin: '22px 0 4px 0', fontSize: '0.76rem' }}>Sign: ______________</div>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Date: 01/01/2026</div>
                       </td>
-                      <td style={{ textAlign: 'center', padding: '8px' }}>
-                        <div style={{ fontWeight: 600 }}>Director / នាយក</div>
-                        <div style={{ color: '#94a3b8', margin: '20px 0 4px 0' }}>Sign: ______________</div>
-                        <div>Date: 01/01/2026</div>
+                      <td style={{ textAlign: 'center', padding: '10px 8px', verticalAlign: 'top', lineHeight: 1.7 }}>
+                        <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>
+                          នាយក
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
+                          {showZh && '总监 / '}{showEn && 'Director'}
+                        </div>
+                        <div style={{ color: '#94a3b8', margin: '22px 0 4px 0', fontSize: '0.76rem' }}>Sign: ______________</div>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Date: 01/01/2026</div>
                       </td>
-                      <td style={{ textAlign: 'center', padding: '8px' }}>
-                        <div style={{ fontWeight: 600 }}>General Manager / អគ្គនាយក</div>
-                        <div style={{ color: '#94a3b8', margin: '20px 0 4px 0' }}>Sign: ______________</div>
-                        <div>Date: 01/01/2026</div>
+                      <td style={{ textAlign: 'center', padding: '10px 8px', verticalAlign: 'top', lineHeight: 1.7 }}>
+                        <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>
+                          អគ្គនាយក
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
+                          {showZh && '总经理 / '}{showEn && 'General Manager'}
+                        </div>
+                        <div style={{ color: '#94a3b8', margin: '22px 0 4px 0', fontSize: '0.76rem' }}>Sign: ______________</div>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Date: 01/01/2026</div>
                       </td>
                     </tr>
                   </tbody>

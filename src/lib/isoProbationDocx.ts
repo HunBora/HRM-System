@@ -1088,11 +1088,11 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   });
   paragraphs.push(signatureTable);
 
-  // ISO 9001:2015 Document Approval Matrix Footer
+  // ISO 9001:2015 Document Approval Matrix Footer - 3 Languages (Khmer first, English last)
   paragraphs.push(
     new Paragraph({
       children: [
-        new TextRun({ text: '\nការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015 (Document Control Approval Matrix) ៖', bold: true, size: 16, font: FONT_MOUL, color: '0369A1' }),
+        new TextRun({ text: '\nការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015 / 文件审核批准矩阵 / Document Approval Matrix ៖', bold: true, size: 16, font: FONT_MOUL, color: '0369A1' }),
       ],
       spacing: { before: 60, after: 30 },
     })
@@ -1104,9 +1104,45 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     rows: [
       new TableRow({
         children: [
-          new TableCell({ width: { size: 33.3, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Prepared By / រៀបចំដោយ\n(HR Manager)', bold: true, size: 15, font: FONT_EN })] })] }),
-          new TableCell({ width: { size: 33.3, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Reviewed By / ពិនិត្យដោយ\n(Director)', bold: true, size: 15, font: FONT_EN })] })] }),
-          new TableCell({ width: { size: 33.4, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Approved By / អនុម័តដោយ\n(General Manager)', bold: true, size: 15, font: FONT_EN })] })] }),
+          new TableCell({
+            width: { size: 33.3, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: 'រៀបចំដោយ\n', bold: true, size: 16, font: FONT_MOUL }),
+                  new TextRun({ text: '( 编制 / Prepared By )\n', bold: true, size: 13, font: FONT_EN, color: '475569' }),
+                  new TextRun({ text: 'ប្រធានផ្នែកធនធានមនុស្ស\n(人事经理 / HR Manager)', size: 14, font: FONT_KHMER, color: '0F172A' }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            width: { size: 33.3, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: 'ពិនិត្យដោយ\n', bold: true, size: 16, font: FONT_MOUL }),
+                  new TextRun({ text: '( 审核 / Reviewed By )\n', bold: true, size: 13, font: FONT_EN, color: '475569' }),
+                  new TextRun({ text: 'នាយក\n(总监 / Director)', size: 14, font: FONT_KHMER, color: '0F172A' }),
+                ],
+              }),
+            ],
+          }),
+          new TableCell({
+            width: { size: 33.4, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: 'អនុម័តដោយ\n', bold: true, size: 16, font: FONT_MOUL }),
+                  new TextRun({ text: '( 批准 / Approved By )\n', bold: true, size: 13, font: FONT_EN, color: '475569' }),
+                  new TextRun({ text: 'អគ្គនាយក\n(总经理 / General Manager)', size: 14, font: FONT_KHMER, color: '0F172A' }),
+                ],
+              }),
+            ],
+          }),
         ],
       }),
       new TableRow({

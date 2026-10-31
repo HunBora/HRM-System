@@ -15,6 +15,7 @@ export default function ExportHubClient({ t }: Props) {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [bankName, setBankName] = useState('ABA');
+  const [autoHideEmpty, setAutoHideEmpty] = useState<boolean>(true);
   
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -250,7 +251,27 @@ export default function ExportHubClient({ t }: Props) {
     setLoading(false);
   };
 
-  const columns = getColumns();
+  const allColumns = getColumns();
+
+  const columns = React.useMemo(() => {
+    if ((reportType === 'PAYSLIP_STRIPS' || reportType === 'PAYROLL') && autoHideEmpty && data.length > 0) {
+      const MANDATORY_KEYS = [
+        'no', 'id', 'nameKh', 'nameEn', 'dept', 'position',
+        'basicSalary', 'workingDays', 'totalSalary', 'paidSalaryUsd', 'riel', 'signature'
+      ];
+
+      return allColumns.filter(col => {
+        if (MANDATORY_KEYS.includes(col.key)) return true;
+        return data.some(row => {
+          const val = row[col.key];
+          return val !== undefined && val !== null && val !== '' && val !== '-' && val !== 0 && val !== '0';
+        });
+      });
+    }
+    return allColumns;
+  }, [allColumns, reportType, autoHideEmpty, data]);
+
+  const hiddenCount = allColumns.length - columns.length;
   const filename = reportType === 'BANK_TRANSFER_EXCEL' 
     ? `Bank_Transfer_${bankName}_${month}_${year}`
     : `${reportType}_Report${reportType !== 'EMPLOYEE' ? `_${month}_${year}` : ''}`;
@@ -383,7 +404,7 @@ export default function ExportHubClient({ t }: Props) {
               {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons ref={employeeImportRef} hideDropdown={true} />}
               {reportType === 'PAYSLIP_STRIPS' && (
                 <a 
-                  href={`/api/export/payslip-strips?month=${month}&year=${year}`}
+                  href={`/api/export/payslip-strips?month=${month}&year=${year}&hideEmpty=${autoHideEmpty ? 'true' : 'false'}`}
                   className="btn-primary kh-text"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none' }}
                 >
@@ -392,9 +413,50 @@ export default function ExportHubClient({ t }: Props) {
               )}
             </div>
 
+            {/* Auto-Hide Empty Columns Banner for Payslip Strips */}
+            {reportType === 'PAYSLIP_STRIPS' && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: autoHideEmpty ? '#f0fdf4' : '#f8fafc',
+                border: autoHideEmpty ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                marginBottom: '15px',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
+                  <span style={{ fontSize: '1.25rem' }}>⚡</span>
+                  <div>
+                    <span className="kh-text" style={{ fontWeight: 700, color: autoHideEmpty ? '#166534' : '#334155' }}>
+                      ទម្រង់ស្វ័យប្រវត្ត (Smart Auto-Fit):{' '}
+                    </span>
+                    <span className="kh-text" style={{ color: autoHideEmpty ? '#15803d' : '#64748b' }}>
+                      {autoHideEmpty && hiddenCount > 0
+                        ? `បានលាក់ ${hiddenCount} ជួរឈរដែលគ្មានទិន្នន័យ (០ ឬទទេ) ដោយស្វ័យប្រវត្ត ដើម្បីងាយស្រួលមើល និងបោះពុម្ព Fit ក្រដាស A4`
+                        : 'កំពុងបង្ហាញជួរឈរទាំងអស់ពេញលេញ (Full Columns)'}
+                    </span>
+                  </div>
+                </div>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }} className="kh-text">
+                  <input
+                    type="checkbox"
+                    checked={autoHideEmpty}
+                    onChange={(e) => setAutoHideEmpty(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#16a34a' }}
+                  />
+                  លាក់ជួរឈរគ្មានទិន្នន័យ (Auto-Hide Empty Columns)
+                </label>
+              </div>
+            )}
+
             {/* Preview Section */}
             <div style={{ marginTop: '20px' }}>
-              <h3 className="kh-text" style={{ marginBottom: '10px' }}>តារាងមើលជាមុន (Preview) - {data.length} records</h3>
+              <h3 className="kh-text" style={{ marginBottom: '10px' }}>
+                តារាងមើលជាមុន (Preview) - {data.length} records {reportType === 'PAYSLIP_STRIPS' && `(${columns.length} ជួរឈរ)`}
+              </h3>
               <div id="preview-table" style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                 <table style={{ width: columns.length <= 6 ? 'max-content' : '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 'max-content' }}>
                   {reportType !== 'PAYSLIP_STRIPS' && (
@@ -415,19 +477,35 @@ export default function ExportHubClient({ t }: Props) {
                       data.map((row, i) => (
                         reportType === 'PAYSLIP_STRIPS' ? (
                           <React.Fragment key={i}>
-                            <tr style={{ backgroundColor: '#f8fafc' }}>
+                            <tr style={{ backgroundColor: '#1e3a8a', color: '#ffffff' }}>
+                              <td colSpan={columns.length} style={{ padding: '6px 12px', fontWeight: 'bold', fontSize: '0.82rem' }} className="kh-text">
+                                📋 ប័ណ្ណប្រាក់បៀវត្សរ៍ (Payslip Strip) #{row.no} • {row.nameKh} {row.nameEn ? `(${row.nameEn})` : ''} - អត្តលេខ: {row.id} • {row.dept} ({month}/{year})
+                              </td>
+                            </tr>
+                            <tr style={{ backgroundColor: '#f1f5f9' }}>
                               {columns.map((col, j) => (
-                                <th key={`th-${j}`} style={{ padding: '10px', borderBottom: '2px solid var(--border-color)', borderTop: i > 0 ? '2px dashed #cbd5e1' : 'none', fontSize: '0.85rem', whiteSpace: 'pre-wrap', verticalAlign: 'middle', textAlign: 'center' }}>{col.header}</th>
+                                <th key={`th-${j}`} style={{ padding: '6px 8px', borderBottom: '1.5px solid #cbd5e1', borderTop: '1px solid #cbd5e1', fontSize: '0.76rem', whiteSpace: 'pre-wrap', verticalAlign: 'middle', textAlign: 'center' }}>{col.header}</th>
                               ))}
                             </tr>
-                            <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                              {columns.map((col, j) => (
-                                <td key={`td-${j}`} style={{ padding: '8px 10px', fontSize: '0.85rem', textAlign: 'center' }}>{row[col.key]}</td>
-                              ))}
+                            <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: '#ffffff' }}>
+                              {columns.map((col, j) => {
+                                const val = row[col.key];
+                                const isMoney = typeof val === 'number' && !['no', 'workingDays', 'absent', 'permission', 'otHour', 'sunOtHour', 'nightOtHour', 'wife', 'child'].includes(col.key);
+                                const isRiel = col.key === 'riel';
+                                return (
+                                  <td key={`td-${j}`} style={{ padding: '8px 6px', fontSize: '0.82rem', textAlign: 'center', fontWeight: ['basicSalary', 'totalSalary', 'paidSalaryUsd'].includes(col.key) ? 700 : 400 }}>
+                                    {isRiel && typeof val === 'number'
+                                      ? `${val.toLocaleString()} ៛`
+                                      : isMoney
+                                        ? `$${val.toFixed(2)}`
+                                        : (val ?? '-')}
+                                  </td>
+                                );
+                              })}
                             </tr>
                             <tr>
-                              <td colSpan={columns.length} style={{ height: '30px', borderBottom: '2px dashed #94a3b8', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>
-                                ✂️ កាត់ត្រង់នេះ (Cut Here)
+                              <td colSpan={columns.length} style={{ height: '28px', borderBottom: '2px dashed #94a3b8', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem', userSelect: 'none' }} className="kh-text">
+                                ✂️ - - - - - - - - - - - - - - - - - - - - កាត់ជាបន្ទះៗត្រង់នេះ (Cut Strip Here) - - - - - - - - - - - - - - - - - - - - ✂️
                               </td>
                             </tr>
                           </React.Fragment>

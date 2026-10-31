@@ -119,20 +119,24 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
             }
             @page {
               size: landscape;
-              margin: 10mm;
+              margin: 8mm 6mm;
             }
             /* Auto fit adjustments */
             table {
               width: 100% !important;
-              font-size: 8px !important;
+              font-size: 8.5px !important;
               table-layout: auto !important;
               border-collapse: collapse !important;
             }
             th, td {
-              padding: 4px !important;
+              padding: 3px 4px !important;
               white-space: normal !important;
               word-wrap: break-word !important;
-              border: 1px solid #ccc !important;
+              border: 1px solid #94a3b8 !important;
+            }
+            tr {
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
             h2, h3, p {
               margin: 4px 0 !important;

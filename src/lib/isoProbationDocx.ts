@@ -70,7 +70,74 @@ export interface IsoContractDocxData {
   transportAllowanceUsd: number | string;
   mealAllowanceRiel: number | string;
   signedDate: string;
+  signedLocationKh?: string;
+  signedLocationEn?: string;
+  signedLocationZh?: string;
   langMode?: IsoLangMode;
+}
+
+// Helper to detect factory/signing location from company address
+export function detectFactoryLocation(address?: string) {
+  if (!address) {
+    return {
+      kh: 'រាជធានីភ្នំពេញ',
+      en: 'Phnom Penh',
+      zh: '金边市',
+    };
+  }
+  const addr = address.toLowerCase();
+
+  if (addr.includes('តាកែវ') || addr.includes('takeo') || addr.includes('茶胶')) {
+    return { kh: 'ខេត្តតាកែវ', en: 'Takeo Province', zh: '茶胶省' };
+  }
+  if (addr.includes('កណ្តាល') || addr.includes('kandal') || addr.includes('干丹')) {
+    return { kh: 'ខេត្តកណ្តាល', en: 'Kandal Province', zh: '干丹省' };
+  }
+  if (addr.includes('កំពង់ស្ពឺ') || addr.includes('kampong speu') || addr.includes('speu') || addr.includes('实居')) {
+    return { kh: 'ខេត្តកំពង់ស្ពឺ', en: 'Kampong Speu Province', zh: '实居省' };
+  }
+  if (addr.includes('សីហនុ') || addr.includes('sihanouk') || addr.includes('កំពង់សោម') || addr.includes('西哈努克')) {
+    return { kh: 'ខេត្តព្រះសីហនុ', en: 'Preah Sihanouk Province', zh: '西哈努克省' };
+  }
+  if (addr.includes('ស្វាយរៀង') || addr.includes('svay rieng') || addr.includes('បាវិត') || addr.includes('bavet') || addr.includes('柴桢')) {
+    return { kh: 'ខេត្តស្វាយរៀង', en: 'Svay Rieng Province', zh: '柴桢省' };
+  }
+  if (addr.includes('សៀមរាប') || addr.includes('siem reap') || addr.includes('暹粒')) {
+    return { kh: 'ខេត្តសៀមរាប', en: 'Siem Reap Province', zh: '暹粒省' };
+  }
+  if (addr.includes('បាត់ដំបង') || addr.includes('battambang') || addr.includes('马德望')) {
+    return { kh: 'ខេត្តបាត់ដំបង', en: 'Battambang Province', zh: '马德望省' };
+  }
+  if (addr.includes('កំពង់ចាម') || addr.includes('kampong cham') || addr.includes('磅湛')) {
+    return { kh: 'ខេត្តកំពង់ចាម', en: 'Kampong Cham Province', zh: '磅湛省' };
+  }
+  if (addr.includes('កំពង់ឆ្នាំង') || addr.includes('kampong chhnang') || addr.includes('磅清扬')) {
+    return { kh: 'ខេត្តកំពង់ឆ្នាំង', en: 'Kampong Chhnang Province', zh: '磅清扬省' };
+  }
+  if (addr.includes('កំពត') || addr.includes('kampot') || addr.includes('贡布')) {
+    return { kh: 'ខេត្តកំពត', en: 'Kampot Province', zh: '贡布省' };
+  }
+  if (addr.includes('កែប') || addr.includes('kep') || addr.includes('白马')) {
+    return { kh: 'ខេត្តកែប', en: 'Kep Province', zh: '白马市' };
+  }
+  if (addr.includes('កោះកុង') || addr.includes('koh kong') || addr.includes('国公')) {
+    return { kh: 'ខេត្តកោះកុង', en: 'Koh Kong Province', zh: '国公省' };
+  }
+  if (addr.includes('ពោធិ៍សាត់') || addr.includes('pursat') || addr.includes('菩萨')) {
+    return { kh: 'ខេត្តពោធិ៍សាត់', en: 'Pursat Province', zh: '菩萨省' };
+  }
+  if (addr.includes('បន្ទាយមានជ័យ') || addr.includes('banteay meanchey') || addr.includes('poipet') || addr.includes('ប៉ោយប៉ែត') || addr.includes('班迭棉吉')) {
+    return { kh: 'ខេត្តបន្ទាយមានជ័យ', en: 'Banteay Meanchey Province', zh: '班迭棉吉省' };
+  }
+  if (addr.includes('ព្រៃវែង') || addr.includes('prey veng') || addr.includes('波萝勉')) {
+    return { kh: 'ខេត្តព្រៃវែង', en: 'Prey Veng Province', zh: '波萝勉省' };
+  }
+
+  return {
+    kh: 'រាជធានីភ្នំពេញ',
+    en: 'Phnom Penh',
+    zh: '金边市',
+  };
 }
 
 // Backward compatibility alias
@@ -939,10 +1006,15 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     `Executed in 2 original copies with equal legal validity: 1 copy for Employer (Party A) and 1 copy for Employee (Party B). Both parties shall strictly abide by Cambodian Labour Law and internal factory rules.`
   );
 
-  // Date and Signatures Box
-  const dateStrKh = `ធ្វើនៅរាជធានីភ្នំពេញ, ថ្ងៃទី ${data.signedDate || '...................'} ខែ ............ ឆ្នាំ២០២៦`;
-  const dateStrEn = `Done in Phnom Penh, Date: ${data.signedDate || '...... / ...... / 2026'}`;
-  const dateStrZh = `于金边市签订，日期：${data.signedDate || '......年...月...日'}`;
+  // Date and Signatures Box - Auto detect factory location
+  const loc = detectFactoryLocation(data.companyAddress);
+  const locationKh = data.signedLocationKh || loc.kh;
+  const locationEn = data.signedLocationEn || loc.en;
+  const locationZh = data.signedLocationZh || loc.zh;
+
+  const dateStrKh = `ធ្វើនៅ${locationKh}, ថ្ងៃទី ${data.signedDate || '...................'} ខែ ............ ឆ្នាំ២០២៦`;
+  const dateStrEn = `Done in ${locationEn}, Date: ${data.signedDate || '...... / ...... / 2026'}`;
+  const dateStrZh = `于${locationZh}签订，日期：${data.signedDate || '......年...月...日'}`;
 
   const dateRuns: TextRun[] = [];
   if (showKhmer) dateRuns.push(new TextRun({ text: `${dateStrKh}\n`, size: 17, font: FONT_KHMER, color: '334155' }));
@@ -1032,9 +1104,9 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
     rows: [
       new TableRow({
         children: [
-          new TableCell({ width: { size: 33.3, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Prepared By / រៀបចំដោយ\n(HR Officer)', bold: true, size: 15, font: FONT_EN })] })] }),
-          new TableCell({ width: { size: 33.3, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Reviewed By / ពិនិត្យដោយ\n(HR Manager / QMR)', bold: true, size: 15, font: FONT_EN })] })] }),
-          new TableCell({ width: { size: 33.4, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Approved By / អនុម័តដោយ\n(General Manager / Director)', bold: true, size: 15, font: FONT_EN })] })] }),
+          new TableCell({ width: { size: 33.3, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Prepared By / រៀបចំដោយ\n(HR Manager)', bold: true, size: 15, font: FONT_EN })] })] }),
+          new TableCell({ width: { size: 33.3, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Reviewed By / ពិនិត្យដោយ\n(Director)', bold: true, size: 15, font: FONT_EN })] })] }),
+          new TableCell({ width: { size: 33.4, type: WidthType.PERCENTAGE }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Approved By / អនុម័តដោយ\n(General Manager)', bold: true, size: 15, font: FONT_EN })] })] }),
         ],
       }),
       new TableRow({

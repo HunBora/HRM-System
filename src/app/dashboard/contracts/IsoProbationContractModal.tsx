@@ -8,6 +8,7 @@ import {
   IsoContractType,
   IsoLangMode,
   ISO_TYPE_DEFAULTS,
+  detectFactoryLocation,
 } from '@/lib/isoProbationDocx';
 import { analyzeContractAlert } from '@/lib/contractAlerts';
 
@@ -128,13 +129,18 @@ export default function IsoProbationContractModal({
     const genderZh = emp?.gender === 'FEMALE' ? '女' : '男';
 
     const typeConfig = ISO_TYPE_DEFAULTS[cType] || ISO_TYPE_DEFAULTS.PROBATION;
+    const cAddress = settings?.address || 'ភូមិតានប់ ឃុំត្រាំកក់ ស្រុកត្រាំកក់ ខេត្តតាកែវ / Takeo Province, Cambodia';
+    const factoryLoc = detectFactoryLocation(cAddress);
 
     return {
       contractType: cType,
-      companyNameKh: 'ឡាងថៃ ប៊ែក (ខេមបូឌា) ឯក',
-      companyNameEn: 'LANGTAI BAGS (CAMBODIA) CO., LTD',
-      companyNameZh: '朗泰箱包（柬埔寨）有限公司',
-      companyAddress: settings?.address || 'ភូមិតានប់ ឃុំត្រាំកក់ ស្រុកត្រាំកក់ ខេត្តតាកែវ / Takeo Province, Cambodia',
+      companyNameKh: settings?.companyNameKh || settings?.companyName || 'ឡាងថៃ ប៊ែក (ខេមបូឌា) ឯក',
+      companyNameEn: settings?.companyNameEn || settings?.companyName || 'LANGTAI BAGS (CAMBODIA) CO., LTD',
+      companyNameZh: settings?.companyNameZh || '朗泰箱包（柬埔寨）有限公司',
+      companyAddress: cAddress,
+      signedLocationKh: factoryLoc.kh,
+      signedLocationEn: factoryLoc.en,
+      signedLocationZh: factoryLoc.zh,
       docCode: typeConfig.docCode,
       revision: '02',
       effectiveDate: '01/01/2026',
@@ -1203,16 +1209,47 @@ export default function IsoProbationContractModal({
                 </div>
               </div>
 
-              <div style={{ marginTop: '16px' }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                  អាសយដ្ឋានបច្ចុប្បន្ន (Current Address):
-                </label>
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                />
+              <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                    អាសយដ្ឋានបច្ចុប្បន្នបុគ្គលិក (Employee Current Address):
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '4px' }}>
+                    🏢 ទីតាំងរោងចក្រចុះកិច្ចសន្យា (Factory / Signing Location):
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ឧ. ខេត្តតាកែវ, រាជធានីភ្នំពេញ, ខេត្តកណ្តាល..."
+                    value={formData.signedLocationKh || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const loc = detectFactoryLocation(val);
+                      setFormData({
+                        ...formData,
+                        signedLocationKh: val,
+                        signedLocationEn: loc.en,
+                        signedLocationZh: loc.zh,
+                      });
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      borderRadius: '6px',
+                      border: '1.5px solid #3b82f6',
+                      fontSize: '0.85rem',
+                      background: '#f0f9ff',
+                      fontWeight: 600,
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Submit Buttons */}
@@ -2116,12 +2153,20 @@ export default function IsoProbationContractModal({
                   </div>
                 )}
 
-                {/* Date */}
-                <div style={{ textAlign: 'right', margin: '14px 0 10px 0', fontSize: '0.82rem' }}>
-                  {showKhmer && <div>ធ្វើនៅរាជធានីភ្នំពេញ, ថ្ងៃទី {formData.signedDate} ខែ ............ ឆ្នាំ២០២៦</div>}
-                  {showEn && <div style={{ color: '#475569', fontSize: '0.78rem', fontStyle: 'italic' }}>Done in Phnom Penh, Date: {formData.signedDate}</div>}
-                  {showZh && <div style={{ color: '#64748b', fontSize: '0.78rem' }}>于金边市签订，日期：{formData.signedDate}</div>}
-                </div>
+                {/* Date - Auto detect factory location */}
+                {(() => {
+                  const loc = detectFactoryLocation(formData.companyAddress);
+                  const locationKh = formData.signedLocationKh || loc.kh;
+                  const locationEn = formData.signedLocationEn || loc.en;
+                  const locationZh = formData.signedLocationZh || loc.zh;
+                  return (
+                    <div style={{ textAlign: 'right', margin: '14px 0 10px 0', fontSize: '0.82rem' }}>
+                      {showKhmer && <div>ធ្វើនៅ{locationKh}, ថ្ងៃទី {formData.signedDate} ខែ ............ ឆ្នាំ២០២៦</div>}
+                      {showEn && <div style={{ color: '#475569', fontSize: '0.78rem', fontStyle: 'italic' }}>Done in {locationEn}, Date: {formData.signedDate}</div>}
+                      {showZh && <div style={{ color: '#64748b', fontSize: '0.78rem' }}>于{locationZh}签订，日期：{formData.signedDate}</div>}
+                    </div>
+                  );
+                })()}
 
                 {/* Signatures & Stamps Table */}
                 <table className="iso-table" style={{ margin: '8px 0 16px 0' }}>
@@ -2193,12 +2238,12 @@ export default function IsoProbationContractModal({
                   <tbody>
                     <tr>
                       <td style={{ textAlign: 'center', padding: '8px' }}>
-                        <div style={{ fontWeight: 600 }}>HR Officer / មន្ត្រីធនធានមនុស្ស</div>
+                        <div style={{ fontWeight: 600 }}>HR Manager / ប្រធានផ្នែកធនធានមនុស្ស</div>
                         <div style={{ color: '#94a3b8', margin: '20px 0 4px 0' }}>Sign: ______________</div>
                         <div>Date: 01/01/2026</div>
                       </td>
                       <td style={{ textAlign: 'center', padding: '8px' }}>
-                        <div style={{ fontWeight: 600 }}>HR Manager / QC Director</div>
+                        <div style={{ fontWeight: 600 }}>Director / នាយក</div>
                         <div style={{ color: '#94a3b8', margin: '20px 0 4px 0' }}>Sign: ______________</div>
                         <div>Date: 01/01/2026</div>
                       </td>

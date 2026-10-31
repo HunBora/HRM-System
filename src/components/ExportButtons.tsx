@@ -199,10 +199,10 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
   };
 
   return (
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: '8px', margin: 0, flexWrap: 'wrap', alignItems: 'center' }}>
       <select 
         className="input-field kh-text" 
-        style={{ margin: 0, minWidth: '150px', padding: '8px 12px', cursor: 'pointer' }}
+        style={{ margin: 0, minWidth: '140px', padding: '5px 10px', height: '34px', fontSize: '0.82rem', borderRadius: '6px', cursor: 'pointer' }}
         onChange={(e) => {
           const val = e.target.value;
           if (val === 'excel') exportToExcel();
@@ -231,7 +231,7 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
         )}
       </select>
 
-      <button onClick={exportToPrint} className="btn-secondary" style={{ backgroundColor: '#475569', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
+      <button onClick={exportToPrint} className="btn-secondary" style={{ backgroundColor: '#334155', color: 'white', border: 'none', padding: '5px 14px', height: '34px', fontSize: '0.82rem', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
         🖨️ Print
       </button>
     </div>

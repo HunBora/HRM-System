@@ -278,118 +278,174 @@ export default function ExportHubClient({ t }: Props) {
 
   return (
     <div>
-      <h1 className="title kh-text">{t.exports.title}</h1>
-      
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-end', marginBottom: '20px' }}>
-          <div>
-            <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>ជ្រើសរើសរបាយការណ៍ (Select Report)</label>
-            <select className="input-field kh-text" value={reportType} onChange={(e) => setReportType(e.target.value)} style={{ margin: 0, minWidth: '250px' }}>
-              <option value="EMPLOYEE">របាយការណ៍បុគ្គលិក (Employee Report)</option>
-              <option value="ATTENDANCE">របាយការណ៍វត្តមាន (Attendance Report)</option>
-              <option value="PAYROLL">របាយការណ៍ប្រាក់ខែ (Payroll Report)</option>
+      {/* Sleek Fit-Box Control Card */}
+      <div
+        className="card no-print"
+        style={{
+          padding: '10px 14px',
+          marginBottom: '10px',
+          backgroundColor: '#ffffff',
+          borderRadius: '10px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 4px rgba(0, 0, 0, 0.04)',
+        }}
+      >
+        {/* Row 1: Integrated Title, Filter Inputs & Action Buttons */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Left: Title + Filters */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '4px' }}>
+              <span style={{ fontSize: '1.15rem' }}>📥</span>
+              <span className="kh-text" style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', whiteSpace: 'nowrap' }}>
+                ទាញយកទិន្នន័យ
+              </span>
+            </div>
+
+            {/* Select Report */}
+            <select
+              className="input-field kh-text"
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              style={{
+                margin: 0,
+                padding: '4px 10px',
+                height: '34px',
+                fontSize: '0.82rem',
+                minWidth: '210px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#f8fafc',
+                fontWeight: 600,
+                color: '#1e293b',
+              }}
+            >
               <option value="PAYSLIP_STRIPS">បោះពុម្ពក្រដាសប្រាក់ខែ (Payslip Strips)</option>
-              <option value="EXPENSE_SUMMARY">របាយការណ៍ចំណាយសរុបប្រចាំខែ (Monthly Expense Summary)</option>
-              <option value="BANK_TRANSFER_EXCEL">របាយការណ៍ផ្ទេរប្រាក់ធនាគារ (Bank Transfer Excel)</option>
-              <option value="MASTER_PAYROLL_EXCEL">Master Payroll ពេញលេញ (Master Payroll Excel)</option>
-              <option value="MASTER_ATTENDANCE_EXCEL">Master Attendance ពេញលេញ (Master Attendance Excel)</option>
-              <option value="MASTER_EMPLOYEE_EXCEL">Master Employee ពេញលេញ (Master Employee Excel)</option>
+              <option value="PAYROLL">របាយការណ៍ប្រាក់ខែ (Payroll Report)</option>
+              <option value="ATTENDANCE">របាយការណ៍វត្តមាន (Attendance Report)</option>
+              <option value="EMPLOYEE">របាយការណ៍បុគ្គលិក (Employee Report)</option>
+              <option value="EXPENSE_SUMMARY">របាយការណ៍ចំណាយសរុបប្រចាំខែ (Expense Summary)</option>
+              <option value="BANK_TRANSFER_EXCEL">របាយការណ៍ផ្ទេរប្រាក់ធនាគារ (Bank Transfer)</option>
+              <option value="MASTER_PAYROLL_EXCEL">Master Payroll ពេញលេញ (Excel)</option>
+              <option value="MASTER_ATTENDANCE_EXCEL">Master Attendance ពេញលេញ (Excel)</option>
+              <option value="MASTER_EMPLOYEE_EXCEL">Master Employee ពេញលេញ (Excel)</option>
             </select>
-          </div>
-          
-          {reportType !== 'EMPLOYEE' && (
-            <>
-              <div>
-                <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>ខែ (Month)</label>
-                <select className="input-field" value={month} onChange={(e) => setMonth(parseInt(e.target.value))} style={{ margin: 0 }}>
+
+            {/* Month & Year Selectors */}
+            {reportType !== 'EMPLOYEE' && (
+              <div style={{ display: 'inline-flex', gap: '4px', alignItems: 'center' }}>
+                <select
+                  className="input-field"
+                  value={month}
+                  onChange={(e) => setMonth(parseInt(e.target.value))}
+                  style={{
+                    margin: 0,
+                    padding: '4px 8px',
+                    height: '34px',
+                    fontSize: '0.82rem',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#f8fafc',
+                    fontWeight: 600,
+                  }}
+                >
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                    <option key={m} value={m}>{m}</option>
+                    <option key={m} value={m}>ខែ {m}</option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>ឆ្នាំ (Year)</label>
-                <select className="input-field" value={year} onChange={(e) => setYear(parseInt(e.target.value))} style={{ margin: 0 }}>
+
+                <select
+                  className="input-field"
+                  value={year}
+                  onChange={(e) => setYear(parseInt(e.target.value))}
+                  style={{
+                    margin: 0,
+                    padding: '4px 8px',
+                    height: '34px',
+                    fontSize: '0.82rem',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#f8fafc',
+                    fontWeight: 600,
+                  }}
+                >
                   {[year - 1, year, year + 1].map(y => (
                     <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
               </div>
-            </>
-          )}
+            )}
 
-          {reportType === 'BANK_TRANSFER_EXCEL' && (
-            <div>
-              <label className="kh-text" style={{ display: 'block', marginBottom: '8px' }}>ឈ្មោះធនាគារ (Bank Name)</label>
+            {/* Bank Name if Bank Transfer */}
+            {reportType === 'BANK_TRANSFER_EXCEL' && (
               <input 
                 type="text" 
                 className="input-field" 
                 value={bankName} 
                 onChange={(e) => setBankName(e.target.value)} 
-                style={{ margin: 0, minWidth: '150px' }}
+                placeholder="Bank Name"
+                style={{ margin: 0, padding: '4px 10px', height: '34px', fontSize: '0.82rem', width: '100px', borderRadius: '6px' }}
               />
-            </div>
-          )}
-          
-          <div>
-            <button onClick={loadData} className="btn-secondary kh-text">Refresh Data</button>
-          </div>
-        </div>
+            )}
 
-        <hr style={{ border: 'none', borderTop: '1px dashed var(--border-color)', margin: '20px 0' }} />
+            {/* Refresh Button */}
+            <button
+              onClick={loadData}
+              disabled={loading}
+              className="btn-secondary kh-text"
+              style={{
+                margin: 0,
+                padding: '4px 10px',
+                height: '34px',
+                fontSize: '0.8rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                backgroundColor: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                color: '#334155',
+                fontWeight: 600,
+              }}
+            >
+              🔄 {loading ? '...' : 'Refresh'}
+            </button>
+          </div>
 
-        {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
-        ) : reportType === 'MASTER_PAYROLL_EXCEL' ? (
-          <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h3 className="kh-text" style={{ marginBottom: '15px' }}>ទាញយកទម្រង់ Master Payroll ជា Excel ពេញលេញ</h3>
-            <p className="kh-text" style={{ marginBottom: '20px', color: '#64748b' }}>
-              ទម្រង់នេះមានការកំណត់ Page Setup សម្រាប់ព្រីន មានអក្សរឈរ និងមានរូបមន្ត Excel ផ្ទាល់។
-            </p>
-            <a 
-              href={`/api/export/master-payroll?month=${month}&year=${year}&t=${Date.now()}`}
-              className="btn-primary kh-text"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '12px 24px', fontSize: '1.1rem' }}
-            >
-              📊 ទាញយក Excel (Download)
-            </a>
-          </div>
-        ) : reportType === 'MASTER_ATTENDANCE_EXCEL' ? (
-          <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h3 className="kh-text" style={{ marginBottom: '15px' }}>ទាញយកទម្រង់ Master Attendance ជា Excel ពេញលេញ</h3>
-            <p className="kh-text" style={{ marginBottom: '20px', color: '#64748b' }}>
-              ទម្រង់នេះរៀបចំឡើងជាប្រតិទិនប្រចាំខែ និងសរុបទិន្នន័យច្បាប់/អវត្តមានសម្រាប់បុគ្គលិកម្នាក់ៗ។
-            </p>
-            <a 
-              href={`/api/export/master-attendance?month=${month}&year=${year}&t=${Date.now()}`}
-              className="btn-primary kh-text"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '12px 24px', fontSize: '1.1rem' }}
-            >
-              📅 ទាញយក Excel (Download)
-            </a>
-          </div>
-        ) : reportType === 'MASTER_EMPLOYEE_EXCEL' ? (
-          <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h3 className="kh-text" style={{ marginBottom: '15px' }}>ទាញយក និងនាំចូលទម្រង់ Employee Master (Excel ពេញលេញ)</h3>
-            <p className="kh-text" style={{ marginBottom: '20px', color: '#64748b' }}>
-              ទម្រង់នេះរៀបចំឡើងយ៉ាងលម្អិត រួមមានព័ត៌មានកិច្ចសន្យា ប្រាក់ខែ គ្រួសារ និងព័ត៌មានផ្សេងៗទៀតរបស់បុគ្គលិកទាំងអស់។ អ្នកអាចទាញយក ឬនាំចូល (Import Original Format) វិញបាន។
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
-              <EmployeeExportImportButtons />
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div style={{ marginBottom: '15px', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-              {reportType === 'EXPENSE_SUMMARY' ? (
-                <button 
-                  onClick={handleDownloadExpenseSummary}
-                  className="btn-primary kh-text"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  📊 ទាញយក Excel 100% Fit (Download)
-                </button>
-              ) : (
+          {/* Right: Actions (Download, Print, Export Options) */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+            {reportType === 'PAYSLIP_STRIPS' && (
+              <a 
+                href={`/api/export/payslip-strips?month=${month}&year=${year}&hideEmpty=${autoHideEmpty ? 'true' : 'false'}`}
+                className="btn-primary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 12px',
+                  height: '34px',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  backgroundColor: '#4f46e5',
+                  boxShadow: '0 2px 6px rgba(79, 70, 229, 0.3)',
+                }}
+              >
+                📊 ទាញយក Excel Strips
+              </a>
+            )}
+
+            {reportType === 'EXPENSE_SUMMARY' ? (
+              <button 
+                onClick={handleDownloadExpenseSummary}
+                className="btn-primary kh-text"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', height: '34px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}
+              >
+                📊 Excel 100% Fit
+              </button>
+            ) : (
+              !['MASTER_PAYROLL_EXCEL', 'MASTER_ATTENDANCE_EXCEL', 'MASTER_EMPLOYEE_EXCEL'].includes(reportType) && (
                 <ExportButtons 
                   data={data} 
                   columns={columns} 
@@ -400,75 +456,117 @@ export default function ExportHubClient({ t }: Props) {
                   showEmployeeMaster={reportType === 'EMPLOYEE'}
                   onImportEmployee={() => employeeImportRef.current?.openModal()}
                 />
-              )}
-              {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons ref={employeeImportRef} hideDropdown={true} />}
-              {reportType === 'PAYSLIP_STRIPS' && (
-                <a 
-                  href={`/api/export/payslip-strips?month=${month}&year=${year}&hideEmpty=${autoHideEmpty ? 'true' : 'false'}`}
-                  className="btn-primary kh-text"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '4px', textDecoration: 'none' }}
-                >
-                  📊 ទាញយក Excel Strips (Download)
-                </a>
-              )}
-            </div>
-
-            {/* Auto-Hide Empty Columns Banner for Payslip Strips */}
-            {reportType === 'PAYSLIP_STRIPS' && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: autoHideEmpty ? '#f0fdf4' : '#f8fafc',
-                border: autoHideEmpty ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                marginBottom: '15px',
-                flexWrap: 'wrap',
-                gap: '12px',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
-                  <span style={{ fontSize: '1.25rem' }}>⚡</span>
-                  <div>
-                    <span className="kh-text" style={{ fontWeight: 700, color: autoHideEmpty ? '#166534' : '#334155' }}>
-                      ទម្រង់ស្វ័យប្រវត្ត (Smart Auto-Fit):{' '}
-                    </span>
-                    <span className="kh-text" style={{ color: autoHideEmpty ? '#15803d' : '#64748b' }}>
-                      {autoHideEmpty && hiddenCount > 0
-                        ? `បានលាក់ ${hiddenCount} ជួរឈរដែលគ្មានទិន្នន័យ (០ ឬទទេ) ដោយស្វ័យប្រវត្ត ដើម្បីងាយស្រួលមើល និងបោះពុម្ព Fit ក្រដាស A4`
-                        : 'កំពុងបង្ហាញជួរឈរទាំងអស់ពេញលេញ (Full Columns)'}
-                    </span>
-                  </div>
-                </div>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }} className="kh-text">
-                  <input
-                    type="checkbox"
-                    checked={autoHideEmpty}
-                    onChange={(e) => setAutoHideEmpty(e.target.checked)}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#16a34a' }}
-                  />
-                  លាក់ជួរឈរគ្មានទិន្នន័យ (Auto-Hide Empty Columns)
-                </label>
-              </div>
+              )
             )}
 
-            {/* Preview Section */}
-            <div style={{ marginTop: '20px' }}>
-              <h3 className="kh-text" style={{ marginBottom: '10px' }}>
-                តារាងមើលជាមុន (Preview) - {data.length} records {reportType === 'PAYSLIP_STRIPS' && `(${columns.length} ជួរឈរ)`}
-              </h3>
-              <div id="preview-table" style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
-                <table style={{ width: columns.length <= 6 ? 'max-content' : '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 'max-content' }}>
-                  {reportType !== 'PAYSLIP_STRIPS' && (
-                    <thead>
-                      <tr style={{ backgroundColor: '#f8fafc' }}>
-                        {columns.map((col, i) => (
-                          <th key={i} style={{ padding: '10px', borderBottom: '2px solid var(--border-color)', fontSize: '0.85rem', whiteSpace: 'pre-wrap', verticalAlign: 'middle', textAlign: 'center' }}>{col.header}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                  )}
-                  <tbody>
+            {reportType === 'EMPLOYEE' && <EmployeeExportImportButtons ref={employeeImportRef} hideDropdown={true} />}
+          </div>
+        </div>
+
+        {/* Row 2: Slim Auto-Fit Banner for Payslip Strips */}
+        {reportType === 'PAYSLIP_STRIPS' && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: autoHideEmpty ? '#f0fdf4' : '#f8fafc',
+              border: autoHideEmpty ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              marginTop: '6px',
+              flexWrap: 'wrap',
+              gap: '6px',
+              fontSize: '0.78rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>⚡</span>
+              <span className="kh-text" style={{ fontWeight: 700, color: autoHideEmpty ? '#166534' : '#334155' }}>
+                Auto-Fit:
+              </span>
+              <span className="kh-text" style={{ color: autoHideEmpty ? '#15803d' : '#64748b' }}>
+                {autoHideEmpty && hiddenCount > 0
+                  ? `បានលាក់ ${hiddenCount} ជួរឈរទទេ • កំពុងបង្ហាញ ${columns.length} ជួរឈរ (Fit ក្រដាស A4 Landscape)`
+                  : 'កំពុងបង្ហាញជួរឈរទាំងអស់ពេញលេញ (Full Columns)'}
+              </span>
+            </div>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, color: '#0f172a' }} className="kh-text">
+              <input
+                type="checkbox"
+                checked={autoHideEmpty}
+                onChange={(e) => setAutoHideEmpty(e.target.checked)}
+                style={{ width: '14px', height: '14px', cursor: 'pointer', accentColor: '#16a34a' }}
+              />
+              លាក់ជួរឈរគ្មានទិន្នន័យ (Auto-Hide Empty)
+            </label>
+          </div>
+        )}
+      </div>
+
+      {/* Main Content Area */}
+      <div>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
+        ) : reportType === 'MASTER_PAYROLL_EXCEL' ? (
+          <div style={{ padding: '24px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+            <h3 className="kh-text" style={{ marginBottom: '10px', fontSize: '1.05rem' }}>ទាញយកទម្រង់ Master Payroll ជា Excel ពេញលេញ</h3>
+            <p className="kh-text" style={{ marginBottom: '16px', color: '#64748b', fontSize: '0.85rem' }}>
+              ទម្រង់នេះមានការកំណត់ Page Setup សម្រាប់ព្រីន មានអក្សរឈរ និងមានរូបមន្ត Excel ផ្ទាល់។
+            </p>
+            <a 
+              href={`/api/export/master-payroll?month=${month}&year=${year}&t=${Date.now()}`}
+              className="btn-primary kh-text"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '8px 18px', fontSize: '0.95rem' }}
+            >
+              📊 ទាញយក Excel (Download)
+            </a>
+          </div>
+        ) : reportType === 'MASTER_ATTENDANCE_EXCEL' ? (
+          <div style={{ padding: '24px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+            <h3 className="kh-text" style={{ marginBottom: '10px', fontSize: '1.05rem' }}>ទាញយកទម្រង់ Master Attendance ជា Excel ពេញលេញ</h3>
+            <p className="kh-text" style={{ marginBottom: '16px', color: '#64748b', fontSize: '0.85rem' }}>
+              ទម្រង់នេះរៀបចំឡើងជាប្រតិទិនប្រចាំខែ និងសរុបទិន្នន័យច្បាប់/អវត្តមានសម្រាប់បុគ្គលិកម្នាក់ៗ។
+            </p>
+            <a 
+              href={`/api/export/master-attendance?month=${month}&year=${year}&t=${Date.now()}`}
+              className="btn-primary kh-text"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '8px 18px', fontSize: '0.95rem' }}
+            >
+              📅 ទាញយក Excel (Download)
+            </a>
+          </div>
+        ) : reportType === 'MASTER_EMPLOYEE_EXCEL' ? (
+          <div style={{ padding: '24px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+            <h3 className="kh-text" style={{ marginBottom: '10px', fontSize: '1.05rem' }}>ទាញយក និងនាំចូលទម្រង់ Employee Master (Excel ពេញលេញ)</h3>
+            <p className="kh-text" style={{ marginBottom: '16px', color: '#64748b', fontSize: '0.85rem' }}>
+              ទម្រង់នេះរៀបចំឡើងយ៉ាងលម្អិត រួមមានព័ត៌មានកិច្ចសន្យា ប្រាក់ខែ គ្រួសារ និងព័ត៌មានផ្សេងៗទៀតរបស់បុគ្គលិកទាំងអស់។ អ្នកអាចទាញយក ឬនាំចូល (Import Original Format) វិញបាន។
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
+              <EmployeeExportImportButtons />
+            </div>
+          </div>
+        ) : (
+          <div style={{ marginTop: '4px' }}>
+            {/* Preview Section Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span className="kh-text" style={{ fontSize: '0.86rem', fontWeight: 700, color: '#334155' }}>
+                តារាងមើលជាមុន (Preview) • {data.length} records {reportType === 'PAYSLIP_STRIPS' && `(${columns.length} ជួរឈរ)`}
+              </span>
+            </div>
+
+            <div id="preview-table" style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+              <table style={{ width: columns.length <= 6 ? 'max-content' : '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 'max-content' }}>
+                {reportType !== 'PAYSLIP_STRIPS' && (
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8fafc' }}>
+                      {columns.map((col, i) => (
+                        <th key={i} style={{ padding: '10px', borderBottom: '2px solid var(--border-color)', fontSize: '0.85rem', whiteSpace: 'pre-wrap', verticalAlign: 'middle', textAlign: 'center' }}>{col.header}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                )}
+                <tbody>
                     {data.length === 0 ? (
                       <tr>
                         <td colSpan={columns.length} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>គ្មានទិន្នន័យ (No Data)</td>
@@ -545,8 +643,7 @@ export default function ExportHubClient({ t }: Props) {
                 </table>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

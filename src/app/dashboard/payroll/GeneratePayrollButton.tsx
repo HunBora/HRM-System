@@ -9,10 +9,12 @@ export default function GeneratePayrollButton({
   month,
   year,
   text,
+  compact = false,
 }: {
   month: number;
   year: number;
-  text: string;
+  text?: string;
+  compact?: boolean;
 }) {
   const [modalState, setModalState] = useState<ModalState>('IDLE');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -96,26 +98,30 @@ export default function GeneratePayrollButton({
       {/* Trigger Button */}
       <button
         onClick={handleOpenConfirm}
-        className="btn-primary kh-text"
+        className="btn-primary kh-text hover:opacity-95 transition-all"
+        title="បង្កើត ឬគណនាបញ្ជីប្រាក់ខែ (Generate Payroll)"
         style={{
           background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
           color: 'white',
-          padding: '10px 20px',
-          borderRadius: '8px',
+          padding: compact ? '6px 12px' : '10px 20px',
+          height: compact ? '32px' : 'auto',
+          borderRadius: '6px',
+          fontSize: compact ? '0.8rem' : '0.9rem',
           fontWeight: 600,
           border: 'none',
           cursor: 'pointer',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+          gap: compact ? '5px' : '8px',
+          boxShadow: compact ? '0 1px 3px rgba(37, 99, 235, 0.25)' : '0 4px 12px rgba(37, 99, 235, 0.25)',
           transition: 'all 0.2s ease',
+          whiteSpace: 'nowrap',
         }}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width={compact ? "15" : "18"} height={compact ? "15" : "18"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
         </svg>
-        {text}
+        {text || (compact ? 'Generate' : '+ បង្កើតបញ្ជីប្រាក់ខែ')}
       </button>
 
       {/* Modal Dialog */}

@@ -145,7 +145,7 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
         }
       `}</style>
       {/* Top Header Section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }} className="print-hidden">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', flexWrap: 'wrap', gap: '12px' }} className="print-hidden">
         
         {/* Title Block */}
         <div>
@@ -169,63 +169,123 @@ export default async function PayrollPage({ searchParams }: { searchParams: Prom
         </div>
 
         {/* Buttons and Small Summary Boxes aligned to the right */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1, minWidth: '400px' }}>
-          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flex: 1, minWidth: '320px' }}>
+          {/* Compact Action Toolbar with Icon & Shortcut Words */}
+          <div 
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              flexWrap: 'wrap', 
+              justifyContent: 'flex-end',
+              padding: '4px 6px',
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
+            }}
+          >
             <Link 
               href="/dashboard/settings?tab=manual" 
-              className="btn-secondary flex items-center justify-center kh-text hover:bg-blue-600 hover:text-white transition-colors" 
-              style={{ padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', backgroundColor: '#2563eb', color: '#ffffff', border: '1px solid #1d4ed8', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              title="សៀវភៅណែនាំ & រូបមន្ត 46 ជួរឈរ (Manual & SOP)" 
+              className="btn-secondary kh-text hover:bg-blue-600 hover:text-white transition-all" 
+              style={{ 
+                padding: '5px 10px', 
+                height: '30px', 
+                borderRadius: '5px', 
+                textDecoration: 'none', 
+                backgroundColor: '#2563eb', 
+                color: '#ffffff', 
+                border: '1px solid #1d4ed8', 
+                fontWeight: 600, 
+                fontSize: '0.78rem', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '4px', 
+                whiteSpace: 'nowrap' 
+              }}
             >
-              📖 សៀវភៅណែនាំ & រូបមន្ត (Manual & SOP)
+              📖 SOP
             </Link>
             <Link 
               href={`/dashboard/payroll/batch-payslips?month=${month}&year=${year}${department ? `&department=${encodeURIComponent(department)}` : ''}`}
-              className="btn-secondary flex items-center justify-center kh-text hover:bg-emerald-600 transition-colors" 
-              style={{ padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', backgroundColor: '#059669', color: '#ffffff', border: '1px solid #047857', fontWeight: 600 }}
+              title="បោះពុម្ពវិក្កយបត្រសរុប (Batch Payslips)"
+              className="btn-secondary kh-text hover:bg-emerald-600 hover:text-white transition-all" 
+              style={{ 
+                padding: '5px 10px', 
+                height: '30px', 
+                borderRadius: '5px', 
+                textDecoration: 'none', 
+                backgroundColor: '#059669', 
+                color: '#ffffff', 
+                border: '1px solid #047857', 
+                fontWeight: 600, 
+                fontSize: '0.78rem', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '4px', 
+                whiteSpace: 'nowrap' 
+              }}
             >
-              🖨️ បោះពុម្ពវិក្កយបត្រ (Batch Payslips)
+              🖨️ Payslips
             </Link>
             <Link 
               href="/dashboard/payroll/summary" 
-              className="btn-secondary flex items-center justify-center kh-text hover:bg-slate-200 transition-colors" 
-              style={{ padding: '8px 16px', borderRadius: '4px', textDecoration: 'none', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1' }}
+              title="របាយការណ៍សរុប (Master Summary)"
+              className="btn-secondary kh-text hover:bg-slate-200 transition-all" 
+              style={{ 
+                padding: '5px 10px', 
+                height: '30px', 
+                borderRadius: '5px', 
+                textDecoration: 'none', 
+                backgroundColor: '#ffffff', 
+                color: '#334155', 
+                border: '1px solid #cbd5e1', 
+                fontWeight: 600, 
+                fontSize: '0.78rem', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '4px', 
+                whiteSpace: 'nowrap' 
+              }}
             >
-              របាយការណ៍សរុប (Master Summary)
+              📊 Summary
             </Link>
             <BulkTelegramPayslipButton 
               month={month} 
               year={year} 
               eligibleCount={payrolls.filter(p => p.employee?.telegramChatId && p.employee.telegramChatId.trim() !== '').length} 
+              compact={true}
             />
-            <GeneratePayrollButton month={month} year={year} text={t.payroll.generateBtn} />
+            <GeneratePayrollButton 
+              month={month} 
+              year={year} 
+              text="Generate" 
+              compact={true} 
+            />
           </div>
           
-          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '15px', marginTop: '5px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span className="kh-text" style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', textAlign: 'center' }}>សរុបប្រាក់ដុល្លារ (Total USD)</span>
-              <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 16px', backgroundColor: '#f8fafc', fontWeight: 'bold', color: '#0f172a', textAlign: 'center', fontSize: '0.9rem' }}>
-                ${totalUsd.toFixed(2)}
-              </div>
+          {/* Summary Mini Cards */}
+          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '3px 10px', backgroundColor: '#f8fafc' }}>
+              <span className="kh-text" style={{ fontSize: '0.72rem', color: '#64748b' }}>សរុប USD:</span>
+              <span style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '0.82rem' }}>${totalUsd.toFixed(2)}</span>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span className="kh-text" style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', textAlign: 'center' }}>សរុបប្រាក់រៀល (Total Riel)</span>
-              <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 16px', backgroundColor: '#f8fafc', fontWeight: 'bold', color: '#0f172a', textAlign: 'center', fontSize: '0.9rem' }}>
-                ៛{totalRiel.toLocaleString()}
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '3px 10px', backgroundColor: '#f8fafc' }}>
+              <span className="kh-text" style={{ fontSize: '0.72rem', color: '#64748b' }}>សរុប Riel:</span>
+              <span style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '0.82rem' }}>៛{totalRiel.toLocaleString()}</span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span className="kh-text" style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', textAlign: 'center' }}>ប្រាក់កាត់ពន្ធ (Total Tax)</span>
-              <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', padding: '6px 16px', backgroundColor: '#f8fafc', fontWeight: 'bold', color: '#ef4444', textAlign: 'center', fontSize: '0.9rem' }}>
-                ${totalTax.toFixed(2)}
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid #fee2e2', borderRadius: '6px', padding: '3px 10px', backgroundColor: '#fff5f5' }}>
+              <span className="kh-text" style={{ fontSize: '0.72rem', color: '#dc2626' }}>ពន្ធ:</span>
+              <span style={{ fontWeight: 'bold', color: '#dc2626', fontSize: '0.82rem' }}>${totalTax.toFixed(2)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 280px)', padding: 0, border: '1px solid var(--border-color)', marginTop: '20px' }}>
+      <div className="card" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 230px)', padding: 0, border: '1px solid var(--border-color)', marginTop: '10px' }}>
         <table style={{ width: 'max-content', borderCollapse: 'collapse', textAlign: 'center', minWidth: '100%' }}>
           <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <tr style={{ backgroundColor: '#eef2ff', borderBottom: '1px solid var(--border-color)' }}>

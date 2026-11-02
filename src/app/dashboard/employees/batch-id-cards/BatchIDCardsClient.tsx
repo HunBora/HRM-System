@@ -78,6 +78,7 @@ export type CardStyleType = 'wave-gold' | 'green-wave' | 'green-eco' | 'angular-
 interface CardStyleDef {
   id: CardStyleType;
   nameKh: string;
+  shortName: string;
   isLandscape: boolean;
   icon: string;
   defaultPrimary: string;
@@ -85,13 +86,13 @@ interface CardStyleDef {
 }
 
 const CARD_STYLES: CardStyleDef[] = [
-  { id: 'wave-gold', nameKh: '🌊 Royal Wave & Gold (គំរូទី ៤)', isLandscape: false, icon: '🌊', defaultPrimary: '#1e3a8a', defaultAccent: '#eab308' },
-  { id: 'green-wave', nameKh: '🍃 Green & Gold Wave (គំរូទី ៥)', isLandscape: false, icon: '🍃', defaultPrimary: '#15803d', defaultAccent: '#eab308' },
-  { id: 'green-eco', nameKh: '🌿 Green Eco-Diagonal (គំរូទី ១)', isLandscape: false, icon: '🌿', defaultPrimary: '#15803d', defaultAccent: '#eab308' },
-  { id: 'angular-tech', nameKh: '🔷 Angular Tech Blue (គំរូទី ២)', isLandscape: false, icon: '🔷', defaultPrimary: '#0b2545', defaultAccent: '#0284c7' },
-  { id: 'corporate', nameKh: '🏢 Modern Corporate', isLandscape: false, icon: '🏢', defaultPrimary: '#0a192f', defaultAccent: '#ef4444' },
-  { id: 'landscape', nameKh: '🪪 Landscape 86x54mm', isLandscape: true, icon: '🪪', defaultPrimary: '#1e3a8a', defaultAccent: '#f59e0b' },
-  { id: 'executive', nameKh: '👑 Executive Gold', isLandscape: false, icon: '👑', defaultPrimary: '#18181b', defaultAccent: '#eab308' }
+  { id: 'wave-gold', nameKh: '🌊 Royal Wave & Gold', shortName: 'Royal Wave', isLandscape: false, icon: '🌊', defaultPrimary: '#1e3a8a', defaultAccent: '#eab308' },
+  { id: 'green-wave', nameKh: '🍃 Green & Gold Wave', shortName: 'Green Wave', isLandscape: false, icon: '🍃', defaultPrimary: '#15803d', defaultAccent: '#eab308' },
+  { id: 'green-eco', nameKh: '🌿 Green Eco-Diagonal', shortName: 'Eco Diagonal', isLandscape: false, icon: '🌿', defaultPrimary: '#15803d', defaultAccent: '#eab308' },
+  { id: 'angular-tech', nameKh: '🔷 Angular Tech Blue', shortName: 'Angular Blue', isLandscape: false, icon: '🔷', defaultPrimary: '#0b2545', defaultAccent: '#0284c7' },
+  { id: 'corporate', nameKh: '🏢 Modern Corporate', shortName: 'Corporate', isLandscape: false, icon: '🏢', defaultPrimary: '#0a192f', defaultAccent: '#ef4444' },
+  { id: 'landscape', nameKh: '🪪 Landscape 86x54mm', shortName: 'Landscape', isLandscape: true, icon: '🪪', defaultPrimary: '#1e3a8a', defaultAccent: '#f59e0b' },
+  { id: 'executive', nameKh: '👑 Executive Gold', shortName: 'Exec Gold', isLandscape: false, icon: '👑', defaultPrimary: '#18181b', defaultAccent: '#eab308' }
 ];
 
 // Barcode Component
@@ -458,122 +459,117 @@ export default function BatchIDCardsClient({
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '12px',
+          gap: '8px',
           background: 'var(--card-bg, #ffffff)',
-          padding: '16px 20px',
-          borderRadius: '12px',
-          boxShadow: 'var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,0.05))',
+          padding: '8px 12px',
+          borderRadius: '10px',
+          boxShadow: 'var(--shadow-sm, 0 1px 2px 0 rgba(0,0,0,0.05))',
           border: '1px solid var(--border-color, #e2e8f0)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Link
             href="/dashboard/employees"
             style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
+              padding: '4px 10px',
+              borderRadius: '6px',
               border: '1px solid #cbd5e1',
               backgroundColor: '#f8fafc',
               color: '#334155',
               textDecoration: 'none',
               fontWeight: 600,
-              fontSize: '13px'
+              fontSize: '12px',
+              height: '30px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              whiteSpace: 'nowrap'
             }}
           >
-            ← ត្រឡប់ទៅបញ្ជីបុគ្គលិក
+            ← ត្រឡប់ (Back)
           </Link>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', margin: 0 }} className="kh-text">
-              🖨️ បោះពុម្ពកាតបុគ្គលិកជាដុំ (Batch ID Cards Print)
-            </h1>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted, #64748b)', margin: '2px 0 0 0' }}>
-              កំណត់ចំនួនបោះពុម្ពកាតបានច្រើនក្នុងពេលតែមួយ • ជ្រើសរើសតាមផ្នែក • ប្លង់ A4 (៨ កាត/សន្លឹក) ឬ PVC Tray
-            </p>
-          </div>
+          <h1 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main, #0f172a)', margin: 0, whiteSpace: 'nowrap' }} className="kh-text">
+            🪪 បោះពុម្ពកាតជាដុំ (Batch Print)
+          </h1>
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ padding: '6px 12px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe', fontSize: '12.5px', fontWeight: 700, color: '#1e40af' }}>
-            បានជ្រើសរើស: {selectedEmployees.length} / {filteredEmployees.length} នាក់
+        <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ padding: '3px 8px', backgroundColor: '#eff6ff', borderRadius: '5px', border: '1px solid #bfdbfe', fontSize: '11.5px', fontWeight: 700, color: '#1e40af', height: '30px', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+            រើស: {selectedEmployees.length}/{filteredEmployees.length}
           </div>
 
           <button
             onClick={() => window.print()}
             disabled={selectedEmployees.length === 0}
             style={{
-              padding: '9px 18px',
+              padding: '4px 10px',
               backgroundColor: '#4f46e5',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '11.5px',
+              height: '30px',
               cursor: selectedEmployees.length === 0 ? 'not-allowed' : 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 4px rgba(79, 70, 229, 0.25)'
+              gap: '4px',
+              boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)',
+              whiteSpace: 'nowrap'
             }}
           >
-            🖨️ បោះពុម្ពទាំងអស់ ({selectedEmployees.length} នាក់)
+            🖨️ បោះពុម្ព ({selectedEmployees.length})
           </button>
 
           <button
             onClick={handleBatchExportPdf}
             disabled={isExporting || selectedEmployees.length === 0}
             style={{
-              padding: '9px 18px',
+              padding: '4px 10px',
               backgroundColor: '#ef4444',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '11.5px',
+              height: '30px',
               cursor: isExporting || selectedEmployees.length === 0 ? 'not-allowed' : 'pointer',
               opacity: isExporting ? 0.7 : 1,
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 4px rgba(239, 68, 68, 0.25)'
+              gap: '4px',
+              boxShadow: '0 1px 3px rgba(239, 68, 68, 0.25)',
+              whiteSpace: 'nowrap'
             }}
           >
-            📑 {isExporting ? `កំពុង Render... ${exportProgress}%` : `ទាញយក PDF រួម (${selectedEmployees.length})`}
+            📑 {isExporting ? `${exportProgress}%` : `PDF (${selectedEmployees.length})`}
           </button>
 
-          {/* Save as Default Button */}
           <button
             type="button"
             onClick={() => handleSaveAsDefault()}
             disabled={isSavingDefault}
             style={{
-              padding: '9px 16px',
+              padding: '4px 10px',
               backgroundColor: savedDefaultStyle === cardStyle ? '#047857' : '#059669',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '11.5px',
+              height: '30px',
               cursor: isSavingDefault ? 'wait' : 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 4px rgba(5, 150, 105, 0.3)',
-              transition: 'all 0.15s ease'
+              gap: '4px',
+              boxShadow: '0 1px 3px rgba(5, 150, 105, 0.25)',
+              whiteSpace: 'nowrap'
             }}
             title="រក្សាទុក Style បច្ចុប្បន្នជាលំនាំដើមសម្រាប់កាតទាំងអស់"
           >
-            {isSavingDefault ? (
-              <>
-                <span>⏳</span>
-                <span>កំពុងរក្សាទុក...</span>
-              </>
-            ) : (
-              <>
-                <span>💾</span>
-                <span>{savedDefaultStyle === cardStyle ? '✓ ម៉ូតលំនាំដើម (Default)' : 'រក្សាទុកជាលំនាំដើម'}</span>
-              </>
-            )}
+            <span>💾</span>
+            <span>{savedDefaultStyle === cardStyle ? '✓ Default' : 'រក្សាទុក Default'}</span>
           </button>
         </div>
       </div>
@@ -625,30 +621,30 @@ export default function BatchIDCardsClient({
         className="no-print"
         style={{
           background: 'var(--card-bg, #ffffff)',
-          padding: '14px 18px',
-          borderRadius: '12px',
+          padding: '8px 12px',
+          borderRadius: '10px',
           border: '1px solid var(--border-color, #e2e8f0)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px'
+          gap: '6px'
         }}
       >
         {/* Row 1: Filter by Department + Search + Selection Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <div>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569', marginRight: '6px' }}>🏢 ផ្នែក (Department):</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569' }}>🏢 ផ្នែក:</span>
               <select
                 value={selectedDept}
                 onChange={(e) => setSelectedDept(e.target.value)}
-                style={{ padding: '7px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', fontWeight: 600 }}
+                style={{ padding: '2px 8px', height: '28px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '11.5px', fontWeight: 600 }}
               >
-                <option value="ALL">ទាំងអស់ (បុគ្គលិកសរុប {initialEmployees.length} នាក់)</option>
+                <option value="ALL">ទាំងអស់ ({initialEmployees.length})</option>
                 {departments.map((d) => {
                   const count = initialEmployees.filter((e) => e.department === d).length;
                   return (
                     <option key={d} value={d}>
-                      {d} ({count} នាក់)
+                      {d} ({count})
                     </option>
                   );
                 })}
@@ -658,33 +654,33 @@ export default function BatchIDCardsClient({
             <div>
               <input
                 type="text"
-                placeholder="🔍 ស្វែងរកឈ្មោះ ឬ ID..."
+                placeholder="🔍 រកឈ្មោះ/ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ padding: '7px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', width: '220px' }}
+                style={{ padding: '2px 8px', height: '28px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '11.5px', width: '150px' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               onClick={handleSelectAll}
-              style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '2px 8px', height: '28px', borderRadius: '5px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '11.5px', fontWeight: 600, cursor: 'pointer' }}
             >
-              ✓ ជ្រើសរើសទាំងអស់ ({filteredEmployees.length})
+              ✓ ទាំងអស់ ({filteredEmployees.length})
             </button>
             <button
               onClick={handleDeselectAll}
-              style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '2px 8px', height: '28px', borderRadius: '5px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '11.5px', fontWeight: 600, cursor: 'pointer' }}
             >
-              ✕ ដោះការជ្រើសរើស
+              ✕ មិនរើស
             </button>
           </div>
         </div>
 
         {/* Row 2: Card Style Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b' }}>Style កាត:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '6px' }}>
+          <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', marginRight: '2px' }}>Style:</span>
           {CARD_STYLES.map((s) => {
             const isSelected = cardStyle === s.id;
             const isDefault = savedDefaultStyle === s.id;
@@ -693,22 +689,23 @@ export default function BatchIDCardsClient({
                 key={s.id}
                 onClick={() => handleSelectStyle(s)}
                 style={{
-                  padding: '6px 12px',
-                  borderRadius: '7px',
-                  border: isSelected ? '2px solid #4f46e5' : isDefault ? '1.5px solid #10b981' : '1px solid #cbd5e1',
+                  padding: '2px 7px',
+                  height: '26px',
+                  borderRadius: '5px',
+                  border: isSelected ? '1.5px solid #4f46e5' : isDefault ? '1.5px solid #10b981' : '1px solid #cbd5e1',
                   backgroundColor: isSelected ? '#f5f3ff' : isDefault ? '#f0fdf4' : '#ffffff',
                   color: isSelected ? '#4f46e5' : isDefault ? '#047857' : '#475569',
                   fontWeight: isSelected ? 700 : 500,
-                  fontSize: '12px',
+                  fontSize: '11px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px'
+                  gap: '4px'
                 }}
                 title={isDefault ? 'ម៉ូតលំនាំដើមរបស់ក្រុមហ៊ុន (Default)' : s.nameKh}
               >
                 <span>{s.icon}</span>
-                <span>{s.nameKh.split('(')[0]}</span>
+                <span>{s.shortName}</span>
                 {isDefault && <span style={{ color: '#059669', fontWeight: 800 }}>★</span>}
               </button>
             );
@@ -719,62 +716,63 @@ export default function BatchIDCardsClient({
             onClick={() => handleSaveAsDefault(cardStyle)}
             disabled={isSavingDefault}
             style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
+              padding: '2px 8px',
+              height: '26px',
+              borderRadius: '5px',
               backgroundColor: savedDefaultStyle === cardStyle ? '#ecfdf5' : '#10b981',
               color: savedDefaultStyle === cardStyle ? '#065f46' : '#ffffff',
               border: savedDefaultStyle === cardStyle ? '1px solid #a7f3d0' : 'none',
               fontWeight: 700,
               cursor: isSavingDefault ? 'wait' : 'pointer',
-              fontSize: '11.5px',
+              fontSize: '11px',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              marginLeft: '4px'
+              marginLeft: 'auto'
             }}
             title="រក្សាទុកម៉ូតនេះជាលំនាំដើមសម្រាប់កាតទាំងអស់ (Save as Default)"
           >
             <span>💾</span>
-            <span>{savedDefaultStyle === cardStyle ? '★ ម៉ូតលំនាំដើម (Active)' : 'រក្សាទុកជាលំនាំដើម'}</span>
+            <span>{savedDefaultStyle === cardStyle ? '★ Default' : 'រក្សាទុក Default'}</span>
           </button>
         </div>
 
         {/* Row 3: Print Layout Settings */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '10px', fontSize: '12.5px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-            <div>
-              <span style={{ fontWeight: 700, color: '#475569', marginRight: '6px' }}>📄 ប្លង់ក្រដាស:</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '6px', fontSize: '11.5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: 700, color: '#475569' }}>📄 ប្លង់:</span>
               <select
                 value={printLayout}
                 onChange={(e) => setPrintLayout(e.target.value as any)}
-                style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                style={{ padding: '2px 6px', height: '26px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '11.5px' }}
               >
-                <option value="a4-grid">សន្លឹក A4 (៨ កាតក្នុង ១ ទំព័រ - ស័ក្តិសមក្រដាសរូបថត)</option>
-                <option value="single-tray">កាតទោល (PVC Card Tray - ម៉ាស៊ីនព្រីនកាត)</option>
+                <option value="a4-grid">A4 (8 កាត/ទំព័រ)</option>
+                <option value="single-tray">PVC Tray (កាតទោល)</option>
               </select>
             </div>
 
-            <div>
-              <span style={{ fontWeight: 700, color: '#475569', marginRight: '6px' }}>📑 ផ្នែកបោះពុម្ព:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: 700, color: '#475569' }}>📑 ព្រីន:</span>
               <select
                 value={printSides}
                 onChange={(e) => setPrintSides(e.target.value as any)}
-                style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+                style={{ padding: '2px 6px', height: '26px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '11.5px' }}
               >
-                <option value="both">ទាំងមុខ & ក្រោយ (Front & Back)</option>
-                <option value="front-only">តែផ្នែកខាងមុខ (Front Only)</option>
-                <option value="back-only">តែផ្នែកខាងក្រោយ (Back Only)</option>
+                <option value="both">មុខ & ក្រោយ</option>
+                <option value="front-only">តែមុខ</option>
+                <option value="back-only">តែក្រោយ</option>
               </select>
             </div>
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '11.5px' }}>
               <input type="checkbox" checked={showBarcode} onChange={(e) => setShowBarcode(e.target.checked)} />
-              <span>បង្ហាញ Barcode មុខ</span>
+              <span>Barcode មុខ</span>
             </label>
           </div>
 
-          <div style={{ color: '#059669', fontWeight: 700 }}>
-            ✓ ប្លង់ CR80 (54mm × 86mm) គ្មានការដាច់អក្សរ
+          <div style={{ color: '#059669', fontWeight: 700, fontSize: '11.5px' }}>
+            ✓ CR80 (54×86mm)
           </div>
         </div>
       </div>

@@ -502,6 +502,262 @@ export default function EhsClient({
     }
   };
 
+  // ==========================================
+  // EXPORT FUNCTIONS: CSV, EXCEL, PRINT/PDF
+  // ==========================================
+
+  const handleExportCSV = () => {
+    let filename = '';
+    let headers: string[] = [];
+    let rows: string[][] = [];
+
+    if (activeTab === 'CLINIC') {
+      filename = `EHS_Clinic_Visits_${new Date().toISOString().split('T')[0]}`;
+      headers = [
+        'No', 'Visit No', 'Date', 'Emp ID', 'Name Kh', 'Name En', 'Gender', 'Dept', 
+        'Symptoms', 'Temp (C)', 'BP', 'Diagnosis', 'Medicines Dispensed', 'Rest (Mins)', 
+        'Send Home', 'Referred Hospital', 'Hospital Name', 'Attendant'
+      ];
+      rows = filteredClinicVisits.map((v, i) => [
+        String(i + 1),
+        v.visitNumber,
+        new Date(v.visitDate).toLocaleDateString('en-GB'),
+        v.employee.employeeId,
+        `${v.employee.firstNameKh || ''} ${v.employee.lastNameKh || ''}`.trim(),
+        `${v.employee.firstNameEn || ''} ${v.employee.lastNameEn || ''}`.trim(),
+        v.employee.gender || '',
+        v.employee.department || '',
+        v.symptoms || '',
+        v.temperature ? `${v.temperature}°C` : '',
+        v.bloodPressure || '',
+        v.diagnosis || '',
+        v.medicineDispensed || '',
+        String(v.restMinutes || 0),
+        v.sendHome ? 'Yes' : 'No',
+        v.referredHospital ? 'Yes' : 'No',
+        v.hospitalName || '',
+        v.attendantName || '',
+      ]);
+    } else if (activeTab === 'INCIDENTS') {
+      filename = `EHS_Workplace_Incidents_${new Date().toISOString().split('T')[0]}`;
+      headers = [
+        'No', 'Incident No', 'Date', 'Time', 'Emp ID', 'Name Kh', 'Name En', 'Dept', 
+        'Location', 'Severity', 'Injury Type', 'Body Part', 'Description', 'Root Cause', 
+        'Corrective Action', 'Days Lost', 'NSSF Claimed', 'NSSF Case No', 'NSSF Status', 'Compensation (KHR)'
+      ];
+      rows = filteredIncidents.map((inc, i) => [
+        String(i + 1),
+        inc.incidentNumber,
+        new Date(inc.incidentDate).toLocaleDateString('en-GB'),
+        inc.incidentTime || '',
+        inc.employee.employeeId,
+        `${inc.employee.firstNameKh || ''} ${inc.employee.lastNameKh || ''}`.trim(),
+        `${inc.employee.firstNameEn || ''} ${inc.employee.lastNameEn || ''}`.trim(),
+        inc.employee.department || '',
+        inc.location,
+        inc.severity,
+        inc.injuryType,
+        inc.bodyPart || '',
+        inc.description,
+        inc.rootCause || '',
+        inc.correctiveAction || '',
+        String(inc.daysLost || 0),
+        inc.nssfClaimed ? 'Yes' : 'No',
+        inc.nssfCaseNo || '',
+        inc.nssfStatus,
+        String(inc.nssfCompensationKhr || 0),
+      ]);
+    } else {
+      filename = `EHS_Health_Checkups_${new Date().toISOString().split('T')[0]}`;
+      headers = [
+        'No', 'Year', 'Date', 'Emp ID', 'Name Kh', 'Name En', 'Dept', 'Clinic', 
+        'Health Book No', 'Certificate', 'Fit Status', 'BP', 'Vision', 'Chest X-ray', 'Comments'
+      ];
+      rows = filteredCheckups.map((c, i) => [
+        String(i + 1),
+        String(c.checkupYear),
+        new Date(c.checkupDate).toLocaleDateString('en-GB'),
+        c.employee.employeeId,
+        `${c.employee.firstNameKh || ''} ${c.employee.lastNameKh || ''}`.trim(),
+        `${c.employee.firstNameEn || ''} ${c.employee.lastNameEn || ''}`.trim(),
+        c.employee.department || '',
+        c.clinicName || '',
+        c.healthBookNumber || '',
+        c.hasCertificate ? 'Yes' : 'No',
+        c.fitStatus,
+        c.bloodPressure || '',
+        c.vision || '',
+        c.chestXray || '',
+        c.doctorComments || '',
+      ]);
+    }
+
+    const csvContent = '\uFEFF' + [
+      headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
+      ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(','))
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      const ExcelJS = (await import('exceljs')).default;
+      const workbook = new ExcelJS.Workbook();
+      let sheetName = '';
+      let filename = '';
+      let title = '';
+      let headers: string[] = [];
+      let rows: any[][] = [];
+
+      if (activeTab === 'CLINIC') {
+        sheetName = 'Clinic Visits';
+        filename = `EHS_Clinic_Visits_${new Date().toISOString().split('T')[0]}.xlsx`;
+        title = 'កំណត់ត្រាពិគ្រោះជំងឺ & បើកថ្នាំគ្លីនិករោងចក្រ (Factory Infirmary Clinic & Dispensary Log)';
+        headers = [
+          'ល.រ', 'លេខកូដពិគ្រោះ', 'កាលបរិច្ឆេទ', 'អត្តលេខ', 'គោត្តនាម-នាម', 'ឈ្មោះឡាតាំង', 'ភេទ', 'ផ្នែក', 
+          'អាការៈជំងឺ', 'សីតុណ្ហភាព', 'សម្ពាធឈាម', 'រោគវិនិច្ឆ័យ', 'ថ្នាំពេទ្យបានបើក', 'សម្រាកគ្រែ', 
+          'ទៅផ្ទះសម្រាក', 'បញ្ជូនពេទ្យ', 'ឈ្មោះមន្ទីរពេទ្យ', 'គ្រូពេទ្យប្រចាំការ'
+        ];
+        rows = filteredClinicVisits.map((v, i) => [
+          i + 1,
+          v.visitNumber,
+          new Date(v.visitDate).toLocaleDateString('en-GB'),
+          v.employee.employeeId,
+          `${v.employee.firstNameKh || ''} ${v.employee.lastNameKh || ''}`.trim(),
+          `${v.employee.firstNameEn || ''} ${v.employee.lastNameEn || ''}`.trim(),
+          v.employee.gender || '-',
+          v.employee.department || '-',
+          v.symptoms || '-',
+          v.temperature ? `${v.temperature}°C` : '-',
+          v.bloodPressure || '-',
+          v.diagnosis || '-',
+          v.medicineDispensed || '-',
+          v.restMinutes > 0 ? `${v.restMinutes} នាទី` : '0',
+          v.sendHome ? 'បាទ/ចាស' : 'ទេ',
+          v.referredHospital ? 'បាទ/ចាស' : 'ទេ',
+          v.hospitalName || '-',
+          v.attendantName || '-',
+        ]);
+      } else if (activeTab === 'INCIDENTS') {
+        sheetName = 'Incidents & NSSF';
+        filename = `EHS_Workplace_Incidents_${new Date().toISOString().split('T')[0]}.xlsx`;
+        title = 'កំណត់ត្រាគ្រោះថ្នាក់ការងារ & សំណង ប.ស.ស (Workplace Incidents & NSSF Claims Log)';
+        headers = [
+          'ល.រ', 'លេខកូដ', 'កាលបរិច្ឆេទ & ម៉ោង', 'អត្តលេខ', 'គោត្តនាម-នាម', 'ឈ្មោះឡាតាំង', 'ផ្នែក', 
+          'ទីតាំងកើតហេតុ', 'កម្រិតធ្ងន់ធ្ងរ', 'ប្រភេទរបួស', 'ផ្នែករាងកាយ', 'ការពិពណ៌នា', 'មូលហេតុដើម', 
+          'វិធានការការពារ', 'បាត់បង់ការងារ (ថ្ងៃ)', 'ទាមទារ ប.ស.ស', 'លេខសំណុំរឿង', 'ស្ថានភាព ប.ស.ស', 'សំណង (៛)'
+        ];
+        rows = filteredIncidents.map((inc, i) => [
+          i + 1,
+          inc.incidentNumber,
+          `${new Date(inc.incidentDate).toLocaleDateString('en-GB')} ${inc.incidentTime || ''}`,
+          inc.employee.employeeId,
+          `${inc.employee.firstNameKh || ''} ${inc.employee.lastNameKh || ''}`.trim(),
+          `${inc.employee.firstNameEn || ''} ${inc.employee.lastNameEn || ''}`.trim(),
+          inc.employee.department || '-',
+          inc.location,
+          inc.severity,
+          inc.injuryType,
+          inc.bodyPart || '-',
+          inc.description,
+          inc.rootCause || '-',
+          inc.correctiveAction || '-',
+          inc.daysLost,
+          inc.nssfClaimed ? 'បាទ/ចាស' : 'ទេ',
+          inc.nssfCaseNo || '-',
+          inc.nssfStatus,
+          inc.nssfCompensationKhr || 0,
+        ]);
+      } else {
+        sheetName = 'Health Checkups';
+        filename = `EHS_Health_Checkups_${new Date().toISOString().split('T')[0]}.xlsx`;
+        title = 'កំណត់ត្រាពិនិត្យសុខភាពប្រចាំឆ្នាំ (Annual Occupational Health Checkup Records)';
+        headers = [
+          'ល.រ', 'ឆ្នាំពិនិត្យ', 'កាលបរិច្ឆេទ', 'អត្តលេខ', 'គោត្តនាម-នាម', 'ឈ្មោះឡាតាំង', 'ផ្នែក', 
+          'មន្ទីរពេទ្យពិនិត្យ', 'លេខសៀវភៅការងារ', 'វិញ្ញាបនបត្រ', 'លទ្ធផលសមស្រប', 'សម្ពាធឈាម', 'គំហើញ', 'សួត', 'យោបល់គ្រូពេទ្យ'
+        ];
+        rows = filteredCheckups.map((c, i) => [
+          i + 1,
+          c.checkupYear,
+          new Date(c.checkupDate).toLocaleDateString('en-GB'),
+          c.employee.employeeId,
+          `${c.employee.firstNameKh || ''} ${c.employee.lastNameKh || ''}`.trim(),
+          `${c.employee.firstNameEn || ''} ${c.employee.lastNameEn || ''}`.trim(),
+          c.employee.department || '-',
+          c.clinicName,
+          c.healthBookNumber || '-',
+          c.hasCertificate ? 'មាន' : 'គ្មាន',
+          c.fitStatus === 'FIT' ? 'សមស្រប (Fit)' : c.fitStatus === 'RESTRICTED' ? 'មានលក្ខខណ្ឌ' : 'មិនសមស្រប',
+          c.bloodPressure || '-',
+          c.vision || '-',
+          c.chestXray || '-',
+          c.doctorComments || '-',
+        ]);
+      }
+
+      const worksheet = workbook.addWorksheet(sheetName, {
+        pageSetup: { orientation: 'landscape', paperSize: 9, fitToPage: true, fitToWidth: 1, fitToHeight: 0 }
+      });
+
+      // Title row
+      worksheet.mergeCells(1, 1, 1, headers.length);
+      const titleCell = worksheet.getCell(1, 1);
+      titleCell.value = title;
+      titleCell.font = { name: 'Khmer OS Siemreap', size: 13, bold: true, color: { argb: 'FF065F46' } };
+      titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      worksheet.getRow(1).height = 32;
+
+      // Header row
+      const headerRow = worksheet.addRow(headers);
+      headerRow.height = 26;
+      headerRow.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF065F46' } };
+        cell.font = { name: 'Khmer OS Siemreap', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+      });
+
+      // Rows
+      rows.forEach((r) => {
+        const row = worksheet.addRow(r);
+        row.height = 20;
+        row.eachCell((cell, colNum) => {
+          cell.font = { name: 'Khmer OS Siemreap', size: 8.5 };
+          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+          if ([1, 2, 3, 4, 7].includes(colNum)) {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          } else {
+            cell.alignment = { vertical: 'middle', horizontal: 'left' };
+          }
+        });
+      });
+
+      worksheet.columns = headers.map(() => ({ width: 16 }));
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      Swal.fire('Error', err.message, 'error');
+    }
+  };
+
+  const handlePrintPDF = () => {
+    window.print();
+  };
+
   return (
     <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '16px 20px 40px' }}>
       {/* 1. Header Banner */}
@@ -968,24 +1224,96 @@ export default function EhsClient({
           </button>
         </div>
 
-        {/* Live Search */}
-        <div style={{ position: 'relative', width: '280px' }}>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 ស្វែងរក ឈ្មោះ, អត្តលេខ, អាការៈ..."
-            className="kh-text"
-            style={{
-              width: '100%',
-              padding: '6px 12px 6px 30px',
-              fontSize: '0.82rem',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          />
+        {/* Right: Export Toolbar & Live Search */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+          {activeTab !== 'COMPLIANCE' && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <button
+                onClick={handleExportExcel}
+                className="kh-text"
+                title="ទាញយកជា Excel (.xlsx)"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '5px 10px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  backgroundColor: '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(5, 150, 105, 0.2)',
+                }}
+              >
+                📊 Excel (.xlsx)
+              </button>
+
+              <button
+                onClick={handleExportCSV}
+                className="kh-text"
+                title="ទាញយកជា CSV (UTF-8)"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '5px 10px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  backgroundColor: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(2, 132, 199, 0.2)',
+                }}
+              >
+                📑 CSV (.csv)
+              </button>
+
+              <button
+                onClick={handlePrintPDF}
+                className="kh-text"
+                title="បោះពុម្ព ឬរក្សាទុកជា PDF"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '5px 10px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  backgroundColor: '#475569',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                🖨️ PDF / Print
+              </button>
+            </div>
+          )}
+
+          {/* Live Search */}
+          <div style={{ position: 'relative', width: '220px' }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="🔍 ស្វែងរក ឈ្មោះ, ID, អាការៈ..."
+              className="kh-text"
+              style={{
+                width: '100%',
+                padding: '6px 12px 6px 28px',
+                fontSize: '0.8rem',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
         </div>
       </div>
 

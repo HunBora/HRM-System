@@ -380,3 +380,193 @@ export async function fetchGdtTaxReport(month: number, year: number) {
   return [...rows, grandTotalRow];
 }
 
+
+
+// ==========================================
+// EHS REPORTS FOR EXPORT HUB (EXCEL / PDF / CSV)
+// ==========================================
+
+export async function fetchClinicVisitsReport(month?: number, year?: number) {
+  const currentYear = year || new Date().getFullYear();
+  const visits = await prisma.clinicVisit.findMany({
+    include: {
+      employee: {
+        select: {
+          employeeId: true,
+          firstNameKh: true,
+          lastNameKh: true,
+          firstNameEn: true,
+          lastNameEn: true,
+          gender: true,
+          department: true,
+          position: true,
+        },
+      },
+    },
+    orderBy: { visitDate: 'desc' },
+  });
+
+  const filtered = visits.filter((v) => {
+    const d = new Date(v.visitDate);
+    const matchYear = d.getFullYear() === currentYear;
+    const matchMonth = month ? d.getMonth() + 1 === month : true;
+    return matchYear && matchMonth;
+  });
+
+  const rows = filtered.map((v, i) => ({
+    no: i + 1,
+    visitNumber: v.visitNumber,
+    visitDate: new Date(v.visitDate).toLocaleDateString('en-GB'),
+    empId: v.employee.employeeId,
+    nameKh: `${v.employee.firstNameKh || ''} ${v.employee.lastNameKh || ''}`.trim() || v.employee.firstNameEn,
+    nameEn: `${v.employee.firstNameEn || ''} ${v.employee.lastNameEn || ''}`.trim(),
+    gender: v.employee.gender || '-',
+    department: v.employee.department || '-',
+    symptoms: v.symptoms,
+    vitals: `${v.temperature ? `${v.temperature}°C` : '-'} / ${v.bloodPressure || '-'}`,
+    medicineDispensed: v.medicineDispensed || '-',
+    restMinutes: v.restMinutes > 0 ? `${v.restMinutes} នាទី` : '0',
+    outcome: v.referredHospital
+      ? `បញ្ជូនទៅពេទ្យ (${v.hospitalName || 'ក្រៅ'})`
+      : v.sendHome
+      ? 'អនុញ្ញាតទៅផ្ទះសម្រាក'
+      : v.restMinutes > 0
+      ? 'សម្រាកលើគ្រែពេទ្យ'
+      : 'ត្រឡប់ធ្វើការធម្មតា',
+    attendantName: v.attendantName || '-',
+  }));
+
+  const totalRow = {
+    no: '',
+    visitNumber: '',
+    visitDate: '',
+    empId: '',
+    nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+    nameEn: `TOTAL (${filtered.length} Visits)`,
+    gender: '',
+    department: '',
+    symptoms: `សម្រាកគ្រែ: ${filtered.filter((f) => f.restMinutes > 0).length} នាក់`,
+    vitals: '',
+    medicineDispensed: `បើកថ្នាំ: ${filtered.filter((f) => Boolean(f.medicineDispensed)).length} នាក់`,
+    restMinutes: `${filtered.reduce((sum, f) => sum + f.restMinutes, 0)} នាទី`,
+    outcome: `បញ្ជូនពេទ្យ: ${filtered.filter((f) => f.referredHospital).length} នាក់`,
+    attendantName: '',
+  };
+
+  return [...rows, totalRow];
+}
+
+export async function fetchWorkplaceIncidentsReport(month?: number, year?: number) {
+  const currentYear = year || new Date().getFullYear();
+  const incidents = await prisma.workplaceIncident.findMany({
+    include: {
+      employee: {
+        select: {
+          employeeId: true,
+          firstNameKh: true,
+          lastNameKh: true,
+          firstNameEn: true,
+          lastNameEn: true,
+          department: true,
+          position: true,
+        },
+      },
+    },
+    orderBy: { incidentDate: 'desc' },
+  });
+
+  const filtered = incidents.filter((inc) => {
+    const d = new Date(inc.incidentDate);
+    const matchYear = d.getFullYear() === currentYear;
+    const matchMonth = month ? d.getMonth() + 1 === month : true;
+    return matchYear && matchMonth;
+  });
+
+  const rows = filtered.map((inc, i) => ({
+    no: i + 1,
+    incidentNumber: inc.incidentNumber,
+    incidentDate: `${new Date(inc.incidentDate).toLocaleDateString('en-GB')} ${inc.incidentTime || ''}`,
+    empId: inc.employee.employeeId,
+    nameKh: `${inc.employee.firstNameKh || ''} ${inc.employee.lastNameKh || ''}`.trim() || inc.employee.firstNameEn,
+    nameEn: `${inc.employee.firstNameEn || ''} ${inc.employee.lastNameEn || ''}`.trim(),
+    department: inc.employee.department || '-',
+    location: inc.location,
+    severity: inc.severity,
+    injuryType: `${inc.injuryType} ${inc.bodyPart ? `(${inc.bodyPart})` : ''}`,
+    daysLost: inc.daysLost,
+    nssfStatus: inc.nssfStatus,
+    nssfCompensationKhr: inc.nssfCompensationKhr ? `${inc.nssfCompensationKhr.toLocaleString()} ៛` : '0 ៛',
+  }));
+
+  const totalRow = {
+    no: '',
+    incidentNumber: '',
+    incidentDate: '',
+    empId: '',
+    nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+    nameEn: `TOTAL (${filtered.length} Incidents)`,
+    department: '',
+    location: '',
+    severity: '',
+    injuryType: '',
+    daysLost: filtered.reduce((s, r) => s + r.daysLost, 0),
+    nssfStatus: `សំណងជាប់: ${filtered.filter((f) => f.nssfStatus === 'APPROVED' || f.nssfStatus === 'PAID').length}`,
+    nssfCompensationKhr: `${filtered.reduce((s, r) => s + (r.nssfCompensationKhr || 0), 0).toLocaleString()} ៛`,
+  };
+
+  return [...rows, totalRow];
+}
+
+export async function fetchHealthCheckupsReport(year?: number) {
+  const currentYear = year || new Date().getFullYear();
+  const checkups = await prisma.annualHealthCheckup.findMany({
+    where: { checkupYear: currentYear },
+    include: {
+      employee: {
+        select: {
+          employeeId: true,
+          firstNameKh: true,
+          lastNameKh: true,
+          firstNameEn: true,
+          lastNameEn: true,
+          gender: true,
+          department: true,
+          position: true,
+        },
+      },
+    },
+    orderBy: { checkupDate: 'desc' },
+  });
+
+  const rows = checkups.map((c, i) => ({
+    no: i + 1,
+    checkupYear: c.checkupYear,
+    checkupDate: new Date(c.checkupDate).toLocaleDateString('en-GB'),
+    empId: c.employee.employeeId,
+    nameKh: `${c.employee.firstNameKh || ''} ${c.employee.lastNameKh || ''}`.trim() || c.employee.firstNameEn,
+    nameEn: `${c.employee.firstNameEn || ''} ${c.employee.lastNameEn || ''}`.trim(),
+    department: c.employee.department || '-',
+    healthBookNumber: c.healthBookNumber || '-',
+    fitStatus: c.fitStatus === 'FIT' ? 'សមស្រប (Fit)' : c.fitStatus === 'RESTRICTED' ? 'មានលក្ខខណ្ឌ' : 'មិនសមស្រប',
+    bloodPressure: c.bloodPressure || '-',
+    vision: c.vision || '-',
+    chestXray: c.chestXray || '-',
+  }));
+
+  const totalRow = {
+    no: '',
+    checkupYear: '',
+    checkupDate: '',
+    empId: '',
+    nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+    nameEn: `TOTAL (${checkups.length} Staff)`,
+    department: '',
+    healthBookNumber: `មានសៀវភៅ: ${checkups.filter((c) => Boolean(c.healthBookNumber)).length}`,
+    fitStatus: `សមស្រប: ${checkups.filter((c) => c.fitStatus === 'FIT').length} នាក់`,
+    bloodPressure: '',
+    vision: '',
+    chestXray: '',
+  };
+
+  return [...rows, totalRow];
+}

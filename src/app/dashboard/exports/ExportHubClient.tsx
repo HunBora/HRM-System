@@ -12,6 +12,9 @@ import {
   fetchExpenseReport,
   fetchNssfReport,
   fetchGdtTaxReport,
+  fetchClinicVisitsReport,
+  fetchWorkplaceIncidentsReport,
+  fetchHealthCheckupsReport,
 } from './actions';
 
 interface Props {
@@ -52,6 +55,15 @@ export default function ExportHubClient({ t }: Props) {
         setData(res);
       } else if (reportType === 'GDT_TOST') {
         const res = await fetchGdtTaxReport(month, year);
+        setData(res);
+      } else if (reportType === 'CLINIC_VISITS') {
+        const res = await fetchClinicVisitsReport(month, year);
+        setData(res);
+      } else if (reportType === 'WORKPLACE_INCIDENTS') {
+        const res = await fetchWorkplaceIncidentsReport(month, year);
+        setData(res);
+      } else if (reportType === 'HEALTH_CHECKUPS') {
+        const res = await fetchHealthCheckupsReport(year);
         setData(res);
       }
     } catch (error) {
@@ -222,6 +234,57 @@ export default function ExportHubClient({ t }: Props) {
         { header: "ប្រាក់បើកជាក់ស្តែង\nNet Pay ($)\n实发工资($)", key: "netSalaryUsd" },
       ];
     }
+    if (reportType === 'CLINIC_VISITS') {
+      return [
+        { header: "ល.រ\nNo\n序号", key: "no" },
+        { header: "លេខកូដ\nVisit No\n门诊单号", key: "visitNumber" },
+        { header: "កាលបរិច្ឆេទ\nDate\n日期", key: "visitDate" },
+        { header: "អត្តលេខ\nEmp ID\n工号", key: "empId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh\n柬文姓名", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En\n英文姓名", key: "nameEn" },
+        { header: "ភេទ\nSex\n性别", key: "gender" },
+        { header: "ផ្នែក\nDept\n部门", key: "department" },
+        { header: "អាការៈជំងឺ\nSymptoms\n症状", key: "symptoms" },
+        { header: "សីតុណ្ហភាព/BP\nVitals\n生命体征", key: "vitals" },
+        { header: "ថ្នាំបានបើក\nMedicines\n发药记录", key: "medicineDispensed" },
+        { header: "សម្រាកគ្រែ\nBed Rest\n留观时间", key: "restMinutes" },
+        { header: "លទ្ធផល\nOutcome\n诊疗处置", key: "outcome" },
+        { header: "គ្រូពេទ្យប្រចាំការ\nAttendant\n医护人员", key: "attendantName" },
+      ];
+    }
+    if (reportType === 'WORKPLACE_INCIDENTS') {
+      return [
+        { header: "ល.រ\nNo\n序号", key: "no" },
+        { header: "លេខកូដគ្រោះថ្នាក់\nIncident No\n工伤单号", key: "incidentNumber" },
+        { header: "កាលបរិច្ឆេទ & ម៉ោង\nDate & Time\n事发时间", key: "incidentDate" },
+        { header: "អត្តលេខ\nEmp ID\n工号", key: "empId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh\n柬文姓名", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En\n英文姓名", key: "nameEn" },
+        { header: "ផ្នែក\nDept\n部门", key: "department" },
+        { header: "ទីតាំងកើតហេតុ\nLocation\n事发地点", key: "location" },
+        { header: "កម្រិតគ្រោះថ្នាក់\nSeverity\n严重等级", key: "severity" },
+        { header: "ប្រភេទរបួស\nInjury Type\n伤害类型", key: "injuryType" },
+        { header: "បាត់បង់ការងារ\nDays Lost\n损失工日", key: "daysLost" },
+        { header: "ស្ថានភាព ប.ស.ស\nNSSF Status\n社保申报", key: "nssfStatus" },
+        { header: "សំណង ប.ស.ស (៛)\nCompensation\n理赔金额(៛)", key: "nssfCompensationKhr" },
+      ];
+    }
+    if (reportType === 'HEALTH_CHECKUPS') {
+      return [
+        { header: "ល.រ\nNo\n序号", key: "no" },
+        { header: "ឆ្នាំ\nYear\n年度", key: "checkupYear" },
+        { header: "កាលបរិច្ឆេទ\nDate\n体检日期", key: "checkupDate" },
+        { header: "អត្តលេខ\nEmp ID\n工号", key: "empId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh\n柬文姓名", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En\n英文姓名", key: "nameEn" },
+        { header: "ផ្នែក\nDept\n部门", key: "department" },
+        { header: "សៀវភៅការងារ\nHealth Book\n健康证号", key: "healthBookNumber" },
+        { header: "លទ្ធផលសុខភាព\nFit Status\n体检结论", key: "fitStatus" },
+        { header: "សម្ពាធឈាម\nBP\n血压", key: "bloodPressure" },
+        { header: "គំហើញ\nVision\n视力", key: "vision" },
+        { header: "សួត\nChest X-ray\n胸透", key: "chestXray" },
+      ];
+    }
     return [];
   };
 
@@ -384,6 +447,9 @@ export default function ExportHubClient({ t }: Props) {
               <option value="EMPLOYEE">របាយការណ៍បុគ្គលិក (Employee Report)</option>
               <option value="EXPENSE_SUMMARY">របាយការណ៍ចំណាយសរុបប្រចាំខែ (Expense Summary)</option>
               <option value="BANK_TRANSFER_EXCEL">របាយការណ៍ផ្ទេរប្រាក់ធនាគារ (Bank Transfer)</option>
+              <option value="CLINIC_VISITS">🏥 របាយការណ៍គ្លីនិក & បើកថ្នាំ (Clinic Visits Report)</option>
+              <option value="WORKPLACE_INCIDENTS">⚠️ របាយការណ៍គ្រោះថ្នាក់ការងារ & ប.ស.ស (Incidents & NSSF)</option>
+              <option value="HEALTH_CHECKUPS">📋 របាយការណ៍ពិនិត្យសុខភាពប្រចាំឆ្នាំ (Health Checkups)</option>
               <option value="MASTER_PAYROLL_EXCEL">Master Payroll ពេញលេញ (Excel)</option>
               <option value="MASTER_ATTENDANCE_EXCEL">Master Attendance ពេញលេញ (Excel)</option>
               <option value="MASTER_EMPLOYEE_EXCEL">Master Employee ពេញលេញ (Excel)</option>

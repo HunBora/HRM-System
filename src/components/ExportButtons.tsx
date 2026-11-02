@@ -48,6 +48,25 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
 
+  const exportToCSV = () => {
+    const headers = columns.map(c => `"${c.header.replace(/"/g, '""').replace(/\n/g, ' ')}"`);
+    const rows = data.map(item =>
+      columns.map(c => {
+        const val = item[c.key] !== undefined && item[c.key] !== null ? String(item[c.key]) : '';
+        return `"${val.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+      }).join(',')
+    );
+    // \uFEFF is UTF-8 BOM so Excel opens Khmer characters correctly without garbled symbols
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     const tableColumn = columns.map(col => col.header);
@@ -206,6 +225,7 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
         onChange={(e) => {
           const val = e.target.value;
           if (val === 'excel') exportToExcel();
+          else if (val === 'csv') exportToCSV();
           else if (val === 'pdf') exportToPDF();
           else if (val === 'word') exportToWord();
           else if (val === 'export_master_system') window.location.href = `/api/export/master-employee?format=system&t=${Date.now()}`;
@@ -217,7 +237,8 @@ export default function ExportButtons({ data, columns, filename, printId, hidePd
         defaultValue=""
       >
         <option value="" disabled>⚙️ ជម្រើសទាញយក (Export)</option>
-        <option value="excel">📥 Export Excel (តារាងខាងក្រោម)</option>
+        <option value="excel">📥 Export Excel (.xlsx)</option>
+        <option value="csv">📑 Export CSV (.csv - UTF-8)</option>
         {!hidePdf && <option value="pdf">📥 Export PDF</option>}
         {!hideWord && <option value="word">📥 Export Word</option>}
         

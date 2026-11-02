@@ -26,6 +26,16 @@ export async function updateSettings(formData: FormData) {
   const exchangeRateRaw = formData.get('exchangeRate') as string;
   const exchangeRate = exchangeRateRaw ? parseFloat(exchangeRateRaw) : 4000;
   
+  const companyLatRaw = formData.get('companyLat') as string;
+  const companyLngRaw = formData.get('companyLng') as string;
+  const geoRadiusMetersRaw = formData.get('geoRadiusMeters') as string;
+  const geoFenceEnabledRaw = formData.get('geoFenceEnabled') as string;
+
+  const companyLat = companyLatRaw ? parseFloat(companyLatRaw) : 11.5564;
+  const companyLng = companyLngRaw ? parseFloat(companyLngRaw) : 104.9282;
+  const geoRadiusMeters = geoRadiusMetersRaw ? parseFloat(geoRadiusMetersRaw) : 500.0;
+  const geoFenceEnabled = geoFenceEnabledRaw === 'true' || geoFenceEnabledRaw === 'on';
+  
   let logoUrl = undefined;
   
   if (logo && logo.size > 0) {
@@ -55,6 +65,10 @@ export async function updateSettings(formData: FormData) {
     contactPhone,
     telegramLink,
     telegramQrUrl,
+    companyLat,
+    companyLng,
+    geoRadiusMeters,
+    geoFenceEnabled,
     ...(logoUrl ? { logoUrl } : {})
   };
 

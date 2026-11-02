@@ -210,6 +210,48 @@ export default function SettingsForm({ settings }: { settings: any }) {
     }
   };
 
+  const [fetchingCurrentLocation, setFetchingCurrentLocation] = useState(false);
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      Swal.fire({ icon: 'warning', title: 'មិនគាំទ្រ Geolocation', text: 'Browser របស់អ្នកមិនគាំទ្រ GPS ទេ' });
+      return;
+    }
+    setFetchingCurrentLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const latInput = document.getElementById('companyLatInput') as HTMLInputElement;
+        const lngInput = document.getElementById('companyLngInput') as HTMLInputElement;
+        if (latInput) latInput.value = pos.coords.latitude.toFixed(6);
+        if (lngInput) lngInput.value = pos.coords.longitude.toFixed(6);
+        setFetchingCurrentLocation(false);
+        Swal.fire({
+          icon: 'success',
+          title: 'ចាប់យកទីតាំងជោគជ័យ!',
+          text: `Latitude: ${pos.coords.latitude.toFixed(6)}, Longitude: ${pos.coords.longitude.toFixed(6)} (±${Math.round(pos.coords.accuracy)}m)`,
+          confirmButtonColor: '#10b981',
+        });
+      },
+      (err) => {
+        setFetchingCurrentLocation(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'មិនអាចចាប់យកទីតាំងបានទេ',
+          text: err.message || 'សូមចុច Allow Permission លើ Browser ដើម្បីចាប់យក GPS',
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleViewGoogleMaps = () => {
+    const latInput = document.getElementById('companyLatInput') as HTMLInputElement;
+    const lngInput = document.getElementById('companyLngInput') as HTMLInputElement;
+    const lat = latInput?.value || '11.5564';
+    const lng = lngInput?.value || '104.9282';
+    window.open(`https://maps.google.com/?q=${lat},${lng}`, '_blank');
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -641,6 +683,152 @@ export default function SettingsForm({ settings }: { settings: any }) {
             <div style={{ fontSize: '0.78rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '3px' }}>
               <span>• ចុច <b>"កំណត់ Webhook"</b> ដើម្បីភ្ជាប់ Bot ទៅកាន់ប្រព័ន្ធ Live នៅលើ Cloud ឬ Public Domain ដើម្បីអនុញ្ញាតប៊ូតុងចុចអនុម័ត 1-Click។</span>
               <span>• ក្នុង Telegram Bot អ្នកគ្រប់គ្រងអាចវាយពាក្យបញ្ជា <code>/today</code>, <code>/summary</code> ឬ <code>/pending</code> ដើម្បីមើលរបាយការណ៍បានគ្រប់ពេលវេលា។</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* កំណត់ទីតាំង GPS & Geo-Fencing (Company GPS Location & Radius) */}
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>📍</span> កំណត់ទីតាំង GPS & Geo-Fencing របស់ក្រុមហ៊ុន (Company GPS Location)
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+              កំណត់កូអរដោនេទីតាំង និងកាំរង្វង់អនុញ្ញាត (Radius) សម្រាប់បុគ្គលិកចុះវត្តមានតាមទូរស័ព្ទដៃ GPS Geo-Fence។
+            </p>
+          </div>
+          <span style={{
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            padding: '3px 10px',
+            borderRadius: '12px',
+            backgroundColor: '#dcfce7',
+            color: '#15803d',
+            border: '1px solid #bbf7d0',
+          }}>
+            📍 GPS Anti-Spoofing
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
+                រយៈទទឹង Latitude (ឧ. 11.5564)
+              </label>
+              <input
+                type="number"
+                step="any"
+                name="companyLat"
+                id="companyLatInput"
+                defaultValue={settings?.companyLat ?? 11.5564}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
+                placeholder="Latitude..."
+                required
+              />
+            </div>
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
+                រយៈបណ្តោយ Longitude (ឧ. 104.9282)
+              </label>
+              <input
+                type="number"
+                step="any"
+                name="companyLng"
+                id="companyLngInput"
+                defaultValue={settings?.companyLng ?? 104.9282}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
+                placeholder="Longitude..."
+                required
+              />
+            </div>
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
+                កាំរង្វង់អនុញ្ញាត Geo-Radius (ម៉ែត្រ)
+              </label>
+              <input
+                type="number"
+                step="10"
+                min="50"
+                max="10000"
+                name="geoRadiusMeters"
+                id="geoRadiusMetersInput"
+                defaultValue={settings?.geoRadiusMeters ?? 500}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
+                placeholder="Radius meters..."
+                required
+              />
+            </div>
+          </div>
+
+          {/* Quick Buttons for GPS Location */}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={handleGetCurrentLocation}
+              disabled={fetchingCurrentLocation}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                backgroundColor: '#10b981',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '0.84rem',
+                fontWeight: 700,
+                cursor: fetchingCurrentLocation ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <span>{fetchingCurrentLocation ? 'កំពុងចាប់យក...' : '📍 ចាប់យកទីតាំងបច្ចុប្បន្នរបស់ខ្ញុំ (Get My Location)'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleViewGoogleMaps}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                backgroundColor: '#0284c7',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '0.84rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              <span>🗺️ បើកមើលក្នុង Google Maps</span>
+            </button>
+
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>កាំរហ័ស:</span>
+              {[200, 500, 1000].map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('geoRadiusMetersInput') as HTMLInputElement;
+                    if (el) el.value = String(r);
+                  }}
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    border: '1px solid #cbd5e1',
+                    background: '#f8fafc',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {r}m
+                </button>
+              ))}
             </div>
           </div>
         </div>

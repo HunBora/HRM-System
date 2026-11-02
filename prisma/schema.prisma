@@ -261,6 +261,12 @@ model CompanySettings {
   telegramQrUrl     String?
   idCardDefaultSettings     String?
 
+  // GPS Geo-Fencing Settings
+  companyLat                Float?   @default(11.5564)
+  companyLng                Float?   @default(104.9282)
+  geoRadiusMeters           Float?   @default(500.0)
+  geoFenceEnabled           Boolean? @default(true)
+
   advanceMaxLimit           Float    @default(50)
   advanceEligibilityMonths  Int      @default(3)
   advanceRepaymentPolicy    String   @default("NEXT_PAYROLL")

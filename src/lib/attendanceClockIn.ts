@@ -6,6 +6,18 @@ export const DEFAULT_COMPANY_LNG = 104.9282;
 export const DEFAULT_GEO_RADIUS_METERS = 500; // 500 meters
 export const QR_ROTATION_INTERVAL_SEC = 25;
 
+export async function getCompanyGeoSettings() {
+  const settings = await prisma.companySettings.findUnique({
+    where: { id: 'default' },
+  });
+  return {
+    companyLat: (settings as any)?.companyLat ?? DEFAULT_COMPANY_LAT,
+    companyLng: (settings as any)?.companyLng ?? DEFAULT_COMPANY_LNG,
+    geoRadiusMeters: (settings as any)?.geoRadiusMeters ?? DEFAULT_GEO_RADIUS_METERS,
+    geoFenceEnabled: (settings as any)?.geoFenceEnabled !== false,
+  };
+}
+
 export interface ClockInResult {
   success: boolean;
   message: string;
@@ -116,15 +128,16 @@ export async function processMobileClockIn(params: {
     if (latitude === undefined || longitude === undefined) {
       throw new Error('មិនអាចចាប់យកទីតាំង GPS បានទេ សូមបើក GPS លើទូរស័ព្ទរបស់អ្នក!');
     }
+    const geo = await getCompanyGeoSettings();
     distanceMeters = calculateHaversineDistance(
-      DEFAULT_COMPANY_LAT,
-      DEFAULT_COMPANY_LNG,
+      geo.companyLat,
+      geo.companyLng,
       latitude,
       longitude
     );
-    if (distanceMeters > DEFAULT_GEO_RADIUS_METERS) {
+    if (geo.geoFenceEnabled && distanceMeters > geo.geoRadiusMeters) {
       throw new Error(
-        `អ្នកនៅក្រៅបរិវេណក្រុមហ៊ុន (~${distanceMeters} ម៉ែត្រ)! ចម្ងាយអនុញ្ញាតគឺត្រឹម ${DEFAULT_GEO_RADIUS_METERS} ម៉ែត្រពីទីតាំងរោងចក្រ/ក្រុមហ៊ុន។`
+        `អ្នកនៅក្រៅបរិវេណក្រុមហ៊ុន (~${distanceMeters} ម៉ែត្រ)! ចម្ងាយអនុញ្ញាតគឺត្រឹម ${geo.geoRadiusMeters} ម៉ែត្រពីទីតាំងរោងចក្រ/ក្រុមហ៊ុន។`
       );
     }
   }

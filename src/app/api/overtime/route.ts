@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { sendTelegramNotification } from '@/lib/telegram';
+import { sendTelegramNotification, sendTelegramNotificationWithButtons } from '@/lib/telegram';
 import { recordAudit } from '@/lib/audit';
 
 // Calculate rate multiplier based on OT Type
@@ -182,9 +182,14 @@ export async function POST(request: Request) {
 🏷 <b>ប្រភេទ OT:</b> ${newRequest.otType} (មេគុណ ${newRequest.rateMultiplier}x)
 📝 <b>មូលហេតុ:</b> ${newRequest.reason || '-'}
 ━━━━━━━━━━━━━━━━━━━━
-<i>រង់ចាំការអនុម័តពីប្រធានផ្នែក/HR (Pending Approval).</i>`;
+<i>សូមចុចប៊ូតុងខាងក្រោមដើម្បីអនុម័ត ឬបដិសេធភ្លាមៗ៖</i>`;
 
-    sendTelegramNotification(otMsg).catch(e => console.error('Error sending OT telegram notification:', e));
+    sendTelegramNotificationWithButtons(otMsg, [
+      [
+        { text: '✅ អនុម័ត (Approve)', callback_data: `APP:OT:${newRequest.id}` },
+        { text: '❌ បដិសេធ (Reject)', callback_data: `REJ:OT:${newRequest.id}` },
+      ]
+    ]).catch(e => console.error('Error sending OT telegram notification:', e));
 
     return NextResponse.json(newRequest, { status: 201 });
   } catch (error: any) {

@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { updateSettings, testTelegramBotAction } from './actions';
+import {
+  updateSettings,
+  testTelegramBotAction,
+  setupTelegramWebhookAction,
+  getTelegramWebhookInfoAction,
+  sendDailySummaryAction,
+} from './actions';
 import Image from 'next/image';
 import { SIDEBAR_THEMES, SidebarThemeId } from '@/components/ResizableSidebar';
 
@@ -77,6 +83,130 @@ export default function SettingsForm({ settings }: { settings: any }) {
       });
     } finally {
       setTestingBot(false);
+    }
+  };
+
+  const [settingUpWebhook, setSettingUpWebhook] = useState(false);
+  const [sendingSummary, setSendingSummary] = useState(false);
+  const [checkingWebhook, setCheckingWebhook] = useState(false);
+
+  const handleSetupWebhook = async () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const defaultWebhook = `${origin}/api/telegram/webhook`;
+
+    const { value: customUrl } = await Swal.fire({
+      title: '🔗 កំណត់ Bot Webhook (1-Click Approvals)',
+      input: 'text',
+      inputLabel: 'សូមផ្ទៀងផ្ទាត់ Webhook URL (ត្រូវតែជា HTTPS លើ Vercel ឬ Public Domain):',
+      inputValue: defaultWebhook,
+      showCancelButton: true,
+      confirmButtonText: '🚀 បញ្ជូនទៅ Telegram',
+      cancelButtonText: 'បោះបង់',
+      confirmButtonColor: '#0284c7',
+      inputValidator: (val) => {
+        if (!val || !val.startsWith('https://')) {
+          return 'Webhook URL ត្រូវតែចាប់ផ្តើមដោយ https:// តាមស្តង់ដារ Telegram!';
+        }
+        return null;
+      }
+    });
+
+    if (!customUrl) return;
+
+    setSettingUpWebhook(true);
+    try {
+      const res = await setupTelegramWebhookAction(customUrl);
+      if (res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'ជោគជ័យ (Webhook Connected)!',
+          text: res.message,
+          confirmButtonColor: '#10b981',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'បរាជ័យ (Failed)',
+          text: res.message,
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    } catch (e: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'កំហុសបច្ចេកទេស',
+        text: e.message || 'Error setting up webhook',
+      });
+    } finally {
+      setSettingUpWebhook(false);
+    }
+  };
+
+  const handleCheckWebhook = async () => {
+    setCheckingWebhook(true);
+    try {
+      const res = await getTelegramWebhookInfoAction();
+      if (res.success) {
+        const d = res.data || {};
+        Swal.fire({
+          icon: 'info',
+          title: 'ស្ថានភាព Webhook (Webhook Status)',
+          html: `
+            <div style="text-align: left; font-size: 0.85rem; line-height: 1.6;">
+              <p><b>URL:</b> ${d.url ? `<code style="color:#0284c7">${d.url}</code>` : '<span style="color:#ef4444">មិនទាន់កំណត់ (Not set)</span>'}</p>
+              <p><b>Custom Certificate:</b> ${d.has_custom_certificate ? 'បាទ/ចាស' : 'ទេ'}</p>
+              <p><b>Pending Updates:</b> ${d.pending_update_count || 0}</p>
+              ${d.last_error_message ? `<p style="color:#ef4444"><b>កំហុសចុងក្រោយ:</b> ${d.last_error_message}</p>` : '<p style="color:#10b981"><b>កំហុស:</b> គ្មាន (No Errors)</p>'}
+              ${d.last_error_date ? `<p><b>កាលបរិច្ឆេទកំហុស:</b> ${new Date(d.last_error_date * 1000).toLocaleString('km-KH')}</p>` : ''}
+            </div>
+          `,
+          confirmButtonColor: '#0284c7',
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'មិនអាចទាញយកព័ត៌មានបាន',
+          text: res.message,
+        });
+      }
+    } catch (e: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'កំហុសបច្ចេកទេស',
+        text: e.message || 'Error checking webhook',
+      });
+    } finally {
+      setCheckingWebhook(false);
+    }
+  };
+
+  const handleSendDailySummary = async () => {
+    setSendingSummary(true);
+    try {
+      const res = await sendDailySummaryAction();
+      if (res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'ផ្ញើបានជោគជ័យ!',
+          text: res.message,
+          confirmButtonColor: '#10b981',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'បរាជ័យក្នុងការផ្ញើ',
+          text: res.message,
+          confirmButtonColor: '#ef4444',
+        });
+      }
+    } catch (e: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'កំហុសបច្ចេកទេស',
+        text: e.message || 'Error sending summary',
+      });
+    } finally {
+      setSendingSummary(false);
     }
   };
 
@@ -349,55 +479,169 @@ export default function SettingsForm({ settings }: { settings: any }) {
       </div>
 
       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-        <h3 className="kh-text" style={{ marginBottom: '15px' }}>ការភ្ជាប់ Telegram Bot (Telegram Integration)</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
           <div>
-            <label className="kh-text" style={{ fontSize: '0.9rem', display: 'block', marginBottom: '5px' }}>Telegram Bot Token (ឧទាហរណ៍: 123456:ABC-DEF1234...)</label>
-            <input 
-              type="text" 
-              name="telegramBotToken" 
-              defaultValue={settings?.telegramBotToken || ''} 
-              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px' }} 
-              placeholder="វាយបញ្ចូល Bot Token..."
-            />
+            <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>🤖</span> Telegram Interactive Bot & Webhook (1-Click Approvals)
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+              តភ្ជាប់ Telegram Bot ដើម្បីទទួលបានការជូនដំណឹង និងអនុម័តសំណើ (ច្បាប់, បុរេប្រទាន, ចំណាយ, OT) ផ្ទាល់លើ Telegram ដោយចុចប៊ូតុង [✅ អនុម័ត] / [❌ បដិសេធ]។
+            </p>
           </div>
-          <div>
-            <label className="kh-text" style={{ fontSize: '0.9rem', display: 'block', marginBottom: '5px' }}>Telegram Chat ID (ឧទាហរណ៍: -100123456789)</label>
-            <input 
-              type="text" 
-              name="telegramChatId" 
-              id="telegramChatId"
-              defaultValue={settings?.telegramChatId || ''} 
-              style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px' }} 
-              placeholder="វាយបញ្ចូល Chat ID គោលដៅ..."
-            />
+          <span style={{
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            padding: '3px 10px',
+            borderRadius: '12px',
+            backgroundColor: '#e0f2fe',
+            color: '#0369a1',
+            border: '1px solid #bae6fd',
+          }}>
+            ⚡ 2-Way Interactive Bot
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px' }}>
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
+                Telegram Bot Token (ឧ. 123456:ABC-DEF1234...)
+              </label>
+              <input 
+                type="text" 
+                name="telegramBotToken" 
+                defaultValue={settings?.telegramBotToken || ''} 
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }} 
+                placeholder="វាយបញ្ចូល Bot Token..."
+              />
+            </div>
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
+                Telegram Chat ID គោលដៅ (ឧ. -100123456789)
+              </label>
+              <input 
+                type="text" 
+                name="telegramChatId" 
+                id="telegramChatId"
+                defaultValue={settings?.telegramChatId || ''} 
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }} 
+                placeholder="វាយបញ្ចូល Chat ID គោលដៅ..."
+              />
+            </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '5px' }}>
-            <button
-              type="button"
-              disabled={testingBot}
-              onClick={handleTestTelegram}
-              className="btn-secondary kh-text"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                backgroundColor: '#0284c7',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '0.88rem',
-                cursor: testingBot ? 'not-allowed' : 'pointer',
-                opacity: testingBot ? 0.7 : 1,
-              }}
-            >
-              <span>{testingBot ? 'កំពុងសាកល្បង...' : '⚡ សាកល្បងតភ្ជាប់ (Test Connection)'}</span>
-            </button>
-            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              ចុចដើម្បីផ្ញើសារសាកល្បង (Test Ping) ទៅកាន់ Telegram Chat ID ខាងលើ
-            </span>
+          {/* Action Toolbar Box */}
+          <div style={{
+            padding: '12px 14px',
+            backgroundColor: 'rgba(2, 132, 199, 0.05)',
+            border: '1px solid rgba(2, 132, 199, 0.2)',
+            borderRadius: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+          }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Test Ping */}
+              <button
+                type="button"
+                disabled={testingBot}
+                onClick={handleTestTelegram}
+                className="btn-secondary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 14px',
+                  backgroundColor: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  cursor: testingBot ? 'not-allowed' : 'pointer',
+                  opacity: testingBot ? 0.7 : 1,
+                }}
+              >
+                <span>{testingBot ? 'កំពុងតេស្ត...' : '⚡ តេស្តតភ្ជាប់ (Ping)'}</span>
+              </button>
+
+              {/* Setup Webhook */}
+              <button
+                type="button"
+                disabled={settingUpWebhook}
+                onClick={handleSetupWebhook}
+                className="btn-secondary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 14px',
+                  backgroundColor: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  cursor: settingUpWebhook ? 'not-allowed' : 'pointer',
+                  opacity: settingUpWebhook ? 0.7 : 1,
+                }}
+              >
+                <span>{settingUpWebhook ? 'កំពុងភ្ជាប់...' : '🔗 កំណត់ Webhook (1-Click Bot)'}</span>
+              </button>
+
+              {/* Check Webhook Status */}
+              <button
+                type="button"
+                disabled={checkingWebhook}
+                onClick={handleCheckWebhook}
+                className="btn-secondary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 14px',
+                  backgroundColor: '#6366f1',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  cursor: checkingWebhook ? 'not-allowed' : 'pointer',
+                  opacity: checkingWebhook ? 0.7 : 1,
+                }}
+              >
+                <span>{checkingWebhook ? 'កំពុងឆែក...' : 'ℹ️ ស្ថានភាព Webhook'}</span>
+              </button>
+
+              {/* Push Daily Summary */}
+              <button
+                type="button"
+                disabled={sendingSummary}
+                onClick={handleSendDailySummary}
+                className="btn-secondary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 14px',
+                  backgroundColor: '#f59e0b',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  cursor: sendingSummary ? 'not-allowed' : 'pointer',
+                  opacity: sendingSummary ? 0.7 : 1,
+                }}
+              >
+                <span>{sendingSummary ? 'កំពុងផ្ញើ...' : '📊 ផ្ញើសង្ខេបវត្តមានថ្ងៃនេះ'}</span>
+              </button>
+            </div>
+
+            <div style={{ fontSize: '0.78rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <span>• ចុច <b>"កំណត់ Webhook"</b> ដើម្បីភ្ជាប់ Bot ទៅកាន់ប្រព័ន្ធ Live នៅលើ Cloud ឬ Public Domain ដើម្បីអនុញ្ញាតប៊ូតុងចុចអនុម័ត 1-Click។</span>
+              <span>• ក្នុង Telegram Bot អ្នកគ្រប់គ្រងអាចវាយពាក្យបញ្ជា <code>/today</code>, <code>/summary</code> ឬ <code>/pending</code> ដើម្បីមើលរបាយការណ៍បានគ្រប់ពេលវេលា។</span>
+            </div>
           </div>
         </div>
       </div>

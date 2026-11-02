@@ -75,3 +75,26 @@ export async function testTelegramBotAction(botToken?: string, chatId?: string) 
   return await testTelegramBotConnection(botToken, chatId);
 }
 
+export async function setupTelegramWebhookAction(webhookUrl: string) {
+  const { setTelegramWebhook } = await import('@/lib/telegram');
+  return await setTelegramWebhook(webhookUrl);
+}
+
+export async function getTelegramWebhookInfoAction() {
+  const { getTelegramWebhookInfo } = await import('@/lib/telegram');
+  return await getTelegramWebhookInfo();
+}
+
+export async function deleteTelegramWebhookAction() {
+  const { deleteTelegramWebhook } = await import('@/lib/telegram');
+  return await deleteTelegramWebhook();
+}
+
+export async function sendDailySummaryAction() {
+  const { sendDailyAttendanceSummary } = await import('@/lib/telegram');
+  const ok = await sendDailyAttendanceSummary();
+  return {
+    success: ok,
+    message: ok ? 'បានផ្ញើសេចក្តីសង្ខេបវត្តមាន & សំណើទៅកាន់ Telegram ដោយជោគជ័យ!' : 'បរាជ័យក្នុងការផ្ញើ (សូមពិនិត្យមើល Bot Token & Chat ID)',
+  };
+}

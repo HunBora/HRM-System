@@ -397,20 +397,46 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
   });
 
   return (
-    <div style={{ fontFamily: 'var(--font-khmer, inherit)' }}>
+    <div style={{ fontFamily: 'var(--font-khmer, inherit)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, color: '#1e293b' }}>
-            🎓 ការបណ្តុះបណ្តាល និងអភិវឌ្ឍន៍ (Training & Development)
-          </h1>
-          <p style={{ color: '#64748b', margin: '4px 0 0 0', fontSize: '0.95rem' }}>
-            គ្រប់គ្រងវគ្គសិក្សា ចុះឈ្មោះបុគ្គលិក និងតាមដានវិញ្ញាបនបត្រ
-          </p>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: '8px',
+        backgroundColor: '#ffffff',
+        padding: '6px 12px',
+        borderRadius: '10px',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '17px',
+            flexShrink: 0
+          }}>
+            🎓
+          </div>
+          <div>
+            <h1 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a', lineHeight: 1.2 }}>
+              ការបណ្តុះបណ្តាល / Trainings
+            </h1>
+            <p style={{ color: '#64748b', margin: 0, fontSize: '0.7rem', fontWeight: 500 }}>
+              Training & Development Management
+            </p>
+          </div>
         </div>
 
         {isHR && (
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {activeTab === 'trainings' ? (
               <>
                 <button
@@ -419,18 +445,19 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                     backgroundColor: '#059669',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '8px',
-                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
                     fontWeight: 600,
-                    fontSize: '0.95rem',
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
+                    gap: '4px',
+                    height: '28px',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  📊 ទាញយក Excel (Trainings)
+                  📊 <span>Excel</span>
                 </button>
                 <button
                   onClick={openCreateTrainingModal}
@@ -438,18 +465,19 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                     backgroundColor: '#2563eb',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '8px',
-                    padding: '10px 18px',
-                    fontWeight: 600,
-                    fontSize: '0.95rem',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                    gap: '4px',
+                    height: '28px',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  ➕ បង្កើតវគ្គសិក្សាថ្មី
+                  ➕ <span>វគ្គសិក្សាថ្មី</span>
                 </button>
               </>
             ) : (
@@ -460,18 +488,19 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                     backgroundColor: '#059669',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '8px',
-                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
                     fontWeight: 600,
-                    fontSize: '0.95rem',
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
+                    gap: '4px',
+                    height: '28px',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  📊 ទាញយក Excel (Trainees)
+                  📊 <span>Excel</span>
                 </button>
                 <button
                   onClick={() => {
@@ -494,18 +523,19 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                     backgroundColor: '#16a34a',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '8px',
-                    padding: '10px 18px',
-                    fontWeight: 600,
-                    fontSize: '0.95rem',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 2px 4px rgba(22, 163, 74, 0.2)',
+                    gap: '4px',
+                    height: '28px',
+                    boxSizing: 'border-box'
                   }}
                 >
-                  ➕ ចុះឈ្មោះបុគ្គលិកចូលរៀន
+                  ➕ <span>ចុះឈ្មោះចូលរៀន</span>
                 </button>
               </>
             )}
@@ -514,60 +544,68 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
       </div>
 
       {/* Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
-            <span style={{ color: '#1e293b', fontSize: '0.85rem', fontWeight: 700 }}>វគ្គសិក្សាសរុប</span>
-            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Total Programs</span>
-            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>培训总数</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
+        <div style={{ background: '#fff', padding: '6px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>
+            📚
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1e293b', marginTop: '6px' }}>{totalTrainings}</div>
+          <div>
+            <div style={{ color: '#0f172a', fontSize: '0.78rem', fontWeight: 700, lineHeight: 1.2 }}>វគ្គសិក្សាសរុប</div>
+            <div style={{ color: '#64748b', fontSize: '0.65rem' }}>Total Programs</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.1, marginTop: '1px' }}>{totalTrainings}</div>
+          </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
-            <span style={{ color: '#d97706', fontSize: '0.85rem', fontWeight: 700 }}>កំពុងដំណើរការ</span>
-            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Ongoing Courses</span>
-            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>正在进行</span>
+        <div style={{ background: '#fff', padding: '6px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>
+            ⏳
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#d97706', marginTop: '6px' }}>{ongoingTrainings}</div>
+          <div>
+            <div style={{ color: '#d97706', fontSize: '0.78rem', fontWeight: 700, lineHeight: 1.2 }}>កំពុងដំណើរការ</div>
+            <div style={{ color: '#64748b', fontSize: '0.65rem' }}>Ongoing Courses</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#d97706', lineHeight: 1.1, marginTop: '1px' }}>{ongoingTrainings}</div>
+          </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
-            <span style={{ color: '#0284c7', fontSize: '0.85rem', fontWeight: 700 }}>សិក្ខាកាមសរុប</span>
-            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Enrolled Trainees</span>
-            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>学员总数</span>
+        <div style={{ background: '#fff', padding: '6px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>
+            👥
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0284c7', marginTop: '6px' }}>{totalTrainees}</div>
+          <div>
+            <div style={{ color: '#0284c7', fontSize: '0.78rem', fontWeight: 700, lineHeight: 1.2 }}>សិក្ខាកាមសរុប</div>
+            <div style={{ color: '#64748b', fontSize: '0.65rem' }}>Enrolled Trainees</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0284c7', lineHeight: 1.1, marginTop: '1px' }}>{totalTrainees}</div>
+          </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '16px 18px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', lineHeight: '1.2' }}>
-            <span style={{ color: '#15803d', fontSize: '0.85rem', fontWeight: 700 }}>បានបញ្ចប់ជោគជ័យ</span>
-            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>Completed</span>
-            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>结业人数</span>
+        <div style={{ background: '#fff', padding: '6px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '6px', background: '#dcfce7', color: '#15803d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>
+            ✅
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803d', marginTop: '6px' }}>{completedTrainees}</div>
+          <div>
+            <div style={{ color: '#15803d', fontSize: '0.78rem', fontWeight: 700, lineHeight: 1.2 }}>បានបញ្ចប់ជោគជ័យ</div>
+            <div style={{ color: '#64748b', fontSize: '0.65rem' }}>Completed</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#15803d', lineHeight: 1.1, marginTop: '1px' }}>{completedTrainees}</div>
+          </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', gap: '8px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '6px' }}>
         <button
           onClick={() => setActiveTab('trainings')}
           style={{
-            padding: '12px 20px',
+            padding: '5px 12px',
             background: 'none',
             border: 'none',
-            borderBottom: activeTab === 'trainings' ? '3px solid #2563eb' : '3px solid transparent',
+            borderBottom: activeTab === 'trainings' ? '2px solid #2563eb' : '2px solid transparent',
             color: activeTab === 'trainings' ? '#2563eb' : '#64748b',
             fontWeight: 700,
-            fontSize: '1rem',
+            fontSize: '0.82rem',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '5px',
           }}
         >
           🎓 វគ្គបណ្តុះបណ្តាល ({trainings.length})
@@ -575,17 +613,17 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
         <button
           onClick={() => setActiveTab('enrollments')}
           style={{
-            padding: '12px 20px',
+            padding: '5px 12px',
             background: 'none',
             border: 'none',
-            borderBottom: activeTab === 'enrollments' ? '3px solid #2563eb' : '3px solid transparent',
+            borderBottom: activeTab === 'enrollments' ? '2px solid #2563eb' : '2px solid transparent',
             color: activeTab === 'enrollments' ? '#2563eb' : '#64748b',
             fontWeight: 700,
-            fontSize: '1rem',
+            fontSize: '0.82rem',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '5px',
           }}
         >
           👥 បញ្ជីសិក្ខាកាម & វិញ្ញាបនបត្រ ({enrollments.length})
@@ -594,32 +632,37 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
 
       {/* Tab 1: Training Programs */}
       {activeTab === 'trainings' && (
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {/* Filters */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="ស្វែងរកតាមឈ្មោះវគ្គ ឬគ្រូបង្ហាត់ (Search title/trainer)..."
+              placeholder="ស្វែងរកតាមឈ្មោះវគ្គ ឬគ្រូបង្ហាត់..."
               value={trainingSearch}
               onChange={e => setTrainingSearch(e.target.value)}
               style={{
                 flex: 1,
-                minWidth: '240px',
-                padding: '9px 14px',
-                borderRadius: '8px',
+                minWidth: '200px',
+                height: '26px',
+                padding: '2px 8px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.95rem',
+                fontSize: '0.78rem',
+                boxSizing: 'border-box'
               }}
             />
             <select
               value={trainingStatusFilter}
               onChange={e => setTrainingStatusFilter(e.target.value)}
               style={{
-                padding: '9px 14px',
-                borderRadius: '8px',
+                height: '26px',
+                padding: '2px 6px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.95rem',
+                fontSize: '0.78rem',
                 background: '#fff',
+                color: '#334155',
+                cursor: 'pointer'
               }}
             >
               <option value="ALL">គ្រប់ស្ថានភាព (All Status)</option>
@@ -632,13 +675,13 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
 
           {/* Cards Grid */}
           {filteredTrainings.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>📚</div>
-              <h3 style={{ margin: 0, color: '#475569' }}>មិនទាន់មានវគ្គបណ្តុះបណ្តាលនៅឡើយទេ</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '6px' }}>ចុចប៊ូតុង "បង្កើតវគ្គសិក្សាថ្មី" ដើម្បីចាប់ផ្ដើម</p>
+            <div style={{ textAlign: 'center', padding: '28px 16px', background: '#fff', borderRadius: '10px', border: '1px dashed #cbd5e1' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '6px' }}>📚</div>
+              <h3 style={{ margin: 0, color: '#475569', fontSize: '0.88rem', fontWeight: 700 }}>មិនទាន់មានវគ្គបណ្តុះបណ្តាលនៅឡើយទេ</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '4px' }}>ចុចប៊ូតុង "➕ វគ្គសិក្សាថ្មី" ដើម្បីចាប់ផ្ដើម</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '18px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px' }}>
               {filteredTrainings.map(t => {
                 const badge = STATUS_COLORS[t.status] || STATUS_COLORS.UPCOMING;
                 return (
@@ -646,26 +689,26 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                     key={t.id}
                     style={{
                       background: '#fff',
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                       border: '1px solid #e2e8f0',
-                      padding: '20px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+                      padding: '10px 12px',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-                        <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', fontWeight: 700 }}>{t.title}</h3>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                        <h3 style={{ margin: 0, fontSize: '0.92rem', color: '#0f172a', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.title}</h3>
                         <span
                           style={{
                             backgroundColor: badge.bg,
                             color: badge.text,
-                            padding: '4px 10px',
+                            padding: '2px 8px',
                             borderRadius: '20px',
-                            fontSize: '0.8rem',
-                            fontWeight: 600,
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
                             whiteSpace: 'nowrap',
                           }}
                         >
@@ -673,38 +716,39 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                         </span>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: '#64748b', fontSize: '0.85rem', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', color: '#64748b', fontSize: '0.76rem', marginBottom: '8px' }}>
                         <div>👨‍🏫 គ្រូបង្ហាត់៖ <strong style={{ color: '#334155' }}>{t.trainer || 'N/A'}</strong></div>
                         <div>📍 ទីតាំង៖ {t.location || 'N/A'}</div>
-                        <div>📅 កាលបរិច្ឆេទ៖ {new Date(t.startDate).toLocaleDateString()} - {new Date(t.endDate).toLocaleDateString()}</div>
+                        <div>📅 កាលបរិច្ឆេទ៖ {new Date(t.startDate).toLocaleDateString('en-GB')} - {new Date(t.endDate).toLocaleDateString('en-GB')}</div>
                         {t.cost > 0 && <div>💵 ថវិកាចំណាយ៖ <strong>${t.cost}</strong></div>}
                       </div>
 
                       {t.description && (
-                        <p style={{ color: '#475569', fontSize: '0.9rem', lineHeight: '1.5', margin: '0 0 14px 0', maxHeight: '68px', overflow: 'hidden' }}>
+                        <p style={{ color: '#475569', fontSize: '0.75rem', lineHeight: '1.4', margin: '0 0 8px 0', maxHeight: '42px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {t.description}
                         </p>
                       )}
                     </div>
 
-                    <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '14px', marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#2563eb' }}>
-                        👥 សិក្ខាកាម៖ {t._count?.enrollments || 0} នាក់
+                    <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '6px', marginTop: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#2563eb' }}>
+                        👥 {t._count?.enrollments || 0} នាក់
                       </span>
 
                       {isHR && (
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                        <div style={{ display: 'flex', gap: '4px' }}>
                           <button
                             onClick={() => openEditTrainingModal(t)}
                             style={{
                               background: '#f8fafc',
                               border: '1px solid #cbd5e1',
-                              borderRadius: '6px',
-                              padding: '6px 12px',
-                              fontSize: '0.85rem',
+                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              fontSize: '0.74rem',
                               cursor: 'pointer',
                               fontWeight: 600,
                               color: '#334155',
+                              height: '24px'
                             }}
                           >
                             ✏️ កែប្រែ
@@ -714,12 +758,13 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                             style={{
                               background: '#fef2f2',
                               border: '1px solid #fca5a5',
-                              borderRadius: '6px',
-                              padding: '6px 12px',
-                              fontSize: '0.85rem',
+                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              fontSize: '0.74rem',
                               cursor: 'pointer',
                               fontWeight: 600,
                               color: '#dc2626',
+                              height: '24px'
                             }}
                           >
                             🗑️ លុប
@@ -737,21 +782,23 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
 
       {/* Tab 2: Trainee Enrollments */}
       {activeTab === 'enrollments' && (
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {/* Filters */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '18px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="ស្វែងរកឈ្មោះ ឬអត្តលេខបុគ្គលិក (Search employee name/ID)..."
+              placeholder="ស្វែងរកឈ្មោះ ឬអត្តលេខ..."
               value={enrollmentSearch}
               onChange={e => setEnrollmentSearch(e.target.value)}
               style={{
                 flex: 1,
-                minWidth: '220px',
-                padding: '9px 14px',
-                borderRadius: '8px',
+                minWidth: '180px',
+                height: '26px',
+                padding: '2px 8px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.95rem',
+                fontSize: '0.78rem',
+                boxSizing: 'border-box'
               }}
             />
 
@@ -759,14 +806,17 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
               value={enrollmentProgramFilter}
               onChange={e => setEnrollmentProgramFilter(e.target.value)}
               style={{
-                padding: '9px 14px',
-                borderRadius: '8px',
+                height: '26px',
+                padding: '2px 6px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.95rem',
+                fontSize: '0.78rem',
                 background: '#fff',
+                color: '#334155',
+                cursor: 'pointer'
               }}
             >
-              <option value="ALL">គ្រប់វគ្គសិក្សា (All Courses)</option>
+              <option value="ALL">គ្រប់វគ្គសិក្សា (All)</option>
               {trainings.map(t => (
                 <option key={t.id} value={t.id}>
                   {t.title}
@@ -778,14 +828,17 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
               value={enrollmentStatusFilter}
               onChange={e => setEnrollmentStatusFilter(e.target.value)}
               style={{
-                padding: '9px 14px',
-                borderRadius: '8px',
+                height: '26px',
+                padding: '2px 6px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
-                fontSize: '0.95rem',
+                fontSize: '0.78rem',
                 background: '#fff',
+                color: '#334155',
+                cursor: 'pointer'
               }}
             >
-              <option value="ALL">គ្រប់ស្ថានភាព (All Status)</option>
+              <option value="ALL">គ្រប់ស្ថានភាព (All)</option>
               <option value="ENROLLED">បានចុះឈ្មោះ (Enrolled)</option>
               <option value="COMPLETED">បានបញ្ចប់ (Completed)</option>
               <option value="FAILED">ធ្លាក់ (Failed)</option>
@@ -794,60 +847,24 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
           </div>
 
           {/* Table */}
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '850px' }}>
+          <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0', overflowX: 'auto', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '780px' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>
-                  <th style={{ padding: '12px 18px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>បុគ្គលិក</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Employee</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>员工</span>
-                    </div>
-                  </th>
-                  <th style={{ padding: '12px 18px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>វគ្គសិក្សា</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Training Course</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>培训课程</span>
-                    </div>
-                  </th>
-                  <th style={{ padding: '12px 18px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ស្ថានភាព</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Status</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>状态</span>
-                    </div>
-                  </th>
-                  <th style={{ padding: '12px 18px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>ពិន្ទុ</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Score</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>成绩</span>
-                    </div>
-                  </th>
-                  <th style={{ padding: '12px 18px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: '1.2' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>វិញ្ញាបនបត្រ</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Certificate</span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>结业证书</span>
-                    </div>
-                  </th>
+                  <th style={thStyle}>បុគ្គលិក (Employee)</th>
+                  <th style={thStyle}>វគ្គសិក្សា (Course)</th>
+                  <th style={thStyle}>ស្ថានភាព (Status)</th>
+                  <th style={thStyle}>ពិន្ទុ (Score)</th>
+                  <th style={thStyle}>វិញ្ញាបនបត្រ (Cert)</th>
                   {isHR && (
-                    <th style={{ padding: '12px 18px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-end', lineHeight: '1.2' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>សកម្មភាព</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>Actions</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>操作</span>
-                      </div>
-                    </th>
+                    <th style={{ ...thStyle, textAlign: 'right' }}>សកម្មភាព (Actions)</th>
                   )}
                 </tr>
               </thead>
               <tbody>
                 {filteredEnrollments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                    <td colSpan={isHR ? 6 : 5} style={{ textAlign: 'center', padding: '28px 16px', color: '#94a3b8', fontSize: '0.85rem' }}>
                       មិនមានទិន្នន័យសិក្ខាកាមទេ
                     </td>
                   </tr>
@@ -855,80 +872,84 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                   filteredEnrollments.map(e => {
                     const badge = STATUS_COLORS[e.status] || STATUS_COLORS.ENROLLED;
                     return (
-                      <tr key={e.id} style={{ borderBottom: '1px solid #f1f5f9', fontSize: '0.9rem' }}>
-                        <td style={{ padding: '14px 18px' }}>
-                          <div style={{ fontWeight: 600, color: '#1e293b' }}>
+                      <tr key={e.id} style={{ borderBottom: '1px solid #f1f5f9', fontSize: '0.8rem' }}>
+                        <td style={tdStyle}>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>
                             {e.employee.firstNameEn} {e.employee.lastNameEn}
                           </div>
-                          <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
                             ID: {e.employee.employeeId} | {e.employee.position} ({e.employee.department})
                           </span>
                         </td>
-                        <td style={{ padding: '14px 18px', color: '#334155', fontWeight: 500 }}>
-                          <div>{e.training?.title || 'N/A'}</div>
-                          {e.training?.trainer && <span style={{ fontSize: '0.8rem', color: '#64748b' }}>គ្រូ៖ {e.training.trainer}</span>}
+                        <td style={tdStyle}>
+                          <div style={{ fontWeight: 600, color: '#334155' }}>{e.training?.title || 'N/A'}</div>
+                          {e.training?.trainer && <span style={{ fontSize: '0.72rem', color: '#64748b' }}>គ្រូ៖ {e.training.trainer}</span>}
                         </td>
-                        <td style={{ padding: '14px 18px' }}>
+                        <td style={tdStyle}>
                           <span
                             style={{
                               backgroundColor: badge.bg,
                               color: badge.text,
-                              padding: '4px 10px',
+                              padding: '2px 8px',
                               borderRadius: '20px',
-                              fontSize: '0.8rem',
-                              fontWeight: 600,
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              whiteSpace: 'nowrap',
+                              display: 'inline-block'
                             }}
                           >
                             {badge.labelKh}
                           </span>
                         </td>
-                        <td style={{ padding: '14px 18px', fontWeight: 600, color: '#0f172a' }}>
+                        <td style={{ ...tdStyle, fontWeight: 700, color: '#0f172a' }}>
                           {e.score !== null && e.score !== undefined ? `${e.score}/100` : '-'}
                         </td>
-                        <td style={{ padding: '14px 18px' }}>
+                        <td style={tdStyle}>
                           {e.certificateUrl ? (
                             <a
                               href={e.certificateUrl}
                               target="_blank"
                               rel="noreferrer"
-                              style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}
+                              style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', fontSize: '0.76rem' }}
                             >
                               📜 មើលវិញ្ញាបនបត្រ
                             </a>
                           ) : (
-                            <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>មិនទាន់មាន</span>
+                            <span style={{ color: '#94a3b8', fontSize: '0.76rem' }}>មិនទាន់មាន</span>
                           )}
                         </td>
                         {isHR && (
-                          <td style={{ padding: '14px 18px', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <td style={{ ...tdStyle, textAlign: 'right' }}>
+                            <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                               <button
                                 onClick={() => openUpdateResultModal(e)}
                                 title="កត់ត្រាលទ្ធផល និងវិញ្ញាបនបត្រ"
                                 style={{
                                   background: '#f0fdf4',
                                   border: '1px solid #86efac',
-                                  borderRadius: '6px',
-                                  padding: '5px 10px',
-                                  fontSize: '0.8rem',
+                                  borderRadius: '4px',
+                                  padding: '2px 6px',
+                                  fontSize: '0.72rem',
                                   cursor: 'pointer',
                                   color: '#16a34a',
                                   fontWeight: 600,
+                                  height: '24px'
                                 }}
                               >
-                                📝 កត់ត្រាលទ្ធផល
+                                📝 កត់ត្រា
                               </button>
                               <button
                                 onClick={() => handleDeleteEnrollment(e.id, `${e.employee.firstNameEn} ${e.employee.lastNameEn}`)}
                                 style={{
                                   background: '#fef2f2',
                                   border: '1px solid #fca5a5',
-                                  borderRadius: '6px',
-                                  padding: '5px 10px',
-                                  fontSize: '0.8rem',
+                                  borderRadius: '4px',
+                                  padding: '2px 6px',
+                                  fontSize: '0.72rem',
                                   cursor: 'pointer',
                                   color: '#dc2626',
                                   fontWeight: 600,
+                                  height: '24px'
                                 }}
                               >
                                 🗑️
@@ -1260,3 +1281,20 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
     </div>
   );
 }
+
+const thStyle: React.CSSProperties = {
+  padding: '6px 10px',
+  borderBottom: '1px solid #e2e8f0',
+  color: '#475569',
+  fontWeight: 700,
+  fontSize: '0.78rem',
+  whiteSpace: 'nowrap',
+  lineHeight: 1.2
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: '6px 10px',
+  borderBottom: '1px solid #f1f5f9',
+  verticalAlign: 'middle',
+  fontSize: '0.8rem'
+};

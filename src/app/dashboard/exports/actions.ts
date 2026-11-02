@@ -204,7 +204,16 @@ export async function fetchNssfReport(month: number, year: number) {
     orderBy: { employee: { employeeId: 'asc' } },
   });
 
-  return payrolls.map((p, idx) => {
+  let sumGrossUsd = 0;
+  let sumContribKhr = 0;
+  let sumOccRisk = 0;
+  let sumHealthCare = 0;
+  let sumPensionOrg = 0;
+  let sumPensionStaff = 0;
+  let sumTotalKhr = 0;
+  let sumTotalUsd = 0;
+
+  const rows = payrolls.map((p, idx) => {
     const emp = p.employee;
     const actualGrossUsd = p.totalSalary || p.basicSalary || 0;
     const actualGrossKhr = actualGrossUsd * exchangeRate;
@@ -217,6 +226,15 @@ export async function fetchNssfReport(month: number, year: number) {
     const rowTotalKhr = occRisk + healthCare + pensionOrg + pensionStaff;
     const rowTotalUsd = Math.round((rowTotalKhr / exchangeRate) * 100) / 100;
 
+    sumGrossUsd += actualGrossUsd;
+    sumContribKhr += contributoryWageKhr;
+    sumOccRisk += occRisk;
+    sumHealthCare += healthCare;
+    sumPensionOrg += pensionOrg;
+    sumPensionStaff += pensionStaff;
+    sumTotalKhr += rowTotalKhr;
+    sumTotalUsd += rowTotalUsd;
+
     return {
       no: idx + 1,
       empId: emp.employeeId,
@@ -224,7 +242,7 @@ export async function fetchNssfReport(month: number, year: number) {
       nationalId: emp.nationalId || '-',
       nameKh: `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim() || emp.firstNameEn,
       nameEn: `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim(),
-      gender: emp.gender === 'MALE' || emp.gender === 'ប្រុស' ? 'ប្រុស' : 'ស្រី',
+      gender: emp.gender === 'MALE' || emp.gender === 'ប្រុស' ? 'ប្រុស (M)' : 'ស្រី (F)',
       dob: emp.dob ? new Date(emp.dob).toLocaleDateString('en-GB') : '-',
       dept: `${emp.department} • ${emp.position}`,
       actualWage: `$${actualGrossUsd.toFixed(2)}`,
@@ -237,6 +255,28 @@ export async function fetchNssfReport(month: number, year: number) {
       totalUsd: `$${rowTotalUsd.toFixed(2)}`,
     };
   });
+
+  const grandTotalRow = {
+    no: '',
+    empId: '',
+    nssfNo: '',
+    nationalId: '',
+    nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+    nameEn: `GRAND TOTAL (${payrolls.length} Staff)`,
+    gender: '',
+    dob: '',
+    dept: '',
+    actualWage: `$${sumGrossUsd.toFixed(2)}`,
+    contributoryWage: `${sumContribKhr.toLocaleString()} ៛`,
+    occRisk: `${sumOccRisk.toLocaleString()} ៛`,
+    healthCare: `${sumHealthCare.toLocaleString()} ៛`,
+    pensionEmp: `${sumPensionOrg.toLocaleString()} ៛`,
+    pensionWorker: `${sumPensionStaff.toLocaleString()} ៛`,
+    totalKhr: `${sumTotalKhr.toLocaleString()} ៛`,
+    totalUsd: `$${sumTotalUsd.toFixed(2)}`,
+  };
+
+  return [...rows, grandTotalRow];
 }
 
 function computeTOST(taxBaseKhr: number, isResident: boolean = true) {
@@ -258,7 +298,16 @@ export async function fetchGdtTaxReport(month: number, year: number) {
     orderBy: { employee: { employeeId: 'asc' } },
   });
 
-  return payrolls.map((p, idx) => {
+  let sumReliefKhr = 0;
+  let sumGrossUsd = 0;
+  let sumGrossKhr = 0;
+  let sumPensionDeductKhr = 0;
+  let sumTaxBaseKhr = 0;
+  let sumTaxPayableKhr = 0;
+  let sumTaxPayableUsd = 0;
+  let sumNetUsd = 0;
+
+  const rows = payrolls.map((p, idx) => {
     const emp = p.employee;
     const grossWageUsd = p.totalSalary || p.basicSalary || 0;
     const grossWageKhr = Math.round(grossWageUsd * exchangeRate);
@@ -276,6 +325,15 @@ export async function fetchGdtTaxReport(month: number, year: number) {
     const taxUsd = Math.round((taxKhr / exchangeRate) * 100) / 100;
     const netPayUsd = p.netSalaryUsd || (grossWageUsd - taxUsd);
 
+    sumReliefKhr += totalReliefKhr;
+    sumGrossUsd += grossWageUsd;
+    sumGrossKhr += grossWageKhr;
+    sumPensionDeductKhr += pensionDeductKhr;
+    sumTaxBaseKhr += taxBaseKhr;
+    sumTaxPayableKhr += taxKhr;
+    sumTaxPayableUsd += taxUsd;
+    sumNetUsd += netPayUsd;
+
     return {
       no: idx + 1,
       empId: emp.employeeId,
@@ -283,7 +341,7 @@ export async function fetchGdtTaxReport(month: number, year: number) {
       nameKh: `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim() || emp.firstNameEn,
       nameEn: `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim(),
       resident: 'និវាសនជន',
-      marital: hasSpouse ? 'រៀបការ' : 'នៅលីវ',
+      marital: hasSpouse ? 'រៀបការ (Married)' : 'នៅលីវ (Single)',
       spouse: spouseReliefKhr > 0 ? `${spouseReliefKhr.toLocaleString()} ៛` : '-',
       children: childrenReliefKhr > 0 ? `${childrenReliefKhr.toLocaleString()} ៛` : '-',
       totalReliefKhr: `${totalReliefKhr.toLocaleString()} ៛`,
@@ -297,5 +355,28 @@ export async function fetchGdtTaxReport(month: number, year: number) {
       netSalaryUsd: `$${netPayUsd.toFixed(2)}`,
     };
   });
+
+  const grandTotalRow = {
+    no: '',
+    empId: '',
+    tinOrId: '',
+    nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+    nameEn: `GRAND TOTAL (${payrolls.length} Staff)`,
+    resident: '',
+    marital: '',
+    spouse: '',
+    children: '',
+    totalReliefKhr: `${sumReliefKhr.toLocaleString()} ៛`,
+    grossWageUsd: `$${sumGrossUsd.toFixed(2)}`,
+    grossWageKhr: `${sumGrossKhr.toLocaleString()} ៛`,
+    pensionDeductKhr: `${sumPensionDeductKhr.toLocaleString()} ៛`,
+    taxBaseKhr: `${sumTaxBaseKhr.toLocaleString()} ៛`,
+    taxRate: '',
+    taxPayableKhr: `${sumTaxPayableKhr.toLocaleString()} ៛`,
+    taxPayableUsd: `$${sumTaxPayableUsd.toFixed(2)}`,
+    netSalaryUsd: `$${sumNetUsd.toFixed(2)}`,
+  };
+
+  return [...rows, grandTotalRow];
 }
 

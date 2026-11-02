@@ -47,41 +47,41 @@ export async function GET(request: Request) {
       },
     });
 
-    // 1. Company & Tax Header
+    // 1. Company & Tax Header in 3 Languages
     sheet.mergeCells('A1:R1');
-    sheet.getCell('A1').value = `${companyName.toUpperCase()} • GENERAL DEPARTMENT OF TAXATION (GDT)`;
+    sheet.getCell('A1').value = `${companyName.toUpperCase()} • GENERAL DEPARTMENT OF TAXATION (GDT) • 柬埔寨国家税务总局`;
     sheet.getCell('A1').font = { name: 'Khmer OS Siemreap', size: 14, bold: true, color: { argb: 'FF991B1B' } };
     sheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
     sheet.getRow(1).height = 28;
 
     sheet.mergeCells('A2:R2');
-    sheet.getCell('A2').value = `តារាងប្រកាសពន្ធលើប្រាក់បៀវត្ស (TOST) ប្រចាំខែ ${month} ឆ្នាំ ${year} | អត្រាប្តូរប្រាក់ផ្លូវការ: 1$ = ${exchangeRate.toLocaleString()} ៛`;
+    sheet.getCell('A2').value = `តារាងប្រកាសពន្ធលើប្រាក់បៀវត្ស (TOST) ប្រចាំខែ ${month} ឆ្នាំ ${year} (Monthly Tax on Salary Declaration • 工资税月度申报表 - ${month}/${year}) | អត្រាប្តូរប្រាក់: 1$ = ${exchangeRate.toLocaleString()} ៛`;
     sheet.getCell('A2').font = { name: 'Khmer OS Siemreap', size: 10, italic: true, color: { argb: 'FF475569' } };
     sheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
     sheet.getRow(2).height = 20;
 
-    sheet.addRow([]); // Blank spacer
+    sheet.addRow([]); // Blank spacer (Row 3)
 
-    // 2. Table Headers
+    // 2. Table Headers (3 Languages: Khmer / English / Chinese)
     const headers = [
-      { id: 'no', kh: 'ល.រ', en: 'No', width: 6 },
-      { id: 'empId', kh: 'អត្តលេខ', en: 'Emp ID', width: 10 },
-      { id: 'tinOrId', kh: 'លេខសារពើពន្ធ / អត្តសញ្ញាណប័ណ្ណ', en: 'TIN / National ID', width: 18 },
-      { id: 'nameKh', kh: 'គោត្តនាម-នាម', en: 'Name Khmer', width: 18 },
-      { id: 'nameEn', kh: 'ឈ្មោះឡាតាំង', en: 'Name English', width: 18 },
-      { id: 'resident', kh: 'និវាសនជន', en: 'Resident', width: 10 },
-      { id: 'marital', kh: 'ស្ថានភាពគ្រួសារ', en: 'Marital', width: 12 },
-      { id: 'spouse', kh: 'បន្ទុកសហព័ទ្ធ', en: 'Spouse Relief', width: 12 },
-      { id: 'children', kh: 'កូនក្នុងបន្ទុក', en: 'Child Relief', width: 12 },
-      { id: 'totalReliefKhr', kh: 'កាត់បន្ថយសរុប (៛)', en: 'Family Relief (៛)', width: 15 },
-      { id: 'grossWageUsd', kh: 'ប្រាក់បៀវត្ស ($)', en: 'Gross Wage ($)', width: 13 },
-      { id: 'grossWageKhr', kh: 'ប្រាក់បៀវត្ស (៛)', en: 'Gross Wage (៛)', width: 15 },
-      { id: 'pensionDeductKhr', kh: 'កាត់សោធន ប.ស.ស', en: 'Pension Ded.', width: 14 },
-      { id: 'taxBaseKhr', kh: 'មូលដ្ឋានគិតពន្ធ (៛)', en: 'Tax Base (៛)', width: 15 },
-      { id: 'taxRate', kh: 'អត្រាពន្ធ', en: 'Rate', width: 8 },
-      { id: 'taxPayableKhr', kh: 'ពន្ធត្រូវបង់ (៛)', en: 'Tax Payable (៛)', width: 14 },
-      { id: 'taxPayableUsd', kh: 'ពន្ធត្រូវបង់ ($)', en: 'Tax Payable ($)', width: 13 },
-      { id: 'netSalaryUsd', kh: 'ប្រាក់ខែបើកជាក់ស្តែង', en: 'Net Pay ($)', width: 14 },
+      { id: 'no', kh: 'ល.រ', en: 'No', zh: '序号', width: 6 },
+      { id: 'empId', kh: 'អត្តលេខ', en: 'Emp ID', zh: '工号', width: 10 },
+      { id: 'tinOrId', kh: 'លេខសារពើពន្ធ / អត្តសញ្ញាណប័ណ្ណ', en: 'TIN / National ID', zh: '税号/身份证', width: 18 },
+      { id: 'nameKh', kh: 'គោត្តនាម-នាម', en: 'Name Khmer', zh: '柬文姓名', width: 18 },
+      { id: 'nameEn', kh: 'ឈ្មោះឡាតាំង', en: 'Name English', zh: '英文姓名', width: 18 },
+      { id: 'resident', kh: 'និវាសនជន', en: 'Resident', zh: '居民身份', width: 10 },
+      { id: 'marital', kh: 'ស្ថានភាពគ្រួសារ', en: 'Marital', zh: '婚姻状况', width: 12 },
+      { id: 'spouse', kh: 'បន្ទុកសហព័ទ្ធ', en: 'Spouse Relief', zh: '配偶减免', width: 12 },
+      { id: 'children', kh: 'កូនក្នុងបន្ទុក', en: 'Child Relief', zh: '子女减免', width: 12 },
+      { id: 'totalReliefKhr', kh: 'កាត់បន្ថយសរុប (៛)', en: 'Family Relief (៛)', zh: '宽免总额(៛)', width: 15 },
+      { id: 'grossWageUsd', kh: 'ប្រាក់បៀវត្ស ($)', en: 'Gross Wage ($)', zh: '应发薪资($)', width: 13 },
+      { id: 'grossWageKhr', kh: 'ប្រាក់បៀវត្ស (៛)', en: 'Gross Wage (៛)', zh: '应发薪资(៛)', width: 15 },
+      { id: 'pensionDeductKhr', kh: 'កាត់សោធន ប.ស.ស', en: 'Pension Ded.', zh: '扣除养老金', width: 14 },
+      { id: 'taxBaseKhr', kh: 'មូលដ្ឋានគិតពន្ធ (៛)', en: 'Tax Base (៛)', zh: '计税基数(៛)', width: 15 },
+      { id: 'taxRate', kh: 'អត្រាពន្ធ', en: 'Rate', zh: '税率', width: 8 },
+      { id: 'taxPayableKhr', kh: 'ពន្ធត្រូវបង់ (៛)', en: 'Tax Payable (៛)', zh: '应缴税额(៛)', width: 14 },
+      { id: 'taxPayableUsd', kh: 'ពន្ធត្រូវបង់ ($)', en: 'Tax Payable ($)', zh: '应缴税额($)', width: 13 },
+      { id: 'netSalaryUsd', kh: 'ប្រាក់ខែបើកជាក់ស្តែង', en: 'Net Pay ($)', zh: '实发工资($)', width: 14 },
     ];
 
     sheet.columns = headers.map((h) => ({ key: h.id, width: h.width }));
@@ -100,8 +100,18 @@ export async function GET(request: Request) {
     const enHeaderRow = sheet.addRow(headers.map((h) => h.en));
     enHeaderRow.height = 18;
     enHeaderRow.eachCell((cell) => {
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF991B1B' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFB91C1C' } };
       cell.font = { name: 'Arial', size: 8, bold: true, color: { argb: 'FFFEE2E2' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+    });
+
+    // Row 6: Chinese Headers (中文)
+    const zhHeaderRow = sheet.addRow(headers.map((h) => h.zh));
+    zhHeaderRow.height = 18;
+    zhHeaderRow.eachCell((cell) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF991B1B' } };
+      cell.font = { name: 'Microsoft YaHei', size: 8, bold: true, color: { argb: 'FFFFF1F2' } };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
     });
@@ -109,6 +119,7 @@ export async function GET(request: Request) {
     let sumGrossUsd = 0;
     let sumGrossKhr = 0;
     let sumReliefKhr = 0;
+    let sumPensionDeductKhr = 0;
     let sumTaxBaseKhr = 0;
     let sumTaxPayableKhr = 0;
     let sumTaxPayableUsd = 0;
@@ -141,6 +152,7 @@ export async function GET(request: Request) {
       sumGrossUsd += grossWageUsd;
       sumGrossKhr += grossWageKhr;
       sumReliefKhr += totalReliefKhr;
+      sumPensionDeductKhr += pensionDeductKhr;
       sumTaxBaseKhr += taxBaseKhr;
       sumTaxPayableKhr += taxKhr;
       sumTaxPayableUsd += taxUsd;
@@ -153,7 +165,7 @@ export async function GET(request: Request) {
         nameKh: `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim() || emp.firstNameEn,
         nameEn: `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim(),
         resident: 'និវាសនជន',
-        marital: hasSpouse ? 'រៀបការរួច' : 'នៅលីវ',
+        marital: hasSpouse ? 'រៀបការ (Married)' : 'នៅលីវ (Single)',
         spouse: spouseReliefKhr > 0 ? spouseReliefKhr : '-',
         children: childrenReliefKhr > 0 ? childrenReliefKhr : '-',
         totalReliefKhr,
@@ -183,13 +195,13 @@ export async function GET(request: Request) {
       });
     });
 
-    // 4. Totals Row
+    // 4. Totals Row in 3 Languages (Khmer / English / Chinese)
     const totalRow = sheet.addRow({
       no: '',
       empId: '',
       tinOrId: '',
-      nameKh: 'សរុបរួម (TOTAL)',
-      nameEn: `TOTAL (${payrolls.length} Staff)`,
+      nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+      nameEn: `GRAND TOTAL (${payrolls.length} Staff)`,
       resident: '',
       marital: '',
       spouse: '',
@@ -197,7 +209,7 @@ export async function GET(request: Request) {
       totalReliefKhr: sumReliefKhr,
       grossWageUsd: sumGrossUsd,
       grossWageKhr: sumGrossKhr,
-      pensionDeductKhr: '',
+      pensionDeductKhr: sumPensionDeductKhr,
       taxBaseKhr: sumTaxBaseKhr,
       taxRate: '',
       taxPayableKhr: sumTaxPayableKhr,

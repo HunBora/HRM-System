@@ -181,45 +181,45 @@ export default function ExportHubClient({ t }: Props) {
     }
     if (reportType === 'NSSF_MONTHLY') {
       return [
-        { header: "ល.រ\nNo", key: "no" },
-        { header: "អត្តលេខ\nID", key: "empId" },
-        { header: "លេខកាត ប.ស.ស\nNSSF No", key: "nssfNo" },
-        { header: "អត្តសញ្ញាណប័ណ្ណ\nNational ID", key: "nationalId" },
-        { header: "ឈ្មោះខ្មែរ\nName Kh", key: "nameKh" },
-        { header: "ឈ្មោះឡាតាំង\nName En", key: "nameEn" },
-        { header: "ភេទ\nSex", key: "gender" },
-        { header: "ថ្ងៃកំណើត\nDOB", key: "dob" },
-        { header: "ផ្នែក/មុខងារ\nDept/Pos", key: "dept" },
-        { header: "ប្រាក់ឈ្នួល ($)\nGross ($)", key: "actualWage" },
-        { header: "ជាប់ភាគទាន (៛)\nContributory (៛)", key: "contributoryWage" },
-        { header: "ហានិភ័យ (0.8%)\nOcc. Risk", key: "occRisk" },
-        { header: "ថែទាំសុខភាព (2.6%)\nHealth Care", key: "healthCare" },
-        { header: "សោធន និយោជក (2%)\nPension (Org)", key: "pensionEmp" },
-        { header: "សោធន កម្មករ (2%)\nPension (Staff)", key: "pensionWorker" },
-        { header: "ភាគទានសរុប (៛)\nTotal (KHR)", key: "totalKhr" },
-        { header: "ភាគទានសរុប ($)\nTotal ($)", key: "totalUsd" },
+        { header: "ល.រ\nNo\n序号", key: "no" },
+        { header: "អត្តលេខ\nEmp ID\n工号", key: "empId" },
+        { header: "លេខកាត ប.ស.ស\nNSSF ID\n社保号", key: "nssfNo" },
+        { header: "អត្តសញ្ញាណប័ណ្ណ\nNational ID\n身份证号", key: "nationalId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh\n柬文姓名", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En\n英文姓名", key: "nameEn" },
+        { header: "ភេទ\nSex\n性别", key: "gender" },
+        { header: "ថ្ងៃកំណើត\nDOB\n出生日期", key: "dob" },
+        { header: "ផ្នែក/មុខងារ\nDept/Pos\n部门/职务", key: "dept" },
+        { header: "ប្រាក់ឈ្នួល ($)\nGross Wage ($)\n总工资($)", key: "actualWage" },
+        { header: "ជាប់ភាគទាន (៛)\nContributory (៛)\n基数工资(៛)", key: "contributoryWage" },
+        { header: "ហានិភ័យ (0.8%)\nOccup. Risk\n工伤(0.8%)", key: "occRisk" },
+        { header: "ថែទាំសុខភាព (2.6%)\nHealth Care\n医疗(2.6%)", key: "healthCare" },
+        { header: "សោធន និយោជក (2%)\nPension Org\n养老公司(2%)", key: "pensionEmp" },
+        { header: "សោធន កម្មករ (2%)\nPension Staff\n养老个人(2%)", key: "pensionWorker" },
+        { header: "ភាគទានសរុប (៛)\nTotal (KHR)\n社保总额(៛)", key: "totalKhr" },
+        { header: "ភាគទានសរុប ($)\nTotal ($)\n社保总额($)", key: "totalUsd" },
       ];
     }
     if (reportType === 'GDT_TOST') {
       return [
-        { header: "ល.រ\nNo", key: "no" },
-        { header: "អត្តលេខ\nID", key: "empId" },
-        { header: "TIN / អត្តសញ្ញាណប័ណ្ណ\nTIN / National ID", key: "tinOrId" },
-        { header: "ឈ្មោះខ្មែរ\nName Kh", key: "nameKh" },
-        { header: "ឈ្មោះឡាតាំង\nName En", key: "nameEn" },
-        { header: "និវាសនជន\nResident", key: "resident" },
-        { header: "ស្ថានភាពគ្រួសារ\nMarital", key: "marital" },
-        { header: "សហព័ទ្ធ\nSpouse", key: "spouse" },
-        { header: "កូន\nChild", key: "children" },
-        { header: "កាត់បន្ថយសរុប (៛)\nTotal Relief", key: "totalReliefKhr" },
-        { header: "ប្រាក់បៀវត្ស ($)\nGross ($)", key: "grossWageUsd" },
-        { header: "ប្រាក់បៀវត្ស (៛)\nGross (៛)", key: "grossWageKhr" },
-        { header: "កាត់សោធន\nPension Ded.", key: "pensionDeductKhr" },
-        { header: "មូលដ្ឋានគិតពន្ធ (៛)\nTax Base (៛)", key: "taxBaseKhr" },
-        { header: "អត្រា\nRate", key: "taxRate" },
-        { header: "ពន្ធត្រូវបង់ (៛)\nTax (៛)", key: "taxPayableKhr" },
-        { header: "ពន្ធត្រូវបង់ ($)\nTax ($)", key: "taxPayableUsd" },
-        { header: "ប្រាក់បើកជាក់ស្តែង\nNet Pay ($)", key: "netSalaryUsd" },
+        { header: "ល.រ\nNo\n序号", key: "no" },
+        { header: "អត្តលេខ\nEmp ID\n工号", key: "empId" },
+        { header: "TIN / អត្តសញ្ញាណប័ណ្ណ\nTIN / National ID\n税号/身份证", key: "tinOrId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh\n柬文姓名", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En\n英文姓名", key: "nameEn" },
+        { header: "និវាសនជន\nResident\n居民身份", key: "resident" },
+        { header: "ស្ថានភាពគ្រួសារ\nMarital\n婚姻状况", key: "marital" },
+        { header: "សហព័ទ្ធ\nSpouse\n配偶扣除", key: "spouse" },
+        { header: "កូន\nChild\n子女扣除", key: "children" },
+        { header: "កាត់បន្ថយសរុប (៛)\nTotal Relief\n免税总额(៛)", key: "totalReliefKhr" },
+        { header: "ប្រាក់បៀវត្ស ($)\nGross Wage ($)\n应发工资($)", key: "grossWageUsd" },
+        { header: "ប្រាក់បៀវត្ស (៛)\nGross Wage (៛)\n应发工资(៛)", key: "grossWageKhr" },
+        { header: "កាត់សោធន\nPension Ded.\n社保扣除", key: "pensionDeductKhr" },
+        { header: "មូលដ្ឋានគិតពន្ធ (៛)\nTax Base (៛)\n计税薪资(៛)", key: "taxBaseKhr" },
+        { header: "អត្រា\nRate\n税率", key: "taxRate" },
+        { header: "ពន្ធត្រូវបង់ (៛)\nTax (៛)\n应缴税额(៛)", key: "taxPayableKhr" },
+        { header: "ពន្ធត្រូវបង់ ($)\nTax ($)\n应缴税额($)", key: "taxPayableUsd" },
+        { header: "ប្រាក់បើកជាក់ស្តែង\nNet Pay ($)\n实发工资($)", key: "netSalaryUsd" },
       ];
     }
     return [];
@@ -736,10 +736,43 @@ export default function ExportHubClient({ t }: Props) {
                             </tr>
                           </React.Fragment>
                         ) : (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                            {columns.map((col, j) => (
-                              <td key={j} style={{ padding: '8px 10px', fontSize: '0.85rem', textAlign: 'center' }}>{row[col.key]}</td>
-                            ))}
+                          <tr 
+                            key={i} 
+                            style={{ 
+                              borderBottom: (row.nameKh?.includes('សរុបរួម') || row.dept?.includes('TOTAL')) 
+                                ? '3px double #0284c7' 
+                                : '1px solid var(--border-color)',
+                              borderTop: (row.nameKh?.includes('សរុបរួម') || row.dept?.includes('TOTAL'))
+                                ? '2px solid #cbd5e1'
+                                : undefined,
+                              backgroundColor: (row.nameKh?.includes('សរុបរួម') || row.dept?.includes('TOTAL'))
+                                ? (reportType === 'GDT_TOST' ? '#fef2f2' : '#f0f9ff')
+                                : (i % 2 === 1 ? '#f8fafc' : '#ffffff'),
+                              fontWeight: (row.nameKh?.includes('សរុបរួម') || row.dept?.includes('TOTAL')) ? 700 : 400,
+                              color: (row.nameKh?.includes('សរុបរួម') || row.dept?.includes('TOTAL'))
+                                ? (reportType === 'GDT_TOST' ? '#991b1b' : '#0369a1')
+                                : undefined,
+                            }}
+                          >
+                            {columns.map((col, j) => {
+                              const isTotal = row.nameKh?.includes('សរុបរួម') || row.dept?.includes('TOTAL');
+                              const isNumericRight = (reportType === 'NSSF_MONTHLY' && j >= 9) || 
+                                                     (reportType === 'GDT_TOST' && (j >= 7 && j !== 14)) || 
+                                                     (reportType === 'EXPENSE_SUMMARY' && j >= 1);
+                              return (
+                                <td 
+                                  key={j} 
+                                  style={{ 
+                                    padding: isTotal ? '10px 10px' : '8px 10px', 
+                                    fontSize: isTotal ? '0.86rem' : '0.84rem', 
+                                    textAlign: isNumericRight ? 'right' : 'center',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  {row[col.key]}
+                                </td>
+                              );
+                            })}
                           </tr>
                         )
                       ))

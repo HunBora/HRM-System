@@ -30,40 +30,40 @@ export async function GET(request: Request) {
       },
     });
 
-    // 1. Company & Document Header
+    // 1. Company & Document Header in 3 Languages
     sheet.mergeCells('A1:Q1');
-    sheet.getCell('A1').value = `${companyName.toUpperCase()} • NATIONAL SOCIAL SECURITY FUND (NSSF)`;
+    sheet.getCell('A1').value = `${companyName.toUpperCase()} • NATIONAL SOCIAL SECURITY FUND (NSSF) • 柬埔寨国家社会保障基金`;
     sheet.getCell('A1').font = { name: 'Khmer OS Siemreap', size: 14, bold: true, color: { argb: 'FF1E3A8A' } };
     sheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
     sheet.getRow(1).height = 28;
 
     sheet.mergeCells('A2:Q2');
-    sheet.getCell('A2').value = `តារាងប្រកាសភាគទាន ប.ស.ស ប្រចាំខែ ${month} ឆ្នាំ ${year} (Monthly NSSF Contribution Declaration - ${month}/${year}) | អត្រាប្តូរប្រាក់: 1$ = ${exchangeRate.toLocaleString()} ៛`;
+    sheet.getCell('A2').value = `តារាងប្រកាសភាគទាន ប.ស.ស ប្រចាំខែ ${month} ឆ្នាំ ${year} (Monthly NSSF Contribution Declaration • 国家社保申报表 - ${month}/${year}) | អត្រាប្តូរប្រាក់: 1$ = ${exchangeRate.toLocaleString()} ៛`;
     sheet.getCell('A2').font = { name: 'Khmer OS Siemreap', size: 10, italic: true, color: { argb: 'FF475569' } };
     sheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
     sheet.getRow(2).height = 20;
 
-    sheet.addRow([]); // Blank spacer
+    sheet.addRow([]); // Blank spacer (Row 3)
 
-    // 2. Table Headers
+    // 2. Table Headers (3 Languages: Khmer / English / Chinese)
     const headers = [
-      { id: 'no', kh: 'ល.រ', en: 'No', width: 6 },
-      { id: 'empId', kh: 'អត្តលេខ', en: 'Emp ID', width: 10 },
-      { id: 'nssfNo', kh: 'លេខកាត ប.ស.ស', en: 'NSSF ID', width: 14 },
-      { id: 'nationalId', kh: 'អត្តសញ្ញាណប័ណ្ណ', en: 'National ID', width: 15 },
-      { id: 'nameKh', kh: 'គោត្តនាម-នាម', en: 'Name Khmer', width: 18 },
-      { id: 'nameEn', kh: 'ឈ្មោះឡាតាំង', en: 'Name English', width: 18 },
-      { id: 'gender', kh: 'ភេទ', en: 'Sex', width: 6 },
-      { id: 'dob', kh: 'ថ្ងៃខែឆ្នាំកំណើត', en: 'Date of Birth', width: 12 },
-      { id: 'dept', kh: 'ផ្នែក / មុខងារ', en: 'Department', width: 16 },
-      { id: 'actualWage', kh: 'ប្រាក់ឈ្នួល ($)', en: 'Gross Wage ($)', width: 12 },
-      { id: 'contributoryWage', kh: 'ជាប់ភាគទាន (៛)', en: 'Contributory (៛)', width: 15 },
-      { id: 'occRisk', kh: 'ហានិភ័យ (0.8%)', en: 'Occup. Risk', width: 13 },
-      { id: 'healthCare', kh: 'ថែទាំសុខភាព (2.6%)', en: 'Health Care', width: 14 },
-      { id: 'pensionEmp', kh: 'សោធន និយោជក (2%)', en: 'Pension (Org)', width: 14 },
-      { id: 'pensionWorker', kh: 'សោធន កម្មករ (2%)', en: 'Pension (Staff)', width: 14 },
-      { id: 'totalKhr', kh: 'ភាគទានសរុប (៛)', en: 'Total (KHR)', width: 15 },
-      { id: 'totalUsd', kh: 'ភាគទានសរុប ($)', en: 'Total (USD)', width: 13 },
+      { id: 'no', kh: 'ល.រ', en: 'No', zh: '序号', width: 6 },
+      { id: 'empId', kh: 'អត្តលេខ', en: 'Emp ID', zh: '工号', width: 10 },
+      { id: 'nssfNo', kh: 'លេខកាត ប.ស.ស', en: 'NSSF ID', zh: '社保号', width: 14 },
+      { id: 'nationalId', kh: 'អត្តសញ្ញាណប័ណ្ណ', en: 'National ID', zh: '身份证号', width: 15 },
+      { id: 'nameKh', kh: 'គោត្តនាម-នាម', en: 'Name Khmer', zh: '柬文姓名', width: 18 },
+      { id: 'nameEn', kh: 'ឈ្មោះឡាតាំង', en: 'Name English', zh: '英文姓名', width: 18 },
+      { id: 'gender', kh: 'ភេទ', en: 'Sex', zh: '性别', width: 6 },
+      { id: 'dob', kh: 'ថ្ងៃខែឆ្នាំកំណើត', en: 'Date of Birth', zh: '出生日期', width: 12 },
+      { id: 'dept', kh: 'ផ្នែក / មុខងារ', en: 'Department', zh: '部门/职务', width: 16 },
+      { id: 'actualWage', kh: 'ប្រាក់ឈ្នួល ($)', en: 'Gross Wage ($)', zh: '总工资($)', width: 12 },
+      { id: 'contributoryWage', kh: 'ជាប់ភាគទាន (៛)', en: 'Contributory (៛)', zh: '基数工资(៛)', width: 15 },
+      { id: 'occRisk', kh: 'ហានិភ័យ (0.8%)', en: 'Occup. Risk', zh: '工伤(0.8%)', width: 13 },
+      { id: 'healthCare', kh: 'ថែទាំសុខភាព (2.6%)', en: 'Health Care', zh: '医疗(2.6%)', width: 14 },
+      { id: 'pensionEmp', kh: 'សោធន និយោជក (2%)', en: 'Pension (Org)', zh: '养老公司(2%)', width: 14 },
+      { id: 'pensionWorker', kh: 'សោធន កម្មករ (2%)', en: 'Pension (Staff)', zh: '养老个人(2%)', width: 14 },
+      { id: 'totalKhr', kh: 'ភាគទានសរុប (៛)', en: 'Total (KHR)', zh: '社保总额(៛)', width: 15 },
+      { id: 'totalUsd', kh: 'ភាគទានសរុប ($)', en: 'Total (USD)', zh: '社保总额($)', width: 13 },
     ];
 
     sheet.columns = headers.map((h) => ({ key: h.id, width: h.width }));
@@ -84,6 +84,16 @@ export async function GET(request: Request) {
     enHeaderRow.eachCell((cell) => {
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0369A1' } };
       cell.font = { name: 'Arial', size: 8, bold: true, color: { argb: 'FFE2E8F0' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+    });
+
+    // Row 6: Chinese Headers (中文)
+    const zhHeaderRow = sheet.addRow(headers.map((h) => h.zh));
+    zhHeaderRow.height = 18;
+    zhHeaderRow.eachCell((cell) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF075985' } };
+      cell.font = { name: 'Microsoft YaHei', size: 8, bold: true, color: { argb: 'FFF0F9FF' } };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
     });
@@ -129,7 +139,7 @@ export async function GET(request: Request) {
         nationalId: emp.nationalId || '-',
         nameKh: `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim() || emp.firstNameEn,
         nameEn: `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim(),
-        gender: emp.gender === 'MALE' || emp.gender === 'ប្រុស' ? 'ប្រុស' : 'ស្រី',
+        gender: emp.gender === 'MALE' || emp.gender === 'ប្រុស' ? 'ប្រុស (M)' : 'ស្រី (F)',
         dob: emp.dob ? new Date(emp.dob).toLocaleDateString('en-GB') : '-',
         dept: `${emp.department} • ${emp.position}`,
         actualWage: actualGrossUsd,
@@ -147,7 +157,6 @@ export async function GET(request: Request) {
         cell.font = { name: 'Khmer OS Siemreap', size: 8.5 };
         cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
 
-        // Numbers format
         if ([1, 2, 7, 8].includes(colNum)) {
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         } else if (colNum >= 10) {
@@ -159,14 +168,14 @@ export async function GET(request: Request) {
       });
     });
 
-    // 4. Totals Row
+    // 4. Totals Row in 3 Languages (Khmer / English / Chinese)
     const totalRow = sheet.addRow({
       no: '',
       empId: '',
       nssfNo: '',
       nationalId: '',
-      nameKh: 'សរុបរួម (TOTAL)',
-      nameEn: `TOTAL (${payrolls.length} Staff)`,
+      nameKh: 'សរុបរួម (GRAND TOTAL • 总计)',
+      nameEn: `GRAND TOTAL (${payrolls.length} Staff)`,
       gender: '',
       dob: '',
       dept: '',

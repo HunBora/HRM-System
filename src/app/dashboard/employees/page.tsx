@@ -63,12 +63,14 @@ export default async function EmployeesPage({
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
-        <h1 className="title kh-text" style={{ marginBottom: 0 }}>{t.employee.listTitle}</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+        <h1 className="title kh-text" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+          {t.employee.listTitle}
+        </h1>
         
         <SearchFilter q={q} dept={dept} departments={departments} t={t} />
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
           {(session?.role === 'DEVELOPER' || session?.role === 'ADMIN') && (
             <ClearAllDataButton />
           )}
@@ -77,22 +79,41 @@ export default async function EmployeesPage({
             href={`/dashboard/employees/batch-id-cards${dept ? `?dept=${encodeURIComponent(dept)}` : ''}`}
             className="kh-text"
             style={{
-              padding: '8px 14px',
+              padding: '5px 10px',
               backgroundColor: '#4f46e5',
               color: 'white',
-              borderRadius: '8px',
+              borderRadius: '6px',
               textDecoration: 'none',
               fontWeight: 600,
-              fontSize: '13px',
-              display: 'flex',
+              fontSize: '0.8rem',
+              height: '34px',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '4px',
+              whiteSpace: 'nowrap'
             }}
+            title="បោះពុម្ពកាតជាដុំ (Batch ID Cards Print)"
           >
-            🪪 បោះពុម្ពកាតជាដុំ (Batch ID Cards)
+            🪪 Print Cards
           </Link>
-          <Link href="/dashboard/employees/new" className="btn-primary kh-text" style={{ textDecoration: 'none' }}>
-            {t.employee.newEmployeeBtn}
+          <Link 
+            href="/dashboard/employees/new" 
+            className="btn-primary kh-text" 
+            style={{ 
+              textDecoration: 'none',
+              padding: '5px 12px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              height: '34px',
+              borderRadius: '6px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              whiteSpace: 'nowrap'
+            }}
+            title="បញ្ចូលបុគ្គលិកថ្មី (Add New Employee)"
+          >
+            + New
           </Link>
         </div>
       </div>

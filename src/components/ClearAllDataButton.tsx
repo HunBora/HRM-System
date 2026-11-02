@@ -35,9 +35,10 @@ export default function ClearAllDataButton() {
         type="button" 
         onClick={() => setShowModal(true)}
         className="btn-secondary kh-text"
-        style={{ borderColor: '#ef4444', color: '#ef4444', backgroundColor: '#fef2f2' }}
+        style={{ borderColor: '#ef4444', color: '#ef4444', backgroundColor: '#fef2f2', padding: '5px 10px', fontSize: '0.8rem', height: '34px', fontWeight: 600, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+        title="សម្អាតទិន្នន័យបុគ្គលិកទាំងអស់ (Clear All Data)"
       >
-        🗑️ Clear Data
+        🗑️ Clear
       </button>
 
       {showModal && (

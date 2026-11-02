@@ -178,71 +178,67 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
     <>
       <div className="card" style={{ padding: 0, border: '1px dashed var(--border-color)', transform: 'none', display: 'flex', flexDirection: 'column' }}>
         
-        {/* Quick Sort & Controls Header */}
+        {/* Compact Quick Sort Header */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '8px 14px',
+          padding: '4px 10px',
           borderBottom: '1px dashed var(--border-color)',
           backgroundColor: 'rgba(0,0,0,0.015)',
-          flexWrap: 'wrap',
-          gap: '8px'
+          gap: '8px',
+          minHeight: '32px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span className="kh-text" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '3px' }}>
               <span>🔢</span>
-              <span>តម្រៀបអត្តលេខ (Sort ID):</span>
+              <span>Sort ID:</span>
             </span>
 
             <button
               type="button"
               onClick={() => handleSort('employeeId', 'asc')}
               style={{
-                padding: '4px 10px',
-                fontSize: '0.78rem',
+                padding: '3px 8px',
+                fontSize: '0.76rem',
                 fontWeight: 600,
-                borderRadius: '6px',
+                borderRadius: '5px',
                 border: sortField === 'employeeId' && sortOrder === 'asc' ? '1px solid #2563eb' : '1px solid var(--border-color)',
                 background: sortField === 'employeeId' && sortOrder === 'asc' ? '#2563eb' : 'var(--card-bg, #ffffff)',
                 color: sortField === 'employeeId' && sortOrder === 'asc' ? '#ffffff' : 'var(--text-color)',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px',
-                boxShadow: sortField === 'employeeId' && sortOrder === 'asc' ? '0 1px 4px rgba(37,99,235,0.3)' : 'none',
-                transition: 'all 0.18s ease'
+                gap: '3px',
+                transition: 'all 0.15s ease'
               }}
-              className="kh-text"
-              title="តម្រៀបពីតូចទៅធំ៖ EM-0001 ដល់ EM-0016"
+              title="តម្រៀបពីតូចទៅធំ៖ EM-0001 ដល់ EM-0016 (Ascending)"
             >
               <span>🔼</span>
-              <span>ពីតូចទៅធំ (EM-0001 &rarr; EM-0016)</span>
+              <span>ASC</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleSort('employeeId', 'desc')}
               style={{
-                padding: '4px 10px',
-                fontSize: '0.78rem',
+                padding: '3px 8px',
+                fontSize: '0.76rem',
                 fontWeight: 600,
-                borderRadius: '6px',
+                borderRadius: '5px',
                 border: sortField === 'employeeId' && sortOrder === 'desc' ? '1px solid #2563eb' : '1px solid var(--border-color)',
                 background: sortField === 'employeeId' && sortOrder === 'desc' ? '#2563eb' : 'var(--card-bg, #ffffff)',
                 color: sortField === 'employeeId' && sortOrder === 'desc' ? '#ffffff' : 'var(--text-color)',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '4px',
-                boxShadow: sortField === 'employeeId' && sortOrder === 'desc' ? '0 1px 4px rgba(37,99,235,0.3)' : 'none',
-                transition: 'all 0.18s ease'
+                gap: '3px',
+                transition: 'all 0.15s ease'
               }}
-              className="kh-text"
-              title="តម្រៀបពីធំមកតូច៖ EM-0016 ដល់ EM-0001"
+              title="តម្រៀបពីធំមកតូច៖ EM-0016 ដល់ EM-0001 (Descending)"
             >
               <span>🔽</span>
-              <span>ពីធំមកតូច (EM-0016 &rarr; EM-0001)</span>
+              <span>DESC</span>
             </button>
 
             {sortField && (
@@ -250,24 +246,23 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
                 type="button"
                 onClick={() => { setSortField(null); setSortOrder('asc'); setCurrentPage(1); }}
                 style={{
-                  padding: '4px 8px',
-                  fontSize: '0.76rem',
+                  padding: '3px 6px',
+                  fontSize: '0.74rem',
                   color: 'var(--text-muted)',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
                   textDecoration: 'underline'
                 }}
-                className="kh-text"
-                title="កំណត់លំដាប់ដើមតាមកាលបរិច្ឆេទបង្កើត"
+                title="កំណត់លំដាប់ដើម (Reset)"
               >
-                🔄 កំណត់ដើម (Reset)
+                🔄 Reset
               </button>
             )}
           </div>
 
-          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }} className="kh-text">
-            💡 អ្នកក៏អាចចុចផ្ទាល់លើក្បាលតារាង <strong>«អត្តលេខ / ID No»</strong> ដើម្បីត្រឡប់លំដាប់បានដូចគ្នា
+          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+            <span style={{ fontWeight: 600, color: '#2563eb' }}>{totalEmployees}</span> នាក់ (Total)
           </div>
         </div>
 

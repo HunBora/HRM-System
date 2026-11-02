@@ -73,7 +73,7 @@ const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDr
       )}
 
       {!hideDropdown && (
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
           <select
             onChange={(e) => {
               if (e.target.value === 'export_system') {
@@ -87,21 +87,24 @@ const EmployeeExportImportButtons = forwardRef<EmployeeExportImportRef, { hideDr
             }}
             className="kh-text"
             style={{
-              padding: '8px 12px',
+              padding: '5px 8px',
               borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              background: '#f1f5f9',
+              border: '1px solid var(--border-color, #cbd5e1)',
+              background: 'var(--surface-color, #f1f5f9)',
               cursor: 'pointer',
-              fontWeight: 500,
-              color: '#334155',
+              fontWeight: 600,
+              color: 'var(--text-color, #334155)',
               outline: 'none',
-              fontSize: '0.95rem'
+              fontSize: '0.8rem',
+              height: '34px',
+              whiteSpace: 'nowrap'
             }}
+            title="Excel Import & Export"
           >
-            <option value="">⚙️ Excel (Import/Export)</option>
-            <option value="export_system">📊 ទាញយក Excel តាមទម្រង់ប្រព័ន្ធ (System Format)</option>
-            <option value="export_factory">📑 ទាញយក Excel តាមទម្រង់រោងចក្រ ៣៦ ជួរឈរ (Factory Template)</option>
-            <option value="import">📥 នាំចូល Excel (Import)</option>
+            <option value="">⚙️ Excel</option>
+            <option value="export_system">📊 Export System</option>
+            <option value="export_factory">📑 Export Factory (36 Col)</option>
+            <option value="import">📥 Import Excel</option>
           </select>
         </div>
       )}

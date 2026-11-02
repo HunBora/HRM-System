@@ -4,7 +4,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import ExportButtons from '@/components/ExportButtons';
 import EmployeeExportImportButtons, { EmployeeExportImportRef } from '@/app/dashboard/employees/EmployeeExportImportButtons';
-import { fetchEmployeeReport, fetchAttendanceReport, fetchPayrollReport, fetchBankTransferReport, fetchExpenseReport } from './actions';
+import {
+  fetchEmployeeReport,
+  fetchAttendanceReport,
+  fetchPayrollReport,
+  fetchBankTransferReport,
+  fetchExpenseReport,
+  fetchNssfReport,
+  fetchGdtTaxReport,
+} from './actions';
 
 interface Props {
   t: any;
@@ -38,6 +46,12 @@ export default function ExportHubClient({ t }: Props) {
         setData(res);
       } else if (reportType === 'EXPENSE_SUMMARY') {
         const res = await fetchExpenseReport(month, year);
+        setData(res);
+      } else if (reportType === 'NSSF_MONTHLY') {
+        const res = await fetchNssfReport(month, year);
+        setData(res);
+      } else if (reportType === 'GDT_TOST') {
+        const res = await fetchGdtTaxReport(month, year);
         setData(res);
       }
     } catch (error) {
@@ -163,6 +177,49 @@ export default function ExportHubClient({ t }: Props) {
         { header: "ចំនួនបុគ្គលិកបញ្ឈប់ (Term. Staff)", key: "termCount" },
         { header: "ប្រាក់ទូទាត់បញ្ឈប់ (Offboarding Net)", key: "offboardingNet" },
         { header: "ចំណាយសរុប (Total Expense)", key: "totalExpense" },
+      ];
+    }
+    if (reportType === 'NSSF_MONTHLY') {
+      return [
+        { header: "ល.រ\nNo", key: "no" },
+        { header: "អត្តលេខ\nID", key: "empId" },
+        { header: "លេខកាត ប.ស.ស\nNSSF No", key: "nssfNo" },
+        { header: "អត្តសញ្ញាណប័ណ្ណ\nNational ID", key: "nationalId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En", key: "nameEn" },
+        { header: "ភេទ\nSex", key: "gender" },
+        { header: "ថ្ងៃកំណើត\nDOB", key: "dob" },
+        { header: "ផ្នែក/មុខងារ\nDept/Pos", key: "dept" },
+        { header: "ប្រាក់ឈ្នួល ($)\nGross ($)", key: "actualWage" },
+        { header: "ជាប់ភាគទាន (៛)\nContributory (៛)", key: "contributoryWage" },
+        { header: "ហានិភ័យ (0.8%)\nOcc. Risk", key: "occRisk" },
+        { header: "ថែទាំសុខភាព (2.6%)\nHealth Care", key: "healthCare" },
+        { header: "សោធន និយោជក (2%)\nPension (Org)", key: "pensionEmp" },
+        { header: "សោធន កម្មករ (2%)\nPension (Staff)", key: "pensionWorker" },
+        { header: "ភាគទានសរុប (៛)\nTotal (KHR)", key: "totalKhr" },
+        { header: "ភាគទានសរុប ($)\nTotal ($)", key: "totalUsd" },
+      ];
+    }
+    if (reportType === 'GDT_TOST') {
+      return [
+        { header: "ល.រ\nNo", key: "no" },
+        { header: "អត្តលេខ\nID", key: "empId" },
+        { header: "TIN / អត្តសញ្ញាណប័ណ្ណ\nTIN / National ID", key: "tinOrId" },
+        { header: "ឈ្មោះខ្មែរ\nName Kh", key: "nameKh" },
+        { header: "ឈ្មោះឡាតាំង\nName En", key: "nameEn" },
+        { header: "និវាសនជន\nResident", key: "resident" },
+        { header: "ស្ថានភាពគ្រួសារ\nMarital", key: "marital" },
+        { header: "សហព័ទ្ធ\nSpouse", key: "spouse" },
+        { header: "កូន\nChild", key: "children" },
+        { header: "កាត់បន្ថយសរុប (៛)\nTotal Relief", key: "totalReliefKhr" },
+        { header: "ប្រាក់បៀវត្ស ($)\nGross ($)", key: "grossWageUsd" },
+        { header: "ប្រាក់បៀវត្ស (៛)\nGross (៛)", key: "grossWageKhr" },
+        { header: "កាត់សោធន\nPension Ded.", key: "pensionDeductKhr" },
+        { header: "មូលដ្ឋានគិតពន្ធ (៛)\nTax Base (៛)", key: "taxBaseKhr" },
+        { header: "អត្រា\nRate", key: "taxRate" },
+        { header: "ពន្ធត្រូវបង់ (៛)\nTax (៛)", key: "taxPayableKhr" },
+        { header: "ពន្ធត្រូវបង់ ($)\nTax ($)", key: "taxPayableUsd" },
+        { header: "ប្រាក់បើកជាក់ស្តែង\nNet Pay ($)", key: "netSalaryUsd" },
       ];
     }
     return [];
@@ -321,6 +378,8 @@ export default function ExportHubClient({ t }: Props) {
             >
               <option value="PAYSLIP_STRIPS">បោះពុម្ពក្រដាសប្រាក់ខែ (Payslip Strips)</option>
               <option value="PAYROLL">របាយការណ៍ប្រាក់ខែ (Payroll Report)</option>
+              <option value="NSSF_MONTHLY">🇰🇭 របាយការណ៍បង់ភាគទាន ប.ស.ស (NSSF E-Filing)</option>
+              <option value="GDT_TOST">🏛 របាយការណ៍ពន្ធលើប្រាក់បៀវត្ស TOST (GDT Tax E-Filing)</option>
               <option value="ATTENDANCE">របាយការណ៍វត្តមាន (Attendance Report)</option>
               <option value="EMPLOYEE">របាយការណ៍បុគ្គលិក (Employee Report)</option>
               <option value="EXPENSE_SUMMARY">របាយការណ៍ចំណាយសរុបប្រចាំខែ (Expense Summary)</option>
@@ -433,6 +492,52 @@ export default function ExportHubClient({ t }: Props) {
                 }}
               >
                 📊 ទាញយក Excel Strips
+              </a>
+            )}
+
+            {reportType === 'NSSF_MONTHLY' && (
+              <a
+                href={`/api/export/nssf-monthly?month=${month}&year=${year}&t=${Date.now()}`}
+                className="btn-primary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 14px',
+                  height: '34px',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  backgroundColor: '#0284c7',
+                  color: '#ffffff',
+                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                }}
+              >
+                🇰🇭 ទាញយក NSSF Excel ផ្លូវការ
+              </a>
+            )}
+
+            {reportType === 'GDT_TOST' && (
+              <a
+                href={`/api/export/gdt-tax-salary?month=${month}&year=${year}&t=${Date.now()}`}
+                className="btn-primary kh-text"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 14px',
+                  height: '34px',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  backgroundColor: '#dc2626',
+                  color: '#ffffff',
+                  boxShadow: '0 2px 6px rgba(220, 38, 38, 0.3)',
+                }}
+              >
+                🏛 ទាញយក GDT TOST Excel
               </a>
             )}
 

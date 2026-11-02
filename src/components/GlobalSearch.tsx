@@ -81,11 +81,11 @@ export default function GlobalSearch() {
   };
 
   return (
-    <div ref={wrapperRef} style={{ position: 'relative', width: '300px', zIndex: 50 }}>
+    <div ref={wrapperRef} style={{ position: 'relative', width: '220px', zIndex: 50 }}>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <svg 
-          style={{ position: 'absolute', left: '12px', color: '#94a3b8' }} 
-          width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          style={{ position: 'absolute', left: '8px', color: '#94a3b8' }} 
+          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
         >
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -94,25 +94,27 @@ export default function GlobalSearch() {
         <input 
           id="global-search-input"
           type="text" 
-          placeholder="ស្វែងរកបុគ្គលិក (Search)..."
+          placeholder="ស្វែងរក... (Search)"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.trim().length >= 1 && setIsOpen(true)}
           className="kh-text"
           style={{ 
             width: '100%', 
-            padding: '10px 10px 10px 38px', 
-            borderRadius: '8px', 
+            height: '26px',
+            padding: '2px 8px 2px 28px', 
+            borderRadius: '6px', 
             border: '1px solid #cbd5e1',
             backgroundColor: '#f8fafc',
             outline: 'none',
-            fontSize: '0.95rem',
-            transition: 'all 0.2s'
+            fontSize: '0.78rem',
+            transition: 'all 0.2s',
+            boxSizing: 'border-box'
           }}
           onFocusCapture={(e) => {
              e.target.style.backgroundColor = '#fff';
              e.target.style.borderColor = '#3b82f6';
-             e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+             e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.1)';
           }}
           onBlurCapture={(e) => {
              if(!query) {
@@ -123,9 +125,9 @@ export default function GlobalSearch() {
           }}
         />
         
-        <div style={{ position: 'absolute', right: '12px', display: 'flex', alignItems: 'center', gap: '4px', pointerEvents: 'none' }}>
-           <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#94a3b8', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>Ctrl</span>
-           <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#94a3b8', backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px' }}>K</span>
+        <div style={{ position: 'absolute', right: '6px', display: 'flex', alignItems: 'center', gap: '2px', pointerEvents: 'none' }}>
+           <span style={{ fontSize: '0.62rem', fontWeight: 600, color: '#94a3b8', backgroundColor: '#e2e8f0', padding: '1px 4px', borderRadius: '3px' }}>Ctrl</span>
+           <span style={{ fontSize: '0.62rem', fontWeight: 600, color: '#94a3b8', backgroundColor: '#e2e8f0', padding: '1px 4px', borderRadius: '3px' }}>K</span>
         </div>
       </div>
 

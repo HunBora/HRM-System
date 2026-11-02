@@ -68,7 +68,7 @@ export default function LanguageSwitcher() {
         title="Change Language"
       >
         {/* Custom SVG Icon matching user's request */}
-        <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="26" height="26" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Globe Background */}
           <circle cx="50" cy="50" r="30" fill="#9ca3af" stroke="#1f2937" strokeWidth="4"/>
           <ellipse cx="50" cy="50" rx="15" ry="30" fill="none" stroke="#1f2937" strokeWidth="4"/>

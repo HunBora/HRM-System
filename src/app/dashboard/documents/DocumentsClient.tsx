@@ -7,7 +7,7 @@ import { createDocument, updateDocument, deleteDocument } from './actions';
 
 const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
   <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>
-    {kh} ({en})
+    {kh}
   </span>
 );
 
@@ -347,15 +347,15 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
         <div className="table-responsive-wrapper" style={{ backgroundColor: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', overflow: 'auto', maxHeight: 'calc(100vh - 160px)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
-              <tr style={{ backgroundColor: '#eef2ff' }}>
-                <th style={thStyle}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
-                <th style={thStyle}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
+              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ ...thStyle, textAlign: 'center', width: '40px' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
+                <th style={{ ...thStyle, textAlign: 'center' }}><ThText kh="កូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
                 <th style={thStyle}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
-                <th style={thStyle}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
-                <th style={thStyle}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
-                <th style={thStyle}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
-                <th style={thStyle}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
-                {isAdmin && <th style={thStyle}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
+                <th style={{ ...thStyle, textAlign: 'center' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
+                <th style={{ ...thStyle, textAlign: 'center' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
+                <th style={{ ...thStyle, textAlign: 'center' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
+                <th style={{ ...thStyle, textAlign: 'center' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
+                {isAdmin && <th style={{ ...thStyle, textAlign: 'center' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
               </tr>
             </thead>
             <tbody>
@@ -391,31 +391,31 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
                     </td>
                     <td style={{ ...tdStyle, textAlign: 'center' }}>
                       {(doc.fileUrl || doc.fileData) ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                           <a 
                             href={doc.fileUrl || doc.fileData} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="kh-text"
-                            style={{ display: 'inline-block', backgroundColor: '#10b981', color: '#fff', padding: '6px 12px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.9rem' }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', backgroundColor: '#10b981', color: '#fff', padding: '2px 8px', borderRadius: '4px', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, height: '22px' }}
                           >
-                            មើលឯកសារ (View)
+                            👁️ មើល
                           </a>
-                          <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'bold' }}>
+                          <span style={{ fontSize: '0.68rem', color: '#475569', fontWeight: 700, background: '#f1f5f9', padding: '1px 5px', borderRadius: '3px' }}>
                             {getFileType(doc.fileUrl, doc.fileData)}
                           </span>
                         </div>
                       ) : (
-                        <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.9rem' }}>គ្មានឯកសារ</span>
+                        <span className="kh-text" style={{ color: '#94a3b8', fontSize: '0.74rem' }}>គ្មាន</span>
                       )}
                     </td>
                     {isAdmin && (
                       <td style={{ ...tdStyle, textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                          <button onClick={() => openModal(doc)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#3b82f6' }}>
+                        <div style={{ display: 'inline-flex', gap: '4px', justifyContent: 'center' }}>
+                          <button onClick={() => openModal(doc)} title="Edit" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '0.76rem', color: '#3b82f6', height: '22px' }}>
                             ✏️
                           </button>
-                          <button onClick={() => handleDelete(doc.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#ef4444' }}>
+                          <button onClick={() => handleDelete(doc.id)} title="Delete" style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', fontSize: '0.76rem', color: '#ef4444', height: '22px' }}>
                             🗑️
                           </button>
                         </div>

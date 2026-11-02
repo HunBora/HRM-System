@@ -28,12 +28,12 @@ export default async function DashboardLayout({
   const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'kh') as 'kh' | 'en' | 'zh';
 
   const roleLabels: Record<string, Record<string, string>> = {
-    ADMIN: { kh: 'អ្នកគ្រប់គ្រង (Admin)', en: 'System Admin', zh: '系统管理员' },
-    HR_MANAGER: { kh: 'អ្នកគ្រប់គ្រង HR', en: 'HR Manager', zh: '人事经理' },
-    HR: { kh: 'បុគ្គលិក HR', en: 'HR Officer', zh: '人事专员' },
-    PAYROLL_ADMIN: { kh: 'អ្នកធ្វើប្រាក់ខែ (Payroll)', en: 'Payroll Admin', zh: '薪酬管理员' },
-    DEPT_HEAD: { kh: 'ប្រធានផ្នែក (Dept Head)', en: 'Department Head', zh: '部门主管' },
-    EMPLOYEE: { kh: 'បុគ្គលិកទូទៅ (Employee)', en: 'Employee', zh: '普通员工' },
+    ADMIN: { kh: 'Admin', en: 'Admin', zh: '管理员' },
+    HR_MANAGER: { kh: 'HR Mgr', en: 'HR Mgr', zh: '人事经理' },
+    HR: { kh: 'HR', en: 'HR', zh: '人事' },
+    PAYROLL_ADMIN: { kh: 'Payroll', en: 'Payroll', zh: '薪酬' },
+    DEPT_HEAD: { kh: 'Dept Head', en: 'Dept Head', zh: '主管' },
+    EMPLOYEE: { kh: 'Employee', en: 'Employee', zh: '员工' },
   };
   const roleText = roleLabels[role]?.[locale] || roleLabels[role]?.kh || role;
 
@@ -46,14 +46,25 @@ export default async function DashboardLayout({
       <main className={styles.mainContent}>
         {/* Header */}
         <header className={`${styles.header} no-print`}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>{companyName}</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>{companyName}</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <GlobalSearch />
             <ThemeToggle />
             <LanguageSwitcher />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontWeight: 500, backgroundColor: '#e2e8f0', padding: '4px 8px', borderRadius: '4px', fontSize: '0.9rem', color: '#334155' }} className="kh-text">
-                {roleText}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ 
+                fontWeight: 600, 
+                backgroundColor: '#e2e8f0', 
+                padding: '2px 8px', 
+                borderRadius: '6px', 
+                fontSize: '0.76rem', 
+                color: '#334155',
+                height: '26px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                boxSizing: 'border-box'
+              }} className="kh-text">
+                👤 {roleText}
               </span>
               <LogoutButton />
             </div>

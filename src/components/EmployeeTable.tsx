@@ -25,6 +25,23 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(30); // 30 records per page default
 
+  // Sorting state (default: sort by employeeId ascending: EM-0001 -> EM-0016)
+  const [sortField, setSortField] = useState<string | null>('employeeId');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: string, forcedOrder?: 'asc' | 'desc') => {
+    if (forcedOrder) {
+      setSortField(field);
+      setSortOrder(forcedOrder);
+    } else if (sortField === field) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+    setCurrentPage(1);
+  };
+
   // Reset page to 1 if employee count changes
   useEffect(() => {
     setCurrentPage(1);
@@ -34,26 +51,120 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
   const totalPages = pageSize === -1 ? 1 : Math.ceil(totalEmployees / pageSize) || 1;
   const safeCurrentPage = Math.min(currentPage, totalPages) || 1;
 
+  // Sorted employees list
+  const sortedEmployees = useMemo(() => {
+    if (!sortField) return employees;
+
+    return [...employees].sort((a, b) => {
+      if (sortField === 'employeeId') {
+        const idA = String(a.employeeId || '').trim();
+        const idB = String(b.employeeId || '').trim();
+        const cmp = idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      if (sortField === 'nameKh') {
+        const nA = `${a.lastNameKh || ''} ${a.firstNameKh || ''}`.trim();
+        const nB = `${b.lastNameKh || ''} ${b.firstNameKh || ''}`.trim();
+        const cmp = nA.localeCompare(nB, 'km');
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      if (sortField === 'nameEn') {
+        const nA = `${a.firstNameEn || ''} ${a.lastNameEn || ''}`.trim();
+        const nB = `${b.firstNameEn || ''} ${b.lastNameEn || ''}`.trim();
+        const cmp = nA.localeCompare(nB, undefined, { sensitivity: 'base' });
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      if (sortField === 'hireDate') {
+        const dA = a.hireDate ? new Date(a.hireDate).getTime() : 0;
+        const dB = b.hireDate ? new Date(b.hireDate).getTime() : 0;
+        return sortOrder === 'asc' ? dA - dB : dB - dA;
+      }
+      if (sortField === 'department') {
+        const dA = String(a.department || '');
+        const dB = String(b.department || '');
+        const cmp = dA.localeCompare(dB);
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }
+      if (sortField === 'basicSalary') {
+        const sA = Number(a.basicSalary || a.basicSalary1 || 0);
+        const sB = Number(b.basicSalary || b.basicSalary1 || 0);
+        return sortOrder === 'asc' ? sA - sB : sB - sA;
+      }
+      return 0;
+    });
+  }, [employees, sortField, sortOrder]);
+
   const paginatedEmployees = useMemo(() => {
-    if (pageSize === -1) return employees;
+    if (pageSize === -1) return sortedEmployees;
     const start = (safeCurrentPage - 1) * pageSize;
-    return employees.slice(start, start + pageSize);
-  }, [employees, safeCurrentPage, pageSize]);
+    return sortedEmployees.slice(start, start + pageSize);
+  }, [sortedEmployees, safeCurrentPage, pageSize]);
 
   const formatDate = (date: any) => {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('en-GB');
   };
 
-  const Th = ({ en, cn, kh, minW = 'auto' }: { en: string, cn: string, kh: string, minW?: string }) => (
-    <th style={{ padding: '6px 8px', borderBottom: '1px dashed var(--border-color)', borderRight: '1px dashed var(--border-color)', verticalAlign: 'middle', minWidth: minW, position: 'sticky', top: 0, backgroundColor: 'var(--surface-color)', zIndex: 10, boxShadow: '0 1px 0 var(--border-color)' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', alignItems: 'center', lineHeight: '1.15' }}>
-        <span className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-color)' }}>{kh}</span>
-        <span style={{ fontSize: '0.7rem', fontWeight: 400, color: '#64748b' }}>{en}</span>
-        <span style={{ fontSize: '0.7rem', fontWeight: 400, color: '#94a3b8' }}>{cn}</span>
-      </div>
-    </th>
-  );
+  const Th = ({
+    en,
+    cn,
+    kh,
+    minW = 'auto',
+    sortKey
+  }: {
+    en: string;
+    cn: string;
+    kh: string;
+    minW?: string;
+    sortKey?: string;
+  }) => {
+    const isSorted = sortKey && sortField === sortKey;
+    const isSortable = !!sortKey;
+
+    return (
+      <th
+        onClick={() => isSortable && handleSort(sortKey)}
+        style={{
+          padding: '6px 8px',
+          borderBottom: '1px dashed var(--border-color)',
+          borderRight: '1px dashed var(--border-color)',
+          verticalAlign: 'middle',
+          minWidth: minW,
+          position: 'sticky',
+          top: 0,
+          backgroundColor: isSorted ? 'rgba(37, 99, 235, 0.09)' : 'var(--surface-color)',
+          zIndex: 10,
+          boxShadow: '0 1px 0 var(--border-color)',
+          cursor: isSortable ? 'pointer' : 'default',
+          userSelect: 'none',
+          transition: 'background-color 0.15s ease',
+        }}
+        title={isSortable ? `ចុចដើម្បីតម្រៀប (Click to sort ${en})` : undefined}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', alignItems: 'center', lineHeight: '1.15' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <span
+              className="kh-text"
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: isSorted ? 700 : 600,
+                color: isSorted ? '#2563eb' : 'var(--text-color)',
+              }}
+            >
+              {kh}
+            </span>
+            {isSortable && (
+              <span style={{ fontSize: '0.72rem', color: isSorted ? '#2563eb' : '#94a3b8' }}>
+                {isSorted ? (sortOrder === 'asc' ? '🔼' : '🔽') : '↕️'}
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: '0.7rem', fontWeight: 400, color: isSorted ? '#2563eb' : '#64748b' }}>{en}</span>
+          <span style={{ fontSize: '0.7rem', fontWeight: 400, color: '#94a3b8' }}>{cn}</span>
+        </div>
+      </th>
+    );
+  };
 
   const tdStyle: React.CSSProperties = {
     padding: '5px 8px',
@@ -66,6 +177,100 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
   return (
     <>
       <div className="card" style={{ padding: 0, border: '1px dashed var(--border-color)', transform: 'none', display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Quick Sort & Controls Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '8px 14px',
+          borderBottom: '1px dashed var(--border-color)',
+          backgroundColor: 'rgba(0,0,0,0.015)',
+          flexWrap: 'wrap',
+          gap: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span className="kh-text" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span>🔢</span>
+              <span>តម្រៀបអត្តលេខ (Sort ID):</span>
+            </span>
+
+            <button
+              type="button"
+              onClick={() => handleSort('employeeId', 'asc')}
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                borderRadius: '6px',
+                border: sortField === 'employeeId' && sortOrder === 'asc' ? '1px solid #2563eb' : '1px solid var(--border-color)',
+                background: sortField === 'employeeId' && sortOrder === 'asc' ? '#2563eb' : 'var(--card-bg, #ffffff)',
+                color: sortField === 'employeeId' && sortOrder === 'asc' ? '#ffffff' : 'var(--text-color)',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: sortField === 'employeeId' && sortOrder === 'asc' ? '0 1px 4px rgba(37,99,235,0.3)' : 'none',
+                transition: 'all 0.18s ease'
+              }}
+              className="kh-text"
+              title="តម្រៀបពីតូចទៅធំ៖ EM-0001 ដល់ EM-0016"
+            >
+              <span>🔼</span>
+              <span>ពីតូចទៅធំ (EM-0001 &rarr; EM-0016)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSort('employeeId', 'desc')}
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                borderRadius: '6px',
+                border: sortField === 'employeeId' && sortOrder === 'desc' ? '1px solid #2563eb' : '1px solid var(--border-color)',
+                background: sortField === 'employeeId' && sortOrder === 'desc' ? '#2563eb' : 'var(--card-bg, #ffffff)',
+                color: sortField === 'employeeId' && sortOrder === 'desc' ? '#ffffff' : 'var(--text-color)',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: sortField === 'employeeId' && sortOrder === 'desc' ? '0 1px 4px rgba(37,99,235,0.3)' : 'none',
+                transition: 'all 0.18s ease'
+              }}
+              className="kh-text"
+              title="តម្រៀបពីធំមកតូច៖ EM-0016 ដល់ EM-0001"
+            >
+              <span>🔽</span>
+              <span>ពីធំមកតូច (EM-0016 &rarr; EM-0001)</span>
+            </button>
+
+            {sortField && (
+              <button
+                type="button"
+                onClick={() => { setSortField(null); setSortOrder('asc'); setCurrentPage(1); }}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '0.76rem',
+                  color: 'var(--text-muted)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+                className="kh-text"
+                title="កំណត់លំដាប់ដើមតាមកាលបរិច្ឆេទបង្កើត"
+              >
+                🔄 កំណត់ដើម (Reset)
+              </button>
+            )}
+          </div>
+
+          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }} className="kh-text">
+            💡 អ្នកក៏អាចចុចផ្ទាល់លើក្បាលតារាង <strong>«អត្តលេខ / ID No»</strong> ដើម្បីត្រឡប់លំដាប់បានដូចគ្នា
+          </div>
+        </div>
+
         <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 230px)', width: '100%' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', whiteSpace: 'nowrap' }}>
           <thead>
@@ -89,18 +294,18 @@ export default function EmployeeTable({ employees, t }: { employees: any[], t: a
               </th>
               <Th en="Photo" cn="照片" kh="រូបថត" minW="48px" />
               <Th en="No." cn="序号" kh="ល.រ" minW="42px" />
-              <Th en="ID No" cn="编号" kh="អត្តលេខ" minW="72px" />
-              <Th en="Name Khmer" cn="柬文名字" kh="ឈ្មោះខ្មែរ" minW="125px" />
-              <Th en="Name English" cn="英文名字" kh="ឈ្មោះឡាតាំង" minW="125px" />
+              <Th en="ID No" cn="编号" kh="អត្តលេខ" minW="80px" sortKey="employeeId" />
+              <Th en="Name Khmer" cn="柬文名字" kh="ឈ្មោះខ្មែរ" minW="125px" sortKey="nameKh" />
+              <Th en="Name English" cn="英文名字" kh="ឈ្មោះឡាតាំង" minW="125px" sortKey="nameEn" />
               <Th en="Sex" cn="性别" kh="ភេទ" minW="48px" />
               <Th en="Date of Birth" cn="出生日期" kh="ថ្ងៃខែឆ្នាំកំណើត" minW="105px" />
-              <Th en="Hire Date" cn="入职日期" kh="ថ្ងៃចូលធ្វើការ" minW="105px" />
+              <Th en="Hire Date" cn="入职日期" kh="ថ្ងៃចូលធ្វើការ" minW="105px" sortKey="hireDate" />
               <Th en="Bank No" cn="银行卡号" kh="កាតធនាគារ" minW="105px" />
-              <Th en="Dept" cn="部门" kh="ផ្នែក" minW="90px" />
+              <Th en="Dept" cn="部门" kh="ផ្នែក" minW="90px" sortKey="department" />
               <Th en="Position" cn="职务" kh="មុខងារ" minW="105px" />
               <Th en="Probation Start" cn="试用开始" kh="សាកល្បងចាប់ផ្តើម" minW="105px" />
               <Th en="Probation End" cn="试用结束" kh="សាកល្បងបញ្ចប់" minW="105px" />
-              <Th en="Basic Salary" cn="基本底薪" kh="ប្រាក់បៀវត្សរ៍" minW="90px" />
+              <Th en="Basic Salary" cn="基本底薪" kh="ប្រាក់បៀវត្សរ៍" minW="90px" sortKey="basicSalary" />
               <Th en="Skill Allowance" cn="技能补贴" kh="ប្រាក់ជំនាញ" minW="90px" />
               <Th en="Position Allowance" cn="岗位补贴" kh="ប្រាក់មុខងារ" minW="90px" />
               <Th en="National ID" cn="身份证号" kh="អត្តសញ្ញាណប័ណ្ណ" minW="105px" />

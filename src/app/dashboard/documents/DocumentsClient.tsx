@@ -6,12 +6,27 @@ import Select from 'react-select';
 import { createDocument, updateDocument, deleteDocument } from './actions';
 
 const ThText = ({ kh, zh, en }: { kh: string; zh: string; en: string }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: '1.2' }}>
-    <span className="kh-text" style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{kh}</span>
-    <span style={{ fontSize: '0.65rem', color: '#64748b' }}>{zh}</span>
-    <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase' }}>{en}</span>
-  </div>
+  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>
+    {kh} ({en})
+  </span>
 );
+
+const thStyle: React.CSSProperties = {
+  padding: '6px 10px',
+  borderBottom: '1px solid #e2e8f0',
+  color: '#475569',
+  fontWeight: 700,
+  fontSize: '0.78rem',
+  whiteSpace: 'nowrap',
+  lineHeight: 1.2
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: '6px 10px',
+  borderBottom: '1px solid #f1f5f9',
+  verticalAlign: 'middle',
+  fontSize: '0.8rem'
+};
 
 export default function DocumentsClient({ documents, isAdmin }: { documents: any[], isAdmin: boolean }) {
   const [search, setSearch] = useState('');
@@ -212,59 +227,98 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
-        <h1 className="kh-text" style={{ fontSize: '1.6rem', color: '#1e3a8a', margin: 0 }}>
-          ឯកសារក្រុមហ៊ុន (Company Documents) <span>公司文件</span>
-        </h1>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ minWidth: '180px' }}>
+    <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      {/* 1. Header Banner & Filter Toolbar */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: '6px',
+        backgroundColor: '#ffffff',
+        padding: '6px 12px',
+        borderRadius: '10px',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '17px',
+            flexShrink: 0
+          }}>
+            📁
+          </div>
+          <div>
+            <h1 className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.2 }}>
+              ឯកសារក្រុមហ៊ុន / Documents
+            </h1>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.7rem', fontWeight: 500 }}>
+              Company Documents Management
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: '130px' }}>
             <Select 
-              options={[{value: '', label: 'គ្រប់ផ្នែក (All Dept)'}, ...uniqueDepts.map(d => ({ value: d, label: d }))]}
+              options={[{value: '', label: 'គ្រប់ផ្នែក (All)'}, ...uniqueDepts.map(d => ({ value: d, label: d }))]}
               value={{ value: filterDept, label: filterDept || 'ផ្នែក (Dept)' }}
               onChange={(opt) => setFilterDept(opt?.value || '')}
               placeholder="ផ្នែក..."
               className="kh-text no-print"
               styles={{
-                control: (base) => ({ ...base, minHeight: '38px', borderRadius: '6px' }),
-                menuPortal: base => ({ ...base, zIndex: 9999 })
+                control: (base) => ({ ...base, minHeight: '26px', height: '26px', borderRadius: '6px', fontSize: '0.78rem', padding: '0 2px' }),
+                valueContainer: (base) => ({ ...base, padding: '0 4px' }),
+                indicatorsContainer: (base) => ({ ...base, padding: '0' }),
+                dropdownIndicator: (base) => ({ ...base, padding: '2px' }),
+                menuPortal: base => ({ ...base, zIndex: 9999, fontSize: '0.78rem' })
               }}
               menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
             />
           </div>
-          <div style={{ minWidth: '180px' }}>
+          <div style={{ minWidth: '130px' }}>
             <Select 
-              options={[{value: '', label: 'គ្រប់ប្រភេទ (All Types)'}, ...uniqueDocTypes.map(t => ({ value: t as string, label: t as string }))]}
-              value={{ value: filterDocType, label: filterDocType || 'ប្រភេទឯកសារ (Type)' }}
+              options={[{value: '', label: 'គ្រប់ប្រភេទ (All)'}, ...uniqueDocTypes.map(t => ({ value: t as string, label: t as string }))]}
+              value={{ value: filterDocType, label: filterDocType || 'ប្រភេទ (Type)' }}
               onChange={(opt) => setFilterDocType(opt?.value || '')}
-              placeholder="ប្រភេទ (Type)..."
+              placeholder="ប្រភេទ..."
               className="kh-text no-print"
               styles={{
-                control: (base) => ({ ...base, minHeight: '38px', borderRadius: '6px' }),
-                menuPortal: base => ({ ...base, zIndex: 9999 })
+                control: (base) => ({ ...base, minHeight: '26px', height: '26px', borderRadius: '6px', fontSize: '0.78rem', padding: '0 2px' }),
+                valueContainer: (base) => ({ ...base, padding: '0 4px' }),
+                indicatorsContainer: (base) => ({ ...base, padding: '0' }),
+                dropdownIndicator: (base) => ({ ...base, padding: '2px' }),
+                menuPortal: base => ({ ...base, zIndex: 9999, fontSize: '0.78rem' })
               }}
               menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
             />
           </div>
           <input 
             type="text" 
-            placeholder="ស្វែងរកឯកសារ (ចំណងជើង ពិពណ៌នា កូដ)..." 
+            placeholder="ស្វែងរកឯកសារ..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="kh-text no-print"
-            style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', minWidth: '250px' }}
+            style={{ height: '26px', padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: '6px', minWidth: '140px', fontSize: '0.78rem', boxSizing: 'border-box' }}
           />
-          <div className="no-print" style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+          <div className="no-print" style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', height: '26px' }}>
             <button
               onClick={() => setViewMode('table')}
-              style={{ padding: '8px 12px', backgroundColor: viewMode === 'table' ? '#e2e8f0' : '#fff', border: 'none', cursor: 'pointer', borderRight: '1px solid #cbd5e1' }}
+              style={{ padding: '2px 8px', backgroundColor: viewMode === 'table' ? '#e2e8f0' : '#fff', border: 'none', cursor: 'pointer', borderRight: '1px solid #cbd5e1', fontSize: '0.8rem' }}
               title="Table View"
             >
               📋
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              style={{ padding: '8px 12px', backgroundColor: viewMode === 'grid' ? '#e2e8f0' : '#fff', border: 'none', cursor: 'pointer' }}
+              style={{ padding: '2px 8px', backgroundColor: viewMode === 'grid' ? '#e2e8f0' : '#fff', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}
               title="Grid / Photo View"
             >
               🖼️
@@ -273,35 +327,35 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
           <button 
             onClick={() => window.print()}
             className="kh-text no-print"
-            style={{ padding: '8px 15px', backgroundColor: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ height: '26px', padding: '2px 8px', backgroundColor: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.78rem' }}
           >
-            🖨️ ព្រីន (Print)
+            🖨️ Print
           </button>
           {isAdmin && (
             <button 
               onClick={() => openModal()}
               className="kh-text no-print"
-              style={{ padding: '8px 15px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+              style={{ height: '26px', padding: '2px 10px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }}
             >
-              + បន្ថែមឯកសារ (Add New)
+              + ឯកសារថ្មី
             </button>
           )}
         </div>
       </div>
 
       {viewMode === 'table' ? (
-        <div className="table-responsive-wrapper" style={{ backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', overflow: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
+        <div className="table-responsive-wrapper" style={{ backgroundColor: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0', boxShadow: '0 1px 2px rgba(0,0,0,0.02)', overflow: 'auto', maxHeight: 'calc(100vh - 160px)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
               <tr style={{ backgroundColor: '#eef2ff' }}>
-                <th style={{ padding: '10px 8px', width: '50px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
-                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
-                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
-                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
-                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
-                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
-                <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
-                {isAdmin && <th style={{ padding: '10px 8px', borderBottom: '1px solid #cbd5e1' }}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
+                <th style={thStyle}><ThText kh="ល.រ" zh="序号" en="NO." /></th>
+                <th style={thStyle}><ThText kh="លេខកូដឯកសារ" zh="文件代码" en="DOC CODE" /></th>
+                <th style={thStyle}><ThText kh="ចំណងជើង" zh="标题" en="TITLE" /></th>
+                <th style={thStyle}><ThText kh="ផ្នែក" zh="部门" en="DEPT" /></th>
+                <th style={thStyle}><ThText kh="ប្រភេទ" zh="类别" en="CATEGORY" /></th>
+                <th style={thStyle}><ThText kh="កាលបរិច្ឆេទ" zh="日期" en="DATE" /></th>
+                <th style={thStyle}><ThText kh="ឯកសារ" zh="文件" en="FILE" /></th>
+                {isAdmin && <th style={thStyle}><ThText kh="សកម្មភាព" zh="操作" en="ACTIONS" /></th>}
               </tr>
             </thead>
             <tbody>
@@ -316,26 +370,26 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
                   const parsed = parseDescription(doc.description);
                   return (
                   <tr key={doc.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '10px 8px', textAlign: 'center', color: '#64748b' }}>{index + 1}</td>
-                    <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
+                    <td style={{ ...tdStyle, textAlign: 'center', color: '#64748b' }}>{index + 1}</td>
+                    <td className="kh-text" style={{ ...tdStyle, color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
                       {parsed.docCode || '-'}
                     </td>
-                    <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
+                    <td className="kh-text" style={{ ...tdStyle, color: '#0f172a', fontWeight: '500', textAlign: 'center' }}>
                       {doc.title}
                       {parsed.desc && <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{parsed.desc}</div>}
                     </td>
-                    <td className="kh-text" style={{ padding: '10px 8px', color: '#0f172a', textAlign: 'center' }}>
+                    <td className="kh-text" style={{ ...tdStyle, color: '#0f172a', textAlign: 'center' }}>
                       {parsed.department || '-'}
                     </td>
-                    <td className="kh-text" style={{ padding: '10px 8px', textAlign: 'center' }}>
+                    <td className="kh-text" style={{ ...tdStyle, textAlign: 'center' }}>
                       <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
                         {doc.category}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 8px', color: '#64748b', fontSize: '0.9rem', textAlign: 'center' }}>
+                    <td style={{ ...tdStyle, color: '#64748b', fontSize: '0.9rem', textAlign: 'center' }}>
                       {new Date(doc.createdAt).toLocaleDateString('en-GB')}
                     </td>
-                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                    <td style={{ ...tdStyle, textAlign: 'center' }}>
                       {(doc.fileUrl || doc.fileData) ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                           <a 
@@ -356,7 +410,7 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
                       )}
                     </td>
                     {isAdmin && (
-                      <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                      <td style={{ ...tdStyle, textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                           <button onClick={() => openModal(doc)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#3b82f6' }}>
                             ✏️

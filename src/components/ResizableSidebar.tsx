@@ -1475,23 +1475,23 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           <div
             style={{
               position: 'absolute',
-              top: '68px',
-              left: isCollapsed ? '60px' : '10px',
-              right: isCollapsed ? 'auto' : '10px',
-              width: isCollapsed ? '280px' : 'auto',
+              top: '56px',
+              left: isCollapsed ? '52px' : '8px',
+              right: isCollapsed ? 'auto' : '8px',
+              width: isCollapsed ? '250px' : 'auto',
               backgroundColor: currentTheme.bgColor,
               backgroundImage: currentTheme.bgImage,
               border: `1px solid ${currentTheme.borderRight}`,
-              borderRadius: '12px',
-              padding: '12px',
-              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45)',
+              borderRadius: '10px',
+              padding: '8px 10px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
               zIndex: 100,
               backdropFilter: 'blur(20px)',
               animation: 'fadeIn 0.18s ease-out',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 700, color: currentTheme.textColor }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span className="kh-text" style={{ fontSize: '0.74rem', fontWeight: 700, color: currentTheme.textColor }}>
                 🎨 ជ្រើសរើសស្បែក Sidebar
               </span>
               <button
@@ -1502,14 +1502,15 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   border: 'none',
                   color: currentTheme.textMuted,
                   cursor: 'pointer',
-                  fontSize: '0.8rem',
+                  fontSize: '0.75rem',
+                  padding: '2px',
                 }}
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4px' }}>
               {Object.values(SIDEBAR_THEMES).map((th) => {
                 const isActive = th.id === sidebarTheme;
                 return (
@@ -1523,21 +1524,21 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      padding: '7px 8px',
-                      borderRadius: '8px',
+                      gap: '5px',
+                      padding: '4px 6px',
+                      borderRadius: '6px',
                       border: isActive ? `2px solid ${th.accent}` : `1px solid ${currentTheme.cardBorder}`,
                       background: th.colorSwatch,
                       color: th.textColor,
                       cursor: 'pointer',
-                      fontSize: '0.74rem',
+                      fontSize: '0.68rem',
                       fontWeight: 600,
                       textAlign: 'left',
                       transition: 'all 0.15s ease',
-                      boxShadow: isActive ? `0 0 10px ${th.accent}77` : 'none',
+                      boxShadow: isActive ? `0 0 8px ${th.accent}77` : 'none',
                     }}
                   >
-                    <span style={{ fontSize: '1rem' }}>{th.icon}</span>
+                    <span style={{ fontSize: '0.82rem' }}>{th.icon}</span>
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {th.nameKh}
                     </span>
@@ -1549,25 +1550,26 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             {/* DOCK MAGNIFICATION TOGGLE SWITCH (macOS Dock Magnification Option) */}
             <div
               style={{
-                marginTop: '10px',
-                paddingTop: '9px',
+                marginTop: '6px',
+                paddingTop: '6px',
                 borderTop: `1px solid ${currentTheme.cardBorder}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '8px',
+                gap: '6px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                <span style={{ fontSize: '1rem' }}>🔍</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                <span style={{ fontSize: '0.82rem' }}>🔍</span>
                 <div style={{ overflow: 'hidden' }}>
                   <div
                     className="kh-text"
                     style={{
-                      fontSize: '0.74rem',
+                      fontSize: '0.68rem',
                       fontWeight: 700,
                       color: currentTheme.textColor,
                       whiteSpace: 'nowrap',
+                      lineHeight: 1.1,
                     }}
                   >
                     Dock Magnification
@@ -1575,12 +1577,13 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   <div
                     className="kh-text"
                     style={{
-                      fontSize: '0.62rem',
+                      fontSize: '0.58rem',
                       color: currentTheme.textMuted,
                       whiteSpace: 'nowrap',
+                      lineHeight: 1.1,
                     }}
                   >
-                    ពង្រីកគ្រាប់ Option បែប macOS
+                    ពង្រីក Option បែប macOS
                   </div>
                 </div>
               </div>
@@ -1589,7 +1592,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                 className={`dock-switch-track ${isDockMagnify ? 'active' : ''}`}
                 onClick={() => toggleDockMagnify()}
                 title={isDockMagnify ? 'ចុចដើម្បីបិទ Dock Magnification' : 'ចុចដើម្បីបើក Dock Magnification'}
-                style={{ flexShrink: 0 }}
+                style={{ flexShrink: 0, transform: 'scale(0.85)', transformOrigin: 'right center' }}
               >
                 <div className="dock-switch-thumb" />
               </div>
@@ -1599,30 +1602,30 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
             {isDockMagnify && (
               <div
                 style={{
-                  marginTop: '8px',
+                  marginTop: '6px',
                   backgroundColor: currentTheme.isLight
                     ? 'rgba(0, 0, 0, 0.04)'
                     : 'rgba(255, 255, 255, 0.05)',
                   border: `1px solid ${currentTheme.cardBorder}`,
-                  borderRadius: '10px',
-                  padding: '9px 10px',
+                  borderRadius: '8px',
+                  padding: '6px 8px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '6px',
+                  gap: '4px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span className="kh-text" style={{ fontSize: '0.68rem', fontWeight: 700, color: currentTheme.textColor }}>
+                  <span className="kh-text" style={{ fontSize: '0.64rem', fontWeight: 700, color: currentTheme.textColor }}>
                     ទំហំពង្រីក (Scale)
                   </span>
                   <span
                     style={{
-                      fontSize: '0.68rem',
+                      fontSize: '0.64rem',
                       fontWeight: 800,
                       color: currentTheme.accent,
                       background: currentTheme.itemHover,
-                      padding: '1px 6px',
-                      borderRadius: '5px',
+                      padding: '0 4px',
+                      borderRadius: '4px',
                       border: `1px solid ${currentTheme.cardBorder}`,
                     }}
                   >
@@ -1639,11 +1642,12 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                   value={dockScale}
                   onChange={(e) => changeDockScale(parseFloat(e.target.value))}
                   className="dock-scale-slider"
+                  style={{ height: '4px' }}
                   title={`ទំហំពង្រីកបច្ចុប្បន្ន៖ ${dockScale.toFixed(2)}x`}
                 />
 
                 {/* Quick Presets */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginTop: '2px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '3px', marginTop: '1px' }}>
                   {[
                     { label: 'ស្រាល', val: 1.2 },
                     { label: 'លំនាំដើម', val: 1.4 },
@@ -1658,7 +1662,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
                         onClick={() => changeDockScale(p.val)}
                         className={`dock-preset-chip ${isActive ? 'active' : ''}`}
                         title={`${p.label} (${p.val}x)`}
-                        style={{ textAlign: 'center', whiteSpace: 'nowrap' }}
+                        style={{ textAlign: 'center', whiteSpace: 'nowrap', padding: '2px 4px', fontSize: '0.62rem', borderRadius: '4px' }}
                       >
                         {p.label}
                       </button>

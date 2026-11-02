@@ -404,7 +404,7 @@ export default function LoansClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {/* 1. Page Header Banner */}
       <div
         style={{
@@ -412,61 +412,61 @@ export default function LoansClient({
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '16px',
+          gap: '8px',
           background: '#ffffff',
-          padding: '24px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-          border: '1px solid #f1f5f9',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+          border: '1px solid #e2e8f0',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '14px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '28px',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+              fontSize: '17px',
             }}
           >
             💳
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
-              ប្រព័ន្ធគ្រប់គ្រងប្រាក់កម្ចីបុគ្គលិក និងការកាត់រំលស់ប្រចាំខែ
+            <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+              ប្រព័ន្ធគ្រប់គ្រងប្រាក់កម្ចីបុគ្គលិក
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.86rem', fontWeight: 500 }}>
-              Employee Loan & Monthly Installment Deduction Management • 员工借款与分期还款扣发管理系统
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.7rem', fontWeight: 500 }}>
+              Employee Loan & Monthly Deductions
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
           <a
             href="/dashboard/advance"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               background: '#f8fafc',
               color: '#334155',
               border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '10px 14px',
+              borderRadius: '6px',
+              padding: '4px 9px',
               fontWeight: 700,
-              fontSize: '0.86rem',
+              fontSize: '0.78rem',
+              height: '28px',
+              boxSizing: 'border-box',
               textDecoration: 'none',
-              transition: 'all 0.2s ease',
             }}
           >
             <span>💵</span>
-            <span>ប្រាក់បុរេប្រទាន (Advance Salary)</span>
+            <span>បុរេប្រទាន (Advance)</span>
           </a>
 
           {isHR && (
@@ -475,24 +475,21 @@ export default function LoansClient({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '4px',
                 background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '6px',
+                padding: '4px 10px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.78rem',
+                height: '28px',
+                boxSizing: 'border-box',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
-                transition: 'all 0.2s ease',
               }}
             >
               <span>➕</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                <div>បង្កើតកម្ចីថ្មី</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>New Loan • 新增借款</div>
-              </div>
+              <span>បង្កើតកម្ចីថ្មី</span>
             </button>
           )}
 
@@ -501,68 +498,66 @@ export default function LoansClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '4px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '6px',
+              padding: '4px 10px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.78rem',
+              height: '28px',
+              boxSizing: 'border-box',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-              transition: 'all 0.2s ease',
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-              <div>ទាញយកជា Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
-            </div>
+            <span>Export Excel</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Metrics Cards (3 languages stacked) */}
+      {/* 2. Metrics Cards */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+          gap: '8px',
         }}
       >
         {/* Metric 1: Total Loans */}
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '6px 12px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#eff6ff',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             💵
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សរុបប្រាក់កម្ចី</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Loan Amount • 借款总额</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563eb', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>សរុបប្រាក់កម្ចី</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Total Loans</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#2563eb', lineHeight: 1.2 }}>
               ${metrics.totalPrincipal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
@@ -572,34 +567,35 @@ export default function LoansClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '6px 12px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#fffbeb',
               color: '#d97706',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             ⚖️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សមតុល្យជំពាក់នៅសល់</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Active Balance • 剩余未还本息</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>សមតុល្យនៅសល់</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Active Balance</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#d97706', lineHeight: 1.2 }}>
               ${metrics.totalActiveBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
@@ -609,34 +605,35 @@ export default function LoansClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '6px 12px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#f5f3ff',
               color: '#7c3aed',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             📅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>កាត់រំលស់ប្រចាំខែ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Monthly Deductions • 每月扣款总额</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#7c3aed', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>កាត់ប្រចាំខែ</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Monthly Deductions</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.2 }}>
               ${metrics.totalMonthlyDeductions.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
@@ -646,35 +643,36 @@ export default function LoansClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
-            border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '6px 12px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#f0fdf4',
               color: '#16a34a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             ✅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បានសងរួចរាល់ទាំងស្រុង</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Paid Off Loans • 已结清笔数</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
-              {metrics.paidOffCount} <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>ករណី</span>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>បានសងរួចរាល់</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Paid Off Loans</div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#16a34a', lineHeight: 1.2 }}>
+              {metrics.paidOffCount} <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>ករណី</span>
             </div>
           </div>
         </div>
@@ -685,52 +683,54 @@ export default function LoansClient({
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '14px',
+          gap: '6px',
           alignItems: 'center',
           background: '#ffffff',
-          padding: '16px 20px',
-          borderRadius: '14px',
-          border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+          padding: '6px 10px',
+          borderRadius: '8px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
         }}
       >
         {/* Search Input */}
-        <div style={{ flex: '1 1 260px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
-            placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ, កូដកម្ចី... (Search)..."
+            placeholder="🔍 រកឈ្មោះ, ID, កូដកម្ចី..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
-              borderRadius: '10px',
+              padding: '3px 8px 3px 26px',
+              height: '26px',
+              borderRadius: '6px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.78rem',
               outline: 'none',
               boxSizing: 'border-box',
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '8px', top: '5px', color: '#94a3b8', fontSize: '0.75rem' }}>🔍</span>
         </div>
 
         {/* Status Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '150px' }}>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '2px 6px',
+              height: '26px',
+              borderRadius: '6px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.78rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
             }}
           >
-            <option value="ALL">📊 គ្រប់ស្ថានភាព (All Status)</option>
+            <option value="ALL">📊 គ្រប់ស្ថានភាព (All)</option>
             <option value="ACTIVE">🔵 កំពុងកាត់រំលស់ (Active)</option>
             <option value="PAID_OFF">🟢 បានសងរួច (Paid Off)</option>
             <option value="DEFAULTED">🔴 ខកខានសង (Defaulted)</option>
@@ -738,22 +738,23 @@ export default function LoansClient({
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '150px' }}>
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '2px 6px',
+              height: '26px',
+              borderRadius: '6px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.78rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
             }}
           >
-            <option value="ALL">🏢 គ្រប់នាយកដ្ឋាន (All Depts)</option>
+            <option value="ALL">🏢 គ្រប់ផ្នែក (All Depts)</option>
             {departments.map((d) => (
               <option key={d} value={d}>
                 {d}
@@ -763,86 +764,39 @@ export default function LoansClient({
         </div>
       </div>
 
-      {/* 4. Main Loans Table with 3-Languages Stacked on TH */}
+      {/* 4. Main Loans Table with Fit Content & Single-Line Headers */}
       <div
         style={{
           background: '#ffffff',
-          borderRadius: '16px',
+          borderRadius: '10px',
           border: '1px solid #e2e8f0',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           overflow: 'hidden',
         }}
       >
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.78rem' }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                {/* 1: Loan Code */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>កូដកម្ចី</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Loan Code</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>借款单号</div>
-                </th>
-
-                {/* 2: Employee */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
-                </th>
-
-                {/* 3: Dept / Position */}
-                <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>នាយកដ្ឋាន / មុខតំណែង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Dept / Position</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>部门 / 职位</div>
-                </th>
-
-                {/* 4: Loan Principal */}
-                <th style={{ padding: '14px 16px', minWidth: '140px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ប្រាក់កម្ចីដើម ($)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Loan Principal</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>借款本金</div>
-                </th>
-
-                {/* 5: Monthly / Term */}
-                <th style={{ padding: '14px 16px', minWidth: '150px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>កាត់ប្រចាំខែ (រយៈពេល)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Monthly / Term</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>月扣 / 期限</div>
-                </th>
-
-                {/* 6: Repaid / Balance */}
-                <th style={{ padding: '14px 16px', minWidth: '170px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>បានសង / សមតុល្យនៅសល់</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Repaid / Balance</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>已还 / 剩余未还</div>
-                </th>
-
-                {/* 7: Status */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ស្ថានភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>状态</div>
-                </th>
-
-                {/* 8: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '140px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
-                </th>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.74rem' }}>
+                <th style={{ padding: '6px 8px', minWidth: '95px', color: '#475569', fontWeight: 800 }}>កូដកម្ចី</th>
+                <th style={{ padding: '6px 8px', minWidth: '160px', color: '#0f172a', fontWeight: 800 }}>បុគ្គលិក (Employee)</th>
+                <th style={{ padding: '6px 8px', minWidth: '120px', color: '#475569', fontWeight: 800 }}>ផ្នែក/តួនាទី</th>
+                <th style={{ padding: '6px 8px', minWidth: '110px', color: '#475569', fontWeight: 800 }}>កម្ចីដើម ($)</th>
+                <th style={{ padding: '6px 8px', minWidth: '120px', color: '#475569', fontWeight: 800 }}>កាត់ប្រចាំខែ</th>
+                <th style={{ padding: '6px 8px', minWidth: '140px', color: '#475569', fontWeight: 800 }}>បានសង / នៅសល់</th>
+                <th style={{ padding: '6px 8px', minWidth: '100px', textAlign: 'center', color: '#475569', fontWeight: 800 }}>ស្ថានភាព</th>
+                <th style={{ padding: '6px 8px', minWidth: '110px', textAlign: 'center', color: '#475569', fontWeight: 800 }}>សកម្មភាព</th>
               </tr>
             </thead>
             <tbody>
               {filteredLoans.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                    <div style={{ fontSize: '40px', marginBottom: '8px' }}>📂</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#475569' }}>
+                  <td colSpan={8} style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '26px', marginBottom: '4px' }}>📂</div>
+                    <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#475569' }}>
                       មិនមានកំណត់ត្រាកម្ចីបុគ្គលិកទេ (No Loans Found)
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>
                       សូមចុចប៊ូតុង "បង្កើតកម្ចីថ្មី" ដើម្បីបញ្ចូលកម្ចីបុគ្គលិក
                     </div>
                   </td>
@@ -873,41 +827,41 @@ export default function LoansClient({
                       }}
                     >
                       {/* Loan Code */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '6px 8px' }}>
                         <span
                           style={{
                             display: 'inline-block',
                             background: '#eff6ff',
                             color: '#1d4ed8',
-                            padding: '4px 8px',
-                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
                             fontFamily: 'monospace',
                             fontWeight: 700,
-                            fontSize: '0.8rem',
+                            fontSize: '0.75rem',
                             border: '1px solid #bfdbfe',
                           }}
                         >
                           {loan.loanCode}
                         </span>
-                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
                           📅 {new Date(loan.disbursementDate).toLocaleDateString()}
                         </div>
                       </td>
 
                       {/* Employee Info */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <td style={{ padding: '6px 8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           {loan.employee.photoUrl ? (
                             <img
                               src={loan.employee.photoUrl}
                               alt=""
-                              style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
+                              style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }}
                             />
                           ) : (
                             <div
                               style={{
-                                width: '38px',
-                                height: '38px',
+                                width: '26px',
+                                height: '26px',
                                 borderRadius: '50%',
                                 background: '#e0e7ff',
                                 color: '#4338ca',
@@ -915,83 +869,65 @@ export default function LoansClient({
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontWeight: 700,
-                                fontSize: '0.85rem',
+                                fontSize: '0.72rem',
                               }}
                             >
                               {(loan.employee.firstNameEn?.[0] || 'E')}
                             </div>
                           )}
                           <div>
-                            <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem', lineHeight: 1.2 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem', lineHeight: 1.2 }}>
                               {empNameKh || empNameEn}
                             </div>
-                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{empNameEn}</div>
-                            <div style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: '#4f46e5' }}>
-                              ID: {loan.employee.employeeId}
+                            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                              <span style={{ fontFamily: 'monospace', color: '#4f46e5', fontWeight: 600 }}>{loan.employee.employeeId}</span> • {empNameEn}
                             </div>
                           </div>
                         </div>
                       </td>
 
                       {/* Dept / Position */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.85rem' }}>
+                      <td style={{ padding: '6px 8px' }}>
+                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.78rem' }}>
                           {loan.employee.department}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{loan.employee.position}</div>
-                        {loan.employee.phone && (
-                          <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>
-                            📞 {loan.employee.phone}
-                          </div>
-                        )}
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{loan.employee.position}</div>
                       </td>
 
                       {/* Principal Loan Amount */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 900, color: '#0f172a', fontSize: '1.05rem' }}>
+                      <td style={{ padding: '6px 8px' }}>
+                        <div style={{ fontWeight: 900, color: '#0f172a', fontSize: '0.9rem' }}>
                           ${loan.loanAmount.toFixed(2)}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                           ការប្រាក់: {loan.interestRate}%
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '0.7rem',
-                            color: '#94a3b8',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '140px',
-                          }}
-                        >
-                          {loan.purpose}
                         </div>
                       </td>
 
                       {/* Monthly & Term */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 800, color: '#4338ca', fontSize: '0.92rem' }}>
-                          ${loan.monthlyDeduction.toFixed(2)} / ខែ
+                      <td style={{ padding: '6px 8px' }}>
+                        <div style={{ fontWeight: 800, color: '#4338ca', fontSize: '0.82rem' }}>
+                          ${loan.monthlyDeduction.toFixed(2)}/ខែ
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          រយៈពេល: {loan.termMonths} ខែ ({loan.startDeductionMonth})
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                          {loan.termMonths} ខែ ({loan.startDeductionMonth})
                         </div>
                       </td>
 
                       {/* Repaid & Balance Progress */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      <td style={{ padding: '6px 8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '2px' }}>
                           <span style={{ color: '#16a34a', fontWeight: 700 }}>
                             សង: ${loan.totalRepaid.toFixed(2)}
                           </span>
                           <span style={{ color: '#d97706', fontWeight: 700 }}>
-                            នៅសល់: ${loan.remainingBalance.toFixed(2)}
+                            សល់: ${loan.remainingBalance.toFixed(2)}
                           </span>
                         </div>
                         <div
                           style={{
                             width: '100%',
-                            height: '6px',
+                            height: '5px',
                             background: '#e2e8f0',
                             borderRadius: '999px',
                             overflow: 'hidden',
@@ -1006,36 +942,32 @@ export default function LoansClient({
                             }}
                           />
                         </div>
-                        <div style={{ textAlign: 'right', fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
+                        <div style={{ textAlign: 'right', fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>
                           {progressPct}% រួចរាល់
                         </div>
                       </td>
 
                       {/* Status Badge */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '6px 8px', textAlign: 'center' }}>
                         <span
                           style={{
-                            display: 'inline-flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
+                            display: 'inline-block',
                             background: statusConf.bg,
                             color: statusConf.text,
-                            padding: '4px 10px',
-                            borderRadius: '8px',
+                            padding: '2px 8px',
+                            borderRadius: '5px',
                             fontWeight: 700,
-                            fontSize: '0.78rem',
-                            lineHeight: 1.2,
+                            fontSize: '0.72rem',
                             border: `1px solid ${statusConf.text}33`,
                           }}
                         >
-                          <span>{statusConf.labelKh}</span>
-                          <span style={{ fontSize: '0.65rem', opacity: 0.85 }}>{statusConf.labelEn}</span>
+                          {statusConf.labelKh}
                         </span>
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                      <td style={{ padding: '6px 8px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
                           {/* Schedule Button */}
                           <button
                             title="មើលកាលវិភាគបង់ប្រាក់ (Schedule)"
@@ -1047,10 +979,10 @@ export default function LoansClient({
                               background: '#eff6ff',
                               border: '1px solid #bfdbfe',
                               color: '#1d4ed8',
-                              padding: '6px 8px',
-                              borderRadius: '8px',
+                              padding: '2px 5px',
+                              borderRadius: '5px',
                               cursor: 'pointer',
-                              fontSize: '0.85rem',
+                              fontSize: '0.75rem',
                             }}
                           >
                             📅
@@ -1067,10 +999,10 @@ export default function LoansClient({
                               background: '#f0fdf4',
                               border: '1px solid #bbf7d0',
                               color: '#16a34a',
-                              padding: '6px 8px',
-                              borderRadius: '8px',
+                              padding: '2px 5px',
+                              borderRadius: '5px',
                               cursor: 'pointer',
-                              fontSize: '0.85rem',
+                              fontSize: '0.75rem',
                             }}
                           >
                             🖨️
@@ -1089,10 +1021,10 @@ export default function LoansClient({
                                 background: '#fdf4ff',
                                 border: '1px solid #f5d0fe',
                                 color: '#a21caf',
-                                padding: '6px 8px',
-                                borderRadius: '8px',
+                                padding: '2px 5px',
+                                borderRadius: '5px',
                                 cursor: 'pointer',
-                                fontSize: '0.85rem',
+                                fontSize: '0.75rem',
                               }}
                             >
                               💰
@@ -1108,10 +1040,10 @@ export default function LoansClient({
                                 background: '#fef2f2',
                                 border: '1px solid #fecaca',
                                 color: '#dc2626',
-                                padding: '6px 8px',
-                                borderRadius: '8px',
+                                padding: '2px 5px',
+                                borderRadius: '5px',
                                 cursor: 'pointer',
-                                fontSize: '0.85rem',
+                                fontSize: '0.75rem',
                               }}
                             >
                               🗑️

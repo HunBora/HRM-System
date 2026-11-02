@@ -18,33 +18,45 @@ export default async function AdvancePage() {
   const deductedCount = advances.filter(a => a.status === 'DEDUCTED').length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {/* 1. Header Banner */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
         flexWrap: 'wrap', 
-        gap: '16px',
+        gap: '8px',
         backgroundColor: '#ffffff',
-        padding: '18px 24px',
-        borderRadius: '14px',
+        padding: '6px 12px',
+        borderRadius: '10px',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '1.6rem' }}>💵</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            color: '#10b981',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '17px',
+          }}>
+            💵
+          </div>
           <div>
-            <h1 className="kh-text" style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-              ប្រាក់បុរេប្រទាន / បុរេប្រាក់ខែ (Advance Salary)
+            <h1 className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a', lineHeight: 1.2 }}>
+              ប្រាក់បុរេប្រទាន / បុរេប្រាក់ខែ
             </h1>
-            <p style={{ margin: '2px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-              គ្រប់គ្រងពាក្យស្នើសុំបើកប្រាក់បុរេប្រទានមុនកាលកំណត់របស់បុគ្គលិក
+            <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b', fontWeight: 500 }}>
+              Advance Salary Management
             </p>
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link 
             href="/dashboard/loans" 
             className="btn-secondary kh-text" 
@@ -52,25 +64,31 @@ export default async function AdvancePage() {
               textDecoration: 'none', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '6px',
-              padding: '9px 16px',
-              fontSize: '0.88rem'
+              gap: '4px',
+              padding: '4px 10px',
+              fontSize: '0.78rem',
+              height: '28px',
+              boxSizing: 'border-box',
+              borderRadius: '6px',
             }}
           >
             <span>💳</span>
-            <span>ប្រាក់កម្ចីបុគ្គលិក (Loans)</span>
+            <span>ប្រាក់កម្ចី (Loans)</span>
           </Link>
           <Link 
             href="/dashboard/advance/new" 
             className="btn-primary kh-text" 
             style={{ 
-              textDecoration: 'none',
+              textDecoration: 'none', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '6px',
-              padding: '9px 18px',
-              fontSize: '0.88rem',
-              fontWeight: 600
+              gap: '4px',
+              padding: '4px 10px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              height: '28px',
+              boxSizing: 'border-box',
+              borderRadius: '6px',
             }}
           >
             <span>➕</span>
@@ -80,113 +98,89 @@ export default async function AdvancePage() {
       </div>
 
       {/* 2. Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '8px' }}>
+        <div style={{ padding: '6px 12px', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
           <div>
-            <div className="kh-text" style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '4px' }}>សំណើសរុប (Total)</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>{totalCount} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748b' }}>ច្បាប់</span></div>
+            <div className="kh-text" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600 }}>សំណើសរុប (Total)</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>{totalCount} <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>ច្បាប់</span></div>
           </div>
-          <div style={{ fontSize: '1.3rem', width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📋</div>
+          <div style={{ fontSize: '14px', width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📋</div>
         </div>
 
-        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '6px 12px', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
           <div>
-            <div className="kh-text" style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '4px' }}>ទឹកប្រាក់សរុប (Total Value)</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626' }}>${totalAmount.toFixed(2)}</div>
+            <div className="kh-text" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600 }}>ទឹកប្រាក់សរុប (Total)</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#dc2626', lineHeight: 1.2 }}>${totalAmount.toFixed(2)}</div>
           </div>
-          <div style={{ fontSize: '1.3rem', width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💰</div>
+          <div style={{ fontSize: '14px', width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💰</div>
         </div>
 
-        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '6px 12px', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
           <div>
-            <div className="kh-text" style={{ color: '#d97706', fontSize: '0.85rem', marginBottom: '4px' }}>រង់ចាំអនុម័ត (Pending)</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#d97706' }}>{pendingCount}</div>
+            <div className="kh-text" style={{ color: '#d97706', fontSize: '0.75rem', fontWeight: 600 }}>រង់ចាំអនុម័ត (Pending)</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#d97706', lineHeight: 1.2 }}>{pendingCount}</div>
           </div>
-          <div style={{ fontSize: '1.3rem', width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>⏳</div>
+          <div style={{ fontSize: '14px', width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>⏳</div>
         </div>
 
-        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '6px 12px', borderRadius: '10px', background: '#ffffff', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
           <div>
-            <div className="kh-text" style={{ color: '#16a34a', fontSize: '0.85rem', marginBottom: '4px' }}>អនុម័ត / បានកាត់ (Approved/Deducted)</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#16a34a' }}>{approvedCount + deductedCount}</div>
+            <div className="kh-text" style={{ color: '#16a34a', fontSize: '0.75rem', fontWeight: 600 }}>អនុម័ត/បានកាត់</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#16a34a', lineHeight: 1.2 }}>{approvedCount + deductedCount}</div>
           </div>
-          <div style={{ fontSize: '1.3rem', width: '42px', height: '42px', borderRadius: '10px', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✅</div>
+          <div style={{ fontSize: '14px', width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✅</div>
         </div>
       </div>
 
       {/* 3. Table Container */}
       <div style={{ 
         backgroundColor: '#ffffff',
-        borderRadius: '12px', 
+        borderRadius: '10px', 
         border: '1px solid #e2e8f0',
         overflow: 'hidden',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        <div style={{ overflowX: 'auto', maxHeight: 'calc(100vh - 380px)', minHeight: advances.length === 0 ? '280px' : 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '950px' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '700px' }}>
             <thead>
-              <tr style={{ backgroundColor: '#f8fafc', position: 'sticky', top: 0, zIndex: 10 }}>
-                <th style={thStyle} className="kh-text">
-                  <div>អត្តលេខ (ID)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>员工编号</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>ឈ្មោះបុគ្គលិក (Name)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>员工姓名</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>ចំនួនទឹកប្រាក់ (Amount)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>申请金额</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>កាលបរិច្ឆេទ (Date)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>申请日期</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>ខែ/ឆ្នាំ កាត់ប្រាក់ (Month/Year)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>扣款月份</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>មូលហេតុ (Reason)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>申请原因</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>ស្ថានភាព (Status)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>审核状态</span>
-                </th>
-                <th style={{ ...thStyle, borderRight: 'none' }} className="kh-text">
-                  <div>សកម្មភាព (Actions)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>操作</span>
-                </th>
+              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 10 }}>
+                <th style={thStyle} className="kh-text">អត្តលេខ (ID)</th>
+                <th style={thStyle} className="kh-text">ឈ្មោះបុគ្គលិក</th>
+                <th style={thStyle} className="kh-text">ចំនួនទឹកប្រាក់</th>
+                <th style={thStyle} className="kh-text">កាលបរិច្ឆេទ</th>
+                <th style={thStyle} className="kh-text">ខែ/ឆ្នាំ កាត់ប្រាក់</th>
+                <th style={thStyle} className="kh-text">មូលហេតុ</th>
+                <th style={thStyle} className="kh-text">ស្ថានភាព</th>
+                <th style={{ ...thStyle, borderRight: 'none' }} className="kh-text">សកម្មភាព</th>
               </tr>
             </thead>
             <tbody>
               {advances.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '60px 20px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <td colSpan={8} style={{ padding: '28px 16px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                       <div style={{ 
-                        width: '54px', 
-                        height: '54px', 
+                        width: '36px', 
+                        height: '36px', 
                         borderRadius: '50%', 
                         backgroundColor: '#f1f5f9', 
                         display: 'flex', 
                         alignItems: 'center', 
                         justifyContent: 'center',
-                        fontSize: '1.6rem'
+                        fontSize: '1.2rem'
                       }}>
                         💵
                       </div>
-                      <div className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#334155' }}>
+                      <div className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 700, color: '#334155' }}>
                         មិនមានទិន្នន័យប្រាក់បុរេប្រទាននៅឡើយទេ
                       </div>
-                      <div className="kh-text" style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: '380px' }}>
-                        រាល់ពាក្យស្នើសុំប្រាក់បុរេប្រទានរបស់បុគ្គលិក នឹងបង្ហាញនៅត្រង់នេះដើម្បីត្រួតពិនិត្យ និងអនុម័ត។
+                      <div className="kh-text" style={{ fontSize: '0.75rem', color: '#94a3b8', maxWidth: '340px' }}>
+                        រាល់ពាក្យស្នើសុំប្រាក់បុរេប្រទានរបស់បុគ្គលិក នឹងបង្ហាញនៅត្រង់នេះ
                       </div>
                       <Link 
                         href="/dashboard/advance/new" 
                         className="btn-secondary kh-text" 
-                        style={{ marginTop: '8px', padding: '6px 16px', fontSize: '0.85rem', textDecoration: 'none' }}
+                        style={{ marginTop: '4px', padding: '4px 12px', fontSize: '0.76rem', textDecoration: 'none', borderRadius: '5px' }}
                       >
                         ➕ ស្នើសុំប្រាក់បុរេប្រទានថ្មី
                       </Link>
@@ -208,23 +202,23 @@ export default async function AdvancePage() {
                     </td>
                     <td style={tdStyle}>
                       <div className="kh-text" style={{ fontWeight: 600, color: '#0f172a' }}>{adv.employee.firstNameKh} {adv.employee.lastNameKh}</div>
-                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{adv.employee.firstNameEn} {adv.employee.lastNameEn}</div>
+                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{adv.employee.firstNameEn} {adv.employee.lastNameEn}</div>
                     </td>
-                    <td style={{ ...tdStyle, fontWeight: 700, color: '#dc2626', fontSize: '0.95rem' }}>
+                    <td style={{ ...tdStyle, fontWeight: 700, color: '#dc2626', fontSize: '0.88rem' }}>
                       ${adv.amount.toFixed(2)}
                     </td>
                     <td style={tdStyle}>{new Date(adv.requestDate).toLocaleDateString('en-GB')}</td>
                     <td style={tdStyle}>
-                      <span style={{ backgroundColor: '#f1f5f9', padding: '2px 8px', borderRadius: '4px', fontWeight: 500 }}>
+                      <span style={{ backgroundColor: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontWeight: 500 }}>
                         {adv.month.toString().padStart(2, '0')}/{adv.year}
                       </span>
                     </td>
                     <td style={tdStyle} className="kh-text">{adv.reason || '-'}</td>
                     <td style={tdStyle}>
                       <span style={{ 
-                        padding: '3px 10px', 
+                        padding: '2px 8px', 
                         borderRadius: '20px', 
-                        fontSize: '0.78rem',
+                        fontSize: '0.75rem',
                         fontWeight: 700,
                         backgroundColor: adv.status === 'APPROVED' ? '#dcfce7' : adv.status === 'REJECTED' ? '#fee2e2' : adv.status === 'DEDUCTED' ? '#e0e7ff' : '#fef3c7',
                         color: adv.status === 'APPROVED' ? '#166534' : adv.status === 'REJECTED' ? '#991b1b' : adv.status === 'DEDUCTED' ? '#3730a3' : '#92400e',
@@ -248,20 +242,20 @@ export default async function AdvancePage() {
 }
 
 const thStyle: React.CSSProperties = {
-  padding: '10px 14px',
+  padding: '6px 10px',
   borderBottom: '1px solid #e2e8f0',
   borderRight: '1px solid #f1f5f9',
-  color: '#334155',
-  fontWeight: 600,
-  fontSize: '0.84rem',
+  color: '#475569',
+  fontWeight: 700,
+  fontSize: '0.78rem',
   whiteSpace: 'nowrap',
-  lineHeight: 1.3
+  lineHeight: 1.2
 };
 
 const tdStyle: React.CSSProperties = {
-  padding: '10px 14px',
+  padding: '6px 10px',
   borderBottom: '1px solid #f1f5f9',
   borderRight: '1px solid #f8fafc',
   verticalAlign: 'middle',
-  fontSize: '0.86rem'
+  fontSize: '0.8rem'
 };

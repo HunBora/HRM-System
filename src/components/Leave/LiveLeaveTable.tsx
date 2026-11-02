@@ -90,35 +90,45 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {/* 1. Header Banner */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
         flexWrap: 'wrap', 
-        gap: '16px',
+        gap: '8px',
         backgroundColor: '#ffffff',
-        padding: '18px 24px',
-        borderRadius: '14px',
+        padding: '6px 12px',
+        borderRadius: '10px',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '1.6rem' }}>🌴</span>
-            <div>
-              <h1 className="kh-text" style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                គ្រប់គ្រងការសុំច្បាប់ (Leave Management)
-              </h1>
-              <p style={{ margin: '2px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-                តាមដាន និងអនុម័តពាក្យស្នើសុំច្បាប់ឈប់សម្រាករបស់បុគ្គលិកទាំងអស់
-              </p>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            color: '#0284c7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '17px',
+          }}>
+            🌴
+          </div>
+          <div>
+            <h1 className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a', lineHeight: 1.2 }}>
+              គ្រប់គ្រងការសុំច្បាប់
+            </h1>
+            <p style={{ margin: 0, fontSize: '0.7rem', color: '#64748b', fontWeight: 500 }}>
+              Leave Management
+            </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button
             type="button"
             onClick={() => handleOpenPrintModal()}
@@ -126,20 +136,21 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
               backgroundColor: '#0284c7',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
-              fontWeight: 600,
-              fontSize: '0.9rem',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              height: '28px',
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
-              boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)',
+              gap: '4px',
+              boxShadow: '0 1px 3px rgba(2, 132, 199, 0.2)',
             }}
             title="មើល ឬបោះពុម្ពទម្រង់លិខិតសុំច្បាប់ផ្លូវការ (អនុលោមតាមច្បាប់ការងារ)"
           >
             <span>📄</span>
-            <span className="kh-text">ទម្រង់លិខិតសុំច្បាប់ផ្លូវការ (Official Form)</span>
+            <span className="kh-text">ទម្រង់ច្បាប់ (Form)</span>
           </button>
 
           <Link 
@@ -149,15 +160,17 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
               textDecoration: 'none', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontWeight: 600,
-              fontSize: '0.9rem'
+              gap: '4px',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              height: '28px',
+              boxSizing: 'border-box'
             }}
           >
             <span>➕</span>
-            <span>{t?.leave?.newBtn || '+ បញ្ចូលច្បាប់'}</span>
+            <span>សុំច្បាប់</span>
           </Link>
         </div>
       </div>
@@ -165,42 +178,42 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
       {/* 2. Standard Metric Cards */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-        gap: '14px' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', 
+        gap: '8px' 
       }}>
         {/* Total Card */}
         <div 
           onClick={() => setStatusFilter('ALL')}
           style={{ 
             cursor: 'pointer',
-            padding: '16px 20px', 
-            borderRadius: '12px', 
+            padding: '6px 12px', 
+            borderRadius: '10px', 
             background: statusFilter === 'ALL' ? '#eff6ff' : '#ffffff', 
             border: `1.5px solid ${statusFilter === 'ALL' ? '#3b82f6' : '#e2e8f0'}`,
-            boxShadow: statusFilter === 'ALL' ? '0 4px 12px rgba(59, 130, 246, 0.12)' : '0 1px 2px rgba(0,0,0,0.04)',
-            transition: 'all 0.2s ease',
+            boxShadow: statusFilter === 'ALL' ? '0 2px 6px rgba(59, 130, 246, 0.12)' : '0 1px 2px rgba(0,0,0,0.02)',
+            transition: 'all 0.15s ease',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}
         >
           <div>
-            <div className="kh-text" style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 500, marginBottom: '4px' }}>
-              សរុបទាំងអស់ (Total)
+            <div className="kh-text" style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600 }}>
+              សរុប (Total)
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
               {totalRequests}
             </div>
           </div>
           <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
+            width: '28px', 
+            height: '28px', 
+            borderRadius: '6px', 
             backgroundColor: '#f1f5f9', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            fontSize: '1.25rem'
+            fontSize: '14px'
           }}>
             📋
           </div>
@@ -211,34 +224,34 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
           onClick={() => setStatusFilter('PENDING')}
           style={{ 
             cursor: 'pointer',
-            padding: '16px 20px', 
-            borderRadius: '12px', 
+            padding: '6px 12px', 
+            borderRadius: '10px', 
             background: statusFilter === 'PENDING' ? '#fffbeb' : '#ffffff', 
             border: `1.5px solid ${statusFilter === 'PENDING' ? '#f59e0b' : '#e2e8f0'}`,
-            boxShadow: statusFilter === 'PENDING' ? '0 4px 12px rgba(245, 158, 11, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
-            transition: 'all 0.2s ease',
+            boxShadow: statusFilter === 'PENDING' ? '0 2px 6px rgba(245, 158, 11, 0.15)' : '0 1px 2px rgba(0,0,0,0.02)',
+            transition: 'all 0.15s ease',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}
         >
           <div>
-            <div className="kh-text" style={{ color: '#854d0e', fontSize: '0.85rem', fontWeight: 500, marginBottom: '4px' }}>
-              រង់ចាំអនុម័ត (Pending)
+            <div className="kh-text" style={{ color: '#854d0e', fontSize: '0.75rem', fontWeight: 600 }}>
+              រង់ចាំ (Pending)
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#d97706' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#d97706', lineHeight: 1.2 }}>
               {pendingCount}
             </div>
           </div>
           <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
+            width: '28px', 
+            height: '28px', 
+            borderRadius: '6px', 
             backgroundColor: '#fef3c7', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            fontSize: '1.25rem'
+            fontSize: '14px'
           }}>
             ⏳
           </div>
@@ -249,34 +262,34 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
           onClick={() => setStatusFilter('APPROVED')}
           style={{ 
             cursor: 'pointer',
-            padding: '16px 20px', 
-            borderRadius: '12px', 
+            padding: '6px 12px', 
+            borderRadius: '10px', 
             background: statusFilter === 'APPROVED' ? '#f0fdf4' : '#ffffff', 
             border: `1.5px solid ${statusFilter === 'APPROVED' ? '#10b981' : '#e2e8f0'}`,
-            boxShadow: statusFilter === 'APPROVED' ? '0 4px 12px rgba(16, 185, 129, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
-            transition: 'all 0.2s ease',
+            boxShadow: statusFilter === 'APPROVED' ? '0 2px 6px rgba(16, 185, 129, 0.15)' : '0 1px 2px rgba(0,0,0,0.02)',
+            transition: 'all 0.15s ease',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}
         >
           <div>
-            <div className="kh-text" style={{ color: '#166534', fontSize: '0.85rem', fontWeight: 500, marginBottom: '4px' }}>
-              អនុម័តរួច (Approved)
+            <div className="kh-text" style={{ color: '#166534', fontSize: '0.75rem', fontWeight: 600 }}>
+              អនុម័ត (Approved)
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#16a34a' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#16a34a', lineHeight: 1.2 }}>
               {approvedCount}
             </div>
           </div>
           <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
+            width: '28px', 
+            height: '28px', 
+            borderRadius: '6px', 
             backgroundColor: '#dcfce7', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            fontSize: '1.25rem'
+            fontSize: '14px'
           }}>
             ✅
           </div>
@@ -287,34 +300,34 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
           onClick={() => setStatusFilter('REJECTED')}
           style={{ 
             cursor: 'pointer',
-            padding: '16px 20px', 
-            borderRadius: '12px', 
+            padding: '6px 12px', 
+            borderRadius: '10px', 
             background: statusFilter === 'REJECTED' ? '#fef2f2' : '#ffffff', 
             border: `1.5px solid ${statusFilter === 'REJECTED' ? '#ef4444' : '#e2e8f0'}`,
-            boxShadow: statusFilter === 'REJECTED' ? '0 4px 12px rgba(239, 68, 68, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
-            transition: 'all 0.2s ease',
+            boxShadow: statusFilter === 'REJECTED' ? '0 2px 6px rgba(239, 68, 68, 0.15)' : '0 1px 2px rgba(0,0,0,0.02)',
+            transition: 'all 0.15s ease',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}
         >
           <div>
-            <div className="kh-text" style={{ color: '#991b1b', fontSize: '0.85rem', fontWeight: 500, marginBottom: '4px' }}>
+            <div className="kh-text" style={{ color: '#991b1b', fontSize: '0.75rem', fontWeight: 600 }}>
               បដិសេធ (Rejected)
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#dc2626' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#dc2626', lineHeight: 1.2 }}>
               {rejectedCount}
             </div>
           </div>
           <div style={{ 
-            width: '42px', 
-            height: '42px', 
-            borderRadius: '10px', 
+            width: '28px', 
+            height: '28px', 
+            borderRadius: '6px', 
             backgroundColor: '#fee2e2', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            fontSize: '1.25rem'
+            fontSize: '14px'
           }}>
             ❌
           </div>
@@ -326,18 +339,18 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '12px',
+        gap: '8px',
         flexWrap: 'wrap',
         backgroundColor: '#ffffff',
-        padding: '12px 18px',
-        borderRadius: '12px',
+        padding: '6px 10px',
+        borderRadius: '8px',
         border: '1px solid #e2e8f0',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '260px' }}>
-          <span style={{ color: '#94a3b8', fontSize: '1rem' }}>🔍</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, minWidth: '180px', maxWidth: '320px' }}>
+          <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>🔍</span>
           <input 
             type="text"
-            placeholder="ស្វែងរកតាមឈ្មោះ ឬអត្តលេខបុគ្គលិក (Search by name or ID)..."
+            placeholder="ស្វែងរកតាមឈ្មោះ, ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="kh-text"
@@ -345,46 +358,48 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
               width: '100%',
               border: 'none',
               outline: 'none',
-              fontSize: '0.9rem',
+              fontSize: '0.78rem',
               backgroundColor: 'transparent',
-              color: '#0f172a'
+              color: '#0f172a',
+              height: '24px'
             }}
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.85rem' }}
+              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.75rem', padding: '0 4px' }}
             >
               ✕
             </button>
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             className="kh-text"
             style={{
-              padding: '6px 12px',
-              borderRadius: '8px',
+              padding: '2px 8px',
+              borderRadius: '5px',
               border: '1px solid #cbd5e1',
               backgroundColor: '#f8fafc',
-              fontSize: '0.85rem',
+              fontSize: '0.78rem',
               color: '#334155',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              height: '26px'
             }}
           >
-            <option value="ALL">ប្រភេទច្បាប់ទាំងអស់ (All Types)</option>
-            <option value="ANNUAL">ច្បាប់ប្រចាំឆ្នាំ (Annual)</option>
+            <option value="ALL">គ្រប់ប្រភេទ (All)</option>
+            <option value="ANNUAL">ប្រចាំឆ្នាំ (Annual)</option>
             <option value="SICK">ច្បាប់ឈឺ (Sick)</option>
-            <option value="MATERNITY">ច្បាប់លំហែមាតុភាព (Maternity)</option>
-            <option value="UNPAID">សម្រាកគ្មានប្រាក់ខែ (Unpaid)</option>
+            <option value="MATERNITY">មាតុភាព (Maternity)</option>
+            <option value="UNPAID">គ្មានប្រាក់ខែ (Unpaid)</option>
             <option value="OTHER">ផ្សេងៗ (Other)</option>
           </select>
 
-          <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 500 }} className="kh-text">
-            សរុប {filteredRequests.length} កំណត់ត្រា
+          <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }} className="kh-text">
+            សរុប {filteredRequests.length}
           </span>
         </div>
       </div>
@@ -392,72 +407,51 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
       {/* 4. Standard Fit-Content Table */}
       <div style={{ 
         backgroundColor: '#ffffff',
-        borderRadius: '12px', 
+        borderRadius: '10px', 
         border: '1px solid #e2e8f0',
         overflow: 'hidden',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        <div style={{ overflowX: 'auto', maxHeight: 'calc(100vh - 380px)', minHeight: filteredRequests.length === 0 ? '280px' : 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '950px' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
             <thead>
-              <tr style={{ backgroundColor: '#f8fafc', position: 'sticky', top: 0, zIndex: 10 }}>
-                <th style={thStyle} className="kh-text">
-                  <div>បុគ្គលិក (Employee)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>员工信息</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>ប្រភេទច្បាប់ (Type)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>请假类型</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>កាលបរិច្ឆេទ (Date)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>起止日期</span>
-                </th>
-                <th style={{ ...thStyle, textAlign: 'center' }} className="kh-text">
-                  <div>ចំនួនថ្ងៃ (Days)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>请假天数</span>
-                </th>
-                <th style={thStyle} className="kh-text">
-                  <div>ច្បាប់នៅសល់ (Balance)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>剩余年假</span>
-                </th>
-                <th style={{ ...thStyle, textAlign: 'center' }} className="kh-text">
-                  <div>ស្ថានភាព (Status)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>审核状态</span>
-                </th>
-                <th style={{ ...thStyle, textAlign: 'center' }} className="kh-text">
-                  <div>សកម្មភាព (Actions)</div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>操作</span>
-                </th>
+              <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 10 }}>
+                <th style={thStyle} className="kh-text">បុគ្គលិក (Employee)</th>
+                <th style={thStyle} className="kh-text">ប្រភេទច្បាប់</th>
+                <th style={thStyle} className="kh-text">កាលបរិច្ឆេទ</th>
+                <th style={{ ...thStyle, textAlign: 'center' }} className="kh-text">ចំនួនថ្ងៃ</th>
+                <th style={thStyle} className="kh-text">ច្បាប់នៅសល់</th>
+                <th style={{ ...thStyle, textAlign: 'center' }} className="kh-text">ស្ថានភាព</th>
+                <th style={{ ...thStyle, textAlign: 'center' }} className="kh-text">សកម្មភាព</th>
               </tr>
             </thead>
             <tbody>
               {filteredRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ padding: '60px 20px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <td colSpan={7} style={{ padding: '28px 16px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                       <div style={{ 
-                        width: '54px', 
-                        height: '54px', 
+                        width: '36px', 
+                        height: '36px', 
                         borderRadius: '50%', 
                         backgroundColor: '#f1f5f9', 
                         display: 'flex', 
                         alignItems: 'center', 
                         justifyContent: 'center',
-                        fontSize: '1.6rem'
+                        fontSize: '1.2rem'
                       }}>
                         🍃
                       </div>
-                      <div className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 600, color: '#334155' }}>
+                      <div className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 700, color: '#334155' }}>
                         មិនមានទិន្នន័យច្បាប់ឈប់សម្រាកនៅឡើយទេ
                       </div>
-                      <div className="kh-text" style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: '380px' }}>
-                        ពាក្យស្នើសុំច្បាប់របស់បុគ្គលិកនឹងបង្ហាញនៅត្រង់នេះ។ បងអាចចុចប៊ូតុងខាងក្រោមដើម្បីបង្កើតច្បាប់ថ្មី។
+                      <div className="kh-text" style={{ fontSize: '0.75rem', color: '#94a3b8', maxWidth: '340px' }}>
+                        ពាក្យស្នើសុំច្បាប់របស់បុគ្គលិកនឹងបង្ហាញនៅត្រង់នេះ
                       </div>
                       <Link 
                         href="/dashboard/leave/new" 
                         className="btn-secondary kh-text" 
-                        style={{ marginTop: '8px', padding: '6px 16px', fontSize: '0.85rem', textDecoration: 'none' }}
+                        style={{ marginTop: '4px', padding: '4px 12px', fontSize: '0.76rem', textDecoration: 'none', borderRadius: '5px' }}
                       >
                         ➕ បញ្ចូលពាក្យសុំច្បាប់ថ្មី
                       </Link>
@@ -600,20 +594,20 @@ export default function LiveLeaveTable({ leaveRequests, dictionary: t, companySe
 }
 
 const thStyle: React.CSSProperties = {
-  padding: '10px 14px',
+  padding: '6px 10px',
   borderBottom: '1px solid #e2e8f0',
   borderRight: '1px solid #f1f5f9',
-  color: '#334155',
-  fontWeight: 600,
-  fontSize: '0.84rem',
+  color: '#475569',
+  fontWeight: 700,
+  fontSize: '0.78rem',
   whiteSpace: 'nowrap',
-  lineHeight: 1.3
+  lineHeight: 1.2
 };
 
 const tdStyle: React.CSSProperties = {
-  padding: '10px 14px',
+  padding: '6px 10px',
   borderBottom: '1px solid #f1f5f9',
   borderRight: '1px solid #f8fafc',
   verticalAlign: 'middle',
-  fontSize: '0.86rem'
+  fontSize: '0.8rem'
 };

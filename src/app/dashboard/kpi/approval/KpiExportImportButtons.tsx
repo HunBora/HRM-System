@@ -52,11 +52,11 @@ export default function KpiExportImportButtons() {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
         <button 
           onClick={handleExport} 
           className="btn kh-text" 
-          style={{ background: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px', border: 'none', cursor: 'pointer' }}
+          style={{ background: '#2563eb', color: 'white', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '5px', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}
         >
           📊 Export Excel
         </button>
@@ -64,9 +64,9 @@ export default function KpiExportImportButtons() {
         <button 
           onClick={() => setIsOpen(true)} 
           className="btn kh-text" 
-          style={{ background: '#10b981', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px', border: 'none', cursor: 'pointer' }}
+          style={{ background: '#10b981', color: 'white', padding: '6px 12px', borderRadius: '6px', fontWeight: 600, fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '5px', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}
         >
-          📥 Import Excel (Original Format)
+          📥 Import Excel
         </button>
       </div>
 

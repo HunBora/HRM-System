@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { getDictionary } from '@/i18n/getDictionary';
 import styles from './layout.module.css';
+import KpiTabNav from './KpiTabNav';
 
 export default async function KpiLayout({ children }: { children: React.ReactNode }) {
   const t = await getDictionary();
@@ -17,13 +17,7 @@ export default async function KpiLayout({ children }: { children: React.ReactNod
 
   return (
     <div className={styles.container}>
-      <nav className={styles.tabNav}>
-        {tabs.map((tab, index) => (
-          <Link key={index} href={tab.path} className={`${styles.tabItem} kh-text`}>
-            {tab.name}
-          </Link>
-        ))}
-      </nav>
+      <KpiTabNav tabs={tabs} />
       <div className={styles.content}>
         {children}
       </div>

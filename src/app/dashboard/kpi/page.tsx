@@ -57,32 +57,21 @@ export default async function KpiPage() {
 
   return (
     <div className={styles.dashboardContainer}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '15px' }}>
+      {/* Header Actions */}
+      <div className={styles.pageHeader}>
         <div>
-          <h1 className={`${styles.headerTitle} kh-text`} style={{ margin: 0 }}>{t.kpi.title}</h1>
-          <p style={{ color: 'var(--text-muted)', margin: '5px 0 0 0' }} className="kh-text">
+          <h1 className={`${styles.headerTitle} kh-text`}>{t.kpi.title}</h1>
+          <p className={`${styles.headerSubtitle} kh-text`}>
             {t.kpi.dashboard?.overview || "Dashboard Overview"}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className={styles.headerActions}>
           <a
             href="/dashboard/performance"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: '#eff6ff',
-              color: '#2563eb',
-              border: '1px solid #bfdbfe',
-              borderRadius: '6px',
-              padding: '8px 14px',
-              fontWeight: 700,
-              fontSize: '0.86rem',
-              textDecoration: 'none',
-            }}
+            className={styles.appraisalBtn}
           >
             <span>🎯</span>
-            <span>ការវាយតម្លៃបុគ្គលិក (Appraisal 360)</span>
+            <span className="kh-text">ការវាយតម្លៃបុគ្គលិក (Appraisal 360)</span>
           </a>
           <KpiExportImportButtons />
         </div>
@@ -115,9 +104,10 @@ export default async function KpiPage() {
 
       {/* SMART Framework Section */}
       <div className={styles.smartSection}>
-        <h2 className={`${styles.sectionTitle} kh-text`} style={{ marginBottom: '0.5rem' }}>
-          <span>🧠</span> {t.kpi.smart?.title || "S.M.A.R.T Principles"}
-        </h2>
+        <div className={styles.smartSectionTitle}>
+          <span>🧠</span>
+          <span className="kh-text">{t.kpi.smart?.title || "S.M.A.R.T Principles"}</span>
+        </div>
         <div className={styles.smartGrid}>
           {['S', 'M', 'A', 'R', 'T'].map((letter) => {
             const smartKey = letter.toLowerCase() as 's' | 'm' | 'a' | 'r' | 't';
@@ -125,9 +115,9 @@ export default async function KpiPage() {
             return (
               <div key={letter} className={styles.smartCard} data-type={letter}>
                 <div className={styles.smartLetter}>{letter}</div>
-                <div>
+                <div className={styles.smartCardContent}>
                   <div className={styles.smartTitle}>{data?.title || letter}</div>
-                  <div className={`${styles.smartDesc} kh-text`}>{data?.desc}</div>
+                  <div className={`${styles.smartDesc} kh-text`} title={data?.desc}>{data?.desc}</div>
                 </div>
               </div>
             );
@@ -142,54 +132,66 @@ export default async function KpiPage() {
         </h2>
         
         <div className={styles.deptGrid}>
-          {departments.map((dept, index) => (
-            <div key={index} className={styles.deptCard}>
-              <div className={styles.deptCardHeader}>
-                <div className={styles.deptName}>
-                  <span>{dept.icon}</span> {dept.name}
+          {departments.map((dept, index) => {
+            const isTop = dept.score >= 90;
+            const isMid = dept.score >= 80;
+            const scoreColor = isTop ? '#059669' : isMid ? '#d97706' : '#dc2626';
+            const scoreBg = isTop ? 'rgba(16, 185, 129, 0.12)' : isMid ? 'rgba(245, 158, 11, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+            const scoreBorder = isTop ? 'rgba(16, 185, 129, 0.3)' : isMid ? 'rgba(245, 158, 11, 0.3)' : 'rgba(239, 68, 68, 0.3)';
+
+            return (
+              <div key={index} className={styles.deptCard}>
+                <div className={styles.deptCardHeader}>
+                  <div className={styles.deptName}>
+                    <span>{dept.icon}</span> <span>{dept.name}</span>
+                  </div>
+                  <div 
+                    className={styles.deptScore} 
+                    style={{ color: scoreColor, backgroundColor: scoreBg, border: `1px solid ${scoreBorder}` }}
+                  >
+                    {dept.score}%
+                  </div>
                 </div>
-                <div className={styles.deptScore} style={{ color: dept.score >= 90 ? '#10b981' : dept.score >= 80 ? '#f59e0b' : '#ef4444' }}>
-                  {dept.score}%
-                </div>
-              </div>
-              
-              <div className={styles.deptCardBody}>
-                <div className={styles.kpiList}>
-                  {dept.kpis.map((kpi, kpiIndex) => (
-                    <div key={kpiIndex} className={styles.kpiItem}>
-                      <div className={styles.kpiHeader}>
-                        <span className={`${styles.kpiName} kh-text`}>{kpi.name}</span>
-                        <span className={styles.kpiTarget}>{kpi.target}</span>
+                
+                <div className={styles.deptCardBody}>
+                  <div className={styles.kpiList}>
+                    {dept.kpis.map((kpi, kpiIndex) => (
+                      <div key={kpiIndex} className={styles.kpiItem}>
+                        <div className={styles.kpiHeader}>
+                          <span className={`${styles.kpiName} kh-text`}>{kpi.name}</span>
+                          <span className={styles.kpiTarget}>{kpi.target}</span>
+                        </div>
+                        <div className={styles.progressBar}>
+                          <div 
+                            className={styles.progressFill} 
+                            style={{ width: `${kpi.current}%`, backgroundColor: kpi.color }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className={styles.progressBar}>
-                        <div 
-                          className={styles.progressFill} 
-                          style={{ width: `${kpi.current}%`, backgroundColor: kpi.color }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+                
+                <button className={`${styles.viewDetailsBtn} kh-text`}>
+                  <span>{t.kpi.dashboard?.viewDetails || "View Details"}</span>
+                  <span>&rarr;</span>
+                </button>
               </div>
-              
-              <button className={`${styles.viewDetailsBtn} kh-text`}>
-                {t.kpi.dashboard?.viewDetails || "View Details"} &rarr;
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Evidence Section */}
       <div className={styles.evidenceSection}>
-        <h2 className={`${styles.sectionTitle} kh-text`} style={{ marginBottom: '1rem' }}>
+        <h2 className={`${styles.sectionTitle} kh-text`} style={{ marginBottom: '0.4rem' }}>
           <span>📑</span> {t.kpi.evidenceTitle}
         </h2>
         <div className={styles.evidenceGrid}>
           {evidences.map((evidence, index) => (
-            <div key={index} className={styles.evidenceItem}>
-              <span style={{ color: '#8b5cf6' }}>✓</span>
-              <span className="kh-text">{evidence}</span>
+            <div key={index} className={styles.evidenceItem} title={evidence}>
+              <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>✓</span>
+              <span className="kh-text" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{evidence}</span>
             </div>
           ))}
         </div>

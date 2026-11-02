@@ -943,7 +943,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               fontWeight: 700,
               boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
               transition: 'all 0.15s ease',
-              height: '48px',
+              height: '36px',
+              cursor: 'pointer',
               whiteSpace: 'nowrap',
             }}
             title="ការកំណត់ក្រុមផ្នែក"

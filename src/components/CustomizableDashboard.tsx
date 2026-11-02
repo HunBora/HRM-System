@@ -450,12 +450,24 @@ export default function CustomizableDashboard({
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
       <style jsx>{`
         .hover-elevate {
-          transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+          transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease, border-color 0.15s ease;
+          cursor: pointer;
         }
         .hover-elevate:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
           border-color: #cbd5e1 !important;
+        }
+        .hover-elevate:active {
+          transform: translateY(0px) scale(0.98);
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+        }
+        button, a {
+          user-select: none;
+          -webkit-user-select: none;
+        }
+        .no-drag {
+          cursor: pointer !important;
         }
       `}</style>
 
@@ -975,6 +987,7 @@ export default function CustomizableDashboard({
           isDraggable={true}
           isResizable={true}
           draggableHandle=".card-drag-handle"
+          draggableCancel="button, a, input, select, .no-drag"
         >
           {/* 2. DAILY ATTENDANCE STATISTIC CHART (MODERN 2-IN-1: TREND WAVE & DAILY BARS) */}
           {(() => {

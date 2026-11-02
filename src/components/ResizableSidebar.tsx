@@ -890,6 +890,17 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           descZh: '公司电脑设备、手机办公用品领用归还与资产盘点',
           roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
         },
+        {
+          href: '/dashboard/ehs',
+          icon: '🏥',
+          labelKh: 'សុខភាព & សុវត្ថិភាពការងារ',
+          labelEn: 'EHS & Factory Clinic',
+          labelZh: '职业健康与工厂医务室',
+          desc: 'គ្លីនិករោងចក្រ បើកថ្នាំ គ្រោះថ្នាក់ការងារ សំណងប.ស.ស និងពិនិត្យសុខភាព (BFC/MoLVT)',
+          descEn: 'Factory clinic, medical visits, medicine dispensing, accident logs, and NSSF claims',
+          descZh: '厂区医务室诊疗、发药记录、工伤事故申报与年度体检管理',
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+        },
       ],
     },
     {

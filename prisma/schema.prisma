@@ -106,6 +106,9 @@ model Employee {
   contracts        Contract[]
   delegations      DelegationOfAuthority[]
   appointments     AppointmentLetter[]
+  clinicVisits     ClinicVisit[]
+  workplaceIncidents WorkplaceIncident[]
+  healthCheckups   AnnualHealthCheckup[]
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -928,4 +931,91 @@ model AppointmentLetter {
   
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+}
+
+
+// ==========================================
+// EHS & FACTORY CLINIC MODELS (សុខភាព & សុវត្ថិភាពការងារ)
+// ==========================================
+
+// 1. Clinic Visit & Medicine Dispense Log (កំណត់ត្រាគ្លីនិករោងចក្រ និងបើកថ្នាំ)
+model ClinicVisit {
+  id                  String    @id @default(uuid())
+  visitNumber         String    @unique // e.g. "CLN-2026-0001"
+  
+  employeeId          String
+  employee            Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  visitDate           DateTime  @default(now())
+  symptoms            String    // អាការៈជំងឺ (e.g. ឈឺក្បាល, គ្រុនក្តៅ, វិលមុខ, ឈឺពោះ)
+  temperature         Float?    // សីតុណ្ហភាព (°C)
+  bloodPressure       String?   // សម្ពាធឈាម (e.g. "120/80")
+  diagnosis           String?   // រោគវិនិច្ឆ័យ
+  treatment           String?   // ការព្យាបាល / សង្គ្រោះបឋម
+  medicineDispensed   String?   // ថ្នាំពេទ្យដែលបានបើកជូន (e.g. "Paracetamol 500mg (4 គ្រាប់)")
+  restMinutes         Int       @default(0) // រយៈពេលសម្រាកលើគ្រែពេទ្យ (នាទី)
+  sendHome            Boolean   @default(false) // អនុញ្ញាតឱ្យត្រឡប់ទៅផ្ទះសម្រាក (ចេញច្បាប់ឈឺ)
+  referredHospital    Boolean   @default(false) // បញ្ជូនទៅមន្ទីរពេទ្យក្រៅ
+  hospitalName        String?   // ឈ្មោះមន្ទីរពេទ្យបញ្ជូនទៅ
+  attendantName       String?   // ឈ្មោះគិលានុបដ្ឋាយិកា ឬគ្រូពេទ្យប្រចាំការ
+  notes               String?   @db.Text
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+// 2. Workplace Incident & Accident Log (កំណត់ត្រាគ្រោះថ្នាក់ការងារ & សំណង ប.ស.ស)
+model WorkplaceIncident {
+  id                  String    @id @default(uuid())
+  incidentNumber      String    @unique // e.g. "INC-2026-0001"
+  
+  employeeId          String
+  employee            Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  incidentDate        DateTime
+  incidentTime        String?   // e.g. "09:30 AM"
+  location            String    // ទីតាំងកើតហេតុ (e.g. "អគារ A - Line 3", "ឃ្លាំងស្តុក")
+  severity            String    @default("MINOR") // MINOR (ស្រាល), MODERATE (មធ្យម), SEVERE (ធ្ងន់ធ្ងរ), FATAL (គ្រោះថ្នាក់ដល់ជីវិត)
+  injuryType          String    // ប្រភេទរបួស (e.g. "ដាច់រយះ", "មុតម្ជុល", "បាក់ឆ្អឹង", "រលាក")
+  bodyPart            String?   // ផ្នែករាងកាយ (e.g. "ម្រាមដៃ", "ខ្នង", "ភ្នែក")
+  description         String    @db.Text // ការពិពណ៌នាហេតុការណ៍លម្អិត
+  rootCause           String?   @db.Text // មូលហេតុដើម (e.g. មិនពាក់ PPE, ម៉ាស៊ីនខ្វះរបាំងការពារ)
+  correctiveAction    String?   @db.Text // វិធានការកែលម្អ និងទប់ស្កាត់
+  daysLost            Int       @default(0) // ចំនួនថ្ងៃបាត់បង់ការងារ (Lost Workdays)
+  
+  // NSSF Compensation Claims (សំណងគ្រោះថ្នាក់ការងារ ប.ស.ស)
+  nssfClaimed         Boolean   @default(false)
+  nssfCaseNo          String?   // លេខសំណុំរឿង ប.ស.ស
+  nssfStatus          String    @default("NOT_FILED") // NOT_FILED, PENDING, APPROVED, REJECTED, PAID
+  nssfCompensationKhr Float     @default(0) // ទឹកប្រាក់សំណង ប.ស.ស (៛)
+  
+  status              String    @default("OPEN") // OPEN, INVESTIGATING, RESOLVED, CLOSED
+  reportedBy          String?   // អ្នករាយការណ៍
+  investigatedBy      String?   // អ្នកស៊ើបអង្កេត
+  notes               String?   @db.Text
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+// 3. Annual Occupational Health Checkup (ការពិនិត្យសុខភាពប្រចាំឆ្នាំ - BFC / MoLVT)
+model AnnualHealthCheckup {
+  id                  String    @id @default(uuid())
+  
+  employeeId          String
+  employee            Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  checkupYear         Int       // ឆ្នាំពិនិត្យ (e.g. 2026)
+  checkupDate         DateTime
+  clinicName          String    @default("មន្ទីរពេទ្យបង្អែក / ពេទ្យការងារ")
+  healthBookNumber    String?   // លេខសៀវភៅសុខភាពការងារ
+  hasCertificate      Boolean   @default(true) // មានវិញ្ញាបនបត្រសុខភាព
+  fitStatus           String    @default("FIT") // FIT (សមស្រប), UNFIT (មិនសមស្រប), RESTRICTED (សមស្របដោយមានលក្ខខណ្ឌ)
+  bloodPressure       String?   // e.g. "120/80"
+  vision              String?   // គំហើញ
+  chestXray           String?   // សួត (Normal / Abnormal)
+  doctorComments      String?   @db.Text
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }

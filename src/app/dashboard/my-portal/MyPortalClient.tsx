@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
+import MobileClockInModal from '@/components/Attendance/MobileClockInModal';
 
 interface EmployeeSimple {
   id: string;
@@ -134,6 +135,7 @@ export default function MyPortalClient({
   const [activeTab, setActiveTab] = useState<'PAYROLL' | 'ATTENDANCE' | 'REQUESTS' | 'LOANS'>('PAYROLL');
   const [selectedPayroll, setSelectedPayroll] = useState<PayrollRecord | null>(null);
   const [isPayslipModalOpen, setIsPayslipModalOpen] = useState(false);
+  const [isClockInModalOpen, setIsClockInModalOpen] = useState(false);
 
   // Quick Application Modals
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -554,6 +556,53 @@ export default function MyPortalClient({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Quick Mobile Attendance Clock-In Bar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 18px',
+          borderRadius: '12px',
+          background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%)',
+          border: '1px solid rgba(2, 132, 199, 0.25)',
+          flexWrap: 'wrap',
+          gap: '10px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '1.4rem' }}>📱</span>
+          <div>
+            <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+              កត់ត្រាវត្តមានផ្ទាល់ខ្លួន (Mobile Dynamic Clock-In)
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+              ស្កេន Dynamic QR Code នៅមាត់ទ្វារ ឬចុះវត្តមានតាមទីតាំង GPS Geo-Fence
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsClockInModalOpen(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 18px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #0284c7 0%, #10b981 100%)',
+            color: '#ffffff',
+            border: 'none',
+            fontSize: '0.88rem',
+            fontWeight: 800,
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.3)',
+          }}
+        >
+          <span>📷 / 📍 ស្កេនវត្តមាន (Clock-In Now)</span>
+        </button>
       </div>
 
       {/* 2. Navigation Tabs */}
@@ -1528,6 +1577,15 @@ export default function MyPortalClient({
           </div>
         </div>
       )}
+
+      {/* Mobile Dynamic QR & GPS Clock-In Modal */}
+      <MobileClockInModal
+        isOpen={isClockInModalOpen}
+        onClose={() => setIsClockInModalOpen(false)}
+        employeeId={employee.id}
+        employeeName={empNameKh || empNameEn}
+        onSuccess={() => router.refresh()}
+      />
     </div>
   );
 }

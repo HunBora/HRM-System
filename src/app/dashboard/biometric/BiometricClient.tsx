@@ -1252,6 +1252,31 @@ export default function BiometricClient({
         >
           💾 នាំចូល USB/Excel (Import)
         </button>
+
+        <a
+          href="/dashboard/biometric/qr-kiosk"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '5px 12px',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            background: 'linear-gradient(135deg, #0284c7 0%, #10b981 100%)',
+            color: '#ffffff',
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontSize: '0.78rem',
+            height: '28px',
+            boxShadow: '0 1px 4px rgba(2, 132, 199, 0.3)',
+          }}
+          title="បើកផ្ទាំង Kiosk Mode សម្រាប់ដាក់លើថេប្លេត ឬទូរទស្សន៍មាត់ទ្វារ"
+        >
+          <span>📱 បើក Kiosk Dynamic QR</span>
+          <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>↗</span>
+        </a>
       </div>
 
       {/* TAB 1: Live Punch Logs Feed */}

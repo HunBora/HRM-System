@@ -46,6 +46,7 @@
     "docx": "^9.7.1",
     "exceljs": "^4.4.0",
     "html2canvas": "^1.4.1",
+    "html5-qrcode": "^2.3.8",
     "jose": "^6.2.10",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",

@@ -883,7 +883,7 @@ export default function BiometricClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', boxSizing: 'border-box' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
       {/* 1. Header Banner (Compact & Fits Screen) */}
       <div
         style={{
@@ -891,61 +891,61 @@ export default function BiometricClient({
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           background: '#ffffff',
-          padding: '10px 16px',
-          borderRadius: '12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
           border: '1px solid #e2e8f0',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '20px',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.15)',
+              fontSize: '17px',
             }}
           >
             📲
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-              ប្រព័ន្ធគ្រប់គ្រងម៉ាស៊ីនស្កេនមេដៃ និងទិន្នន័យវត្តមាន
+            <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+              ម៉ាស៊ីនស្កេនមេដៃ & វត្តមាន
             </h1>
-            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.75rem', fontWeight: 500 }}>
-              Biometric Fingerprint & Device Sync Management • 考勤打卡机与指纹打卡实时同步系统
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.7rem', fontWeight: 500 }}>
+              Biometric & Device Sync Management
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
           <a
             href="/dashboard/attendance"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               background: '#f8fafc',
               color: '#334155',
               border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              padding: '6px 12px',
+              borderRadius: '6px',
+              padding: '4px 9px',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
+              height: '28px',
+              boxSizing: 'border-box',
               textDecoration: 'none',
-              transition: 'all 0.15s ease',
             }}
           >
             <span>📅</span>
-            <span>តារាងវត្តមានប្រចាំខែ (Timesheets)</span>
+            <span>វត្តមានប្រចាំខែ</span>
           </a>
 
           {isHR && (
@@ -955,21 +955,22 @@ export default function BiometricClient({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '4px',
                 background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '6px 12px',
+                borderRadius: '6px',
+                padding: '4px 10px',
                 fontWeight: 700,
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
+                height: '28px',
+                boxSizing: 'border-box',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.2)',
                 opacity: isSyncing ? 0.7 : 1,
               }}
             >
               <span>⚡</span>
-              <span>{isSyncing ? 'កំពុង Sync...' : 'ធ្វើសមកាលកម្ម (Sync)'}</span>
+              <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
             </button>
           )}
 
@@ -982,20 +983,21 @@ export default function BiometricClient({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '4px',
                 background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '6px 12px',
+                borderRadius: '6px',
+                padding: '4px 10px',
                 fontWeight: 700,
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
+                height: '28px',
+                boxSizing: 'border-box',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(124, 58, 237, 0.2)',
               }}
             >
               <span>➕</span>
-              <span>កត់ត្រាដោយដៃ (Manual)</span>
+              <span>កត់ត្រាដោយដៃ</span>
             </button>
           )}
 
@@ -1004,66 +1006,68 @@ export default function BiometricClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '8px',
-              padding: '6px 12px',
+              borderRadius: '6px',
+              padding: '4px 10px',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
+              height: '28px',
+              boxSizing: 'border-box',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)',
             }}
           >
             <span>📥</span>
-            <span>ទាញយក Excel</span>
+            <span>Export Excel</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Metrics Cards (Compact 3-Languages Stacked) */}
+      {/* 2. Metrics Cards (Compact & Space Saving) */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '10px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+          gap: '8px',
         }}
       >
         {/* Metric 1 */}
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            padding: '8px 14px',
+            borderRadius: '10px',
+            padding: '6px 10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#eff6ff',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             📋
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>កំណត់ត្រាស្កេនសរុប</div>
-            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Total Logs • 打卡总数</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#2563eb' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>ស្កេនសរុប</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Total Logs</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#2563eb', lineHeight: 1.2 }}>
               {metrics.totalLogs}{' '}
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
             </div>
           </div>
         </div>
@@ -1072,36 +1076,37 @@ export default function BiometricClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            padding: '8px 14px',
+            borderRadius: '10px',
+            padding: '6px 10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#f0fdf4',
               color: '#16a34a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             📡
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>ម៉ាស៊ីនស្កេនអនឡាញ</div>
-            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Online Devs • 在线终端</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>ម៉ាស៊ីន Online</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Online Devs</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#16a34a', lineHeight: 1.2 }}>
               {metrics.onlineDevs} / {devices.length}{' '}
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>គ្រឿង</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b' }}>គ្រឿង</span>
             </div>
           </div>
         </div>
@@ -1110,36 +1115,37 @@ export default function BiometricClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            padding: '8px 14px',
+            borderRadius: '10px',
+            padding: '6px 10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#fffbeb',
               color: '#d97706',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             ☀️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>ស្កេនវត្តមានថ្ងៃនេះ</div>
-            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Today's Punches • 今日打卡</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#d97706' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>ស្កេនថ្ងៃនេះ</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Today's Punches</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#d97706', lineHeight: 1.2 }}>
               {metrics.todayLogs}{' '}
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>នាក់</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b' }}>នាក់</span>
             </div>
           </div>
         </div>
@@ -1148,36 +1154,37 @@ export default function BiometricClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            padding: '8px 14px',
+            borderRadius: '10px',
+            padding: '6px 10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '8px',
           }}
         >
           <div
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '8px',
               background: '#f5f3ff',
               color: '#7c3aed',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '15px',
+              flexShrink: 0,
             }}
           >
             🔄
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#0f172a' }}>បានធ្វើសមកាលកម្ម</div>
-            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Synced Records • 已同步</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#7c3aed' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#0f172a', lineHeight: 1.2 }}>បាន Sync</div>
+            <div style={{ fontSize: '0.65rem', color: '#64748b' }}>Synced Records</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#7c3aed', lineHeight: 1.2 }}>
               {metrics.syncedLogs}{' '}
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>កត់ត្រា</span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b' }}>កត់ត្រា</span>
             </div>
           </div>
         </div>
@@ -1189,160 +1196,167 @@ export default function BiometricClient({
           display: 'flex',
           gap: '6px',
           borderBottom: '2px solid #e2e8f0',
-          paddingBottom: '6px',
+          paddingBottom: '4px',
         }}
       >
         <button
           onClick={() => setActiveTab('LOGS')}
           style={{
-            padding: '8px 16px',
-            borderRadius: '8px',
+            padding: '5px 12px',
+            borderRadius: '6px',
             border: 'none',
             background: activeTab === 'LOGS' ? '#2563eb' : '#ffffff',
             color: activeTab === 'LOGS' ? '#ffffff' : '#64748b',
             fontWeight: 700,
             cursor: 'pointer',
-            fontSize: '0.82rem',
-            boxShadow: activeTab === 'LOGS' ? '0 2px 8px rgba(37,99,235,0.2)' : 'none',
+            fontSize: '0.78rem',
+            height: '28px',
+            boxShadow: activeTab === 'LOGS' ? '0 1px 4px rgba(37,99,235,0.2)' : 'none',
           }}
         >
-          📄 កំណត់ត្រាស្កេនផ្ទាល់ (Live Punch Logs)
+          📄 កំណត់ត្រាស្កេន (Live Logs)
         </button>
 
         <button
           onClick={() => setActiveTab('DEVICES')}
           style={{
-            padding: '8px 16px',
-            borderRadius: '8px',
+            padding: '5px 12px',
+            borderRadius: '6px',
             border: 'none',
             background: activeTab === 'DEVICES' ? '#2563eb' : '#ffffff',
             color: activeTab === 'DEVICES' ? '#ffffff' : '#64748b',
             fontWeight: 700,
             cursor: 'pointer',
-            fontSize: '0.82rem',
-            boxShadow: activeTab === 'DEVICES' ? '0 2px 8px rgba(37,99,235,0.2)' : 'none',
+            fontSize: '0.78rem',
+            height: '28px',
+            boxShadow: activeTab === 'DEVICES' ? '0 1px 4px rgba(37,99,235,0.2)' : 'none',
           }}
         >
-          🖥️ គ្រប់គ្រងម៉ាស៊ីនស្កេន (Biometric Terminals)
+          🖥️ ម៉ាស៊ីនស្កេន (Terminals)
         </button>
 
         <button
           onClick={() => setActiveTab('IMPORT')}
           style={{
-            padding: '8px 16px',
-            borderRadius: '8px',
+            padding: '5px 12px',
+            borderRadius: '6px',
             border: 'none',
             background: activeTab === 'IMPORT' ? '#2563eb' : '#ffffff',
             color: activeTab === 'IMPORT' ? '#ffffff' : '#64748b',
             fontWeight: 700,
             cursor: 'pointer',
-            fontSize: '0.82rem',
-            boxShadow: activeTab === 'IMPORT' ? '0 2px 8px rgba(37,99,235,0.2)' : 'none',
+            fontSize: '0.78rem',
+            height: '28px',
+            boxShadow: activeTab === 'IMPORT' ? '0 1px 4px rgba(37,99,235,0.2)' : 'none',
           }}
         >
-          💾 នាំចូលពី USB / Excel (Batch Import)
+          💾 នាំចូល USB/Excel (Import)
         </button>
       </div>
 
       {/* TAB 1: Live Punch Logs Feed */}
       {activeTab === 'LOGS' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {/* Filters & View Mode Toolbar */}
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: '10px',
+              gap: '6px',
               alignItems: 'center',
               justifyContent: 'space-between',
               background: '#ffffff',
-              padding: '10px 14px',
-              borderRadius: '12px',
+              padding: '6px 10px',
+              borderRadius: '10px',
               border: '1px solid #e2e8f0',
             }}
           >
             {/* View Mode Toggle Switcher */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', background: '#f1f5f9', padding: '2px', borderRadius: '6px' }}>
               <button
                 type="button"
                 onClick={() => { setLogViewMode('DAILY_SUMMARY'); setCurrentPage(1); }}
                 style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
+                  padding: '3px 8px',
+                  borderRadius: '5px',
                   border: 'none',
                   background: logViewMode === 'DAILY_SUMMARY' ? '#2563eb' : 'transparent',
                   color: logViewMode === 'DAILY_SUMMARY' ? '#ffffff' : '#475569',
                   fontWeight: 700,
-                  fontSize: '0.8rem',
+                  fontSize: '0.76rem',
+                  height: '26px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: logViewMode === 'DAILY_SUMMARY' ? '0 1px 4px rgba(37,99,235,0.25)' : 'none',
+                  gap: '4px',
+                  boxShadow: logViewMode === 'DAILY_SUMMARY' ? '0 1px 3px rgba(37,99,235,0.2)' : 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
                 <span>📊</span>
-                <span>វត្តមានសង្ខេប ១នាក់ ១ជួរ (1 Row / Emp)</span>
+                <span>វត្តមានសង្ខេប (Summary)</span>
               </button>
               <button
                 type="button"
                 onClick={() => { setLogViewMode('RAW_EVENTS'); setCurrentPage(1); }}
                 style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
+                  padding: '3px 8px',
+                  borderRadius: '5px',
                   border: 'none',
                   background: logViewMode === 'RAW_EVENTS' ? '#2563eb' : 'transparent',
                   color: logViewMode === 'RAW_EVENTS' ? '#ffffff' : '#475569',
                   fontWeight: 700,
-                  fontSize: '0.8rem',
+                  fontSize: '0.76rem',
+                  height: '26px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: logViewMode === 'RAW_EVENTS' ? '0 1px 4px rgba(37,99,235,0.25)' : 'none',
+                  gap: '4px',
+                  boxShadow: logViewMode === 'RAW_EVENTS' ? '0 1px 3px rgba(37,99,235,0.2)' : 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
                 <span>📋</span>
-                <span>ស្កេននីមួយៗ (Raw Logs)</span>
+                <span>ស្កេននីមួយៗ (Raw)</span>
               </button>
             </div>
 
             {/* Filters Section */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', flex: '1 1 auto', justifyContent: 'flex-end' }}>
               {/* Search */}
-              <div style={{ minWidth: '200px', flex: '1 1 200px', position: 'relative' }}>
+              <div style={{ minWidth: '150px', maxWidth: '220px', flex: '1 1 150px', position: 'relative' }}>
                 <input
                   type="text"
-                  placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ... (Search)..."
+                  placeholder="🔍 រកឈ្មោះ, ID..."
                   value={searchTerm}
                   onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                   style={{
                     width: '100%',
-                    padding: '7px 12px 7px 32px',
-                    borderRadius: '8px',
+                    padding: '3px 8px 3px 26px',
+                    height: '26px',
+                    borderRadius: '6px',
                     border: '1px solid #cbd5e1',
-                    fontSize: '0.82rem',
+                    fontSize: '0.78rem',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
                 />
-                <span style={{ position: 'absolute', left: '10px', top: '7px', color: '#94a3b8', fontSize: '0.8rem' }}>🔍</span>
+                <span style={{ position: 'absolute', left: '8px', top: '5px', color: '#94a3b8', fontSize: '0.75rem' }}>🔍</span>
               </div>
 
               {/* Date Filter */}
-              <div style={{ minWidth: '140px' }}>
+              <div style={{ minWidth: '130px' }}>
                 <input
                   type="date"
                   value={dateFilter}
                   onChange={(e) => { setDateFilter(e.target.value); setCurrentPage(1); }}
                   style={{
                     width: '100%',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
+                    padding: '2px 6px',
+                    height: '26px',
+                    borderRadius: '6px',
                     border: '1px solid #cbd5e1',
-                    fontSize: '0.82rem',
+                    fontSize: '0.78rem',
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -1351,47 +1365,49 @@ export default function BiometricClient({
 
               {/* Punch Type Filter (Relevant if Raw Logs) */}
               {logViewMode === 'RAW_EVENTS' && (
-                <div style={{ minWidth: '150px' }}>
+                <div style={{ minWidth: '130px' }}>
                   <select
                     value={typeFilter}
                     onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
                     style={{
                       width: '100%',
-                      padding: '6px 10px',
-                      borderRadius: '8px',
+                      padding: '2px 6px',
+                      height: '26px',
+                      borderRadius: '6px',
                       border: '1px solid #cbd5e1',
-                      fontSize: '0.82rem',
+                      fontSize: '0.78rem',
                       background: '#ffffff',
                       outline: 'none',
                       fontWeight: 600,
                     }}
                   >
-                    <option value="ALL">⏰ គ្រប់ប្រភេទស្កេន (All Types)</option>
-                    <option value="CHECK_IN">☀️ ស្កេនចូលព្រឹក (Check In)</option>
-                    <option value="CHECK_OUT">🌙 ស្កេនចេញល្ងាច (Check Out)</option>
-                    <option value="OT_IN">⏰ ចូលថែមម៉ោង (OT In)</option>
-                    <option value="OT_OUT">⌛ ចេញថែមម៉ោង (OT Out)</option>
+                    <option value="ALL">⏰ គ្រប់ប្រភេទ</option>
+                    <option value="CHECK_IN">☀️ ចូលព្រឹក</option>
+                    <option value="CHECK_OUT">🌙 ចេញល្ងាច</option>
+                    <option value="OT_IN">⏰ ចូល OT</option>
+                    <option value="OT_OUT">⌛ ចេញ OT</option>
                   </select>
                 </div>
               )}
 
               {/* Department Filter */}
-              <div style={{ minWidth: '150px' }}>
+              <div style={{ minWidth: '130px' }}>
                 <select
                   value={departmentFilter}
                   onChange={(e) => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
                   style={{
                     width: '100%',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
+                    padding: '2px 6px',
+                    height: '26px',
+                    borderRadius: '6px',
                     border: '1px solid #cbd5e1',
-                    fontSize: '0.82rem',
+                    fontSize: '0.78rem',
                     background: '#ffffff',
                     outline: 'none',
                     fontWeight: 600,
                   }}
                 >
-                  <option value="ALL">🏢 គ្រប់នាយកដ្ឋាន (All Depts)</option>
+                  <option value="ALL">🏢 គ្រប់ផ្នែក (All)</option>
                   {departments.map((d) => (
                     <option key={d} value={d}>
                       {d}
@@ -1406,103 +1422,84 @@ export default function BiometricClient({
           <div
             style={{
               background: '#ffffff',
-              borderRadius: '12px',
+              borderRadius: '10px',
               border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
               overflow: 'hidden',
             }}
           >
             <div style={{ overflowX: 'auto', width: '100%' }}>
-              {/* VIEW 1: DAILY SUMMARY (1 ROW PER EMPLOYEE PER DAY) - EXACT IMAGE 1 FORMAT */}
+              {/* VIEW 1: DAILY SUMMARY (1 ROW PER EMPLOYEE PER DAY) - COMPACT & FIT CONTENT */}
               {logViewMode === 'DAILY_SUMMARY' ? (
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                   <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.74rem' }}>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '38px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>NO</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ល.រ</div>
+                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.72rem' }}>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '32px', color: '#475569', fontWeight: 800 }}>
+                        ល.រ
                       </th>
-                      <th style={{ padding: '8px 8px', textAlign: 'center', width: '80px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>DATE</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>កាលបរិច្ឆេទ</div>
+                      <th style={{ padding: '6px 6px', textAlign: 'center', width: '75px', color: '#475569', fontWeight: 800 }}>
+                        ថ្ងៃខែ
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '50px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>DAY</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ថ្ងៃ</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '36px', color: '#475569', fontWeight: 800 }}>
+                        ថ្ងៃ
                       </th>
-                      <th style={{ padding: '8px 10px', minWidth: '180px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>EMPLOYEE</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>បុគ្គលិក • 员工</div>
+                      <th style={{ padding: '6px 8px', minWidth: '150px', color: '#0f172a', fontWeight: 800 }}>
+                        បុគ្គលិក (Employee)
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#1e40af' }}>F-IN</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចូលព្រឹក</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '54px', color: '#1e40af', fontWeight: 800 }} title="ចូលព្រឹក (Morning In)">
+                        ចូលព្រឹក
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#92400e' }}>F-OUT</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញព្រឹក</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '54px', color: '#92400e', fontWeight: 800 }} title="ចេញព្រឹក (Morning Out)">
+                        ចេញព្រឹក
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#3730a3' }}>S-IN</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចូលថ្ងៃ</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '54px', color: '#3730a3', fontWeight: 800 }} title="ចូលថ្ងៃ (Afternoon In)">
+                        ចូលថ្ងៃ
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#5b21b6' }}>S-OUT</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញថ្ងៃ</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '54px', color: '#5b21b6', fontWeight: 800 }} title="ចេញថ្ងៃ (Afternoon Out)">
+                        ចេញថ្ងៃ
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#991b1b' }}>OT-IN</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចូលOT</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '50px', color: '#991b1b', fontWeight: 800 }} title="ចូលថែមម៉ោង (OT In)">
+                        ចូលOT
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#9a3412' }}>OT-OUT</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញOT</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '50px', color: '#9a3412', fontWeight: 800 }} title="ចេញថែមម៉ោង (OT Out)">
+                        ចេញOT
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>REG DAY</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ថ្ងៃធ្វើការ</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '46px', color: '#0f172a', fontWeight: 800 }} title="ថ្ងៃធ្វើការ (Regular Day)">
+                        ធ្វើការ
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>WORK HRS</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ម៉ោងធ្វើការ</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '46px', color: '#0f172a', fontWeight: 800 }} title="ម៉ោងធ្វើការសរុប (Work Hours)">
+                        ម៉ោង
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '70px' }}>
-                        <div style={{ fontWeight: 800, color: '#b45309' }}>NORMAL OT</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>OT ធម្មតា</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '52px', color: '#b45309', fontWeight: 800 }} title="ថែមម៉ោងធម្មតា (Normal OT)">
+                        OTធម្មតា
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '65px' }}>
-                        <div style={{ fontWeight: 800, color: '#7c3aed' }}>NIGHT OT</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>OT យប់</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '48px', color: '#7c3aed', fontWeight: 800 }} title="ថែមម៉ោងយប់ (Night OT)">
+                        OTយប់
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '75px' }}>
-                        <div style={{ fontWeight: 800, color: '#dc2626' }}>HOLIDAY OT</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>OT ឈប់</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '48px', color: '#dc2626', fontWeight: 800 }} title="ថែមម៉ោងថ្ងៃឈប់ (Holiday OT)">
+                        OTឈប់
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '55px' }}>
-                        <div style={{ fontWeight: 800, color: '#dc2626' }}>LATE</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>យឺត</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '40px', color: '#dc2626', fontWeight: 800 }} title="យឺត (Late Minutes)">
+                        យឺត
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '55px' }}>
-                        <div style={{ fontWeight: 800, color: '#d97706' }}>EARLY</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>ចេញមុន</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '44px', color: '#d97706', fontWeight: 800 }} title="ចេញមុន (Early Minutes)">
+                        ចេញមុន
                       </th>
-                      <th style={{ padding: '8px 10px', minWidth: '120px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>REMARKS</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>សម្គាល់ • 备注</div>
+                      <th style={{ padding: '6px 8px', minWidth: '90px', color: '#475569', fontWeight: 800 }}>
+                        សម្គាល់
                       </th>
-                      <th style={{ padding: '8px 6px', textAlign: 'center', width: '75px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ACTIONS</div>
-                        <div style={{ fontSize: '0.62rem', color: '#64748b' }}>សកម្មភាព</div>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', width: '60px', color: '#475569', fontWeight: 800 }}>
+                        សកម្មភាព
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedDailyRows.length === 0 ? (
                       <tr>
-                        <td colSpan={19} style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                          <div style={{ fontSize: '32px', marginBottom: '6px' }}>📂</div>
-                          <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#475569' }}>
-                            មិនមានកំណត់ត្រាស្កេនវត្តមានទេ (No Daily Punch Records)
+                        <td colSpan={19} style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8' }}>
+                          <div style={{ fontSize: '26px', marginBottom: '4px' }}>📂</div>
+                          <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569' }}>
+                            មិនមានកំណត់ត្រាស្កេនវត្តមានទេ (No Punch Records)
                           </div>
                         </td>
                       </tr>
@@ -1522,24 +1519,24 @@ export default function BiometricClient({
                             }}
                           >
                             {/* NO */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: '0.78rem' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 600, color: '#64748b', fontSize: '0.75rem' }}>
                               {rowNumber}
                             </td>
 
                             {/* DATE */}
-                            <td style={{ padding: '7px 8px', textAlign: 'center' }}>
-                              <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e293b', fontSize: '0.8rem' }}>
+                            <td style={{ padding: '5px 6px', textAlign: 'center' }}>
+                              <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e293b', fontSize: '0.78rem' }}>
                                 {row.displayDate}
                               </span>
                             </td>
 
                             {/* DAY */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               <span
                                 style={{
-                                  padding: '2px 6px',
-                                  borderRadius: '4px',
-                                  fontSize: '0.72rem',
+                                  padding: '1px 5px',
+                                  borderRadius: '3px',
+                                  fontSize: '0.7rem',
                                   fontWeight: 700,
                                   background: row.isSunday ? '#fee2e2' : '#f1f5f9',
                                   color: row.isSunday ? '#dc2626' : '#475569',
@@ -1552,19 +1549,19 @@ export default function BiometricClient({
                             </td>
 
                             {/* EMPLOYEE */}
-                            <td style={{ padding: '7px 10px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <td style={{ padding: '5px 8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 {row.employee.photoUrl ? (
                                   <img
                                     src={row.employee.photoUrl}
                                     alt=""
-                                    style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }}
+                                    style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }}
                                   />
                                 ) : (
                                   <div
                                     style={{
-                                      width: '26px',
-                                      height: '26px',
+                                      width: '22px',
+                                      height: '22px',
                                       borderRadius: '50%',
                                       background: '#e0e7ff',
                                       color: '#4338ca',
@@ -1572,17 +1569,17 @@ export default function BiometricClient({
                                       alignItems: 'center',
                                       justifyContent: 'center',
                                       fontWeight: 700,
-                                      fontSize: '0.72rem',
+                                      fontSize: '0.68rem',
                                     }}
                                   >
                                     {(row.employee.firstNameEn?.[0] || 'E')}
                                   </div>
                                 )}
                                 <div>
-                                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', lineHeight: 1.2 }}>
+                                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem', lineHeight: 1.2 }}>
                                     {empNameKh || empNameEn}
                                   </div>
-                                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                  <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                                     <span style={{ fontFamily: 'monospace', color: '#2563eb', fontWeight: 700 }}>
                                       {row.employee.employeeId}
                                     </span>{' '}
@@ -1593,9 +1590,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* F-IN */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.fIn ? (
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af', background: '#dbeafe', padding: '1px 4px', borderRadius: '3px', fontSize: '0.75rem' }}>
                                   {row.fIn}
                                 </span>
                               ) : (
@@ -1604,9 +1601,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* F-OUT */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.fOut ? (
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#92400e', background: '#fef3c7', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#92400e', background: '#fef3c7', padding: '1px 4px', borderRadius: '3px', fontSize: '0.75rem' }}>
                                   {row.fOut}
                                 </span>
                               ) : (
@@ -1615,9 +1612,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* S-IN */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.sIn ? (
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#3730a3', background: '#e0e7ff', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#3730a3', background: '#e0e7ff', padding: '1px 4px', borderRadius: '3px', fontSize: '0.75rem' }}>
                                   {row.sIn}
                                 </span>
                               ) : (
@@ -1626,9 +1623,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* S-OUT */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.sOut ? (
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#5b21b6', background: '#ede9fe', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#5b21b6', background: '#ede9fe', padding: '1px 4px', borderRadius: '3px', fontSize: '0.75rem' }}>
                                   {row.sOut}
                                 </span>
                               ) : (
@@ -1637,9 +1634,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* OT-IN */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.otIn ? (
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#991b1b', background: '#fee2e2', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#991b1b', background: '#fee2e2', padding: '1px 4px', borderRadius: '3px', fontSize: '0.75rem' }}>
                                   {row.otIn}
                                 </span>
                               ) : (
@@ -1648,9 +1645,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* OT-OUT */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.otOut ? (
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#9a3412', background: '#ffedd5', padding: '2px 5px', borderRadius: '4px', fontSize: '0.78rem' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#9a3412', background: '#ffedd5', padding: '1px 4px', borderRadius: '3px', fontSize: '0.75rem' }}>
                                   {row.otOut}
                                 </span>
                               ) : (
@@ -1659,44 +1656,44 @@ export default function BiometricClient({
                             </td>
 
                             {/* REG DAY */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700 }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 700 }}>
                               <span style={{ color: row.regDay >= 1 ? '#15803d' : row.regDay > 0 ? '#b45309' : '#94a3b8' }}>
                                 {row.regDay}
                               </span>
                             </td>
 
                             {/* WORK HRS */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: 700 }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: 700 }}>
                               <span style={{ color: row.workHrs >= 8 ? '#15803d' : row.workHrs > 0 ? '#1e40af' : '#94a3b8' }}>
                                 {row.workHrs}
                               </span>
                             </td>
 
                             {/* NORMAL OT */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: row.normalOt > 0 ? 800 : 500 }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: row.normalOt > 0 ? 800 : 500 }}>
                               <span style={{ color: row.normalOt > 0 ? '#b45309' : '#94a3b8' }}>
                                 {row.normalOt}
                               </span>
                             </td>
 
                             {/* NIGHT OT */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: row.nightOt > 0 ? 800 : 500 }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: row.nightOt > 0 ? 800 : 500 }}>
                               <span style={{ color: row.nightOt > 0 ? '#7c3aed' : '#94a3b8' }}>
                                 {row.nightOt}
                               </span>
                             </td>
 
                             {/* HOLIDAY OT */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center', fontWeight: row.holidayOt > 0 ? 800 : 500 }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center', fontWeight: row.holidayOt > 0 ? 800 : 500 }}>
                               <span style={{ color: row.holidayOt > 0 ? '#dc2626' : '#94a3b8' }}>
                                 {row.holidayOt}
                               </span>
                             </td>
 
                             {/* LATE */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.lateMins > 0 ? (
-                                <span style={{ background: '#fee2e2', color: '#dc2626', padding: '1px 5px', borderRadius: '4px', fontWeight: 700, fontSize: '0.72rem' }}>
+                                <span style={{ background: '#fee2e2', color: '#dc2626', padding: '1px 4px', borderRadius: '3px', fontWeight: 700, fontSize: '0.7rem' }}>
                                   {row.lateMins}m
                                 </span>
                               ) : (
@@ -1705,9 +1702,9 @@ export default function BiometricClient({
                             </td>
 
                             {/* EARLY */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
                               {row.earlyMins > 0 ? (
-                                <span style={{ background: '#fef3c7', color: '#d97706', padding: '1px 5px', borderRadius: '4px', fontWeight: 700, fontSize: '0.72rem' }}>
+                                <span style={{ background: '#fef3c7', color: '#d97706', padding: '1px 4px', borderRadius: '3px', fontWeight: 700, fontSize: '0.7rem' }}>
                                   {row.earlyMins}m
                                 </span>
                               ) : (
@@ -1716,12 +1713,12 @@ export default function BiometricClient({
                             </td>
 
                             {/* REMARKS */}
-                            <td style={{ padding: '7px 10px' }}>
+                            <td style={{ padding: '5px 8px' }}>
                               <span
                                 style={{
-                                  fontSize: '0.74rem',
+                                  fontSize: '0.72rem',
                                   color: '#475569',
-                                  maxWidth: '150px',
+                                  maxWidth: '120px',
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
                                   display: 'inline-block',
@@ -1733,8 +1730,8 @@ export default function BiometricClient({
                             </td>
 
                             {/* ACTIONS */}
-                            <td style={{ padding: '7px 6px', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                            <td style={{ padding: '5px 4px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
                                 <button
                                   type="button"
                                   title="កែសម្រួល / បំពេញម៉ោង (Adjust Attendance)"
@@ -1743,10 +1740,10 @@ export default function BiometricClient({
                                     background: '#eff6ff',
                                     border: '1px solid #bfdbfe',
                                     color: '#1d4ed8',
-                                    padding: '3px 6px',
-                                    borderRadius: '6px',
+                                    padding: '2px 5px',
+                                    borderRadius: '5px',
                                     cursor: 'pointer',
-                                    fontSize: '0.75rem',
+                                    fontSize: '0.72rem',
                                   }}
                                 >
                                   ✏️
@@ -1760,10 +1757,10 @@ export default function BiometricClient({
                                       background: '#fef2f2',
                                       border: '1px solid #fecaca',
                                       color: '#dc2626',
-                                      padding: '3px 6px',
-                                      borderRadius: '6px',
+                                      padding: '2px 5px',
+                                      borderRadius: '5px',
                                       cursor: 'pointer',
-                                      fontSize: '0.75rem',
+                                      fontSize: '0.72rem',
                                     }}
                                   >
                                     🗑️
@@ -1779,45 +1776,38 @@ export default function BiometricClient({
                 </table>
               ) : (
                 /* VIEW 2: RAW EVENT PUNCHES TABLE */
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.78rem' }}>
                   <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.76rem' }}>
-                      <th style={{ padding: '10px 14px', minWidth: '200px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ព័ត៌មានបុគ្គលិក</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Employee Name & ID</div>
+                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', fontSize: '0.74rem' }}>
+                      <th style={{ padding: '6px 10px', minWidth: '160px', color: '#0f172a', fontWeight: 800 }}>
+                        បុគ្គលិក (Employee)
                       </th>
-                      <th style={{ padding: '10px 14px', minWidth: '150px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>នាយកដ្ឋាន / មុខតំណែង</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Department / Position</div>
+                      <th style={{ padding: '6px 10px', minWidth: '120px', color: '#0f172a', fontWeight: 800 }}>
+                        ផ្នែក/តួនាទី
                       </th>
-                      <th style={{ padding: '10px 14px', minWidth: '140px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>កាលបរិច្ឆេទ និងម៉ោង</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Punch Date & Time</div>
+                      <th style={{ padding: '6px 10px', minWidth: '120px', color: '#0f172a', fontWeight: 800 }}>
+                        ថ្ងៃ & ម៉ោង
                       </th>
-                      <th style={{ padding: '10px 14px', minWidth: '130px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ប្រភេទស្កេន</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Punch Type</div>
+                      <th style={{ padding: '6px 10px', minWidth: '100px', color: '#0f172a', fontWeight: 800 }}>
+                        ប្រភេទស្កេន
                       </th>
-                      <th style={{ padding: '10px 14px', minWidth: '130px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>វិធីផ្ទៀងផ្ទាត់</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Verify Mode</div>
+                      <th style={{ padding: '6px 10px', minWidth: '100px', color: '#0f172a', fontWeight: 800 }}>
+                        វិធីផ្ទៀងផ្ទាត់
                       </th>
-                      <th style={{ padding: '10px 14px', minWidth: '150px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ម៉ាស៊ីនស្កេន</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Device Terminal</div>
+                      <th style={{ padding: '6px 10px', minWidth: '120px', color: '#0f172a', fontWeight: 800 }}>
+                        ម៉ាស៊ីនស្កេន
                       </th>
-                      <th style={{ padding: '10px 14px', minWidth: '80px', textAlign: 'center' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>សកម្មភាព</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Actions</div>
+                      <th style={{ padding: '6px 8px', width: '60px', textAlign: 'center', color: '#0f172a', fontWeight: 800 }}>
+                        សកម្មភាព
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedRawLogs.length === 0 ? (
                       <tr>
-                        <td colSpan={7} style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                          <div style={{ fontSize: '32px', marginBottom: '6px' }}>📂</div>
-                          <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#475569' }}>
+                        <td colSpan={7} style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8' }}>
+                          <div style={{ fontSize: '26px', marginBottom: '4px' }}>📂</div>
+                          <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569' }}>
                             មិនមានកំណត់ត្រាស្កេនវត្តមានទេ (No Punch Records)
                           </div>
                         </td>
@@ -1853,19 +1843,19 @@ export default function BiometricClient({
                               background: idx % 2 === 0 ? '#ffffff' : '#fafafa',
                             }}
                           >
-                            <td style={{ padding: '10px 14px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                 {log.employee.photoUrl ? (
                                   <img
                                     src={log.employee.photoUrl}
                                     alt=""
-                                    style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                    style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }}
                                   />
                                 ) : (
                                   <div
                                     style={{
-                                      width: '32px',
-                                      height: '32px',
+                                      width: '24px',
+                                      height: '24px',
                                       borderRadius: '50%',
                                       background: '#e0e7ff',
                                       color: '#4338ca',
@@ -1873,49 +1863,49 @@ export default function BiometricClient({
                                       alignItems: 'center',
                                       justifyContent: 'center',
                                       fontWeight: 700,
-                                      fontSize: '0.78rem',
+                                      fontSize: '0.7rem',
                                     }}
                                   >
                                     {(log.employee.firstNameEn?.[0] || 'E')}
                                   </div>
                                 )}
                                 <div>
-                                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
+                                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>
                                     {empNameKh || empNameEn}
                                   </div>
-                                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                  <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                                     <span style={{ fontFamily: 'monospace', color: '#2563eb' }}>{log.employee.employeeId}</span> • {empNameEn}
                                   </div>
                                 </div>
                               </div>
                             </td>
 
-                            <td style={{ padding: '10px 14px' }}>
-                              <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.82rem' }}>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.78rem' }}>
                                 {log.employee.department}
                               </div>
-                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{log.employee.position}</div>
+                              <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{log.employee.position}</div>
                             </td>
 
-                            <td style={{ padding: '10px 14px' }}>
-                              <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.86rem', fontFamily: 'monospace' }}>
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem', fontFamily: 'monospace' }}>
                                 {timeStr}
                               </div>
-                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>📅 {dateStr}</div>
+                              <div style={{ fontSize: '0.68rem', color: '#64748b' }}>📅 {dateStr}</div>
                             </td>
 
-                            <td style={{ padding: '10px 14px' }}>
+                            <td style={{ padding: '6px 10px' }}>
                               <span
                                 style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '4px',
+                                  gap: '3px',
                                   background: typeConf.bg,
                                   color: typeConf.text,
-                                  padding: '3px 8px',
-                                  borderRadius: '6px',
+                                  padding: '2px 6px',
+                                  borderRadius: '5px',
                                   fontWeight: 700,
-                                  fontSize: '0.75rem',
+                                  fontSize: '0.72rem',
                                 }}
                               >
                                 <span>{typeConf.icon}</span>
@@ -1923,18 +1913,18 @@ export default function BiometricClient({
                               </span>
                             </td>
 
-                            <td style={{ padding: '10px 14px' }}>
+                            <td style={{ padding: '6px 10px' }}>
                               <span
                                 style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
-                                  gap: '4px',
+                                  gap: '3px',
                                   background: modeConf.bg,
                                   color: modeConf.text,
-                                  padding: '3px 8px',
-                                  borderRadius: '6px',
+                                  padding: '2px 6px',
+                                  borderRadius: '5px',
                                   fontWeight: 700,
-                                  fontSize: '0.75rem',
+                                  fontSize: '0.72rem',
                                 }}
                               >
                                 <span>{modeConf.icon}</span>
@@ -1942,16 +1932,16 @@ export default function BiometricClient({
                               </span>
                             </td>
 
-                            <td style={{ padding: '10px 14px' }}>
-                              <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.8rem' }}>
-                                {log.deviceName || 'Biometric Terminal'}
+                            <td style={{ padding: '6px 10px' }}>
+                              <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.76rem' }}>
+                                {log.deviceName || 'Terminal'}
                               </div>
-                              <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                                ប្រភព: {log.source} {log.device ? `(${log.device.deviceIp})` : ''}
+                              <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>
+                                {log.source} {log.device ? `(${log.device.deviceIp})` : ''}
                               </div>
                             </td>
 
-                            <td style={{ padding: '10px 14px', textAlign: 'center' }}>
+                            <td style={{ padding: '6px 8px', textAlign: 'center' }}>
                               {['ADMIN'].includes(currentUserRole) && (
                                 <button
                                   type="button"
@@ -1961,10 +1951,10 @@ export default function BiometricClient({
                                     background: '#fef2f2',
                                     border: '1px solid #fecaca',
                                     color: '#dc2626',
-                                    padding: '4px 7px',
-                                    borderRadius: '6px',
+                                    padding: '3px 6px',
+                                    borderRadius: '5px',
                                     cursor: 'pointer',
-                                    fontSize: '0.8rem',
+                                    fontSize: '0.75rem',
                                   }}
                                 >
                                   🗑️
@@ -1988,16 +1978,16 @@ export default function BiometricClient({
               flexWrap: 'wrap',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '8px 14px',
+              padding: '4px 10px',
               background: '#ffffff',
-              borderRadius: '10px',
+              borderRadius: '8px',
               border: '1px solid #e2e8f0',
-              gap: '10px',
-              fontSize: '0.8rem',
+              gap: '6px',
+              fontSize: '0.78rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
-              <span>បង្ហាញក្នុងមួយទំព័រ:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b' }}>
+              <span>ក្នុង ១ទំព័រ:</span>
               <select
                 value={pageSize}
                 onChange={(e) => {
@@ -2006,10 +1996,11 @@ export default function BiometricClient({
                   setCurrentPage(1);
                 }}
                 style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '5px',
                   border: '1px solid #cbd5e1',
-                  fontSize: '0.8rem',
+                  fontSize: '0.76rem',
+                  height: '24px',
                   background: '#ffffff',
                 }}
               >
@@ -2020,23 +2011,25 @@ export default function BiometricClient({
                 <option value="ALL">ទាំងអស់ (All)</option>
               </select>
               <span>
-                • សរុប {totalCount} {logViewMode === 'DAILY_SUMMARY' ? 'ជួរ (បុគ្គលិក/ថ្ងៃ)' : 'កំណត់ត្រាស្កេន'}
+                • សរុប {totalCount} {logViewMode === 'DAILY_SUMMARY' ? 'ជួរ' : 'កំណត់ត្រា'}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <button
                 type="button"
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage(1)}
                 style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '5px',
                   border: '1px solid #cbd5e1',
                   background: currentPage <= 1 ? '#f8fafc' : '#ffffff',
                   color: currentPage <= 1 ? '#cbd5e1' : '#334155',
                   cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
                   fontWeight: 600,
+                  height: '24px',
+                  fontSize: '0.75rem',
                 }}
               >
                 ⏮
@@ -2046,18 +2039,20 @@ export default function BiometricClient({
                 disabled={currentPage <= 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '5px',
                   border: '1px solid #cbd5e1',
                   background: currentPage <= 1 ? '#f8fafc' : '#ffffff',
                   color: currentPage <= 1 ? '#cbd5e1' : '#334155',
                   cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
                   fontWeight: 600,
+                  height: '24px',
+                  fontSize: '0.75rem',
                 }}
               >
-                ◀ ថយក្រោយ
+                ◀ ថយ
               </button>
-              <span style={{ fontWeight: 700, color: '#1e293b', padding: '0 6px', fontSize: '0.8rem' }}>
+              <span style={{ fontWeight: 700, color: '#1e293b', padding: '0 4px', fontSize: '0.76rem' }}>
                 ទំព័រ {currentPage} / {totalPages || 1}
               </span>
               <button
@@ -2065,13 +2060,15 @@ export default function BiometricClient({
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '5px',
                   border: '1px solid #cbd5e1',
                   background: currentPage >= totalPages ? '#f8fafc' : '#ffffff',
                   color: currentPage >= totalPages ? '#cbd5e1' : '#334155',
                   cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
                   fontWeight: 600,
+                  height: '24px',
+                  fontSize: '0.75rem',
                 }}
               >
                 បន្ទាប់ ▶
@@ -2081,13 +2078,15 @@ export default function BiometricClient({
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage(totalPages)}
                 style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
+                  padding: '2px 6px',
+                  borderRadius: '5px',
                   border: '1px solid #cbd5e1',
                   background: currentPage >= totalPages ? '#f8fafc' : '#ffffff',
                   color: currentPage >= totalPages ? '#cbd5e1' : '#334155',
                   cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
                   fontWeight: 600,
+                  height: '24px',
+                  fontSize: '0.75rem',
                 }}
               >
                 ⏭

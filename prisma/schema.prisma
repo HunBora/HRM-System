@@ -15,6 +15,7 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
+  plainPassword String?
   role      String   @default("USER") // ADMIN or USER
   employee  Employee?
   createdAt DateTime @default(now())

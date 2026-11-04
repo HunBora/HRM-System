@@ -998,8 +998,8 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         />
       )}
 
-      {/* Mobile Floating Menu Button (For Admin/HR/Managers only, Employees use Self-Service Dock) */}
-      {role !== 'EMPLOYEE' && (
+      {/* Mobile Floating Menu Button (For Admin/HR/Managers only on general pages, hidden on My-Portal to avoid overlapping bottom dock) */}
+      {role !== 'EMPLOYEE' && pathname !== '/dashboard/my-portal' && (
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}

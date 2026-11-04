@@ -301,8 +301,11 @@ export default function MyPortalClient({
         /* Mobile View (< 768px) */
         @media (max-width: 768px) {
           .portal-container {
-            max-width: 480px;
-            padding: 12px 10px 95px 10px;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 8px 8px 95px 8px !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
           }
           .desktop-only {
             display: none !important;
@@ -316,33 +319,31 @@ export default function MyPortalClient({
           .portal-2col-layout {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
           }
-          .kpi-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
+          .portal-header-card {
+            padding: 12px 14px !important;
+            border-radius: 20px !important;
+            margin-bottom: 12px !important;
           }
-          .kpi-summary-card {
-            padding: 10px 6px;
-            border-radius: 14px;
-            flex-direction: column;
-            text-align: center;
-            justify-content: center;
+          .portal-avatar-img, .portal-avatar-box {
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 22px !important;
           }
-          .kpi-card-icon {
-            display: none !important;
+          .admin-preview-container {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 10px 12px !important;
+            gap: 8px !important;
           }
-          .kpi-card-title {
-            font-size: 0.68rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
+          .admin-preview-input-wrap {
+            width: 100% !important;
+            max-width: 100% !important;
           }
-          .kpi-card-value {
-            font-size: 1.15rem;
+          .admin-preview-input {
+            width: 100% !important;
+            font-size: 0.82rem !important;
           }
         }
 
@@ -350,7 +351,9 @@ export default function MyPortalClient({
         @media (min-width: 769px) {
           .portal-container {
             max-width: 1350px;
+            width: 100%;
             padding: 20px 24px 50px 24px;
+            box-sizing: border-box;
           }
           .mobile-only {
             display: none !important;
@@ -367,29 +370,76 @@ export default function MyPortalClient({
             gap: 24px !important;
             align-items: start !important;
           }
+          .portal-header-card {
+            padding: 20px 24px;
+            border-radius: 24px;
+            margin-bottom: 20px;
+          }
+          .portal-avatar-img, .portal-avatar-box {
+            width: 60px;
+            height: 60px;
+            font-size: 26px;
+          }
           .kpi-summary-grid {
             display: grid !important;
             grid-template-columns: repeat(3, 1fr) !important;
             gap: 20px !important;
             margin-bottom: 24px !important;
           }
-          .kpi-summary-card {
-            padding: 18px 22px;
-            border-radius: 20px;
+          .admin-preview-container {
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 12px 20px !important;
           }
-          .kpi-card-title {
-            font-size: 0.82rem;
-            display: block;
-          }
-          .kpi-card-value {
-            font-size: 1.45rem;
-          }
-          .kpi-card-icon {
-            display: inline-block;
+          .admin-preview-input-wrap {
+            max-width: 360px !important;
+            width: 100% !important;
           }
         }
 
         /* Common Card & Button Styles */
+        .admin-preview-container {
+          background: #eef2ff;
+          border: 1px solid #c7d2fe;
+          border-radius: 16px;
+          margin-bottom: 16px;
+          display: flex;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .admin-preview-input-wrap {
+          position: relative;
+          flex: 1;
+        }
+        .admin-preview-input {
+          width: 100%;
+          padding: 8px 30px 8px 12px;
+          border-radius: 10px;
+          border: 1.5px solid #a5b4fc;
+          background: #ffffff;
+          font-size: 0.84rem;
+          outline: none;
+          box-sizing: border-box;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .admin-preview-input:focus {
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .admin-preview-dropdown {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          max-height: 260px;
+          overflow-y: auto;
+          background: #ffffff;
+          border-radius: 12px;
+          border: 1px solid #cbd5e1;
+          box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+          z-index: 1000;
+        }
         .kpi-summary-card {
           background: #ffffff;
           border: 1px solid #e2e8f0;
@@ -397,11 +447,20 @@ export default function MyPortalClient({
           display: flex;
           align-items: center;
           justify-content: space-between;
+          padding: 18px 22px;
+          border-radius: 20px;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .kpi-summary-card:hover {
           transform: translateY(-2px);
           box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        }
+        .kpi-card-title {
+          font-size: 0.82rem;
+          display: block;
+        }
+        .kpi-card-value {
+          font-size: 1.45rem;
         }
 
         /* Interactive Buttons */
@@ -462,49 +521,44 @@ export default function MyPortalClient({
 
       {/* 1. TOP HEADER (Avatar, Name, Actions, Clock-in) */}
       <div
+        className="portal-header-card"
         style={{
           background: '#ffffff',
-          borderRadius: '24px',
-          padding: '20px 24px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
           border: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '16px',
-          marginBottom: '20px',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
           {employee.photoUrl ? (
             <img
               src={employee.photoUrl}
               alt=""
+              className="portal-avatar-img"
               style={{
-                width: '60px',
-                height: '60px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '3px solid #10b981',
+                border: '2.5px solid #10b981',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
                 flexShrink: 0,
               }}
             />
           ) : (
             <div
+              className="portal-avatar-box"
               style={{
-                width: '60px',
-                height: '60px',
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '26px',
                 fontWeight: 900,
-                border: '3px solid #ffffff',
+                border: '2.5px solid #ffffff',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
                 flexShrink: 0,
               }}
@@ -513,17 +567,19 @@ export default function MyPortalClient({
             </div>
           )}
 
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
               <h1
                 className="kh-text"
                 style={{
                   margin: 0,
-                  fontSize: '1.35rem',
+                  fontSize: '1.15rem',
                   fontWeight: 900,
                   color: '#0f172a',
                   lineHeight: 1.2,
                   whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}
               >
                 {displayName}
@@ -534,9 +590,9 @@ export default function MyPortalClient({
                   color: '#059669',
                   fontFamily: 'monospace',
                   fontWeight: 800,
-                  padding: '2px 8px',
+                  padding: '1px 6px',
                   borderRadius: '6px',
-                  fontSize: '0.78rem',
+                  fontSize: '0.72rem',
                   border: '1px solid #a7f3d0',
                 }}
               >
@@ -546,8 +602,8 @@ export default function MyPortalClient({
             <p
               className="kh-text"
               style={{
-                margin: '4px 0 0 0',
-                fontSize: '0.82rem',
+                margin: '2px 0 0 0',
+                fontSize: '0.76rem',
                 color: '#64748b',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
@@ -560,14 +616,14 @@ export default function MyPortalClient({
         </div>
 
         {/* Right Header Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           {/* Desktop Clock In Button */}
           <button
             onClick={() => setIsClockInModalOpen(true)}
             type="button"
             className="desktop-only kh-text"
             style={{
-              padding: '10px 20px',
+              padding: '10px 18px',
               borderRadius: '12px',
               background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
               color: '#ffffff',
@@ -585,15 +641,15 @@ export default function MyPortalClient({
             onClick={() => setIsCalendarModalOpen(true)}
             type="button"
             style={{
-              width: '42px',
-              height: '42px',
+              width: '38px',
+              height: '38px',
               borderRadius: '50%',
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '17px',
               cursor: 'pointer',
             }}
             title="ប្រតិទិនការងារ & វេន"
@@ -612,15 +668,15 @@ export default function MyPortalClient({
             }}
             type="button"
             style={{
-              width: '42px',
-              height: '42px',
+              width: '38px',
+              height: '38px',
               borderRadius: '50%',
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '17px',
               cursor: 'pointer',
               position: 'relative',
             }}
@@ -630,10 +686,10 @@ export default function MyPortalClient({
             <span
               style={{
                 position: 'absolute',
-                top: '9px',
-                right: '9px',
-                width: '8px',
-                height: '8px',
+                top: '7px',
+                right: '7px',
+                width: '7px',
+                height: '7px',
                 borderRadius: '50%',
                 background: '#10b981',
                 border: '2px solid #ffffff',
@@ -645,81 +701,114 @@ export default function MyPortalClient({
 
       {/* Admin Preview Switcher (If HR/Admin) */}
       {isHR && (
-        <div
-          style={{
-            background: '#eef2ff',
-            border: '1px solid #c7d2fe',
-            borderRadius: '16px',
-            padding: '10px 16px',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-          }}
-        >
-          <span className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3730a3', whiteSpace: 'nowrap' }}>
-            👀 Admin Preview (មើលជាបុគ្គលិកផ្សេងទៀត)៖
-          </span>
-          <div style={{ position: 'relative', flex: 1, maxWidth: '320px' }}>
+        <div className="admin-preview-container">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+            <span className="kh-text" style={{ fontSize: '0.82rem', fontWeight: 800, color: '#3730a3' }}>
+              👀 Admin Preview (មើលជាបុគ្គលិកផ្សេងទៀត)
+            </span>
+            {employee && (
+              <span style={{ fontSize: '0.74rem', background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                កំពុងមើល: {employee.employeeId}
+              </span>
+            )}
+          </div>
+          <div className="admin-preview-input-wrap">
             <input
               type="text"
-              placeholder="🔍 វាយ ID ឬ ឈ្មោះដើម្បីប្តូរ..."
+              placeholder="🔍 វាយអត្តលេខ (ID) ឬ ឈ្មោះបុគ្គលិក..."
               value={portalSearchQuery}
               onChange={(e) => {
                 setPortalSearchQuery(e.target.value);
                 setIsPortalSearchOpen(true);
               }}
               onFocus={() => setIsPortalSearchOpen(true)}
-              className="kh-text"
-              style={{
-                width: '100%',
-                padding: '7px 12px',
-                borderRadius: '8px',
-                border: '1px solid #a5b4fc',
-                background: '#ffffff',
-                fontSize: '0.82rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
+              className="kh-text admin-preview-input"
             />
+            {portalSearchQuery && (
+              <button
+                type="button"
+                onClick={() => setPortalSearchQuery('')}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                }}
+              >
+                ✕
+              </button>
+            )}
             {isPortalSearchOpen && (
               <>
-                <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={() => setIsPortalSearchOpen(false)} />
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    marginTop: '4px',
-                    maxHeight: '240px',
-                    overflowY: 'auto',
-                    background: '#ffffff',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-                    zIndex: 100,
-                  }}
-                >
-                  {filteredPortalEmployees.map((e) => (
-                    <div
-                      key={e.id}
-                      onClick={() => {
-                        setIsPortalSearchOpen(false);
-                        setPortalSearchQuery('');
-                        router.push(`/dashboard/my-portal?employeeId=${e.id}`);
-                      }}
-                      style={{
-                        padding: '9px 14px',
-                        borderBottom: '1px solid #f1f5f9',
-                        cursor: 'pointer',
-                        fontSize: '0.82rem',
-                      }}
-                    >
-                      <strong style={{ color: '#1e293b' }}>{e.employeeId}</strong> - {e.lastNameKh || e.lastNameEn} {e.firstNameKh || e.firstNameEn}
+                <div style={{ position: 'fixed', inset: 0, zIndex: 999 }} onClick={() => setIsPortalSearchOpen(false)} />
+                <div className="admin-preview-dropdown">
+                  {filteredPortalEmployees.length === 0 ? (
+                    <div className="kh-text" style={{ padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+                      រកមិនឃើញបុគ្គលិកនេះទេ
                     </div>
-                  ))}
+                  ) : (
+                    filteredPortalEmployees.map((e) => (
+                      <div
+                        key={e.id}
+                        onClick={() => {
+                          setIsPortalSearchOpen(false);
+                          setPortalSearchQuery('');
+                          router.push(`/dashboard/my-portal?employeeId=${e.id}`);
+                        }}
+                        style={{
+                          padding: '10px 14px',
+                          borderBottom: '1px solid #f1f5f9',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px',
+                          transition: 'background 0.15s ease',
+                        }}
+                        onMouseEnter={(el) => (el.currentTarget.style.background = '#f8fafc')}
+                        onMouseLeave={(el) => (el.currentTarget.style.background = 'transparent')}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                          <span
+                            style={{
+                              fontFamily: 'monospace',
+                              fontWeight: 800,
+                              background: '#ecfdf5',
+                              color: '#059669',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '0.78rem',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {e.employeeId}
+                          </span>
+                          <span
+                            className="kh-text"
+                            style={{
+                              fontWeight: 700,
+                              color: '#1e293b',
+                              fontSize: '0.84rem',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {e.lastNameKh || e.lastNameEn} {e.firstNameKh || e.firstNameEn}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.74rem', color: '#64748b', flexShrink: 0 }}>
+                          {e.department}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </>
             )}
@@ -773,8 +862,9 @@ export default function MyPortalClient({
         </div>
       </div>
 
-      {/* 3. THREE BIG STAT CARDS (Evenly Spread Across Desktop) */}
-      <div className="kpi-summary-grid">
+      {/* 3. KPI STAT CARDS (Responsive: 3 Separate Cards on PC, Single 3-Col Unified Strip on Phone) */}
+      {/* DESKTOP VIEW */}
+      <div className="desktop-only kpi-summary-grid">
         <div className="kpi-summary-card">
           <div style={{ minWidth: 0 }}>
             <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
@@ -810,6 +900,61 @@ export default function MyPortalClient({
             </div>
           </div>
           <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💳</span>
+        </div>
+      </div>
+
+      {/* MOBILE VIEW (Single Unified 3-Column Card - 100% Fit, Zero Overflow) */}
+      <div className="mobile-only" style={{ width: '100%', marginBottom: '14px', boxSizing: 'border-box' }}>
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '18px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            padding: '12px 6px',
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr auto 1fr',
+            alignItems: 'center',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          {/* Col 1: Annual Leave */}
+          <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
+            <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              ច្បាប់នៅសល់
+            </div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#059669', marginTop: '2px', lineHeight: 1.2 }}>
+              {employee.annualLeaveDays ?? 18}{' '}
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
+            </div>
+          </div>
+
+          {/* Divider 1 */}
+          <div style={{ width: '1px', height: '32px', background: '#e2e8f0' }} />
+
+          {/* Col 2: Basic Salary */}
+          <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
+            <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              ប្រាក់ខែគោល
+            </div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace', lineHeight: 1.2 }}>
+              ${employee.basicSalary?.toFixed(0) || '0'}
+            </div>
+          </div>
+
+          {/* Divider 2 */}
+          <div style={{ width: '1px', height: '32px', background: '#e2e8f0' }} />
+
+          {/* Col 3: Active Loan */}
+          <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
+            <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              កម្ចីនៅសល់
+            </div>
+            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#d97706', marginTop: '2px', fontFamily: 'monospace', lineHeight: 1.2 }}>
+              ${activeLoanBalance}
+            </div>
+          </div>
         </div>
       </div>
 

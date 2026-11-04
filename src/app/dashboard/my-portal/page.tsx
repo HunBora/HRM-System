@@ -67,7 +67,7 @@ export default async function MyPortalPage({
 
     if (!targetId) {
       return (
-        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ padding: '12px 14px', maxWidth: '1400px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           <MyPortalClient employee={null} allEmployees={[]} currentUserRole={session.role || 'USER'} />
         </div>
       );
@@ -118,7 +118,7 @@ export default async function MyPortalPage({
 
     if (!rawEmployee) {
       return (
-        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ padding: '12px 14px', maxWidth: '1400px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           <MyPortalClient employee={null} allEmployees={allEmployees as any} currentUserRole={session.role || 'USER'} />
         </div>
       );

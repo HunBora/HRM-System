@@ -262,6 +262,10 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
   const [currentLocale, setCurrentLocale] = useState<string>(locale);
 
   useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     if (locale) setCurrentLocale(locale);
     const cookies = document.cookie.split(';');
     const localeCookie = cookies.find((c) => c.trim().startsWith('NEXT_LOCALE='));
@@ -297,6 +301,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
   const [width, setWidth] = useState<number>(275);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [sidebarTheme, setSidebarTheme] = useState<SidebarThemeId>('dark');
   const [isThemePickerOpen, setIsThemePickerOpen] = useState<boolean>(false);
@@ -979,6 +984,48 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
 
   return (
     <>
+      {/* Mobile Drawer Backdrop */}
+      {isMobileOpen && (
+        <div
+          onClick={() => setIsMobileOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.55)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 999,
+          }}
+        />
+      )}
+
+      {/* Mobile Floating Menu Button */}
+      <button
+        type="button"
+        onClick={() => setIsMobileOpen(true)}
+        className="mobile-menu-trigger"
+        style={{
+          display: 'none',
+          position: 'fixed',
+          bottom: '22px',
+          left: '16px',
+          zIndex: 850,
+          width: '46px',
+          height: '46px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+          color: '#ffffff',
+          boxShadow: '0 6px 18px rgba(79, 70, 229, 0.45)',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.3rem',
+          cursor: 'pointer',
+          border: '2px solid rgba(255, 255, 255, 0.8)',
+        }}
+        title="បើកមឺនុយ (Open Menu)"
+        aria-label="Open Navigation Menu"
+      >
+        ☰
+      </button>
       <style jsx>{`
         .sidebar-nav-scroll::-webkit-scrollbar {
           width: 5px;
@@ -1352,6 +1399,35 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           background: rgba(255, 255, 255, 0.15);
           color: var(--sb-text-color);
         }
+        
+        @media (max-width: 768px) {
+          .sidebar-aside {
+            position: fixed !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            z-index: 1000 !important;
+            width: 285px !important;
+            min-width: 285px !important;
+            max-width: 82vw !important;
+            transform: translateX(-100%) !important;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          }
+          .sidebar-aside.mobile-open {
+            transform: translateX(0) !important;
+            box-shadow: 10px 0 35px rgba(0, 0, 0, 0.5) !important;
+          }
+          .mobile-menu-trigger {
+            display: flex !important;
+          }
+          .mobile-close-btn {
+            display: flex !important;
+          }
+          .resize-handle {
+            display: none !important;
+          }
+        }
+  
         .dock-preset-chip.active {
           background: var(--sb-accent);
           color: #ffffff;
@@ -1361,7 +1437,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       `}</style>
 
       <aside
-        className="no-print"
+        className={`no-print sidebar-aside ${isMobileOpen ? 'mobile-open' : ''}`}
         ref={sidebarRef}
         style={{
           width: `${currentWidth}px`,

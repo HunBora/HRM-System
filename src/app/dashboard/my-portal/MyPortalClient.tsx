@@ -258,18 +258,72 @@ export default function MyPortalClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', width: '100%' }}>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .portal-profile-card {
+            padding: 14px 16px !important;
+            border-radius: 16px !important;
+          }
+          .portal-avatar-box {
+            width: 52px !important;
+            height: 52px !important;
+            border-radius: 12px !important;
+            font-size: 20px !important;
+          }
+          .portal-emp-name-text {
+            font-size: 1.15rem !important;
+          }
+          .portal-admin-switcher-box {
+            width: 100% !important;
+            align-items: stretch !important;
+            margin-top: 6px !important;
+          }
+          .portal-admin-controls-row {
+            flex-direction: column !important;
+            width: 100% !important;
+            align-items: stretch !important;
+          }
+          .portal-search-input-box {
+            width: 100% !important;
+          }
+          .portal-select-dropdown {
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+          .portal-kpi-grid-box {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+            padding: 10px !important;
+          }
+          .portal-kpi-val-text {
+            font-size: 1.05rem !important;
+          }
+          .portal-clockin-banner-box {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .portal-clockin-action-btn {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+        }
+      `}</style>
+
       {/* 1. Employee Profile Header Card */}
       <div
+        className="portal-profile-card"
         style={{
           background: '#ffffff',
           borderRadius: '20px',
-          padding: '28px',
+          padding: '24px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
           border: '1px solid #f1f5f9',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px',
+          gap: '16px',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
@@ -278,21 +332,24 @@ export default function MyPortalClient({
               <img
                 src={employee.photoUrl}
                 alt=""
+                className="portal-avatar-box"
                 style={{
-                  width: '76px',
-                  height: '76px',
-                  borderRadius: '18px',
+                  width: '70px',
+                  height: '70px',
+                  borderRadius: '16px',
                   objectFit: 'cover',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                   border: '2px solid #eff6ff',
+                  flexShrink: 0,
                 }}
               />
             ) : (
               <div
+                className="portal-avatar-box"
                 style={{
-                  width: '76px',
-                  height: '76px',
-                  borderRadius: '18px',
+                  width: '70px',
+                  height: '70px',
+                  borderRadius: '16px',
                   background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                   color: '#ffffff',
                   display: 'flex',
@@ -301,6 +358,7 @@ export default function MyPortalClient({
                   fontSize: '28px',
                   fontWeight: 900,
                   boxShadow: '0 4px 14px rgba(37,99,235,0.3)',
+                  flexShrink: 0,
                 }}
               >
                 {employee.firstNameEn?.[0] || 'E'}
@@ -309,7 +367,7 @@ export default function MyPortalClient({
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h1 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900, color: '#0f172a' }}>
+                <h1 className="portal-emp-name-text kh-text" style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', wordBreak: 'keep-all' }}>
                   {empNameKh || empNameEn}
                 </h1>
                 <span
@@ -322,6 +380,8 @@ export default function MyPortalClient({
                     borderRadius: '6px',
                     fontSize: '0.8rem',
                     border: '1px solid #bfdbfe',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}
                 >
                   {employee.employeeId}
@@ -337,13 +397,13 @@ export default function MyPortalClient({
 
           {/* Admin / HR Employee Switcher - Dual Mode (Auto-search ID/Name OR Dropdown) */}
           {isHR && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
+            <div className="portal-admin-switcher-box" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
               <span style={{ fontSize: '0.74rem', color: '#475569', fontWeight: 700 }}>
                 👀 មើលជាបុគ្គលិកផ្សេងទៀត (Admin Preview):
               </span>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <div className="portal-admin-controls-row" style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {/* Method 1: Auto-search by ID / Name */}
-                <div style={{ position: 'relative', width: '210px' }}>
+                <div className="portal-search-input-box" style={{ position: 'relative', width: '210px' }}>
                   <input
                     type="text"
                     placeholder="🔍 វាយ ID ឬ ឈ្មោះ..."
@@ -484,6 +544,7 @@ export default function MyPortalClient({
                 <select
                   value={employee.id}
                   onChange={handleSwitchEmployee}
+                  className="portal-select-dropdown"
                   style={{
                     padding: '6px 12px',
                     borderRadius: '8px',
@@ -509,21 +570,24 @@ export default function MyPortalClient({
 
         {/* 4 Summary Pills */}
         <div
+          className="portal-kpi-grid-box"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '12px',
             background: '#f8fafc',
             padding: '16px',
             borderRadius: '14px',
             border: '1px solid #e2e8f0',
+            width: '100%',
+            boxSizing: 'border-box',
           }}
         >
           <div>
             <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', fontWeight: 600 }}>
               ច្បាប់សម្រាកនៅសល់ (Annual Leave)
             </span>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#2563eb', marginTop: '2px' }}>
+            <div className="portal-kpi-val-text" style={{ fontSize: '1.25rem', fontWeight: 900, color: '#2563eb', marginTop: '2px' }}>
               {employee.annualLeaveDays ?? 18}{' '}
               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
             </div>
@@ -533,7 +597,7 @@ export default function MyPortalClient({
             <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', fontWeight: 600 }}>
               ប្រាក់ខែមូលដ្ឋាន (Basic Salary)
             </span>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
+            <div className="portal-kpi-val-text" style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
               ${employee.basicSalary?.toFixed(2) || '0.00'}
             </div>
           </div>
@@ -542,7 +606,7 @@ export default function MyPortalClient({
             <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', fontWeight: 600 }}>
               ប្រាក់កម្ចីនៅជំពាក់ (Active Loan)
             </span>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
+            <div className="portal-kpi-val-text" style={{ fontSize: '1.25rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
               ${employee.loans?.find((l) => l.status === 'ACTIVE')?.remainingBalance.toFixed(2) || '0.00'}
             </div>
           </div>
@@ -560,6 +624,7 @@ export default function MyPortalClient({
 
       {/* Quick Mobile Attendance Clock-In Bar */}
       <div
+        className="portal-clockin-banner-box"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -569,7 +634,9 @@ export default function MyPortalClient({
           background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%)',
           border: '1px solid rgba(2, 132, 199, 0.25)',
           flexWrap: 'wrap',
-          gap: '10px',
+          gap: '12px',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -586,11 +653,12 @@ export default function MyPortalClient({
 
         <button
           onClick={() => setIsClockInModalOpen(true)}
+          className="portal-clockin-action-btn kh-text"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '8px 18px',
+            padding: '10px 18px',
             borderRadius: '10px',
             background: 'linear-gradient(135deg, #0284c7 0%, #10b981 100%)',
             color: '#ffffff',

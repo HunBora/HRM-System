@@ -1400,7 +1400,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           color: var(--sb-text-color);
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .sidebar-aside {
             position: fixed !important;
             top: 0 !important;

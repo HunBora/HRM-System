@@ -1,10 +1,18 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'HRM System (ប្រព័ន្ធគ្រប់គ្រងធនធានមនុស្ស)',
   description: 'Modern Human Resource Management System',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
 };
 
 export default async function RootLayout({

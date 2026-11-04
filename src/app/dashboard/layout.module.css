@@ -2,7 +2,6 @@
   display: flex;
   min-height: 100vh;
   width: 100%;
-  position: relative;
 }
 
 .sidebar {
@@ -70,8 +69,8 @@
   flex-direction: column;
   overflow-x: hidden;
   position: relative;
-  min-width: 0;
   width: 100%;
+  min-width: 0;
 }
 
 .header {
@@ -98,27 +97,22 @@
   overflow-x: hidden;
   box-sizing: border-box;
   width: 100%;
+  min-width: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .container {
     width: 100%;
-    min-width: 0;
     overflow-x: hidden;
   }
   .mainContent {
     width: 100%;
-    min-width: 0;
     max-width: 100vw;
   }
   .header {
     padding: 0 10px;
-    height: auto;
+    height: 48px;
     min-height: 48px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    flex-wrap: wrap;
-    gap: 8px;
   }
   .pageContent {
     padding: 6px 8px;

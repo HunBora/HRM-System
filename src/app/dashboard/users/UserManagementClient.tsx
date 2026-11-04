@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { createUser, updateUser, deleteUser, resetUserPassword } from './actions';
 import notify from '@/lib/notify';
 
@@ -47,10 +47,6 @@ export default function UserManagementClient({ users, employees, currentUserId }
   const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
   const [showAllPasswords, setShowAllPasswords] = useState(false);
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
   // Modal states
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
@@ -65,7 +61,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Password Generator
+  // Password Generator Helper
   const generatePassword = (prefix = 'Pass') => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$';
     let randomPart = '';
@@ -76,6 +72,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
     return `${prefix}@${num}`;
   };
 
+  // Toggle single password visibility
   const toggleSinglePassword = (userId: string) => {
     setVisiblePasswords((prev) => ({
       ...prev,
@@ -83,6 +80,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
     }));
   };
 
+  // Toggle all passwords
   const handleToggleAllPasswords = () => {
     const nextState = !showAllPasswords;
     setShowAllPasswords(nextState);
@@ -93,6 +91,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
     setVisiblePasswords(updated);
   };
 
+  // Copy to clipboard
   const handleCopyPassword = async (password: string, email: string) => {
     if (!password) return;
     try {
@@ -120,14 +119,6 @@ export default function UserManagementClient({ users, employees, currentUserId }
     });
   }, [users, searchTerm, roleFilter]);
 
-  // Pagination calculation
-  const totalItems = filteredUsers.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-  const startIndex = (safeCurrentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, totalItems);
-  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
-
   // Statistics
   const stats = useMemo(() => {
     const total = users.length;
@@ -138,7 +129,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
     return { total, adminCount, hrAndPayrollCount, deptHeadCount, employeeCount };
   }, [users]);
 
-  // Modal Handlers
+  // Open Create Modal
   const handleOpenNew = () => {
     setEditingUser(null);
     setModalPassword(generatePassword('User'));
@@ -147,6 +138,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
     setShowModal(true);
   };
 
+  // Open Edit Modal
   const handleOpenEdit = (user: UserItem) => {
     setEditingUser(user);
     setModalPassword('');
@@ -155,12 +147,14 @@ export default function UserManagementClient({ users, employees, currentUserId }
     setShowModal(true);
   };
 
+  // Open Quick Reset Password Modal
   const handleOpenQuickPassword = (user: UserItem) => {
     setQuickPasswordUser(user);
     setQuickPasswordInput(user.plainPassword || generatePassword('Pass'));
     setShowQuickPassword(false);
   };
 
+  // Submit Create or Edit User
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -185,6 +179,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
     setLoading(false);
   };
 
+  // Submit Quick Reset Password
   const handleSaveQuickPassword = async () => {
     if (!quickPasswordUser) return;
     if (!quickPasswordInput || quickPasswordInput.trim().length < 4) {
@@ -198,12 +193,14 @@ export default function UserManagementClient({ users, employees, currentUserId }
       notify.toast(res.error, 'error');
     } else {
       notify.toast(`បានកំណត់លេខសម្ងាត់ថ្មីសម្រាប់ ${quickPasswordUser.email} រួចរាល់!`, 'success');
+      // Update local visible state to show the newly set password
       setVisiblePasswords((prev) => ({ ...prev, [quickPasswordUser.id]: true }));
       setQuickPasswordUser(null);
     }
     setLoading(false);
   };
 
+  // Delete User
   const handleDelete = async (user: UserItem) => {
     if (user.id === currentUserId) {
       notify.toast('អ្នកមិនអាចលុបគណនី Admin ផ្ទាល់ខ្លួនដែលកំពុង Log in បានទេ!', 'warning');
@@ -231,98 +228,76 @@ export default function UserManagementClient({ users, employees, currentUserId }
     }
   };
 
-  const getRoleBadgeStyle = (role: string) => {
+  // Role Badge Styling Helper
+  const getRoleBadge = (role: string) => {
     switch (role) {
       case 'ADMIN':
         return {
-          bg: '#fee2e2',
-          border: '#fca5a5',
-          color: '#991b1b',
+          bg: 'bg-rose-50 border-rose-200 text-rose-700',
+          dot: 'bg-rose-500',
           icon: '👑',
-          labelKh: 'Admin',
+          labelKh: 'អ្នកគ្រប់គ្រងប្រព័ន្ធ (Admin)',
         };
       case 'HR_MANAGER':
       case 'HR':
         return {
-          bg: '#fef3c7',
-          border: '#fcd34d',
-          color: '#92400e',
+          bg: 'bg-amber-50 border-amber-200 text-amber-800',
+          dot: 'bg-amber-500',
           icon: '💼',
-          labelKh: 'HR Manager',
+          labelKh: 'ធនធានមនុស្ស (HR Manager)',
         };
       case 'PAYROLL_ADMIN':
         return {
-          bg: '#dcfce7',
-          border: '#86efac',
-          color: '#166534',
+          bg: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+          dot: 'bg-emerald-500',
           icon: '💰',
-          labelKh: 'Payroll Admin',
+          labelKh: 'គណនេយ្យករ/បើកប្រាក់ខែ (Payroll)',
         };
       case 'DEPT_HEAD':
         return {
-          bg: '#f3e8ff',
-          border: '#d8b4fe',
-          color: '#6b21a8',
+          bg: 'bg-purple-50 border-purple-200 text-purple-800',
+          dot: 'bg-purple-500',
           icon: '🏢',
-          labelKh: 'Dept Head',
+          labelKh: 'ប្រធានផ្នែក (Dept Head)',
         };
       case 'EMPLOYEE':
       default:
         return {
-          bg: '#e0f2fe',
-          border: '#7dd3fc',
-          color: '#0369a1',
+          bg: 'bg-sky-50 border-sky-200 text-sky-800',
+          dot: 'bg-sky-500',
           icon: '📱',
-          labelKh: 'Self-Service',
+          labelKh: 'បុគ្គលិក Self-Service',
         };
     }
   };
 
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* 1. Header & Full-Width Stats Container */}
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #e2e8f0',
-          padding: '24px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '1.75rem' }}>👥</span>
-              <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', margin: 0 }} className="kh-text">
-                គ្រប់គ្រងគណនីអ្នកប្រើប្រាស់ & សិទ្ធិ (Users & Roles Matrix)
-              </h1>
+    <div className="space-y-6">
+      {/* Top Header Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 md:p-6 transition-all">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl text-xl shadow-xs">
+                👥
+              </span>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-slate-900 kh-text flex items-center gap-2">
+                  គ្រប់គ្រងគណនីអ្នកប្រើប្រាស់ & សិទ្ធិ (Users & Roles Matrix)
+                </h1>
+                <p className="text-xs md:text-sm text-slate-500 kh-text">
+                  បង្កើតគណនី, កំណត់សិទ្ធិ (Roles), និងគ្រប់គ្រង/បង្ហាញពាក្យសម្ងាត់ (Password Control - សម្រាប់តែ Admin)
+                </p>
+              </div>
             </div>
-            <p style={{ color: '#64748b', fontSize: '0.85rem', margin: '4px 0 0 0' }} className="kh-text">
-              បង្កើតគណនី, កំណត់សិទ្ធិ (Roles), និងគ្រប់គ្រង/បង្ហាញពាក្យសម្ងាត់ (Password Control - សម្រាប់តែ Admin)
-            </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <div className="flex items-center gap-2.5 flex-wrap">
             <button
               onClick={handleToggleAllPasswords}
               type="button"
-              className="kh-text"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 14px',
-                background: '#f1f5f9',
-                color: '#334155',
-                border: '1px solid #cbd5e1',
-                borderRadius: '10px',
-                fontSize: '0.82rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs md:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200/80 rounded-xl border border-slate-200 transition-colors shadow-xs kh-text"
+              title="បង្ហាញ ឬលាក់ពាក្យសម្ងាត់ទាំងអស់ក្នុងតារាង"
             >
               <span>{showAllPasswords ? '🙈' : '👁️'}</span>
               <span>{showAllPasswords ? 'លាក់ពាក្យសម្ងាត់ទាំងអស់' : 'បង្ហាញពាក្យសម្ងាត់ទាំងអស់'}</span>
@@ -331,266 +306,84 @@ export default function UserManagementClient({ users, employees, currentUserId }
             <button
               onClick={handleOpenNew}
               type="button"
-              className="kh-text"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '9px 18px',
-                background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
-              }}
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs md:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-sm hover:shadow-indigo-200 transition-all kh-text"
             >
-              <span style={{ fontSize: '1.1rem' }}>+</span>
+              <span className="text-base font-bold">+</span>
               <span>បង្កើតគណនីថ្មី (New User)</span>
             </button>
           </div>
         </div>
 
-        {/* 4 Equal Stats Cards across 1 Full Row */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '16px',
-            marginTop: '20px',
-            paddingTop: '20px',
-            borderTop: '1px solid #f1f5f9',
-            width: '100%',
-          }}
-        >
-          {/* Total */}
-          <div
-            style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-            }}
-          >
-            <div
-              style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '12px',
-                background: '#e0e7ff',
-                color: '#4338ca',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                fontWeight: 700,
-              }}
-            >
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mt-6 pt-5 border-t border-slate-100">
+          <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/60 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-indigo-100/70 text-indigo-700 flex items-center justify-center font-bold text-lg">
               👥
             </div>
             <div>
-              <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }} className="kh-text">
-                គណនីសរុប (Total)
-              </div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
-                {stats.total}{' '}
-                <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }} className="kh-text">
-                  នាក់
-                </span>
-              </div>
+              <p className="text-xs text-slate-500 kh-text">គណនីសរុប</p>
+              <p className="text-lg font-bold text-slate-900">{stats.total} នាក់</p>
             </div>
           </div>
 
-          {/* Admin */}
-          <div
-            style={{
-              background: '#fff1f2',
-              border: '1px solid #fecdd3',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-            }}
-          >
-            <div
-              style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '12px',
-                background: '#ffe4e6',
-                color: '#e11d48',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                fontWeight: 700,
-              }}
-            >
+          <div className="p-3.5 bg-rose-50/50 rounded-xl border border-rose-100 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-lg">
               👑
             </div>
             <div>
-              <div style={{ fontSize: '0.78rem', color: '#be123c', fontWeight: 600 }} className="kh-text">
-                អ្នកគ្រប់គ្រង (Admin)
-              </div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#9f1239', marginTop: '2px' }}>
-                {stats.adminCount}{' '}
-                <span style={{ fontSize: '0.8rem', color: '#be123c', fontWeight: 600 }} className="kh-text">
-                  នាក់
-                </span>
-              </div>
+              <p className="text-xs text-rose-600 kh-text">អ្នកគ្រប់គ្រង (Admin)</p>
+              <p className="text-lg font-bold text-rose-900">{stats.adminCount} នាក់</p>
             </div>
           </div>
 
-          {/* HR & Payroll */}
-          <div
-            style={{
-              background: '#fefce8',
-              border: '1px solid #fef08a',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-            }}
-          >
-            <div
-              style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '12px',
-                background: '#fef9c3',
-                color: '#ca8a04',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                fontWeight: 700,
-              }}
-            >
+          <div className="p-3.5 bg-amber-50/50 rounded-xl border border-amber-100 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-lg">
               💼
             </div>
             <div>
-              <div style={{ fontSize: '0.78rem', color: '#a16207', fontWeight: 600 }} className="kh-text">
-                HR & បើកប្រាក់ខែ
-              </div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#854d0e', marginTop: '2px' }}>
-                {stats.hrAndPayrollCount}{' '}
-                <span style={{ fontSize: '0.8rem', color: '#a16207', fontWeight: 600 }} className="kh-text">
-                  នាក់
-                </span>
-              </div>
+              <p className="text-xs text-amber-700 kh-text">HR & បើកប្រាក់ខែ</p>
+              <p className="text-lg font-bold text-amber-900">{stats.hrAndPayrollCount} នាក់</p>
             </div>
           </div>
 
-          {/* Employee Self-Service */}
-          <div
-            style={{
-              background: '#f0f9ff',
-              border: '1px solid #bae6fd',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '14px',
-            }}
-          >
-            <div
-              style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '12px',
-                background: '#e0f2fe',
-                color: '#0284c7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                fontWeight: 700,
-              }}
-            >
+          <div className="p-3.5 bg-sky-50/50 rounded-xl border border-sky-100 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-lg">
               📱
             </div>
             <div>
-              <div style={{ fontSize: '0.78rem', color: '#0369a1', fontWeight: 600 }} className="kh-text">
-                បុគ្គលិក Self-Service
-              </div>
-              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#075985', marginTop: '2px' }}>
-                {stats.employeeCount}{' '}
-                <span style={{ fontSize: '0.8rem', color: '#0369a1', fontWeight: 600 }} className="kh-text">
-                  នាក់
-                </span>
-              </div>
+              <p className="text-xs text-sky-700 kh-text">បុគ្គលិក Self-Service</p>
+              <p className="text-lg font-bold text-sky-900">{stats.employeeCount} នាក់</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. Filter & Search Bar */}
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: '14px',
-          border: '1px solid #e2e8f0',
-          padding: '14px 18px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '14px',
-          flexWrap: 'wrap',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
-        }}
-      >
-        {/* Search */}
-        <div style={{ position: 'relative', width: '320px', maxWidth: '100%' }}>
-          <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}>
+      {/* Filter & Search Bar */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative w-full md:w-80">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
             🔍
           </span>
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            placeholder="ស្វែងរកតាម Email, ឈ្មោះ, ឬ ID..."
-            className="kh-text"
-            style={{
-              width: '100%',
-              padding: '9px 32px 9px 36px',
-              borderRadius: '10px',
-              border: '1px solid #cbd5e1',
-              fontSize: '0.84rem',
-              outline: 'none',
-              background: '#f8fafc',
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="ស្វែងរកតាម Email, ឈ្មោះ, ឬអត្តលេខ..."
+            className="w-full pl-9 pr-3 py-2 text-xs md:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all kh-text placeholder:text-slate-400"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'transparent',
-                border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
-              }}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
             >
               ✕
             </button>
           )}
         </div>
 
-        {/* Role Filters */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        {/* Role Filter Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
           {[
             { id: 'ALL', label: 'ទាំងអស់ (All)' },
             { id: 'ADMIN', label: 'Admin 👑' },
@@ -598,267 +391,153 @@ export default function UserManagementClient({ users, employees, currentUserId }
             { id: 'PAYROLL_ADMIN', label: 'Payroll 💰' },
             { id: 'DEPT_HEAD', label: 'Dept Head 🏢' },
             { id: 'EMPLOYEE', label: 'Self-Service 📱' },
-          ].map((tab) => {
-            const isActive = roleFilter === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setRoleFilter(tab.id);
-                  setCurrentPage(1);
-                }}
-                className="kh-text"
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: '9px',
-                  fontSize: '0.8rem',
-                  fontWeight: isActive ? 700 : 500,
-                  cursor: 'pointer',
-                  border: isActive ? '1px solid #4f46e5' : '1px solid #e2e8f0',
-                  background: isActive ? '#4f46e5' : '#f8fafc',
-                  color: isActive ? '#ffffff' : '#475569',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Page Size Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.8rem', color: '#64748b' }} className="kh-text">
-            បង្ហាញ៖
-          </span>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            style={{
-              padding: '6px 10px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              background: '#ffffff',
-              cursor: 'pointer',
-            }}
-          >
-            <option value={10}>10 គណនី</option>
-            <option value={25}>25 គណនី</option>
-            <option value={50}>50 គណនី</option>
-            <option value={100}>100 គណនី</option>
-          </select>
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setRoleFilter(item.id)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition-all kh-text ${
+                roleFilter === item.id
+                  ? 'bg-indigo-600 text-white shadow-xs font-semibold'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* 3. Table: 1 User = 1 Horizontal Clean Row */}
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
-          overflow: 'hidden',
-          width: '100%',
-        }}
-      >
-        <div style={{ overflowX: 'auto', width: '100%' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '1000px' }}>
+      {/* Main Standard Table Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden transition-all">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '14px 16px', width: '45px', textAlign: 'center', color: '#64748b', fontSize: '0.78rem' }}>#</th>
-                <th style={{ padding: '14px 16px', color: '#334155', fontSize: '0.82rem', fontWeight: 700 }} className="kh-text">
-                  គណនីអ្នកប្រើប្រាស់ (ACCOUNT / EMAIL)
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-xs font-semibold text-slate-600 uppercase tracking-wider kh-text">
+                <th className="py-3.5 px-4 text-center w-12">#</th>
+                <th className="py-3.5 px-4">គណនីអ្នកប្រើប្រាស់ (Account / Email)</th>
+                <th className="py-3.5 px-4">សិទ្ធិ & តួនាទី (Role & Access)</th>
+                <th className="py-3.5 px-4">បុគ្គលិកភ្ជាប់ (Linked Employee)</th>
+                <th className="py-3.5 px-4">
+                  <div className="flex items-center gap-1.5">
+                    <span>ពាក្យសម្ងាត់ (Password - Admin Only)</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold normal-case">
+                      Admin Access
+                    </span>
+                  </div>
                 </th>
-                <th style={{ padding: '14px 16px', color: '#334155', fontSize: '0.82rem', fontWeight: 700 }} className="kh-text">
-                  សិទ្ធិ & តួនាទី (ROLE & ACCESS)
-                </th>
-                <th style={{ padding: '14px 16px', color: '#334155', fontSize: '0.82rem', fontWeight: 700 }} className="kh-text">
-                  បុគ្គលិកភ្ជាប់ (LINKED EMPLOYEE)
-                </th>
-                <th style={{ padding: '14px 16px', color: '#334155', fontSize: '0.82rem', fontWeight: 700 }} className="kh-text">
-                  ពាក្យសម្ងាត់ (PASSWORD - ADMIN ONLY)
-                </th>
-                <th style={{ padding: '14px 16px', textAlign: 'right', color: '#334155', fontSize: '0.82rem', fontWeight: 700 }} className="kh-text">
-                  សកម្មភាព (ACTIONS)
-                </th>
+                <th className="py-3.5 px-4 text-right w-44">សកម្មភាព (Actions)</th>
               </tr>
             </thead>
-            <tbody>
-              {paginatedUsers.length === 0 ? (
+            <tbody className="divide-y divide-slate-100 text-xs md:text-sm">
+              {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '48px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
-                    <div style={{ fontWeight: 700, color: '#475569' }} className="kh-text">
-                      រកមិនឃើញគណនីដែលត្រូវនឹងលក្ខខណ្ឌស្វែងរកឡើយ
+                  <td colSpan={6} className="py-12 text-center text-slate-400 kh-text">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <span className="text-3xl">🔍</span>
+                      <p className="text-base font-semibold text-slate-600">រកមិនឃើញគណនីដែលត្រូវនឹងលក្ខខណ្ឌស្វែងរក</p>
+                      <p className="text-xs text-slate-400">សូមសាកល្បងផ្លាស់ប្តូរពាក្យស្វែងរក ឬប្រភេទ Role ឡើងវិញ</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                paginatedUsers.map((user, idx) => {
-                  const roleStyle = getRoleBadgeStyle(user.role);
+                filteredUsers.map((user, idx) => {
+                  const roleBadge = getRoleBadge(user.role);
                   const isPasswordShown = !!visiblePasswords[user.id];
                   const hasPlainPassword = !!user.plainPassword;
                   const isCurrentUser = user.id === currentUserId;
-                  const rowNumber = startIndex + idx + 1;
 
                   return (
                     <tr
                       key={user.id}
-                      style={{
-                        borderBottom: '1px solid #f1f5f9',
-                        background: isCurrentUser ? '#f8faff' : '#ffffff',
-                        transition: 'background 0.15s',
-                        whiteSpace: 'nowrap',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = isCurrentUser ? '#f1f5fd' : '#f8fafc')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = isCurrentUser ? '#f8faff' : '#ffffff')}
+                      className={`hover:bg-slate-50/70 transition-colors ${
+                        isCurrentUser ? 'bg-indigo-50/20' : ''
+                      }`}
                     >
                       {/* Index */}
-                      <td style={{ padding: '13px 16px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem', fontFamily: 'monospace' }}>
-                        {rowNumber}
+                      <td className="py-3.5 px-4 text-center text-slate-400 text-xs font-mono">
+                        {idx + 1}
                       </td>
 
-                      {/* Account / Email in 1 single clean line */}
-                      <td style={{ padding: '13px 16px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
-                          <div
-                            style={{
-                              width: '34px',
-                              height: '34px',
-                              borderRadius: '10px',
-                              background: '#eef2ff',
-                              border: '1px solid #c7d2fe',
-                              color: '#4338ca',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontWeight: 800,
-                              fontSize: '0.88rem',
-                              flexShrink: 0,
-                            }}
-                          >
+                      {/* Email / User */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center font-bold text-slate-700 text-sm shadow-2xs shrink-0">
                             {user.email.charAt(0).toUpperCase()}
                           </div>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>{user.email}</span>
-                            {isCurrentUser && (
-                              <span
-                                className="kh-text"
-                                style={{
-                                  fontSize: '0.7rem',
-                                  fontWeight: 700,
-                                  padding: '2px 8px',
-                                  borderRadius: '6px',
-                                  background: '#e0e7ff',
-                                  color: '#3730a3',
-                                  border: '1px solid #c7d2fe',
-                                }}
-                              >
-                                អ្នក (You)
-                              </span>
-                            )}
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-slate-900">{user.email}</span>
+                              {isCurrentUser && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 kh-text">
+                                  គណនីរបស់អ្នក (You)
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              ID: {user.id.slice(0, 8)}...
+                            </span>
                           </div>
                         </div>
                       </td>
 
-                      {/* Role & Access Badge in 1 single line */}
-                      <td style={{ padding: '13px 16px' }}>
-                        <span
-                          className="kh-text"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '4px 10px',
-                            borderRadius: '8px',
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            background: roleStyle.bg,
-                            border: `1px solid ${roleStyle.border}`,
-                            color: roleStyle.color,
-                          }}
-                        >
-                          <span>{roleStyle.icon}</span>
-                          <span>{roleStyle.labelKh}</span>
-                        </span>
+                      {/* Role & Access Badge */}
+                      <td className="py-3.5 px-4">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border shadow-2xs kh-text ${roleBadge.bg}">
+                          <span className="text-sm">{roleBadge.icon}</span>
+                          <span>{roleBadge.labelKh}</span>
+                        </div>
                       </td>
 
-                      {/* Linked Employee in 1 clean line */}
-                      <td style={{ padding: '13px 16px' }} className="kh-text">
+                      {/* Linked Employee */}
+                      <td className="py-3.5 px-4 kh-text">
                         {user.employee ? (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                            <span
-                              style={{
-                                fontFamily: 'monospace',
-                                fontWeight: 800,
-                                fontSize: '0.76rem',
-                                background: '#eff6ff',
-                                color: '#1d4ed8',
-                                padding: '2px 7px',
-                                borderRadius: '6px',
-                                border: '1px solid #bfdbfe',
-                              }}
-                            >
-                              {user.employee.employeeId}
-                            </span>
-                            <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.84rem' }}>
-                              {user.employee.firstNameKh || user.employee.firstNameEn} {user.employee.lastNameKh || user.employee.lastNameEn}
-                            </span>
-                            <span style={{ color: '#64748b', fontSize: '0.78rem' }}>
-                              ({user.employee.department})
-                            </span>
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-semibold text-slate-900">
+                                {user.employee.firstNameKh || user.employee.firstNameEn} {user.employee.lastNameKh || user.employee.lastNameEn}
+                              </span>
+                              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                {user.employee.employeeId}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500">
+                              {user.employee.department} • {user.employee.position}
+                            </p>
                           </div>
                         ) : (
-                          <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontStyle: 'italic' }}>
-                            — មិនទាន់ភ្ជាប់បុគ្គលិក
+                          <span className="inline-flex items-center gap-1 text-xs text-slate-400 italic">
+                            <span>—</span>
+                            <span>មិនទាន់ភ្ជាប់បុគ្គលិក</span>
                           </span>
                         )}
                       </td>
 
-                      {/* Password Control for Admin in 1 clean row */}
-                      <td style={{ padding: '13px 16px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                          <div
-                            style={{
-                              fontFamily: 'monospace',
-                              fontSize: '0.82rem',
-                              padding: '5px 10px',
-                              borderRadius: '8px',
-                              background: '#f8fafc',
-                              border: '1px solid #cbd5e1',
-                              color: '#1e293b',
-                              minWidth: '130px',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                            }}
-                          >
+                      {/* Password Control for Admin Only */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="font-mono text-xs px-2.5 py-1 rounded-lg bg-slate-100/90 border border-slate-200 text-slate-800 min-w-[125px] flex items-center justify-between shadow-2xs">
                             {hasPlainPassword ? (
                               isPasswordShown ? (
-                                <span style={{ fontWeight: 800, color: '#92400e', userSelect: 'all' }}>
+                                <span className="font-bold text-amber-900 tracking-normal select-all">
                                   {user.plainPassword}
                                 </span>
                               ) : (
-                                <span style={{ letterSpacing: '3px', fontWeight: 700, color: '#64748b' }}>
+                                <span className="tracking-widest text-slate-500 font-bold select-none">
                                   ••••••••••
                                 </span>
                               )
                             ) : (
-                              <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.74rem' }}>
+                              <span className="text-[11px] text-slate-400 italic font-sans select-none">
                                 [មិនទាន់កត់ត្រា]
                               </span>
                             )}
 
+                            {/* Eye button */}
                             {hasPlainPassword && (
                               <button
-                                type="button"
                                 onClick={() => toggleSinglePassword(user.id)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 0 6px', fontSize: '0.88rem' }}
+                                type="button"
+                                className="ml-2 text-slate-500 hover:text-slate-800 focus:outline-none transition-colors"
                                 title={isPasswordShown ? 'លាក់ពាក្យសម្ងាត់' : 'បង្ហាញពាក្យសម្ងាត់'}
                               >
                                 {isPasswordShown ? '🙈' : '👁️'}
@@ -866,81 +545,50 @@ export default function UserManagementClient({ users, employees, currentUserId }
                             )}
                           </div>
 
+                          {/* Copy button */}
                           {hasPlainPassword && (
                             <button
-                              type="button"
                               onClick={() => handleCopyPassword(user.plainPassword || '', user.email)}
-                              style={{
-                                padding: '5px 8px',
-                                background: '#f1f5f9',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '7px',
-                                cursor: 'pointer',
-                                fontSize: '0.82rem',
-                              }}
+                              type="button"
+                              className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-transparent hover:border-indigo-100 transition-colors"
                               title="ចម្លងពាក្យសម្ងាត់ (Copy Password)"
                             >
                               📋
                             </button>
                           )}
 
+                          {/* Quick Set Password Button */}
                           <button
-                            type="button"
                             onClick={() => handleOpenQuickPassword(user)}
-                            className="kh-text"
-                            style={{
-                              padding: '4px 10px',
-                              background: '#e0e7ff',
-                              color: '#3730a3',
-                              border: '1px solid #c7d2fe',
-                              borderRadius: '7px',
-                              cursor: 'pointer',
-                              fontSize: '0.76rem',
-                              fontWeight: 700,
-                            }}
+                            type="button"
+                            className="px-2 py-1 text-[11px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 rounded-lg transition-colors shadow-2xs kh-text"
+                            title="កំណត់ ឬផ្លាស់ប្តូរលេខសម្ងាត់ភ្លាមៗ"
                           >
                             🔑 {hasPlainPassword ? 'ប្តូរ' : 'កំណត់ថ្មី'}
                           </button>
                         </div>
                       </td>
 
-                      {/* Actions in 1 clean row */}
-                      <td style={{ padding: '13px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button
-                            type="button"
                             onClick={() => handleOpenEdit(user)}
-                            className="kh-text"
-                            style={{
-                              padding: '5px 12px',
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
-                              color: '#1e293b',
-                              borderRadius: '8px',
-                              fontSize: '0.78rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                            }}
+                            type="button"
+                            className="px-2.5 py-1 text-xs font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200/80 hover:border-indigo-200 transition-all kh-text"
                           >
                             ✏️ កែប្រែ
                           </button>
 
                           <button
-                            type="button"
                             onClick={() => handleDelete(user)}
                             disabled={isCurrentUser || loading}
-                            className="kh-text"
-                            style={{
-                              padding: '5px 12px',
-                              background: isCurrentUser ? '#f1f5f9' : '#ffffff',
-                              border: isCurrentUser ? '1px solid #e2e8f0' : '1px solid #fecdd3',
-                              color: isCurrentUser ? '#94a3b8' : '#e11d48',
-                              borderRadius: '8px',
-                              fontSize: '0.78rem',
-                              fontWeight: 600,
-                              cursor: isCurrentUser ? 'not-allowed' : 'pointer',
-                              opacity: isCurrentUser ? 0.4 : 1,
-                            }}
+                            type="button"
+                            className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all kh-text ${
+                              isCurrentUser
+                                ? 'opacity-30 cursor-not-allowed bg-slate-100 border-slate-200 text-slate-400'
+                                : 'text-rose-600 hover:bg-rose-50 border-slate-200/80 hover:border-rose-200'
+                            }`}
                             title={isCurrentUser ? 'មិនអាចលុបគណនីផ្ទាល់ខ្លួនបានទេ' : 'លុបគណនី'}
                           >
                             🗑️ លុប
@@ -955,280 +603,115 @@ export default function UserManagementClient({ users, employees, currentUserId }
           </table>
         </div>
 
-        {/* 4. Count Page & Pagination Controls (Easy to See) */}
-        <div
-          style={{
-            padding: '14px 20px',
-            background: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          {/* Count Info Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} className="kh-text">
-            <span
-              style={{
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                color: '#334155',
-                background: '#e2e8f0',
-                padding: '4px 10px',
-                borderRadius: '8px',
-              }}
-            >
-              📊 បង្ហាញ {totalItems === 0 ? 0 : startIndex + 1} ដល់ {endIndex} នៃ {totalItems} គណនីសរុប
-            </span>
-            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              (ទំព័រទី <strong>{safeCurrentPage}</strong> នៃ <strong>{totalPages}</strong>)
-            </span>
+        {/* Footer Summary */}
+        <div className="p-4 bg-slate-50/70 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 kh-text">
+          <div>
+            បង្ហាញចំនួន <span className="font-semibold text-slate-800">{filteredUsers.length}</span> នៃគណនីសរុប{' '}
+            <span className="font-semibold text-slate-800">{users.length}</span> គណនី
           </div>
-
-          {/* Pagination Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={safeCurrentPage <= 1}
-              className="kh-text"
-              style={{
-                padding: '6px 14px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                background: safeCurrentPage <= 1 ? '#f1f5f9' : '#ffffff',
-                color: safeCurrentPage <= 1 ? '#94a3b8' : '#1e293b',
-                cursor: safeCurrentPage <= 1 ? 'not-allowed' : 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-              }}
-            >
-              « មុន (Prev)
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-              const isCurrent = p === safeCurrentPage;
-              return (
-                <button
-                  key={p}
-                  onClick={() => setCurrentPage(p)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    border: isCurrent ? '1px solid #4f46e5' : '1px solid #e2e8f0',
-                    background: isCurrent ? '#4f46e5' : '#ffffff',
-                    color: isCurrent ? '#ffffff' : '#334155',
-                    cursor: 'pointer',
-                    fontSize: '0.82rem',
-                    fontWeight: isCurrent ? 800 : 600,
-                  }}
-                >
-                  {p}
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={safeCurrentPage >= totalPages}
-              className="kh-text"
-              style={{
-                padding: '6px 14px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                background: safeCurrentPage >= totalPages ? '#f1f5f9' : '#ffffff',
-                color: safeCurrentPage >= totalPages ? '#94a3b8' : '#1e293b',
-                cursor: safeCurrentPage >= totalPages ? 'not-allowed' : 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-              }}
-            >
-              បន្ទាប់ (Next) »
-            </button>
+          <div className="flex items-center gap-1.5 text-slate-400">
+            <span>💡 ចំណាំ៖ ពាក្យសម្ងាត់អាចមើលឃើញ និងគ្រប់គ្រងបានផ្តាច់មុខដោយគណនី <b>ADMIN</b> ប៉ុណ្ណោះ។</span>
           </div>
         </div>
       </div>
 
       {/* QUICK RESET PASSWORD MODAL */}
       {quickPasswordUser && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 9999,
-            background: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-          }}
-        >
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              width: '100%',
-              maxWidth: '440px',
-              overflow: 'hidden',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-            }}
-          >
-            <div
-              style={{
-                padding: '18px 20px',
-                borderBottom: '1px solid #e2e8f0',
-                background: '#f8fafc',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.2rem' }}>🔑</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden transform transition-all">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <div className="flex items-center gap-2">
+                <span className="p-2 bg-indigo-100 text-indigo-700 rounded-xl text-lg">🔑</span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#0f172a' }} className="kh-text">
+                  <h3 className="text-base font-bold text-slate-900 kh-text">
                     កំណត់ពាក្យសម្ងាត់ថ្មី (Password Reset)
                   </h3>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', fontFamily: 'monospace' }}>
-                    {quickPasswordUser.email}
-                  </div>
+                  <p className="text-xs text-slate-500 font-mono">{quickPasswordUser.email}</p>
                 </div>
               </div>
               <button
                 onClick={() => setQuickPasswordUser(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: '#64748b' }}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="p-5 space-y-4">
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }} className="kh-text">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 kh-text">
                   ពាក្យសម្ងាត់ថ្មី (New Password)
                 </label>
-                <div style={{ position: 'relative' }}>
+                <div className="relative">
                   <input
                     type={showQuickPassword ? 'text' : 'password'}
                     value={quickPasswordInput}
                     onChange={(e) => setQuickPasswordInput(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 40px 10px 12px',
-                      borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '0.95rem',
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      boxSizing: 'border-box',
-                    }}
+                    placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី..."
+                    className="w-full px-3.5 py-2.5 text-sm font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all pr-20"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowQuickPassword(!showQuickPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                    }}
-                  >
-                    {showQuickPassword ? '🙈' : '👁️'}
-                  </button>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickPassword(!showQuickPassword)}
+                      className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+                      title={showQuickPassword ? 'លាក់' : 'បង្ហាញ'}
+                    >
+                      {showQuickPassword ? '🙈' : '👁️'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }} className="kh-text">
+              {/* Quick Preset Buttons */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-medium text-slate-400 kh-text">
                   ជម្រើសបង្កើតលេខសម្ងាត់រហ័ស (Quick Presets)៖
                 </span>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                <div className="flex flex-wrap gap-1.5">
                   <button
                     type="button"
                     onClick={() => setQuickPasswordInput(generatePassword('Pass'))}
-                    className="kh-text"
-                    style={{
-                      padding: '5px 10px',
-                      borderRadius: '8px',
-                      background: '#e0e7ff',
-                      color: '#4338ca',
-                      border: '1px solid #c7d2fe',
-                      fontSize: '0.76rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
+                    className="px-2.5 py-1 text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors kh-text"
                   >
                     ⚡ ចៃដន្យ (Auto Generate)
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickPasswordInput('123456')}
-                    style={{
-                      padding: '5px 10px',
-                      borderRadius: '8px',
-                      background: '#f1f5f9',
-                      color: '#334155',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '0.76rem',
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
+                    className="px-2.5 py-1 text-xs bg-slate-100 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors font-mono"
                   >
                     123456
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuickPasswordInput('Bora@8083')}
-                    style={{
-                      padding: '5px 10px',
-                      borderRadius: '8px',
-                      background: '#f1f5f9',
-                      color: '#334155',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '0.76rem',
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
+                    className="px-2.5 py-1 text-xs bg-slate-100 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-200 transition-colors font-mono"
                   >
                     Bora@8083
                   </button>
+                  {quickPasswordUser.employee?.dob && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = new Date(quickPasswordUser.employee!.dob!);
+                        const pad = (n: number) => String(n).padStart(2, '0');
+                        setQuickPasswordInput(`${pad(d.getDate())}${pad(d.getMonth() + 1)}${d.getFullYear()}`);
+                      }}
+                      className="px-2.5 py-1 text-xs bg-amber-50 text-amber-800 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors kh-text"
+                    >
+                      📅 ថ្ងៃខែកំណើតបុគ្គលិក
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div
-              style={{
-                padding: '14px 20px',
-                borderTop: '1px solid #e2e8f0',
-                background: '#f8fafc',
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '10px',
-              }}
-            >
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setQuickPasswordUser(null)}
-                className="kh-text"
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#475569',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors kh-text"
               >
                 បោះបង់
               </button>
@@ -1236,18 +719,7 @@ export default function UserManagementClient({ users, employees, currentUserId }
                 type="button"
                 onClick={handleSaveQuickPassword}
                 disabled={loading}
-                className="kh-text"
-                style={{
-                  padding: '8px 18px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  background: '#4f46e5',
-                  color: '#ffffff',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
-                }}
+                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-xs transition-all kh-text"
               >
                 {loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកពាក្យសម្ងាត់'}
               </button>
@@ -1258,79 +730,42 @@ export default function UserManagementClient({ users, employees, currentUserId }
 
       {/* CREATE / EDIT USER MODAL */}
       {showModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 9999,
-            background: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-          }}
-        >
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '16px',
-              width: '100%',
-              maxWidth: '520px',
-              overflow: 'hidden',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-            }}
-          >
-            <div
-              style={{
-                padding: '18px 24px',
-                borderBottom: '1px solid #e2e8f0',
-                background: '#f8fafc',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '1.3rem' }}>{editingUser ? '✏️' : '➕'}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <div className="flex items-center gap-2.5">
+                <span className="p-2 bg-indigo-100 text-indigo-700 rounded-xl text-lg">
+                  {editingUser ? '✏️' : '➕'}
+                </span>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }} className="kh-text">
+                  <h2 className="text-base font-bold text-slate-900 kh-text">
                     {editingUser ? 'កែប្រែគណនីអ្នកប្រើប្រាស់' : 'បង្កើតគណនីអ្នកប្រើប្រាស់ថ្មី'}
                   </h2>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }} className="kh-text">
+                  <p className="text-xs text-slate-500 kh-text">
                     {editingUser ? 'ផ្លាស់ប្តូរ Role, Employee, ឬលេខសម្ងាត់' : 'បំពេញព័ត៌មានបង្កើតគណនីថ្មី'}
-                  </div>
+                  </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: '#64748b' }}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
               >
                 ✕
               </button>
             </div>
 
             {error && (
-              <div
-                className="kh-text"
-                style={{
-                  margin: '16px 24px 0 24px',
-                  padding: '10px 14px',
-                  background: '#fef2f2',
-                  border: '1px solid #fecdd3',
-                  borderRadius: '10px',
-                  color: '#991b1b',
-                  fontSize: '0.8rem',
-                }}
-              >
-                ⚠️ {error}
+              <div className="mx-5 mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 kh-text flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+              {/* Email / Username */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }} className="kh-text">
-                  អ៊ីមែល ឬ Username (Email / Username) <span style={{ color: '#ef4444' }}>*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 kh-text">
+                  អ៊ីមែល ឬ Username (Email / Username) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -1338,24 +773,17 @@ export default function UserManagementClient({ users, employees, currentUserId }
                   defaultValue={editingUser?.email || ''}
                   required
                   placeholder="ឧ. bora@company.com ឬ EM-0001"
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.88rem',
-                    boxSizing: 'border-box',
-                    fontFamily: 'monospace',
-                  }}
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400 font-mono"
                 />
               </div>
 
+              {/* Password */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#334155' }} className="kh-text">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-slate-700 kh-text">
                     ពាក្យសម្ងាត់ (Password){' '}
                     {editingUser && (
-                      <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 400 }}>
+                      <span className="text-[11px] text-slate-400 font-normal">
                         (ទុកទទេប្រសិនបើមិនចង់ប្តូរ)
                       </span>
                     )}
@@ -1363,13 +791,12 @@ export default function UserManagementClient({ users, employees, currentUserId }
                   <button
                     type="button"
                     onClick={() => setModalPassword(generatePassword(editingUser ? 'Pass' : 'User'))}
-                    className="kh-text"
-                    style={{ background: 'none', border: 'none', color: '#4f46e5', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                    className="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium kh-text"
                   >
                     ⚡ បង្កើតចៃដន្យ
                   </button>
                 </div>
-                <div style={{ position: 'relative' }}>
+                <div className="relative">
                   <input
                     type={showModalPassword ? 'text' : 'password'}
                     name="password"
@@ -1377,53 +804,27 @@ export default function UserManagementClient({ users, employees, currentUserId }
                     onChange={(e) => setModalPassword(e.target.value)}
                     required={!editingUser}
                     placeholder={editingUser ? 'បញ្ចូលលេខសម្ងាត់ថ្មី (បើចង់ប្តូរ)...' : 'បញ្ចូលលេខសម្ងាត់...'}
-                    style={{
-                      width: '100%',
-                      padding: '10px 40px 10px 14px',
-                      borderRadius: '10px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '0.88rem',
-                      fontFamily: 'monospace',
-                      boxSizing: 'border-box',
-                    }}
+                    className="w-full px-3.5 py-2.5 text-sm font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowModalPassword(!showModalPassword)}
-                    style={{
-                      position: 'absolute',
-                      right: '10px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
                   >
                     {showModalPassword ? '🙈' : '👁️'}
                   </button>
                 </div>
               </div>
 
+              {/* Role Selector */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }} className="kh-text">
-                  សិទ្ធិ & តួនាទី (System Role) <span style={{ color: '#ef4444' }}>*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 kh-text">
+                  សិទ្ធិ & តួនាទី (System Role) <span className="text-rose-500">*</span>
                 </label>
                 <select
                   name="role"
                   defaultValue={editingUser?.role || 'EMPLOYEE'}
-                  className="kh-text"
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.84rem',
-                    background: '#ffffff',
-                    boxSizing: 'border-box',
-                    cursor: 'pointer',
-                  }}
+                  className="w-full px-3.5 py-2.5 text-xs md:text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all kh-text bg-white"
                 >
                   <option value="ADMIN">👑 ADMIN - អ្នកគ្រប់គ្រងប្រព័ន្ធ (មើលឃើញ & កែប្រែបានទាំងអស់)</option>
                   <option value="HR_MANAGER">💼 HR_MANAGER - អ្នកគ្រប់គ្រងធនធានមនុស្ស (HR & បុគ្គលិក)</option>
@@ -1431,29 +832,20 @@ export default function UserManagementClient({ users, employees, currentUserId }
                   <option value="DEPT_HEAD">🏢 DEPT_HEAD - ប្រធានផ្នែក (អនុម័តច្បាប់ & ថែមម៉ោង OT)</option>
                   <option value="EMPLOYEE">📱 EMPLOYEE - បុគ្គលិកទូទៅ (ប្រើតែ Employee Self-Service)</option>
                 </select>
-                <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }} className="kh-text">
+                <p className="text-[11px] text-slate-400 mt-1 kh-text">
                   * សម្រាប់បុគ្គលិកទូទៅ សូមជ្រើសរើស <b>EMPLOYEE</b> ដើម្បីកំណត់ឱ្យពួកគាត់ប្រើតែមុខងារ Employee Self-Service។
-                </div>
+                </p>
               </div>
 
+              {/* Link Employee Profile */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }} className="kh-text">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 kh-text">
                   ភ្ជាប់គណនីនេះជាមួយបុគ្គលិក (Link Employee Profile)
                 </label>
                 <select
                   name="employeeId"
                   defaultValue={editingUser?.employee?.id || ''}
-                  className="kh-text"
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.84rem',
-                    background: '#ffffff',
-                    boxSizing: 'border-box',
-                    cursor: 'pointer',
-                  }}
+                  className="w-full px-3.5 py-2.5 text-xs md:text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all kh-text bg-white"
                 >
                   <option value="">— មិនទាន់ភ្ជាប់ (Unlinked) —</option>
                   {employees.map((emp) => (
@@ -1462,49 +854,23 @@ export default function UserManagementClient({ users, employees, currentUserId }
                     </option>
                   ))}
                 </select>
+                <p className="text-[11px] text-slate-400 mt-1 kh-text">
+                  * ការភ្ជាប់ជាមួយបុគ្គលិក ជួយឱ្យប្រព័ន្ធដឹងថាគាត់ជាបុគ្គលិកណា ដើម្បីទាញទិន្នន័យប្រាក់ខែ និងវត្តមានមកបង្ហាញក្នុង Self-Service។
+                </p>
               </div>
 
-              <div
-                style={{
-                  paddingTop: '16px',
-                  borderTop: '1px solid #e2e8f0',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '10px',
-                }}
-              >
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="kh-text"
-                  style={{
-                    padding: '9px 18px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    background: '#ffffff',
-                    color: '#475569',
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors kh-text"
                 >
                   បោះបង់
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="kh-text"
-                  style={{
-                    padding: '9px 22px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: '#4f46e5',
-                    color: '#ffffff',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
-                  }}
+                  className="px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-xs transition-all kh-text"
                 >
                   {loading ? 'កំពុងរក្សាទុក...' : editingUser ? 'រក្សាទុកការកែប្រែ' : 'បង្កើតគណនី'}
                 </button>

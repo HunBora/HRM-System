@@ -67,7 +67,7 @@ export default async function MyPortalPage({
 
     if (!targetId) {
       return (
-        <div style={{ padding: '12px 14px', maxWidth: '1400px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
           <MyPortalClient employee={null} allEmployees={[]} currentUserRole={session.role || 'USER'} />
         </div>
       );
@@ -118,7 +118,7 @@ export default async function MyPortalPage({
 
     if (!rawEmployee) {
       return (
-        <div style={{ padding: '12px 14px', maxWidth: '1400px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
           <MyPortalClient employee={null} allEmployees={allEmployees as any} currentUserRole={session.role || 'USER'} />
         </div>
       );
@@ -234,6 +234,7 @@ export default async function MyPortalPage({
       position: rawEmployee.position,
       department: rawEmployee.department,
       line: rawEmployee.line,
+      shift: rawEmployee.shift || 'LF (08:00 AM - 05:00 PM)',
       phone: rawEmployee.phone,
       photoUrl: rawEmployee.photoUrl,
       basicSalary: rawEmployee.basicSalary,
@@ -249,7 +250,7 @@ export default async function MyPortalPage({
     };
 
     return (
-      <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div className="w-full min-h-screen px-1 sm:px-3 md:px-4 py-1 sm:py-3 max-w-xl md:max-w-3xl lg:max-w-4xl mx-auto pb-24 sm:pb-16">
         <MyPortalClient
           employee={fullEmployeeData as any}
           allEmployees={allEmployees as any}

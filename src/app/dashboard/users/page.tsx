@@ -50,12 +50,14 @@ export default async function UsersPage() {
   });
 
   return (
-    <div style={{ width: '100%', boxSizing: 'border-box', padding: '16px 20px', minHeight: '100vh' }}>
-      <UserManagementClient 
-        users={users} 
-        employees={employees} 
-        currentUserId={session?.userId} 
-      />
+    <div className="w-full min-h-screen pb-16 bg-slate-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <UserManagementClient 
+          users={users} 
+          employees={employees} 
+          currentUserId={session?.userId} 
+        />
+      </div>
     </div>
   );
 }

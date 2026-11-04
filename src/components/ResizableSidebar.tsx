@@ -559,7 +559,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ទិដ្ឋភាពទូទៅនៃប្រព័ន្ធ ស្ថិតិបុគ្គលិក និង KPI សរុប',
           descEn: 'System overview, employee statistics, and total KPIs',
           descZh: '系统总览、员工统计数据与综合KPI',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
         {
           href: '/dashboard/my-portal',
@@ -581,7 +581,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ផ្សព្វផ្សាយដំណឹង ព្រឹត្តិការណ៍ និងសេចក្តីប្រកាសផ្ទៃក្នុង',
           descEn: 'Company announcements, corporate events, and internal circulars',
           descZh: '发布公司新闻、活动公告与内部通知',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
       ],
     },
@@ -660,7 +660,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       icon: '⏱️',
       badgeColor: '#0284c7',
       bgGlow: 'rgba(2, 132, 199, 0.28)',
-      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
       items: [
         {
           href: '/dashboard/attendance',
@@ -693,7 +693,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'រៀបចំវេនការងារវេនថ្ងៃ វេនយប់ និងបែងចែកវេនប្រចាំសប្តាហ៍',
           descEn: 'Manage day/night shifts, shift rotation, and weekly rosters',
           descZh: '安排白班夜班班次、轮班制度与每周排班计划',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
         {
           href: '/dashboard/leave',
@@ -704,7 +704,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ស្នើសុំ និងអនុម័តច្បាប់ប្រចាំឆ្នាំ ច្បាប់ឈឺ និងច្បាប់ពិសេស',
           descEn: 'Request and approve annual leave, sick leave, and special leave',
           descZh: '申请与审批年假、病假、事假及法定特别假期',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
           href: '/dashboard/overtime',
@@ -715,7 +715,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ស្នើសុំ OT ម៉ោងធម្មតា ម៉ោងថ្ងៃអាទិត្យ និងម៉ោងយប់',
           descEn: 'Overtime requests: normal, Sunday, and night shift rates',
           descZh: '正常加班、周日公休日加班与夜间加班申请',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
       ],
     },
@@ -727,7 +727,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       icon: '💳',
       badgeColor: '#10b981',
       bgGlow: 'rgba(16, 185, 129, 0.28)',
-      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
       items: [
         {
           href: '/dashboard/payroll',
@@ -771,7 +771,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ស្នើសុំទូទាត់វិក្កយបត្រ ចំណាយបេសកកម្ម និងប្រាក់ឧបត្ថម្ភ',
           descEn: 'Expense reimbursements, mission travel allowances, and receipts',
           descZh: '差旅报销、日常公用支出与发票报销审批',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
         {
           href: '/dashboard/exports',
@@ -794,7 +794,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       icon: '🎯',
       badgeColor: '#f59e0b',
       bgGlow: 'rgba(245, 158, 11, 0.28)',
-      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
       items: [
         {
           href: '/dashboard/performance',
@@ -827,7 +827,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'គ្រប់គ្រងវគ្គបណ្តុះបណ្តាល វគ្គសិក្សាផ្ទៃក្នុង និងចុះឈ្មោះ',
           descEn: 'Manage training modules, internal courses, and enrollment',
           descZh: '管理员工培训计划、内部课程与学员报名记录',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
           href: '/dashboard/disciplinary',
@@ -849,7 +849,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ចេញលិខិតបញ្ជាក់ការងារ បញ្ជាក់ប្រាក់បៀវត្សរ៍ និងលិខិតផ្លូវការ',
           descEn: 'Employment verification letters, salary certificates, and testimonials',
           descZh: '开具在职证明、收入证明与官方人事公函',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
           href: '/dashboard/delegations',
@@ -860,7 +860,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'លិខិតផ្ទេរសិទ្ធិពេលចេញបេសកកម្ម ឬទៅយូរថ្ងៃ អាចប្រគល់ជូន ១ ដល់ ៣ នាក់',
           descEn: 'Delegation of authority and handover forms for missions and leave',
           descZh: '出差外勤或休假授权交接书（支持1至3人）',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
           href: '/dashboard/appointments',
@@ -871,7 +871,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'លិខិតតែងតាំង និងដំឡើងតំណែងបុគ្គលិក ៣ភាសា និងទម្រង់ស្តង់ដាររោងចក្រ',
           descEn: 'Official appointment and promotion letters for factory and corporate roles',
           descZh: '工厂与企业标准委任书、晋升任命书（三语格式）',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
         {
           href: '/dashboard/documents',
@@ -882,7 +882,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ផ្ទុក និងគ្រប់គ្រងឯកសារបទបញ្ជាផ្ទៃក្នុង និងគោលការណ៍ក្រុមហ៊ុន',
           descEn: 'Internal rules, standard operating procedures (SOP), and policy archive',
           descZh: '上传与查阅内部员工手册、企业规章制度及SOP文件',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
           href: '/dashboard/assets',
@@ -893,7 +893,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'គ្រប់គ្រងការប្រគល់-ទទួលកុំព្យូទ័រ សម្ភារៈ និងឧបករណ៍ការងារ',
           descEn: 'Company IT hardware, laptops, phones, and equipment distribution',
           descZh: '公司电脑设备、手机办公用品领用归还与资产盘点',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR'],
         },
         {
           href: '/dashboard/ehs',
@@ -904,7 +904,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'គ្លីនិករោងចក្រ បើកថ្នាំ គ្រោះថ្នាក់ការងារ សំណងប.ស.ស និងពិនិត្យសុខភាព (BFC/MoLVT)',
           descEn: 'Factory clinic, medical visits, medicine dispensing, accident logs, and NSSF claims',
           descZh: '厂区医务室诊疗、发药记录、工伤事故申报与年度体检管理',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'DEPT_HEAD'],
         },
       ],
     },
@@ -916,7 +916,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
       icon: '🛡️',
       badgeColor: '#8b5cf6',
       bgGlow: 'rgba(139, 92, 246, 0.28)',
-      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+      roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
       items: [
         {
           href: '/dashboard/users',
@@ -960,7 +960,7 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
           desc: 'ព័ត៌មានលម្អិតអំពីប្រព័ន្ធ HRM កំណែ Version និងអ្នកអភិវឌ្ឍន៍',
           descEn: 'HRM system specifications, release version, and developer credits',
           descZh: 'HRM系统详细规格、版本信息与开发者鸣谢',
-          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD', 'EMPLOYEE'],
+          roles: ['ADMIN', 'HR_MANAGER', 'HR', 'PAYROLL_ADMIN', 'DEPT_HEAD'],
         },
       ],
     },
@@ -998,34 +998,36 @@ export default function ResizableSidebar({ companyName, logoUrl, t, role = 'EMPL
         />
       )}
 
-      {/* Mobile Floating Menu Button */}
-      <button
-        type="button"
-        onClick={() => setIsMobileOpen(true)}
-        className="mobile-menu-trigger"
-        style={{
-          display: 'none',
-          position: 'fixed',
-          bottom: '22px',
-          left: '16px',
-          zIndex: 850,
-          width: '46px',
-          height: '46px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
-          color: '#ffffff',
-          boxShadow: '0 6px 18px rgba(79, 70, 229, 0.45)',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.3rem',
-          cursor: 'pointer',
-          border: '2px solid rgba(255, 255, 255, 0.8)',
-        }}
-        title="បើកមឺនុយ (Open Menu)"
-        aria-label="Open Navigation Menu"
-      >
-        ☰
-      </button>
+      {/* Mobile Floating Menu Button (For Admin/HR/Managers only, Employees use Self-Service Dock) */}
+      {role !== 'EMPLOYEE' && (
+        <button
+          type="button"
+          onClick={() => setIsMobileOpen(true)}
+          className="mobile-menu-trigger"
+          style={{
+            display: 'none',
+            position: 'fixed',
+            bottom: '22px',
+            left: '16px',
+            zIndex: 850,
+            width: '46px',
+            height: '46px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+            color: '#ffffff',
+            boxShadow: '0 6px 18px rgba(79, 70, 229, 0.45)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.3rem',
+            cursor: 'pointer',
+            border: '2px solid rgba(255, 255, 255, 0.8)',
+          }}
+          title="បើកមឺនុយ (Open Menu)"
+          aria-label="Open Navigation Menu"
+        >
+          ☰
+        </button>
+      )}
       <style jsx>{`
         .sidebar-nav-scroll::-webkit-scrollbar {
           width: 5px;

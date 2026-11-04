@@ -48,7 +48,7 @@ export default async function DashboardLayout({
         <header className={`${styles.header} no-print`}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>{companyName}</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <GlobalSearch />
+            {role !== 'EMPLOYEE' && <GlobalSearch />}
             <ThemeToggle />
             <LanguageSwitcher />
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

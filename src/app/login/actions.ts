@@ -47,6 +47,10 @@ export async function login(formData: FormData) {
 
   await createSession(user.id, user.role, user.employee?.id);
 
+  if (user.role === 'EMPLOYEE') {
+    redirect('/dashboard/my-portal');
+  }
+
   redirect('/dashboard');
 }
 

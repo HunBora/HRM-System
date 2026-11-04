@@ -20,38 +20,44 @@ export default async function MyPortalPage({
   const requestedEmpId = resolvedParams?.employeeId;
 
   try {
-    // 1. Fetch active employees list (for selector if Admin/HR)
-    const allEmployees = await prisma.employee.findMany({
-      where: { status: 'ACTIVE' },
-      select: {
-        id: true,
-        employeeId: true,
-        firstNameEn: true,
-        lastNameEn: true,
-        firstNameKh: true,
-        lastNameKh: true,
-        position: true,
-        department: true,
-        line: true,
-        phone: true,
-        photoUrl: true,
-        basicSalary: true,
-        annualLeaveDays: true,
-        hireDate: true,
-      },
-      orderBy: { employeeId: 'asc' },
-    });
+    const isHR = session.role === 'ADMIN' || session.role === 'HR_MANAGER' || session.role === 'HR';
+
+    // 1. Fetch active employees list (ONLY if Admin/HR for switcher preview)
+    const allEmployees = isHR
+      ? await prisma.employee.findMany({
+          where: { status: 'ACTIVE' },
+          select: {
+            id: true,
+            employeeId: true,
+            firstNameEn: true,
+            lastNameEn: true,
+            firstNameKh: true,
+            lastNameKh: true,
+            position: true,
+            department: true,
+            line: true,
+            phone: true,
+            photoUrl: true,
+            basicSalary: true,
+            annualLeaveDays: true,
+            hireDate: true,
+          },
+          orderBy: { employeeId: 'asc' },
+        })
+      : [];
 
     // 2. Determine target employee ID
     let targetId: string | null = null;
 
-    if (requestedEmpId) {
+    // Only allow Admin/HR to view other employees via query param
+    if (isHR && requestedEmpId) {
       const match = allEmployees.find(
         (e) => e.id === requestedEmpId || e.employeeId === requestedEmpId
       );
       if (match) targetId = match.id;
     }
 
+    // For normal employees or logged-in users, always prioritize linked employee
     if (!targetId && session.userId) {
       const linked = await prisma.employee.findFirst({
         where: { userId: session.userId },
@@ -60,8 +66,8 @@ export default async function MyPortalPage({
       if (linked) targetId = linked.id;
     }
 
-    // Default to first employee in list if Admin/HR preview
-    if (!targetId && allEmployees.length > 0) {
+    // Default to first employee in list ONLY for Admin/HR preview if no target
+    if (!targetId && isHR && allEmployees.length > 0) {
       targetId = allEmployees[0].id;
     }
 

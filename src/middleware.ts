@@ -10,14 +10,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect root to dashboard
-  if (path === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
   // Check session
   const cookie = request.cookies.get('session')?.value;
   const session = cookie ? await decrypt(cookie) : null;
+
+  // Redirect root to dashboard (or my-portal if EMPLOYEE)
+  if (path === '/') {
+    if (session?.role === 'EMPLOYEE') {
+      return NextResponse.redirect(new URL('/dashboard/my-portal', request.url));
+    }
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   if (!session?.userId && path.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url));
@@ -29,6 +32,14 @@ export async function middleware(request: NextRequest) {
     
     // ADMIN has full access to all dashboard routes
     if (role === 'ADMIN') {
+      return NextResponse.next();
+    }
+
+    // EMPLOYEE has access ONLY to Employee Self-Service (/dashboard/my-portal)
+    if (role === 'EMPLOYEE') {
+      if (path !== '/dashboard/my-portal' && !path.startsWith('/dashboard/my-portal/')) {
+        return NextResponse.redirect(new URL('/dashboard/my-portal', request.url));
+      }
       return NextResponse.next();
     }
 
@@ -112,18 +123,7 @@ export async function middleware(request: NextRequest) {
         '/dashboard/about',
       ],
       'EMPLOYEE': [
-        '/dashboard',
         '/dashboard/my-portal',
-        '/dashboard/announcements',
-        '/dashboard/roster',
-        '/dashboard/leave',
-        '/dashboard/overtime',
-        '/dashboard/trainings',
-        '/dashboard/documents',
-        '/dashboard/certificates',
-        '/dashboard/assets',
-        '/dashboard/expenses',
-        '/dashboard/about',
       ],
     };
 

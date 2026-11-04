@@ -289,8 +289,122 @@ export default function MyPortalClient({
   };
 
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', paddingBottom: '90px', width: '100%', boxSizing: 'border-box' }}>
-      <style jsx>{`
+    <div className="portal-container">
+      <style>{`
+        /* Responsive Portal Layout */
+        .portal-container {
+          width: 100%;
+          box-sizing: border-box;
+          margin: 0 auto;
+        }
+
+        /* Mobile View (< 768px) */
+        @media (max-width: 768px) {
+          .portal-container {
+            max-width: 480px;
+            padding: 12px 10px 95px 10px;
+          }
+          .desktop-only {
+            display: none !important;
+          }
+          .mobile-only {
+            display: block !important;
+          }
+          .mobile-dock {
+            display: flex !important;
+          }
+          .portal-2col-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          .kpi-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+          }
+          .kpi-summary-card {
+            padding: 10px 6px;
+            border-radius: 14px;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+          }
+          .kpi-card-icon {
+            display: none !important;
+          }
+          .kpi-card-title {
+            font-size: 0.68rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+          }
+          .kpi-card-value {
+            font-size: 1.15rem;
+          }
+        }
+
+        /* Desktop & Tablet View (>= 769px) */
+        @media (min-width: 769px) {
+          .portal-container {
+            max-width: 1350px;
+            padding: 20px 24px 50px 24px;
+          }
+          .mobile-only {
+            display: none !important;
+          }
+          .desktop-only {
+            display: block !important;
+          }
+          .mobile-dock {
+            display: none !important;
+          }
+          .portal-2col-layout {
+            display: grid !important;
+            grid-template-columns: 1.35fr 1fr !important;
+            gap: 24px !important;
+            align-items: start !important;
+          }
+          .kpi-summary-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 20px !important;
+            margin-bottom: 24px !important;
+          }
+          .kpi-summary-card {
+            padding: 18px 22px;
+            border-radius: 20px;
+          }
+          .kpi-card-title {
+            font-size: 0.82rem;
+            display: block;
+          }
+          .kpi-card-value {
+            font-size: 1.45rem;
+          }
+          .kpi-card-icon {
+            display: inline-block;
+          }
+        }
+
+        /* Common Card & Button Styles */
+        .kpi-summary-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .kpi-summary-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        }
+
+        /* Interactive Buttons */
         .portal-grid-btn {
           display: flex;
           flex-direction: column;
@@ -299,23 +413,30 @@ export default function MyPortalClient({
           background: none;
           border: none;
           cursor: pointer;
-          padding: 8px 4px;
+          padding: 10px 4px;
           transition: transform 0.15s ease;
+        }
+        .portal-grid-btn:hover {
+          transform: translateY(-2px);
         }
         .portal-grid-btn:active {
           transform: scale(0.92);
         }
         .portal-circle-icon {
-          width: 52px;
-          height: 52px;
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
           background: #ffffff;
           border: 1px solid #e2e8f0;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.04);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 24px;
+          font-size: 26px;
+          transition: box-shadow 0.2s ease;
+        }
+        .portal-grid-btn:hover .portal-circle-icon {
+          box-shadow: 0 6px 16px rgba(0,0,0,0.08);
         }
         .bottom-nav-item {
           display: flex;
@@ -328,56 +449,63 @@ export default function MyPortalClient({
           padding: 4px 8px;
           flex: 1;
         }
-        .bottom-nav-item:active {
-          transform: scale(0.95);
+        .desktop-tab-btn {
+          padding: 10px 20px;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 0.88rem;
+          cursor: pointer;
+          border: none;
+          transition: all 0.2s ease;
         }
       `}</style>
 
-      {/* 1. TOP HEADER (Avatar, Name, Calendar & Notifications) */}
+      {/* 1. TOP HEADER (Avatar, Name, Actions, Clock-in) */}
       <div
         style={{
           background: '#ffffff',
           borderRadius: '24px',
-          padding: '16px 20px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-          border: '1px solid #f1f5f9',
+          padding: '20px 24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          border: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '12px',
-          marginBottom: '16px',
+          flexWrap: 'wrap',
+          gap: '16px',
+          marginBottom: '20px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
           {employee.photoUrl ? (
             <img
               src={employee.photoUrl}
               alt=""
               style={{
-                width: '54px',
-                height: '54px',
+                width: '60px',
+                height: '60px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '2px solid #ffffff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                border: '3px solid #10b981',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
                 flexShrink: 0,
               }}
             />
           ) : (
             <div
               style={{
-                width: '54px',
-                height: '54px',
+                width: '60px',
+                height: '60px',
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '22px',
-                fontWeight: 800,
-                border: '2px solid #ffffff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                fontSize: '26px',
+                fontWeight: 900,
+                border: '3px solid #ffffff',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
                 flexShrink: 0,
               }}
             >
@@ -386,45 +514,79 @@ export default function MyPortalClient({
           )}
 
           <div style={{ minWidth: 0 }}>
-            <h1
-              className="kh-text"
-              style={{
-                margin: 0,
-                fontSize: '1.25rem',
-                fontWeight: 900,
-                color: '#0f172a',
-                lineHeight: 1.25,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {displayName}
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <h1
+                className="kh-text"
+                style={{
+                  margin: 0,
+                  fontSize: '1.35rem',
+                  fontWeight: 900,
+                  color: '#0f172a',
+                  lineHeight: 1.2,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {displayName}
+              </h1>
+              <span
+                style={{
+                  background: '#ecfdf5',
+                  color: '#059669',
+                  fontFamily: 'monospace',
+                  fontWeight: 800,
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  fontSize: '0.78rem',
+                  border: '1px solid #a7f3d0',
+                }}
+              >
+                {employee.employeeId}
+              </span>
+            </div>
             <p
               className="kh-text"
               style={{
-                margin: '3px 0 0 0',
-                fontSize: '0.78rem',
+                margin: '4px 0 0 0',
+                fontSize: '0.82rem',
                 color: '#64748b',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
               }}
             >
-              {employee.position} • {employee.department}
+              🏢 {employee.department} • {employee.position} {employee.phone && <span>• 📞 {employee.phone}</span>}
             </p>
           </div>
         </div>
 
-        {/* Top Right Action Icons: Calendar & Notification */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        {/* Right Header Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Desktop Clock In Button */}
+          <button
+            onClick={() => setIsClockInModalOpen(true)}
+            type="button"
+            className="desktop-only kh-text"
+            style={{
+              padding: '10px 20px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+              color: '#ffffff',
+              border: 'none',
+              fontSize: '0.86rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
+            }}
+          >
+            👆 ស្កេនវត្តមាន (Clock In Now)
+          </button>
+
           <button
             onClick={() => setIsCalendarModalOpen(true)}
             type="button"
             style={{
-              width: '40px',
-              height: '40px',
+              width: '42px',
+              height: '42px',
               borderRadius: '50%',
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
@@ -434,7 +596,7 @@ export default function MyPortalClient({
               fontSize: '18px',
               cursor: 'pointer',
             }}
-            title="ប្រតិទិនការងារ"
+            title="ប្រតិទិនការងារ & វេន"
           >
             📅
           </button>
@@ -450,8 +612,8 @@ export default function MyPortalClient({
             }}
             type="button"
             style={{
-              width: '40px',
-              height: '40px',
+              width: '42px',
+              height: '42px',
               borderRadius: '50%',
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
@@ -488,21 +650,21 @@ export default function MyPortalClient({
             background: '#eef2ff',
             border: '1px solid #c7d2fe',
             borderRadius: '16px',
-            padding: '10px 14px',
-            marginBottom: '16px',
+            padding: '10px 16px',
+            marginBottom: '20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '8px',
+            gap: '12px',
           }}
         >
-          <span className="kh-text" style={{ fontSize: '0.75rem', fontWeight: 800, color: '#3730a3', whiteSpace: 'nowrap' }}>
-            👀 Admin Preview:
+          <span className="kh-text" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#3730a3', whiteSpace: 'nowrap' }}>
+            👀 Admin Preview (មើលជាបុគ្គលិកផ្សេងទៀត)៖
           </span>
-          <div style={{ position: 'relative', flex: 1 }}>
+          <div style={{ position: 'relative', flex: 1, maxWidth: '320px' }}>
             <input
               type="text"
-              placeholder="🔍 វាយ ID ឬ ឈ្មោះ..."
+              placeholder="🔍 វាយ ID ឬ ឈ្មោះដើម្បីប្តូរ..."
               value={portalSearchQuery}
               onChange={(e) => {
                 setPortalSearchQuery(e.target.value);
@@ -512,11 +674,11 @@ export default function MyPortalClient({
               className="kh-text"
               style={{
                 width: '100%',
-                padding: '6px 10px',
+                padding: '7px 12px',
                 borderRadius: '8px',
                 border: '1px solid #a5b4fc',
                 background: '#ffffff',
-                fontSize: '0.78rem',
+                fontSize: '0.82rem',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -531,7 +693,7 @@ export default function MyPortalClient({
                     left: 0,
                     right: 0,
                     marginTop: '4px',
-                    maxHeight: '220px',
+                    maxHeight: '240px',
                     overflowY: 'auto',
                     background: '#ffffff',
                     borderRadius: '10px',
@@ -549,10 +711,10 @@ export default function MyPortalClient({
                         router.push(`/dashboard/my-portal?employeeId=${e.id}`);
                       }}
                       style={{
-                        padding: '8px 12px',
+                        padding: '9px 14px',
                         borderBottom: '1px solid #f1f5f9',
                         cursor: 'pointer',
-                        fontSize: '0.78rem',
+                        fontSize: '0.82rem',
                       }}
                     >
                       <strong style={{ color: '#1e293b' }}>{e.employeeId}</strong> - {e.lastNameKh || e.lastNameEn} {e.firstNameKh || e.firstNameEn}
@@ -565,385 +727,640 @@ export default function MyPortalClient({
         </div>
       )}
 
-      {/* 2. SECTION: "ការប្រើប្រាស់មុខងារឆាប់រហ័ស" (Quick Shortcuts Grid) */}
-      {activeTab === 'HOME' && (
-        <>
-          <div style={{ marginBottom: '18px' }}>
-            <h2 className="kh-text" style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', margin: '0 0 12px 0' }}>
-              ការប្រើប្រាស់មុខងារឆាប់រហ័ស
-            </h2>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '12px 8px',
-              }}
-            >
-              {/* 1. វត្តមាន */}
-              <button onClick={() => setIsClockInModalOpen(true)} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0' }}>
-                  📋
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  វត្តមាន
-                </span>
-              </button>
-
-              {/* 2. ពិនិត្យកម្រងប្រាក់ */}
-              <button onClick={() => setActiveTab('PAYROLL')} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#f0fdf4', color: '#16a34a', borderColor: '#bbf7d0' }}>
-                  💵
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  ពិនិត្យកម្រងប្រាក់
-                </span>
-              </button>
-
-              {/* 3. សំណើចេញក្រៅ */}
-              <button onClick={() => setIsLeaveModalOpen(true)} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#f0f9ff', color: '#0284c7', borderColor: '#bae6fd' }}>
-                  🏢
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  សំណើចេញក្រៅ
-                </span>
-              </button>
-
-              {/* 4. តាមដាន KPI */}
-              <button onClick={() => setIsKpiModalOpen(true)} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#ecfdf5', color: '#047857', borderColor: '#a7f3d0' }}>
-                  🎯
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  តាមដាន KPI
-                </span>
-              </button>
-
-              {/* 5. កំណត់ប្រាក់ចេញក្រៅ / ប្រាក់កម្ចី */}
-              <button onClick={() => setActiveTab('PROFILE')} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#fffbeb', color: '#d97706', borderColor: '#fde68a' }}>
-                  💳
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>
-                  កំណត់ប្រាក់/កម្ចី
-                </span>
-              </button>
-
-              {/* 6. ប្រវត្តិការងារ */}
-              <button onClick={() => setActiveTab('PROFILE')} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#f5f3ff', color: '#7c3aed', borderColor: '#ddd6fe' }}>
-                  📑
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  ប្រវត្តិការងារ
-                </span>
-              </button>
-
-              {/* 7. ស្នើសុំច្បាប់ */}
-              <button onClick={() => setActiveTab('REQUESTS')} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' }}>
-                  📝
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  ប្រវត្តិច្បាប់
-                </span>
-              </button>
-
-              {/* 8. កាលវិភាគវេន */}
-              <button onClick={() => setIsCalendarModalOpen(true)} type="button" className="portal-grid-btn">
-                <div className="portal-circle-icon" style={{ background: '#faf5ff', color: '#9333ea', borderColor: '#e9d5ff' }}>
-                  ⏱️
-                </div>
-                <span className="kh-text" style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                  កាលវិភាគវេន
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* 3. SECTION: "ថ្ងៃនេះ" (Today's Punches Timeline) */}
-          <div
+      {/* 2. TOP SEGMENTED NAVIGATION TABS (Visible on Desktop/Tablet) */}
+      <div className="desktop-only" style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '8px', background: '#ffffff', padding: '6px', borderRadius: '16px', border: '1px solid #e2e8f0', width: 'fit-content' }}>
+          <button
+            onClick={() => setActiveTab('HOME')}
+            className="desktop-tab-btn kh-text"
             style={{
-              background: '#ffffff',
-              borderRadius: '24px',
-              padding: '18px 20px',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
-              marginBottom: '16px',
+              background: activeTab === 'HOME' ? '#059669' : 'transparent',
+              color: activeTab === 'HOME' ? '#ffffff' : '#64748b',
             }}
           >
-            {/* Header: ថ្ងៃនេះ + Shift Code */}
+            🏠 ទំព័រដើម (Overview)
+          </button>
+          <button
+            onClick={() => setActiveTab('REQUESTS')}
+            className="desktop-tab-btn kh-text"
+            style={{
+              background: activeTab === 'REQUESTS' ? '#059669' : 'transparent',
+              color: activeTab === 'REQUESTS' ? '#ffffff' : '#64748b',
+            }}
+          >
+            📄 សំណើសុំច្បាប់ & OT
+          </button>
+          <button
+            onClick={() => setActiveTab('PAYROLL')}
+            className="desktop-tab-btn kh-text"
+            style={{
+              background: activeTab === 'PAYROLL' ? '#059669' : 'transparent',
+              color: activeTab === 'PAYROLL' ? '#ffffff' : '#64748b',
+            }}
+          >
+            💰 កម្រងប្រាក់ (Payslips)
+          </button>
+          <button
+            onClick={() => setActiveTab('PROFILE')}
+            className="desktop-tab-btn kh-text"
+            style={{
+              background: activeTab === 'PROFILE' ? '#059669' : 'transparent',
+              color: activeTab === 'PROFILE' ? '#ffffff' : '#64748b',
+            }}
+          >
+            👤 ប្រវត្តិរូប & កម្ចី
+          </button>
+        </div>
+      </div>
+
+      {/* 3. THREE BIG STAT CARDS (Evenly Spread Across Desktop) */}
+      <div className="kpi-summary-grid">
+        <div className="kpi-summary-card">
+          <div style={{ minWidth: 0 }}>
+            <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
+              ច្បាប់សម្រាកនៅសល់ (Annual Leave)
+            </span>
+            <div className="kpi-card-value" style={{ fontWeight: 900, color: '#059669', marginTop: '2px' }}>
+              {employee.annualLeaveDays ?? 18}{' '}
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
+            </div>
+          </div>
+          <span className="kpi-card-icon" style={{ fontSize: '28px' }}>🌴</span>
+        </div>
+
+        <div className="kpi-summary-card">
+          <div style={{ minWidth: 0 }}>
+            <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
+              ប្រាក់ខែមូលដ្ឋាន (Basic Salary)
+            </span>
+            <div className="kpi-card-value" style={{ fontWeight: 900, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
+              ${employee.basicSalary?.toFixed(2) || '0.00'}
+            </div>
+          </div>
+          <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💰</span>
+        </div>
+
+        <div className="kpi-summary-card">
+          <div style={{ minWidth: 0 }}>
+            <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
+              ប្រាក់កម្ចីនៅជំពាក់ (Active Loan)
+            </span>
+            <div className="kpi-card-value" style={{ fontWeight: 900, color: '#d97706', marginTop: '2px', fontFamily: 'monospace' }}>
+              ${activeLoanBalance}
+            </div>
+          </div>
+          <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💳</span>
+        </div>
+      </div>
+
+      {/* 4. MAIN CONTENT TABS */}
+      {activeTab === 'HOME' && (
+        <div className="portal-2col-layout">
+          {/* COLUMN 1 (Left on desktop): Quick Action Shortcuts & Info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Card: Quick Services Shortcuts */}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingBottom: '12px',
-                borderBottom: '1px solid #f1f5f9',
-                marginBottom: '12px',
+                background: '#ffffff',
+                borderRadius: '24px',
+                padding: '24px',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+                border: '1px solid #e2e8f0',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a' }}>
-                  ថ្ងៃនេះ
-                </span>
+              <h2 className="kh-text" style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: '0 0 16px 0' }}>
+                ការប្រើប្រាស់មុខងារឆាប់រហ័ស
+              </h2>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '16px 12px',
+                }}
+              >
+                {/* 1. វត្តមាន */}
+                <button onClick={() => setIsClockInModalOpen(true)} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0' }}>
+                    📋
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    វត្តមាន
+                  </span>
+                </button>
+
+                {/* 2. ពិនិត្យកម្រងប្រាក់ */}
+                <button onClick={() => setActiveTab('PAYROLL')} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#f0fdf4', color: '#16a34a', borderColor: '#bbf7d0' }}>
+                    💵
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    ពិនិត្យកម្រងប្រាក់
+                  </span>
+                </button>
+
+                {/* 3. សំណើចេញក្រៅ */}
+                <button onClick={() => setIsLeaveModalOpen(true)} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#f0f9ff', color: '#0284c7', borderColor: '#bae6fd' }}>
+                    🏢
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    សំណើចេញក្រៅ
+                  </span>
+                </button>
+
+                {/* 4. តាមដាន KPI */}
+                <button onClick={() => setIsKpiModalOpen(true)} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#ecfdf5', color: '#047857', borderColor: '#a7f3d0' }}>
+                    🎯
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    តាមដាន KPI
+                  </span>
+                </button>
+
+                {/* 5. កំណត់ប្រាក់ចេញក្រៅ / ប្រាក់កម្ចី */}
+                <button onClick={() => setActiveTab('PROFILE')} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#fffbeb', color: '#d97706', borderColor: '#fde68a' }}>
+                    💳
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>
+                    កំណត់ប្រាក់/កម្ចី
+                  </span>
+                </button>
+
+                {/* 6. ប្រវត្តិការងារ */}
+                <button onClick={() => setActiveTab('PROFILE')} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#f5f3ff', color: '#7c3aed', borderColor: '#ddd6fe' }}>
+                    📑
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    ប្រវត្តិការងារ
+                  </span>
+                </button>
+
+                {/* 7. ស្នើសុំច្បាប់ */}
+                <button onClick={() => setActiveTab('REQUESTS')} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' }}>
+                    📝
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    ប្រវត្តិច្បាប់
+                  </span>
+                </button>
+
+                {/* 8. កាលវិភាគវេន */}
+                <button onClick={() => setIsCalendarModalOpen(true)} type="button" className="portal-grid-btn">
+                  <div className="portal-circle-icon" style={{ background: '#faf5ff', color: '#9333ea', borderColor: '#e9d5ff' }}>
+                    ⏱️
+                  </div>
+                  <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+                    កាលវិភាគវេន
+                  </span>
+                </button>
               </div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#16a34a', fontFamily: 'monospace' }}>
-                {employee.shift || 'LF (08:00 AM - 05:00 PM)'}
-              </span>
             </div>
 
-            {/* 4 Punch Cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {punchSlots.map((slot) => (
-                <div
-                  key={slot.id}
-                  style={{
-                    background: '#f8fafc',
-                    borderRadius: '16px',
-                    padding: '12px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    border: '1px solid #f1f5f9',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: slot.iconBg,
-                        color: slot.iconColor,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px',
-                      }}
-                    >
-                      🚶‍♂️
-                    </div>
-                    <div>
-                      <div className="kh-text" style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
-                        {slot.title}
-                      </div>
-                      <div className="kh-text" style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: '2px' }}>
-                        {slot.sub}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
-                      {slot.time}
-                    </div>
-                    <div style={{ fontSize: '0.74rem', fontWeight: 700, color: slot.tagColor, fontFamily: 'monospace', marginTop: '2px' }}>
-                      {slot.tag}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 4. Mini KPI Cards (Annual Leave, Salary, Loan) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '16px' }}>
-            <div style={{ background: '#ffffff', borderRadius: '16px', padding: '12px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-              <span className="kh-text" style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>
-                ច្បាប់នៅសល់
-              </span>
-              <strong style={{ fontSize: '1.05rem', color: '#059669', display: 'block', marginTop: '4px' }}>
-                {employee.annualLeaveDays ?? 18} <span style={{ fontSize: '0.75rem', fontWeight: 500 }}>ថ្ងៃ</span>
-              </strong>
-            </div>
-
-            <div style={{ background: '#ffffff', borderRadius: '16px', padding: '12px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-              <span className="kh-text" style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>
-                ប្រាក់ខែគោល
-              </span>
-              <strong style={{ fontSize: '1.05rem', color: '#0f172a', display: 'block', marginTop: '4px', fontFamily: 'monospace' }}>
-                ${employee.basicSalary?.toFixed(0) || '0'}
-              </strong>
-            </div>
-
-            <div style={{ background: '#ffffff', borderRadius: '16px', padding: '12px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-              <span className="kh-text" style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>
-                ប្រាក់កម្ចីនៅសល់
-              </span>
-              <strong style={{ fontSize: '1.05rem', color: '#d97706', display: 'block', marginTop: '4px', fontFamily: 'monospace' }}>
-                ${activeLoanBalance}
-              </strong>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* TAB: REQUESTS (Leave & OT) */}
-      {activeTab === 'REQUESTS' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 className="kh-text" style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
-              ប្រវត្តិនៃការស្នើសុំ
-            </h2>
-            <button
-              onClick={() => setIsLeaveModalOpen(true)}
-              className="kh-text"
+            {/* Desktop View: Latest Payslip Summary Preview */}
+            <div
+              className="desktop-only"
               style={{
-                background: '#059669',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '8px 16px',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
+                background: '#ffffff',
+                borderRadius: '24px',
+                padding: '24px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
               }}
             >
-              + ស្នើសុំច្បាប់
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {!employee.leaveRequests || employee.leaveRequests.length === 0 ? (
-              <div style={{ background: '#ffffff', borderRadius: '16px', padding: '30px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                មិនទាន់មានប្រវត្តិស្នើសុំច្បាប់នៅឡើយទេ
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                  💰 ប័ណ្ណបើកប្រាក់បៀវត្សចុងក្រោយ (Latest Payslip)
+                </h3>
+                <button
+                  onClick={() => setActiveTab('PAYROLL')}
+                  className="kh-text"
+                  style={{ background: 'none', border: 'none', color: '#059669', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
+                >
+                  មើលទាំងអស់ ➔
+                </button>
               </div>
-            ) : (
-              employee.leaveRequests.map((l) => (
-                <div key={l.id} style={{ background: '#ffffff', borderRadius: '16px', padding: '14px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <strong className="kh-text" style={{ fontSize: '0.86rem', color: '#0f172a' }}>🌴 {l.leaveType}</strong>
-                    <span
-                      style={{
-                        fontSize: '0.72rem',
-                        fontWeight: 700,
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                        background: l.status === 'APPROVED' ? '#dcfce7' : l.status === 'REJECTED' ? '#fee2e2' : '#fef3c7',
-                        color: l.status === 'APPROVED' ? '#166534' : l.status === 'REJECTED' ? '#991b1b' : '#92400e',
-                      }}
-                    >
-                      {l.status}
+
+              {employee.payrolls && employee.payrolls.length > 0 ? (
+                <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong className="kh-text" style={{ fontSize: '0.95rem', color: '#0f172a', display: 'block' }}>
+                      ខែ {employee.payrolls[0].month} ឆ្នាំ {employee.payrolls[0].year}
+                    </strong>
+                    <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                      គោល: ${employee.payrolls[0].basicSalary.toFixed(2)} • ថែមម៉ោង: +${(employee.payrolls[0].otPay || 0).toFixed(2)}
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>{new Date(l.startDate).toLocaleDateString()} ➔ {new Date(l.endDate).toLocaleDateString()}</span>
-                    <strong>{l.days} ថ្ងៃ</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ textAlign: 'right' }}>
+                      <span className="kh-text" style={{ fontSize: '0.72rem', color: '#64748b', display: 'block' }}>ប្រាក់បើកសុទ្ធ</span>
+                      <strong style={{ fontSize: '1.25rem', color: '#059669', fontFamily: 'monospace' }}>
+                        ${employee.payrolls[0].netSalary.toFixed(2)}
+                      </strong>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedPayroll(employee.payrolls![0]);
+                        setIsPayslipModalOpen(true);
+                      }}
+                      className="kh-text"
+                      style={{
+                        padding: '8px 16px',
+                        background: '#ecfdf5',
+                        color: '#059669',
+                        border: '1px solid #a7f3d0',
+                        borderRadius: '10px',
+                        fontWeight: 700,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      👁️ មើលប័ណ្ណ
+                    </button>
                   </div>
                 </div>
-              ))
-            )}
+              ) : (
+                <p className="kh-text" style={{ color: '#94a3b8', fontSize: '0.82rem', margin: 0 }}>
+                  មិនទាន់មានទិន្នន័យប្រាក់ខែនៅឡើយទេ
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* COLUMN 2 (Right on desktop): Today's Card & Shifts */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Card: ថ្ងៃនេះ (Today's Punches Timeline) */}
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '24px',
+                padding: '24px',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+                border: '1px solid #e2e8f0',
+              }}
+            >
+              {/* Header: ថ្ងៃនេះ + Shift Code */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingBottom: '14px',
+                  borderBottom: '1px solid #f1f5f9',
+                  marginBottom: '14px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span className="kh-text" style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a' }}>
+                    ថ្ងៃនេះ
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                    ({new Date().toLocaleDateString('km-KH', { weekday: 'short', day: 'numeric', month: 'short' })})
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#16a34a', fontFamily: 'monospace' }}>
+                  {employee.shift || 'LF (08:00 AM - 05:00 PM)'}
+                </span>
+              </div>
+
+              {/* 4 Punch Cards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {punchSlots.map((slot) => (
+                  <div
+                    key={slot.id}
+                    style={{
+                      background: '#f8fafc',
+                      borderRadius: '16px',
+                      padding: '12px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      border: '1px solid #f1f5f9',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div
+                        style={{
+                          width: '38px',
+                          height: '38px',
+                          borderRadius: '50%',
+                          background: slot.iconBg,
+                          color: slot.iconColor,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px',
+                        }}
+                      >
+                        🚶‍♂️
+                      </div>
+                      <div>
+                        <div className="kh-text" style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+                          {slot.title}
+                        </div>
+                        <div className="kh-text" style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: '2px' }}>
+                          {slot.sub}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace' }}>
+                        {slot.time}
+                      </div>
+                      <div style={{ fontSize: '0.74rem', fontWeight: 700, color: slot.tagColor, fontFamily: 'monospace', marginTop: '2px' }}>
+                        {slot.tag}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Clock-in Box on Desktop */}
+              <button
+                onClick={() => setIsClockInModalOpen(true)}
+                className="desktop-only kh-text"
+                style={{
+                  width: '100%',
+                  marginTop: '16px',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '14px',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                }}
+              >
+                📷 / 📍 ស្កេនវត្តមានចូល-ចេញ (Clock In)
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* TAB: PAYROLL (Payslips) */}
+      {/* TAB: REQUESTS (Leave & OT History) */}
+      {activeTab === 'REQUESTS' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '24px',
+              padding: '24px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 className="kh-text" style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+                ប្រវត្តិនៃការស្នើសុំច្បាប់ និងថែមម៉ោង (Requests Hub)
+              </h2>
+              <button
+                onClick={() => setIsLeaveModalOpen(true)}
+                className="kh-text"
+                style={{
+                  background: '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '10px 20px',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                }}
+              >
+                + ដាក់ពាក្យស្នើសុំច្បាប់
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ប្រភេទច្បាប់</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>កាលបរិច្ឆេទ</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ចំនួនថ្ងៃ</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>មូលហេតុ</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ស្ថានភាព</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {!employee.leaveRequests || employee.leaveRequests.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
+                        មិនទាន់មានប្រវត្តិស្នើសុំច្បាប់នៅឡើយទេ
+                      </td>
+                    </tr>
+                  ) : (
+                    employee.leaveRequests.map((l) => (
+                      <tr key={l.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '12px 16px', fontWeight: 700, color: '#0f172a' }}>🌴 {l.leaveType}</td>
+                        <td style={{ padding: '12px 16px', fontSize: '0.82rem', fontFamily: 'monospace' }}>
+                          {new Date(l.startDate).toLocaleDateString()} ➔ {new Date(l.endDate).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: '12px 16px', fontWeight: 800 }}>{l.days} ថ្ងៃ</td>
+                        <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '0.82rem' }}>{l.reason || '-'}</td>
+                        <td style={{ padding: '12px 16px' }}>
+                          <span
+                            style={{
+                              fontSize: '0.74rem',
+                              fontWeight: 700,
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              background: l.status === 'APPROVED' ? '#dcfce7' : l.status === 'REJECTED' ? '#fee2e2' : '#fef3c7',
+                              color: l.status === 'APPROVED' ? '#166534' : l.status === 'REJECTED' ? '#991b1b' : '#92400e',
+                            }}
+                          >
+                            {l.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: PAYROLL (Payslips List) */}
       {activeTab === 'PAYROLL' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <h2 className="kh-text" style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
-            ប័ណ្ណបើកប្រាក់បៀវត្ស (Payslips)
-          </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '24px',
+              padding: '24px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            }}
+          >
+            <h2 className="kh-text" style={{ margin: '0 0 16px 0', fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+              ប័ណ្ណបើកប្រាក់បៀវត្ស (Payslips History)
+            </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {!employee.payrolls || employee.payrolls.length === 0 ? (
-              <div style={{ background: '#ffffff', borderRadius: '16px', padding: '30px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                មិនទាន់មានទិន្នន័យប័ណ្ណប្រាក់ខែនៅឡើយទេ
-              </div>
-            ) : (
-              employee.payrolls.map((p) => (
-                <div key={p.id} style={{ background: '#ffffff', borderRadius: '16px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '10px' }}>
-                    <div>
-                      <strong className="kh-text" style={{ fontSize: '0.92rem', color: '#0f172a', display: 'block' }}>
-                        ខែ {p.month} ឆ្នាំ {p.year}
-                      </strong>
-                      <span style={{ fontSize: '0.75rem', color: '#64748b', fontFamily: 'monospace' }}>
-                        គោល: ${p.basicSalary.toFixed(2)}
-                      </span>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <span className="kh-text" style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>ប្រាក់បើកសុទ្ធ</span>
-                      <strong style={{ fontSize: '1.1rem', color: '#059669', fontFamily: 'monospace' }}>
-                        ${p.netSalary.toFixed(2)}
-                      </strong>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.78rem', marginBottom: '10px' }}>
-                    <div style={{ background: '#f0fdf4', color: '#16a34a', padding: '6px 10px', borderRadius: '8px' }}>
-                      ថែមម៉ោង/ឧបត្ថម្ភ: +${((p.otPay || 0) + (p.allowances || 0)).toFixed(2)}
-                    </div>
-                    <div style={{ background: '#fef2f2', color: '#dc2626', padding: '6px 10px', borderRadius: '8px', textAlign: 'right' }}>
-                      កាត់ប្រាក់: -${((p.deductions || 0) + (p.tax || 0)).toFixed(2)}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setSelectedPayroll(p);
-                      setIsPayslipModalOpen(true);
-                    }}
-                    className="kh-text"
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      background: '#ecfdf5',
-                      color: '#059669',
-                      border: '1px solid #a7f3d0',
-                      borderRadius: '10px',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    👁️ មើលប័ណ្ណប្រាក់ខែ
-                  </button>
-                </div>
-              ))
-            )}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ខែ/ឆ្នាំ</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ប្រាក់ខែគោល</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ថែមម៉ោង & ឧបត្ថម្ភ</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>កាត់ប្រាក់</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>ប្រាក់បើកសុទ្ធ</th>
+                    <th className="kh-text" style={{ padding: '12px 16px', textAlign: 'center', fontSize: '0.8rem', color: '#475569', fontWeight: 800 }}>សកម្មភាព</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {!employee.payrolls || employee.payrolls.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
+                        មិនទាន់មានទិន្នន័យប័ណ្ណប្រាក់ខែនៅឡើយទេ
+                      </td>
+                    </tr>
+                  ) : (
+                    employee.payrolls.map((p) => (
+                      <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '12px 16px', fontWeight: 800, color: '#0f172a' }}>
+                          ខែ {p.month} ឆ្នាំ {p.year}
+                        </td>
+                        <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontWeight: 600 }}>
+                          ${p.basicSalary.toFixed(2)}
+                        </td>
+                        <td style={{ padding: '12px 16px', color: '#16a34a', fontFamily: 'monospace', fontWeight: 700 }}>
+                          +${((p.otPay || 0) + (p.allowances || 0)).toFixed(2)}
+                        </td>
+                        <td style={{ padding: '12px 16px', color: '#dc2626', fontFamily: 'monospace', fontWeight: 700 }}>
+                          -${((p.deductions || 0) + (p.tax || 0)).toFixed(2)}
+                        </td>
+                        <td style={{ padding: '12px 16px', color: '#059669', fontFamily: 'monospace', fontWeight: 900, fontSize: '1.05rem' }}>
+                          ${p.netSalary.toFixed(2)}
+                        </td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                          <button
+                            onClick={() => {
+                              setSelectedPayroll(p);
+                              setIsPayslipModalOpen(true);
+                            }}
+                            className="kh-text"
+                            style={{
+                              padding: '6px 14px',
+                              background: '#ecfdf5',
+                              color: '#059669',
+                              border: '1px solid #a7f3d0',
+                              borderRadius: '8px',
+                              fontWeight: 700,
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            👁️ មើលប័ណ្ណ
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
       {/* TAB: PROFILE */}
       {activeTab === 'PROFILE' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div style={{ background: '#ffffff', borderRadius: '20px', padding: '20px', border: '1px solid #e2e8f0' }}>
-            <h3 className="kh-text" style={{ margin: '0 0 12px 0', fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
-              ព័ត៌មានការងារ
+        <div className="portal-2col-layout">
+          {/* Card: Employment Details */}
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '24px',
+              padding: '24px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+            }}
+          >
+            <h3 className="kh-text" style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
+              ព័ត៌មានការងារ & កិច្ចសន្យា
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.84rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>អត្តលេខ</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.86rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                <span className="kh-text" style={{ color: '#64748b' }}>អត្តលេខសម្គាល់</span>
                 <strong style={{ fontFamily: 'monospace' }}>{employee.employeeId}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>ផ្នែក</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                <span className="kh-text" style={{ color: '#64748b' }}>ផ្នែក / ដេប៉ាតឺម៉ង់</span>
                 <strong>{employee.department}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
                 <span className="kh-text" style={{ color: '#64748b' }}>តួនាទី</span>
                 <strong>{employee.position}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>កាលវិភាគវេន</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                <span className="kh-text" style={{ color: '#64748b' }}>កាលវិភាគវេនការងារ</span>
                 <strong style={{ color: '#059669', fontFamily: 'monospace' }}>{employee.shift || 'LF (08:00 AM - 05:00 PM)'}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>ថ្ងៃចូលធ្វើការ</span>
+                <span className="kh-text" style={{ color: '#64748b' }}>កាលបរិច្ឆេទចូលធ្វើការ</span>
                 <strong style={{ fontFamily: 'monospace' }}>
                   {employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : '-'}
                 </strong>
               </div>
             </div>
           </div>
+
+          {/* Card: Loans */}
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '24px',
+              padding: '24px',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+            }}
+          >
+            <h3 className="kh-text" style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
+              ស្ថានភាពប្រាក់កម្ចីបុគ្គលិក
+            </h3>
+            {activeLoan ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.86rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                  <span className="kh-text" style={{ color: '#64748b' }}>កូដកម្ចី</span>
+                  <strong style={{ fontFamily: 'monospace' }}>{activeLoan.loanCode}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                  <span className="kh-text" style={{ color: '#64748b' }}>ប្រាក់កម្ចីដើម</span>
+                  <strong style={{ fontFamily: 'monospace' }}>${activeLoan.loanAmount.toFixed(2)}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                  <span className="kh-text" style={{ color: '#64748b' }}>កាត់ប្រចាំខែ</span>
+                  <strong style={{ color: '#4f46e5', fontFamily: 'monospace' }}>${activeLoan.monthlyDeduction.toFixed(2)}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span className="kh-text" style={{ color: '#64748b' }}>សមតុល្យនៅសល់</span>
+                  <strong style={{ color: '#d97706', fontFamily: 'monospace' }}>${activeLoan.remainingBalance.toFixed(2)}</strong>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#94a3b8', padding: '20px 0', fontSize: '0.85rem' }}>
+                មិនមានកំណត់ត្រាប្រាក់កម្ចីនៅឡើយទេ
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* 5. BOTTOM NAVIGATION BAR (Fixed App Dock) */}
+      {/* 5. MOBILE BOTTOM NAVIGATION BAR (Visible on Mobile Only) */}
       <div
+        className="mobile-dock"
         style={{
           position: 'fixed',
           bottom: 0,
@@ -960,6 +1377,7 @@ export default function MyPortalClient({
           style={{
             maxWidth: '480px',
             margin: '0 auto',
+            width: '100%',
             padding: '6px 16px 8px 16px',
             display: 'flex',
             alignItems: 'center',
@@ -997,7 +1415,7 @@ export default function MyPortalClient({
             </span>
           </button>
 
-          {/* CENTER FLOATING PUNCH BUTTON (👆 / 🟢) */}
+          {/* CENTER FLOATING PUNCH BUTTON (👆) */}
           <div style={{ position: 'relative', top: '-18px', display: 'flex', justifyContent: 'center' }}>
             <button
               onClick={() => setIsClockInModalOpen(true)}
@@ -1065,22 +1483,22 @@ export default function MyPortalClient({
       {/* PAYSLIP MODAL */}
       {isPayslipModalOpen && selectedPayroll && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '400px', width: '100%', padding: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '14px' }}>
-              <strong className="kh-text" style={{ fontSize: '0.95rem', color: '#0f172a' }}>ប័ណ្ណបើកប្រាក់បៀវត្ស</strong>
+          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '420px', width: '100%', padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
+              <strong className="kh-text" style={{ fontSize: '1rem', color: '#0f172a' }}>ប័ណ្ណបើកប្រាក់បៀវត្ស</strong>
               <button onClick={() => setIsPayslipModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
-            <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-              <div className="kh-text" style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div className="kh-text" style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
                 ខែ {selectedPayroll.month} ឆ្នាំ {selectedPayroll.year}
               </div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#059669', fontFamily: 'monospace', marginTop: '4px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 900, color: '#059669', fontFamily: 'monospace', marginTop: '4px' }}>
                 ${selectedPayroll.netSalary.toFixed(2)}
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', borderRadius: '14px', padding: '12px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+            <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '14px', fontSize: '0.84rem', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span className="kh-text" style={{ color: '#64748b' }}>ប្រាក់ខែគោល:</span>
                 <strong style={{ fontFamily: 'monospace' }}>${selectedPayroll.basicSalary.toFixed(2)}</strong>
@@ -1098,7 +1516,7 @@ export default function MyPortalClient({
             <button
               onClick={() => window.print()}
               className="kh-text"
-              style={{ width: '100%', padding: '10px', background: '#059669', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+              style={{ width: '100%', padding: '12px', background: '#059669', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
             >
               🖨️ បោះពុម្ពប័ណ្ណប្រាក់ខែ
             </button>
@@ -1109,13 +1527,13 @@ export default function MyPortalClient({
       {/* LEAVE MODAL */}
       {isLeaveModalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '400px', width: '100%', padding: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '14px' }}>
-              <strong className="kh-text" style={{ fontSize: '0.95rem', color: '#0f172a' }}>ពាក្យស្នើសុំច្បាប់ឈប់សម្រាក</strong>
+          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '420px', width: '100%', padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
+              <strong className="kh-text" style={{ fontSize: '1rem', color: '#0f172a' }}>ពាក្យស្នើសុំច្បាប់ឈប់សម្រាក</strong>
               <button onClick={() => setIsLeaveModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
-            <form onSubmit={handleSubmitLeave} style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.8rem' }}>
+            <form onSubmit={handleSubmitLeave} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.84rem' }}>
               <div>
                 <label className="kh-text" style={{ display: 'block', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
                   ប្រភេទច្បាប់
@@ -1124,7 +1542,7 @@ export default function MyPortalClient({
                   value={leaveType}
                   onChange={(e) => setLeaveType(e.target.value)}
                   className="kh-text"
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}
                 >
                   <option value="ANNUAL">ច្បាប់ប្រចាំឆ្នាំ (Annual Leave)</option>
                   <option value="SICK">ច្បាប់ឈឺ (Sick Leave)</option>
@@ -1133,7 +1551,7 @@ export default function MyPortalClient({
                 </select>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label className="kh-text" style={{ display: 'block', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>ចាប់ពីថ្ងៃ</label>
                   <input
@@ -1141,7 +1559,7 @@ export default function MyPortalClient({
                     value={leaveStart}
                     onChange={(e) => setLeaveStart(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'monospace' }}
                   />
                 </div>
                 <div>
@@ -1151,7 +1569,7 @@ export default function MyPortalClient({
                     value={leaveEnd}
                     onChange={(e) => setLeaveEnd(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'monospace' }}
                   />
                 </div>
               </div>
@@ -1165,7 +1583,7 @@ export default function MyPortalClient({
                   placeholder="មូលហេតុនៃការសុំច្បាប់..."
                   required
                   className="kh-text"
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                 />
               </div>
 
@@ -1173,7 +1591,7 @@ export default function MyPortalClient({
                 type="submit"
                 disabled={isSubmitting}
                 className="kh-text"
-                style={{ width: '100%', padding: '10px', background: '#059669', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', marginTop: '6px' }}
+                style={{ width: '100%', padding: '12px', background: '#059669', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', marginTop: '8px' }}
               >
                 {isSubmitting ? 'កំពុងបញ្ជូន...' : 'បញ្ជូនពាក្យស្នើសុំ'}
               </button>
@@ -1185,19 +1603,19 @@ export default function MyPortalClient({
       {/* CALENDAR MODAL */}
       {isCalendarModalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '380px', width: '100%', padding: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '14px' }}>
-              <strong className="kh-text" style={{ fontSize: '0.95rem', color: '#0f172a' }}>កាលវិភាគវេនការងារ</strong>
+          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '400px', width: '100%', padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
+              <strong className="kh-text" style={{ fontSize: '1rem', color: '#0f172a' }}>កាលវិភាគវេនការងារ</strong>
               <button onClick={() => setIsCalendarModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
-            <div style={{ background: '#ecfdf5', borderRadius: '14px', padding: '14px', marginBottom: '12px' }}>
-              <span className="kh-text" style={{ fontSize: '0.74rem', color: '#047857', display: 'block' }}>វេនបច្ចុប្បន្ន</span>
-              <strong style={{ fontSize: '1rem', color: '#065f46', fontFamily: 'monospace' }}>
+            <div style={{ background: '#ecfdf5', borderRadius: '16px', padding: '16px', marginBottom: '14px' }}>
+              <span className="kh-text" style={{ fontSize: '0.78rem', color: '#047857', display: 'block' }}>វេនបច្ចុប្បន្ន</span>
+              <strong style={{ fontSize: '1.1rem', color: '#065f46', fontFamily: 'monospace' }}>
                 {employee.shift || 'LF (08:00 AM - 05:00 PM)'}
               </strong>
             </div>
-            <div className="kh-text" style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.6 }}>
-              <p>• ម៉ោងធ្វើការ៖ ០៨:០០ ព្រឹក - ០៥:០០ ល្ងាច</p>
+            <div className="kh-text" style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.7 }}>
+              <p>• ម៉ោងធ្វើការធម្មតា៖ ០៨:០០ ព្រឹក - ០៥:០០ ល្ងាច</p>
               <p>• សម្រាកបាយថ្ងៃត្រង់៖ ១២:០០ ថ្ងៃ - ០១:០០ រសៀល</p>
               <p>• ថ្ងៃឈប់សម្រាកប្រចាំសប្តាហ៍៖ ថ្ងៃអាទិត្យ</p>
             </div>
@@ -1208,17 +1626,17 @@ export default function MyPortalClient({
       {/* KPI MODAL */}
       {isKpiModalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '380px', width: '100%', padding: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px', marginBottom: '14px' }}>
-              <strong className="kh-text" style={{ fontSize: '0.95rem', color: '#0f172a' }}>តាមដាន KPI</strong>
+          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '400px', width: '100%', padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
+              <strong className="kh-text" style={{ fontSize: '1rem', color: '#0f172a' }}>តាមដាន KPI</strong>
               <button onClick={() => setIsKpiModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
-            <div style={{ background: '#ecfdf5', borderRadius: '14px', padding: '20px', textAlign: 'center' }}>
-              <span className="kh-text" style={{ fontSize: '0.78rem', color: '#047857' }}>ពិន្ទុ KPI ប្រចាំខែ</span>
-              <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#059669', fontFamily: 'monospace', margin: '4px 0' }}>
+            <div style={{ background: '#ecfdf5', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
+              <span className="kh-text" style={{ fontSize: '0.82rem', color: '#047857' }}>ពិន្ទុ KPI ប្រចាំខែ</span>
+              <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#059669', fontFamily: 'monospace', margin: '6px 0' }}>
                 95%
               </div>
-              <span className="kh-text" style={{ fontSize: '0.76rem', color: '#047857', fontWeight: 700 }}>
+              <span className="kh-text" style={{ fontSize: '0.82rem', color: '#047857', fontWeight: 700 }}>
                 ចំណាត់ថ្នាក់៖ ល្អប្រសើរ (Excellent)
               </span>
             </div>

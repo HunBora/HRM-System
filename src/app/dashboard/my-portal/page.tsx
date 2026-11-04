@@ -250,7 +250,7 @@ export default async function MyPortalPage({
     };
 
     return (
-      <div style={{ width: '100%', minHeight: '100vh', padding: '10px 8px 80px 8px', boxSizing: 'border-box' }}>
+      <div style={{ width: '100%', minHeight: '100vh', boxSizing: 'border-box' }}>
         <MyPortalClient
           employee={fullEmployeeData as any}
           allEmployees={allEmployees as any}

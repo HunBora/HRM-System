@@ -50,8 +50,8 @@ export default async function UsersPage() {
   });
 
   return (
-    <div className="w-full min-h-screen pb-16 bg-slate-50/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div style={{ width: '100%', minHeight: '100vh', padding: '16px 20px', boxSizing: 'border-box' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <UserManagementClient 
           users={users} 
           employees={employees} 

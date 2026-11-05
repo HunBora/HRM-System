@@ -80,7 +80,7 @@ export default async function MyPortalPage({
     }
 
     // 3. Fetch comprehensive employee profile with all relations safely
-    const [rawEmployee, payrolls, leaveRequests, overtimeRequests, certificateRequests, loans, attendances, biometricLogs] =
+    const [rawEmployee, payrolls, leaveRequests, overtimeRequests, certificateRequests, loans, attendances, biometricLogs, dailyAttendances] =
       await Promise.all([
         prisma.employee.findUnique({
           where: { id: targetId },
@@ -93,12 +93,12 @@ export default async function MyPortalPage({
         prisma.leaveRequest.findMany({
           where: { employeeId: targetId },
           orderBy: { createdAt: 'desc' },
-          take: 10,
+          take: 20,
         }),
         prisma.overtimeRequest.findMany({
           where: { employeeId: targetId },
           orderBy: { otDate: 'desc' },
-          take: 10,
+          take: 30,
         }),
         prisma.certificateRequest.findMany({
           where: { employeeId: targetId },
@@ -118,7 +118,12 @@ export default async function MyPortalPage({
         prisma.biometricPunchLog.findMany({
           where: { employeeId: targetId },
           orderBy: { punchTime: 'desc' },
-          take: 15,
+          take: 100,
+        }),
+        prisma.dailyAttendance.findMany({
+          where: { employeeId: targetId },
+          orderBy: { date: 'desc' },
+          take: 60,
         }),
       ]);
 
@@ -230,6 +235,26 @@ export default async function MyPortalPage({
       deviceName: p.deviceName || 'Main Terminal',
     }));
 
+    // Map daily attendances
+    const mappedDailyAttendances = (dailyAttendances || []).map((d) => ({
+      id: d.id,
+      date: d.date ? d.date.toISOString() : '',
+      fIn: d.fIn,
+      fOut: d.fOut,
+      sIn: d.sIn,
+      sOut: d.sOut,
+      otIn: d.otIn,
+      otOut: d.otOut,
+      regDay: d.regDay,
+      workHrs: d.workHrs,
+      normalOtHrs: d.normalOtHrs,
+      nightOtHrs: d.nightOtHrs,
+      holidayOtHrs: d.holidayOtHrs,
+      lateMins: d.lateMins,
+      earlyMins: d.earlyMins,
+      remarks: d.remarks,
+    }));
+
     const fullEmployeeData = {
       id: rawEmployee.id,
       employeeId: rawEmployee.employeeId,
@@ -252,6 +277,7 @@ export default async function MyPortalPage({
       certificateRequests: mappedCerts,
       loans: mappedLoans,
       attendances: mappedAttendances,
+      dailyAttendances: mappedDailyAttendances,
       biometricLogs: mappedPunches,
     };
 

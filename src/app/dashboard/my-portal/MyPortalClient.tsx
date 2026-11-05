@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import MobileClockInModal from '@/components/Attendance/MobileClockInModal';
+import AttendanceHistoryModal, { DailyAttendanceItem } from '@/components/Attendance/AttendanceHistoryModal';
 
 interface EmployeeSimple {
   id: string;
@@ -106,6 +107,7 @@ interface FullEmployee extends EmployeeSimple {
   overtimeRequests?: OvertimeRecord[];
   loans?: LoanRecord[];
   attendances?: AttendanceRecord[];
+  dailyAttendances?: DailyAttendanceItem[];
   biometricLogs?: PunchRecord[];
 }
 
@@ -127,6 +129,7 @@ export default function MyPortalClient({
   const [selectedPayroll, setSelectedPayroll] = useState<PayrollRecord | null>(null);
   const [isPayslipModalOpen, setIsPayslipModalOpen] = useState(false);
   const [isClockInModalOpen, setIsClockInModalOpen] = useState(false);
+  const [isAttendanceHistoryModalOpen, setIsAttendanceHistoryModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isKpiModalOpen, setIsKpiModalOpen] = useState(false);
 
@@ -984,8 +987,8 @@ export default function MyPortalClient({
                   gap: '16px 12px',
                 }}
               >
-                {/* 1. វត្តមាន */}
-                <button onClick={() => setIsClockInModalOpen(true)} type="button" className="portal-grid-btn">
+                {/* 1. វត្តមាន (Attendance History Modal) */}
+                <button onClick={() => setIsAttendanceHistoryModalOpen(true)} type="button" className="portal-grid-btn">
                   <div className="portal-circle-icon" style={{ background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0' }}>
                     📋
                   </div>
@@ -1167,9 +1170,29 @@ export default function MyPortalClient({
                     ({new Date().toLocaleDateString('km-KH', { weekday: 'short', day: 'numeric', month: 'short' })})
                   </span>
                 </div>
-                <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#16a34a', fontFamily: 'monospace' }}>
-                  {employee.shift || 'LF (08:00 AM - 05:00 PM)'}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#16a34a', fontFamily: 'monospace' }}>
+                    {employee.shift || 'LF (08:00 AM - 05:00 PM)'}
+                  </span>
+                  <button
+                    onClick={() => setIsAttendanceHistoryModalOpen(true)}
+                    type="button"
+                    className="kh-text"
+                    style={{
+                      background: '#ecfdf5',
+                      border: '1px solid #a7f3d0',
+                      color: '#059669',
+                      borderRadius: '8px',
+                      padding: '3px 8px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                    title="មើលប្រវត្តិវត្តមាន"
+                  >
+                    ប្រវត្តិវត្តមាន ➔
+                  </button>
+                </div>
               </div>
 
               {/* 4 Punch Cards */}
@@ -1623,6 +1646,20 @@ export default function MyPortalClient({
         employeeId={employee.id}
         employeeName={displayName}
         onSuccess={() => router.refresh()}
+      />
+
+      {/* ATTENDANCE HISTORY MODAL (ប្រវត្តិវត្តមាន - Matching User Design) */}
+      <AttendanceHistoryModal
+        isOpen={isAttendanceHistoryModalOpen}
+        onClose={() => setIsAttendanceHistoryModalOpen(false)}
+        employeeId={employee.id}
+        employeeName={displayName}
+        shift={employee.shift || 'LF (08:00 AM - 05:00 PM)'}
+        dailyAttendances={employee.dailyAttendances || []}
+        biometricLogs={employee.biometricLogs as any || []}
+        overtimeRequests={employee.overtimeRequests as any || []}
+        leaveRequests={employee.leaveRequests as any || []}
+        onOpenClockIn={() => setIsClockInModalOpen(true)}
       />
 
       {/* PAYSLIP MODAL */}

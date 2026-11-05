@@ -280,7 +280,7 @@ export default function MyPortalClient({
           .portal-container {
             width: 100% !important;
             max-width: 100% !important;
-            padding: 8px 8px 95px 8px !important;
+            padding: 6px 4px 95px 4px !important;
             box-sizing: border-box !important;
             overflow-x: hidden !important;
           }
@@ -498,7 +498,7 @@ export default function MyPortalClient({
 
       {/* 1. TOP HEADER (Avatar, Name, Actions, Clock-in) */}
       <div
-        className="portal-header-card"
+        className={`portal-header-card ${activeTab !== 'HOME' ? 'desktop-only' : ''}`}
         style={{
           background: '#ffffff',
           boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
@@ -678,7 +678,7 @@ export default function MyPortalClient({
 
       {/* Admin Preview Switcher (If HR/Admin) */}
       {isHR && (
-        <div className="admin-preview-container">
+        <div className={`admin-preview-container ${activeTab !== 'HOME' ? 'desktop-only' : ''}`}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
             <span className="kh-text" style={{ fontSize: '0.82rem', fontWeight: 800, color: '#3730a3' }}>
               👀 Admin Preview (មើលជាបុគ្គលិកផ្សេងទៀត)
@@ -839,101 +839,105 @@ export default function MyPortalClient({
         </div>
       </div>
 
-      {/* 3. KPI STAT CARDS (Responsive: 3 Separate Cards on PC, Single 3-Col Unified Strip on Phone) */}
-      {/* DESKTOP VIEW */}
-      <div className="desktop-only kpi-summary-grid">
-        <div className="kpi-summary-card" onClick={() => setIsLeaveModalOpen(true)} style={{ cursor: 'pointer' }} title="ចុចមើលតុល្យភាពច្បាប់">
-          <div style={{ minWidth: 0 }}>
-            <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
-              ច្បាប់សម្រាកនៅសល់ (Annual Leave) ➔
-            </span>
-            <div className="kpi-card-value" style={{ fontWeight: 900, color: '#059669', marginTop: '2px' }}>
-              {employee.annualLeaveDays ?? 18}{' '}
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
+      {/* 3. KPI STAT CARDS (Visible on Overview/HOME tab only) */}
+      {activeTab === 'HOME' && (
+        <>
+          {/* DESKTOP VIEW */}
+          <div className="desktop-only kpi-summary-grid">
+            <div className="kpi-summary-card" onClick={() => setIsLeaveModalOpen(true)} style={{ cursor: 'pointer' }} title="ចុចមើលតុល្យភាពច្បាប់">
+              <div style={{ minWidth: 0 }}>
+                <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
+                  ច្បាប់សម្រាកនៅសល់ (Annual Leave) ➔
+                </span>
+                <div className="kpi-card-value" style={{ fontWeight: 900, color: '#059669', marginTop: '2px' }}>
+                  {employee.annualLeaveDays ?? 18}{' '}
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
+                </div>
+              </div>
+              <span className="kpi-card-icon" style={{ fontSize: '28px' }}>🌴</span>
             </div>
-          </div>
-          <span className="kpi-card-icon" style={{ fontSize: '28px' }}>🌴</span>
-        </div>
 
-        <div className="kpi-summary-card">
-          <div style={{ minWidth: 0 }}>
-            <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
-              ប្រាក់ខែមូលដ្ឋាន (Basic Salary)
-            </span>
-            <div className="kpi-card-value" style={{ fontWeight: 900, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
-              ${employee.basicSalary?.toFixed(2) || '0.00'}
+            <div className="kpi-summary-card">
+              <div style={{ minWidth: 0 }}>
+                <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
+                  ប្រាក់ខែមូលដ្ឋាន (Basic Salary)
+                </span>
+                <div className="kpi-card-value" style={{ fontWeight: 900, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace' }}>
+                  ${employee.basicSalary?.toFixed(2) || '0.00'}
+                </div>
+              </div>
+              <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💰</span>
             </div>
-          </div>
-          <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💰</span>
-        </div>
 
-        <div className="kpi-summary-card">
-          <div style={{ minWidth: 0 }}>
-            <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
-              ប្រាក់កម្ចីនៅជំពាក់ (Active Loan)
-            </span>
-            <div className="kpi-card-value" style={{ fontWeight: 900, color: '#d97706', marginTop: '2px', fontFamily: 'monospace' }}>
-              ${activeLoanBalance}
-            </div>
-          </div>
-          <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💳</span>
-        </div>
-      </div>
-
-      {/* MOBILE VIEW (Single Unified 3-Column Card - 100% Fit, Zero Overflow) */}
-      <div className="mobile-only" style={{ width: '100%', marginBottom: '14px', boxSizing: 'border-box' }}>
-        <div
-          style={{
-            background: '#ffffff',
-            borderRadius: '18px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-            padding: '12px 6px',
-            display: 'grid',
-            gridTemplateColumns: '1fr auto 1fr auto 1fr',
-            alignItems: 'center',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
-        >
-          {/* Col 1: Annual Leave */}
-          <div onClick={() => setIsLeaveModalOpen(true)} style={{ textAlign: 'center', padding: '0 4px', minWidth: 0, cursor: 'pointer' }} title="ចុចមើលតុល្យភាពច្បាប់">
-            <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              ច្បាប់នៅសល់ ➔
-            </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#059669', marginTop: '2px', lineHeight: 1.2 }}>
-              {employee.annualLeaveDays ?? 18}{' '}
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
+            <div className="kpi-summary-card">
+              <div style={{ minWidth: 0 }}>
+                <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
+                  ប្រាក់កម្ចីនៅជំពាក់ (Active Loan)
+                </span>
+                <div className="kpi-card-value" style={{ fontWeight: 900, color: '#d97706', marginTop: '2px', fontFamily: 'monospace' }}>
+                  ${activeLoanBalance}
+                </div>
+              </div>
+              <span className="kpi-card-icon" style={{ fontSize: '28px' }}>💳</span>
             </div>
           </div>
 
-          {/* Divider 1 */}
-          <div style={{ width: '1px', height: '32px', background: '#e2e8f0' }} />
+          {/* MOBILE VIEW (Single Unified 3-Column Card - 100% Fit, Zero Overflow) */}
+          <div className="mobile-only" style={{ width: '100%', marginBottom: '14px', boxSizing: 'border-box' }}>
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '18px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                padding: '12px 6px',
+                display: 'grid',
+                gridTemplateColumns: '1fr auto 1fr auto 1fr',
+                alignItems: 'center',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            >
+              {/* Col 1: Annual Leave */}
+              <div onClick={() => setIsLeaveModalOpen(true)} style={{ textAlign: 'center', padding: '0 4px', minWidth: 0, cursor: 'pointer' }} title="ចុចមើលតុល្យភាពច្បាប់">
+                <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  ច្បាប់នៅសល់ ➔
+                </div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#059669', marginTop: '2px', lineHeight: 1.2 }}>
+                  {employee.annualLeaveDays ?? 18}{' '}
+                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>ថ្ងៃ</span>
+                </div>
+              </div>
 
-          {/* Col 2: Basic Salary */}
-          <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
-            <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              ប្រាក់ខែគោល
-            </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace', lineHeight: 1.2 }}>
-              ${employee.basicSalary?.toFixed(0) || '0'}
+              {/* Divider 1 */}
+              <div style={{ width: '1px', height: '32px', background: '#e2e8f0' }} />
+
+              {/* Col 2: Basic Salary */}
+              <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  ប្រាក់ខែគោល
+                </div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', fontFamily: 'monospace', lineHeight: 1.2 }}>
+                  ${employee.basicSalary?.toFixed(0) || '0'}
+                </div>
+              </div>
+
+              {/* Divider 2 */}
+              <div style={{ width: '1px', height: '32px', background: '#e2e8f0' }} />
+
+              {/* Col 3: Active Loan */}
+              <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
+                <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  កម្ចីនៅសល់
+                </div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#d97706', marginTop: '2px', fontFamily: 'monospace', lineHeight: 1.2 }}>
+                  ${activeLoanBalance}
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Divider 2 */}
-          <div style={{ width: '1px', height: '32px', background: '#e2e8f0' }} />
-
-          {/* Col 3: Active Loan */}
-          <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
-            <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              កម្ចីនៅសល់
-            </div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#d97706', marginTop: '2px', fontFamily: 'monospace', lineHeight: 1.2 }}>
-              ${activeLoanBalance}
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* 4. MAIN CONTENT TABS */}
       {activeTab === 'HOME' && (

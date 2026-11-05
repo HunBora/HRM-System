@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import MobileClockInModal from '@/components/Attendance/MobileClockInModal';
 import AttendanceHistoryModal, { DailyAttendanceItem } from '@/components/Attendance/AttendanceHistoryModal';
+import LeaveBalanceModal from '@/components/Leave/LeaveBalanceModal';
 
 interface EmployeeSimple {
   id: string;
@@ -133,13 +134,8 @@ export default function MyPortalClient({
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isKpiModalOpen, setIsKpiModalOpen] = useState(false);
 
-  // Leave Modal
+  // Leave Modal (តុល្យភាពខ្ញុំ & ស្នើសុំច្បាប់)
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-  const [leaveType, setLeaveType] = useState('ANNUAL');
-  const [leaveStart, setLeaveStart] = useState(() => new Date().toISOString().slice(0, 10));
-  const [leaveEnd, setLeaveEnd] = useState(() => new Date().toISOString().slice(0, 10));
-  const [leaveReason, setLeaveReason] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Admin Search / Selector
   const [portalSearchQuery, setPortalSearchQuery] = useState('');
@@ -253,43 +249,6 @@ export default function MyPortalClient({
       },
     ];
   }, [todayLogs]);
-
-  // Submit Leave Request
-  const handleSubmitLeave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const res = await fetch('/api/leave', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          employeeId: employee.id,
-          leaveType,
-          startDate: leaveStart,
-          endDate: leaveEnd,
-          reason: leaveReason,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to submit leave');
-      }
-
-      setIsLeaveModalOpen(false);
-      setLeaveReason('');
-      Swal.fire({
-        icon: 'success',
-        title: 'បានដាក់ពាក្យស្នើសុំច្បាប់ជោគជ័យ!',
-        text: 'ពាក្យស្នើសុំត្រូវបានបញ្ជូនទៅកាន់ប្រធានផ្នែក និង HR រួចរាល់។',
-        confirmButtonColor: '#10b981',
-      }).then(() => router.refresh());
-    } catch (err: any) {
-      Swal.fire('Error', err.message, 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="portal-container">
@@ -868,10 +827,10 @@ export default function MyPortalClient({
       {/* 3. KPI STAT CARDS (Responsive: 3 Separate Cards on PC, Single 3-Col Unified Strip on Phone) */}
       {/* DESKTOP VIEW */}
       <div className="desktop-only kpi-summary-grid">
-        <div className="kpi-summary-card">
+        <div className="kpi-summary-card" onClick={() => setIsLeaveModalOpen(true)} style={{ cursor: 'pointer' }} title="ចុចមើលតុល្យភាពច្បាប់">
           <div style={{ minWidth: 0 }}>
             <span className="kh-text kpi-card-title" style={{ color: '#64748b', fontWeight: 600 }}>
-              ច្បាប់សម្រាកនៅសល់ (Annual Leave)
+              ច្បាប់សម្រាកនៅសល់ (Annual Leave) ➔
             </span>
             <div className="kpi-card-value" style={{ fontWeight: 900, color: '#059669', marginTop: '2px' }}>
               {employee.annualLeaveDays ?? 18}{' '}
@@ -923,9 +882,9 @@ export default function MyPortalClient({
           }}
         >
           {/* Col 1: Annual Leave */}
-          <div style={{ textAlign: 'center', padding: '0 4px', minWidth: 0 }}>
+          <div onClick={() => setIsLeaveModalOpen(true)} style={{ textAlign: 'center', padding: '0 4px', minWidth: 0, cursor: 'pointer' }} title="ចុចមើលតុល្យភាពច្បាប់">
             <div className="kh-text" style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              ច្បាប់នៅសល់
+              ច្បាប់នៅសល់ ➔
             </div>
             <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#059669', marginTop: '2px', lineHeight: 1.2 }}>
               {employee.annualLeaveDays ?? 18}{' '}
@@ -1007,13 +966,13 @@ export default function MyPortalClient({
                   </span>
                 </button>
 
-                {/* 3. សំណើចេញក្រៅ */}
+                {/* 3. សំណើច្បាប់ & តុល្យភាព */}
                 <button onClick={() => setIsLeaveModalOpen(true)} type="button" className="portal-grid-btn">
                   <div className="portal-circle-icon" style={{ background: '#f0f9ff', color: '#0284c7', borderColor: '#bae6fd' }}>
-                    🏢
+                    🌴
                   </div>
                   <span className="kh-text" style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
-                    សំណើចេញក្រៅ
+                    ច្បាប់ & តុល្យភាព
                   </span>
                 </button>
 
@@ -1706,81 +1665,17 @@ export default function MyPortalClient({
         </div>
       )}
 
-      {/* LEAVE MODAL */}
-      {isLeaveModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(15, 23, 42, 0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#ffffff', borderRadius: '24px', maxWidth: '420px', width: '100%', padding: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
-              <strong className="kh-text" style={{ fontSize: '1rem', color: '#0f172a' }}>ពាក្យស្នើសុំច្បាប់ឈប់សម្រាក</strong>
-              <button onClick={() => setIsLeaveModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
-            </div>
-
-            <form onSubmit={handleSubmitLeave} style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.84rem' }}>
-              <div>
-                <label className="kh-text" style={{ display: 'block', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                  ប្រភេទច្បាប់
-                </label>
-                <select
-                  value={leaveType}
-                  onChange={(e) => setLeaveType(e.target.value)}
-                  className="kh-text"
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', boxSizing: 'border-box' }}
-                >
-                  <option value="ANNUAL">ច្បាប់ប្រចាំឆ្នាំ (Annual Leave)</option>
-                  <option value="SICK">ច្បាប់ឈឺ (Sick Leave)</option>
-                  <option value="SPECIAL">ច្បាប់ពិសេស (Special Leave)</option>
-                  <option value="UNPAID">ច្បាប់ឥតប្រាក់ឈ្នួល (Unpaid Leave)</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label className="kh-text" style={{ display: 'block', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>ចាប់ពីថ្ងៃ</label>
-                  <input
-                    type="date"
-                    value={leaveStart}
-                    onChange={(e) => setLeaveStart(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'monospace' }}
-                  />
-                </div>
-                <div>
-                  <label className="kh-text" style={{ display: 'block', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>ដល់ថ្ងៃ</label>
-                  <input
-                    type="date"
-                    value={leaveEnd}
-                    onChange={(e) => setLeaveEnd(e.target.value)}
-                    required
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'monospace' }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="kh-text" style={{ display: 'block', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>មូលហេតុ</label>
-                <textarea
-                  rows={3}
-                  value={leaveReason}
-                  onChange={(e) => setLeaveReason(e.target.value)}
-                  placeholder="មូលហេតុនៃការសុំច្បាប់..."
-                  required
-                  className="kh-text"
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="kh-text"
-                style={{ width: '100%', padding: '12px', background: '#059669', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', marginTop: '8px' }}
-              >
-                {isSubmitting ? 'កំពុងបញ្ជូន...' : 'បញ្ជូនពាក្យស្នើសុំ'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* LEAVE BALANCE & REQUEST MODAL (តុល្យភាពខ្ញុំ - Matching Screenshot) */}
+      <LeaveBalanceModal
+        isOpen={isLeaveModalOpen}
+        onClose={() => setIsLeaveModalOpen(false)}
+        employeeId={employee.id}
+        employeeName={displayName}
+        hireDate={employee.hireDate}
+        baseAnnualLeaveDays={employee.annualLeaveDays || 18}
+        initialRequests={employee.leaveRequests || []}
+        onSuccess={() => router.refresh()}
+      />
 
       {/* CALENDAR MODAL */}
       {isCalendarModalOpen && (

@@ -2,26 +2,39 @@
 
 import React, { useState, useMemo } from 'react';
 
-interface EmployeeBiodataCardProps {
-  employee: {
-    id: string;
-    employeeId: string;
-    firstNameEn: string;
-    lastNameEn: string;
-    firstNameKh?: string | null;
-    lastNameKh?: string | null;
-    position: string;
-    department: string;
-    line?: string | null;
-    shift?: string | null;
-    phone?: string | null;
-    email?: string | null;
-    dob?: string | null;
-    gender?: string | null;
-    photoUrl?: string | null;
-    basicSalary?: number | null;
-    hireDate?: string | null;
-  };
+export interface EmployeeBiodataProps {
+  id: string;
+  employeeId: string;
+  firstNameEn: string;
+  lastNameEn: string;
+  firstNameKh?: string | null;
+  lastNameKh?: string | null;
+  position: string;
+  department: string;
+  line?: string | null;
+  shift?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  maritalStatus?: string | null;
+  spouseName?: string | null;
+  numberOfChildren?: number | null;
+  placeOfBirth?: string | null;
+  address?: string | null;
+  cardNo?: string | null;
+  nationalId?: string | null;
+  bankCardNo?: string | null;
+  nssfNo?: string | null;
+  education?: string | null;
+  companyName?: string | null;
+  photoUrl?: string | null;
+  basicSalary?: number | null;
+  hireDate?: string | null;
+}
+
+interface Props {
+  employee: EmployeeBiodataProps;
   activeLoan?: {
     loanCode: string;
     loanAmount: number;
@@ -35,7 +48,7 @@ const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug
 const MONTH_NAMES_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function formatHireDate(dateStr?: string | null): string {
-  if (!dateStr) return '25 April, 2016';
+  if (!dateStr) return '-';
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
   const day = d.getDate();
@@ -45,7 +58,7 @@ export function formatHireDate(dateStr?: string | null): string {
 }
 
 export function formatDob(dateStr?: string | null): string {
-  if (!dateStr) return '16-Mar-1988';
+  if (!dateStr) return '-';
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
   const day = String(d.getDate()).padStart(2, '0');
@@ -55,7 +68,7 @@ export function formatDob(dateStr?: string | null): string {
 }
 
 export function calculateTenure(hireDateStr?: string | null): string {
-  if (!hireDateStr) return '10 Y 6 M 11 D';
+  if (!hireDateStr) return '-';
   const start = new Date(hireDateStr);
   const now = new Date();
   if (isNaN(start.getTime()) || start > now) return '0 Y 0 M 0 D';
@@ -81,21 +94,32 @@ export default function EmployeeBiodataCard({
   employee,
   activeLoan,
   onBack,
-}: EmployeeBiodataCardProps) {
+}: Props) {
   const [showSalary, setShowSalary] = useState(false);
+  const [showMoreDetails, setShowMoreDetails] = useState(false);
 
+  // Name: take from DB
   const empNameKh = `${employee.lastNameKh || ''} ${employee.firstNameKh || ''}`.trim();
   const empNameEn = `${employee.firstNameEn || ''} ${employee.lastNameEn || ''}`.trim();
-  const displayName = empNameKh || empNameEn || 'ប៉េន ជីវន្ត';
+  const displayName = empNameKh || empNameEn || employee.employeeId;
 
+  // Real Database Dates & Calculations
   const hireDateFormatted = useMemo(() => formatHireDate(employee.hireDate), [employee.hireDate]);
   const dobFormatted = useMemo(() => formatDob(employee.dob), [employee.dob]);
   const tenureFormatted = useMemo(() => calculateTenure(employee.hireDate), [employee.hireDate]);
 
-  const phoneDisplay = employee.phone || '092 800 838';
-  const emailDisplay = employee.email || 'telalube@gmail.com';
-  const positionDisplay = employee.position || 'ប្រធានផ្នែកឃ្លាំងស្តុកប្រេងរំអិល';
-  const departmentDisplay = employee.department || 'នាយកដ្ឋានប្រតិបត្តិការ';
+  // Real Contact Info
+  const phoneDisplay = employee.phone || '-';
+  const emailDisplay = employee.email || (employee.phone ? `${employee.employeeId.toLowerCase()}@company.com` : '-');
+
+  // Real Employment Fields
+  const positionDisplay = employee.position || '-';
+  const departmentDisplay = employee.department || '-';
+  const companyDisplay = employee.companyName || 'G.STextileGarment(Cambodia)co.,Ltd';
+  const divisionDisplay = employee.line ? `ផ្នែកផលិត (${employee.line})` : departmentDisplay;
+  const locationDisplay = employee.address || employee.placeOfBirth || 'រាជធានីភ្នំពេញ';
+  const gradeDisplay = employee.cardNo ? `CARD-${employee.cardNo}` : (employee.education || 'LEVEL 01');
+  const jobRankDisplay = employee.position || 'បុគ្គលិកពេញសិទ្ធិ';
 
   return (
     <div
@@ -129,7 +153,7 @@ export default function EmployeeBiodataCard({
         }
       `}</style>
 
-      {/* TOP HEADER: < ប្រវត្តិនិយោជិត ••• matching Screenshot */}
+      {/* TOP HEADER: < ប្រវត្តិនិយោជិត ••• */}
       <div
         style={{
           display: 'flex',
@@ -178,6 +202,7 @@ export default function EmployeeBiodataCard({
         </h2>
 
         <div
+          onClick={() => setShowMoreDetails(!showMoreDetails)}
           style={{
             width: '36px',
             height: '36px',
@@ -188,13 +213,13 @@ export default function EmployeeBiodataCard({
             color: '#64748b',
             cursor: 'pointer',
           }}
-          title="ជម្រើសបន្ថែម"
+          title="ព័ត៌មានលម្អិតបន្ថែម"
         >
           •••
         </div>
       </div>
 
-      {/* EMPLOYEE IDENTITY HEADER matching Screenshot */}
+      {/* EMPLOYEE IDENTITY HEADER (Name, Position, Department from DB) */}
       <div style={{ textAlign: 'center', marginBottom: '22px' }}>
         <h1
           className="kh-text"
@@ -240,7 +265,7 @@ export default function EmployeeBiodataCard({
         </div>
       </div>
 
-      {/* CARD 1: ព័ត៌មានទំនាក់ទំនង (Contact Information) matching Screenshot */}
+      {/* CARD 1: ព័ត៌មានទំនាក់ទំនង (Contact Information from DB) */}
       <div className="biodata-card">
         <h3
           className="kh-text"
@@ -278,18 +303,22 @@ export default function EmployeeBiodataCard({
               <div className="kh-text" style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>
                 ទូរស័ព្ទ
               </div>
-              <a
-                href={`tel:${phoneDisplay.replace(/\s+/g, '')}`}
-                style={{
-                  fontSize: '0.95rem',
-                  fontWeight: 700,
-                  color: '#0284c7', // Blue link matching Screenshot
-                  textDecoration: 'none',
-                  fontFamily: 'monospace, sans-serif',
-                }}
-              >
-                {phoneDisplay}
-              </a>
+              {phoneDisplay !== '-' ? (
+                <a
+                  href={`tel:${phoneDisplay.replace(/\s+/g, '')}`}
+                  style={{
+                    fontSize: '0.95rem',
+                    fontWeight: 700,
+                    color: '#0284c7', // Blue link
+                    textDecoration: 'none',
+                    fontFamily: 'monospace, sans-serif',
+                  }}
+                >
+                  {phoneDisplay}
+                </a>
+              ) : (
+                <span style={{ fontSize: '0.92rem', color: '#94a3b8' }}>-</span>
+              )}
             </div>
           </div>
 
@@ -317,23 +346,27 @@ export default function EmployeeBiodataCard({
               <div className="kh-text" style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>
                 អ៊ីម៉ែល
               </div>
-              <a
-                href={`mailto:${emailDisplay}`}
-                style={{
-                  fontSize: '0.92rem',
-                  fontWeight: 700,
-                  color: '#0284c7', // Blue link matching Screenshot
-                  textDecoration: 'none',
-                }}
-              >
-                {emailDisplay}
-              </a>
+              {emailDisplay !== '-' ? (
+                <a
+                  href={`mailto:${emailDisplay}`}
+                  style={{
+                    fontSize: '0.92rem',
+                    fontWeight: 700,
+                    color: '#0284c7',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {emailDisplay}
+                </a>
+              ) : (
+                <span style={{ fontSize: '0.92rem', color: '#94a3b8' }}>-</span>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* CARD 2: ព័ត៌មានលម្អិតនិយោជិត (Employment Details) matching Screenshot */}
+      {/* CARD 2: ព័ត៌មានលម្អិតនិយោជិត (Employment Details from DB) */}
       <div className="biodata-card">
         <h3
           className="kh-text"
@@ -358,13 +391,13 @@ export default function EmployeeBiodataCard({
           <div>
             <div className="kh-text biodata-label">លេខសម្គាល់និយោជិត</div>
             <div className="biodata-value" style={{ fontFamily: 'monospace' }}>
-              {employee.employeeId || 'TELA102629'}
+              {employee.employeeId || '-'}
             </div>
           </div>
           <div>
             <div className="kh-text biodata-label">អង្គភាពអាជីវកម្ម</div>
             <div className="kh-text biodata-value">
-              {employee.department || 'រដ្ឋបាល ធនធានមនុស្ស'}
+              {departmentDisplay}
             </div>
           </div>
 
@@ -372,13 +405,13 @@ export default function EmployeeBiodataCard({
           <div>
             <div className="kh-text biodata-label">សាខា</div>
             <div className="kh-text biodata-value">
-              រោងចក្រប្រេងរំអិល
+              {companyDisplay}
             </div>
           </div>
           <div>
             <div className="kh-text biodata-label">ផ្នែក</div>
             <div className="kh-text biodata-value">
-              {employee.department || 'រដ្ឋបាល ធនធានមនុស្ស'}
+              {departmentDisplay}
             </div>
           </div>
 
@@ -386,13 +419,13 @@ export default function EmployeeBiodataCard({
           <div>
             <div className="kh-text biodata-label">នាយកដ្ឋាន</div>
             <div className="kh-text biodata-value">
-              {departmentDisplay}
+              {divisionDisplay}
             </div>
           </div>
           <div>
             <div className="kh-text biodata-label">ទីតាំង</div>
             <div className="kh-text biodata-value">
-              រោងចក្រប្រេងរំអិលព្រែកព្នៅ
+              {locationDisplay}
             </div>
           </div>
 
@@ -400,13 +433,13 @@ export default function EmployeeBiodataCard({
           <div>
             <div className="kh-text biodata-label">ថ្នាក់</div>
             <div className="biodata-value" style={{ fontFamily: 'monospace' }}>
-              LEVEL 08
+              {gradeDisplay}
             </div>
           </div>
           <div>
             <div className="kh-text biodata-label">ថ្នាក់ការងារ</div>
             <div className="kh-text biodata-value">
-              {employee.line ? `បុគ្គលិក ${employee.line}` : 'បុគ្គលិកការិយាល័យ'}
+              {jobRankDisplay}
             </div>
           </div>
 
@@ -424,7 +457,7 @@ export default function EmployeeBiodataCard({
             </div>
           </div>
 
-          {/* Row 6: ថ្ងៃកំណើត vs ប្រាក់ខែ (##.## with Eye toggle) */}
+          {/* Row 6: ថ្ងៃកំណើត vs ប្រាក់ខែ */}
           <div>
             <div className="kh-text biodata-label">ថ្ងៃកំណើត</div>
             <div className="biodata-value">
@@ -435,7 +468,9 @@ export default function EmployeeBiodataCard({
             <div className="kh-text biodata-label">ប្រាក់ខែ</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="biodata-value" style={{ fontFamily: 'monospace' }}>
-                {showSalary ? `$${employee.basicSalary?.toFixed(2) || '0.00'}` : '##.##'}
+                {showSalary
+                  ? `$${(employee.basicSalary ?? 0).toFixed(2)}`
+                  : '##.##'}
               </span>
               <button
                 onClick={() => setShowSalary(!showSalary)}
@@ -457,7 +492,104 @@ export default function EmployeeBiodataCard({
         </div>
       </div>
 
-      {/* CARD 3: ស្ថានភាពប្រាក់កម្ចីបុគ្គលិក (ប្រសិនបើមាន) */}
+      {/* CARD 3: ព័ត៌មានអត្តសញ្ញាណ & គ្រួសារ (Identity & Official Records from DB) */}
+      <div className="biodata-card">
+        <div
+          onClick={() => setShowMoreDetails(!showMoreDetails)}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          <h3
+            className="kh-text"
+            style={{
+              margin: 0,
+              fontSize: '0.92rem',
+              fontWeight: 800,
+              color: '#334155',
+            }}
+          >
+            📋 ព័ត៌មានអត្តសញ្ញាណ & គ្រួសារ
+          </h3>
+          <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>
+            {showMoreDetails ? 'បង្រួម ▲' : 'មើលលម្អិត ▼'}
+          </span>
+        </div>
+
+        {showMoreDetails && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '16px 12px',
+              marginTop: '16px',
+              paddingTop: '14px',
+              borderTop: '1px solid #f1f5f9',
+            }}
+          >
+            <div>
+              <div className="kh-text biodata-label">អត្តសញ្ញាណប័ណ្ណ (ID)</div>
+              <div className="biodata-value" style={{ fontFamily: 'monospace' }}>
+                {employee.nationalId || '-'}
+              </div>
+            </div>
+            <div>
+              <div className="kh-text biodata-label">លេខ ប.ស.ស (NSSF)</div>
+              <div className="biodata-value" style={{ fontFamily: 'monospace' }}>
+                {employee.nssfNo || '-'}
+              </div>
+            </div>
+
+            <div>
+              <div className="kh-text biodata-label">កាតធនាគារ (Bank Card)</div>
+              <div className="biodata-value" style={{ fontFamily: 'monospace' }}>
+                {employee.bankCardNo || '-'}
+              </div>
+            </div>
+            <div>
+              <div className="kh-text biodata-label">កម្រិតវប្បធម៌ (Education)</div>
+              <div className="kh-text biodata-value">
+                {employee.education || '-'}
+              </div>
+            </div>
+
+            <div>
+              <div className="kh-text biodata-label">ទីកន្លែងកំណើត</div>
+              <div className="kh-text biodata-value">
+                {employee.placeOfBirth || '-'}
+              </div>
+            </div>
+            <div>
+              <div className="kh-text biodata-label">ស្ថានភាពគ្រួសារ</div>
+              <div className="kh-text biodata-value">
+                {employee.maritalStatus === 'MARRIED' ? 'រៀបការរួច (Married)' : 'នៅលីវ (Single)'}
+              </div>
+            </div>
+
+            {employee.maritalStatus === 'MARRIED' && (
+              <>
+                <div>
+                  <div className="kh-text biodata-label">ឈ្មោះប្តី/ប្រពន្ធ</div>
+                  <div className="kh-text biodata-value">
+                    {employee.spouseName || '-'}
+                  </div>
+                </div>
+                <div>
+                  <div className="kh-text biodata-label">ចំនួនកូន</div>
+                  <div className="kh-text biodata-value">
+                    {employee.numberOfChildren ? `${employee.numberOfChildren} នាក់` : 'គ្មាន'}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* CARD 4: ស្ថានភាពប្រាក់កម្ចីបុគ្គលិក (ប្រសិនបើមាន) */}
       {activeLoan && (
         <div className="biodata-card" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>

@@ -80,8 +80,9 @@ export default async function MyPortalPage({
     }
 
     // 3. Fetch comprehensive employee profile with all relations safely
-    const [rawEmployee, payrolls, leaveRequests, overtimeRequests, certificateRequests, loans, attendances, biometricLogs, dailyAttendances] =
+    const [companySettings, rawEmployee, payrolls, leaveRequests, overtimeRequests, certificateRequests, loans, attendances, biometricLogs, dailyAttendances] =
       await Promise.all([
+        prisma.companySettings.findUnique({ where: { id: 'default' } }),
         prisma.employee.findUnique({
           where: { id: targetId },
           include: {
@@ -274,6 +275,16 @@ export default async function MyPortalPage({
       dob: rawEmployee.dob ? rawEmployee.dob.toISOString() : null,
       gender: rawEmployee.gender || null,
       maritalStatus: rawEmployee.maritalStatus || null,
+      spouseName: rawEmployee.spouseName || null,
+      numberOfChildren: rawEmployee.numberOfChildren || 0,
+      placeOfBirth: rawEmployee.placeOfBirth || null,
+      address: rawEmployee.address || null,
+      cardNo: rawEmployee.cardNo || null,
+      nationalId: rawEmployee.nationalId || null,
+      bankCardNo: rawEmployee.bankCardNo || null,
+      nssfNo: rawEmployee.nssfNo || null,
+      education: rawEmployee.education || null,
+      companyName: companySettings?.companyName || 'G.STextileGarment(Cambodia)co.,Ltd',
       photoUrl: rawEmployee.photoUrl,
       basicSalary: rawEmployee.basicSalary,
       annualLeaveDays: rawEmployee.annualLeaveDays,

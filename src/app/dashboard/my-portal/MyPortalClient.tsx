@@ -24,6 +24,16 @@ interface EmployeeSimple {
   dob?: string | null;
   gender?: string | null;
   maritalStatus?: string | null;
+  spouseName?: string | null;
+  numberOfChildren?: number | null;
+  placeOfBirth?: string | null;
+  address?: string | null;
+  cardNo?: string | null;
+  nationalId?: string | null;
+  bankCardNo?: string | null;
+  nssfNo?: string | null;
+  education?: string | null;
+  companyName?: string | null;
   photoUrl?: string | null;
   basicSalary?: number | null;
   annualLeaveDays?: number | null;

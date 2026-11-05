@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import MobileClockInModal from '@/components/Attendance/MobileClockInModal';
 import AttendanceHistoryModal, { DailyAttendanceItem } from '@/components/Attendance/AttendanceHistoryModal';
 import LeaveBalanceModal from '@/components/Leave/LeaveBalanceModal';
+import EmployeeBiodataCard from '@/components/Profile/EmployeeBiodataCard';
 
 interface EmployeeSimple {
   id: string;
@@ -19,6 +20,10 @@ interface EmployeeSimple {
   line?: string | null;
   shift?: string | null;
   phone?: string | null;
+  email?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  maritalStatus?: string | null;
   photoUrl?: string | null;
   basicSalary?: number | null;
   annualLeaveDays?: number | null;
@@ -1402,87 +1407,13 @@ export default function MyPortalClient({
         </div>
       )}
 
-      {/* TAB: PROFILE */}
+      {/* TAB: PROFILE (ប្រវត្តិនិយោជិត - Matching Screenshot) */}
       {activeTab === 'PROFILE' && (
-        <div className="portal-2col-layout">
-          {/* Card: Employment Details */}
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '24px',
-              padding: '24px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
-            }}
-          >
-            <h3 className="kh-text" style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
-              ព័ត៌មានការងារ & កិច្ចសន្យា
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.86rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>អត្តលេខសម្គាល់</span>
-                <strong style={{ fontFamily: 'monospace' }}>{employee.employeeId}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>ផ្នែក / ដេប៉ាតឺម៉ង់</span>
-                <strong>{employee.department}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>តួនាទី</span>
-                <strong>{employee.position}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>កាលវិភាគវេនការងារ</span>
-                <strong style={{ color: '#059669', fontFamily: 'monospace' }}>{employee.shift || 'LF (08:00 AM - 05:00 PM)'}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span className="kh-text" style={{ color: '#64748b' }}>កាលបរិច្ឆេទចូលធ្វើការ</span>
-                <strong style={{ fontFamily: 'monospace' }}>
-                  {employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : '-'}
-                </strong>
-              </div>
-            </div>
-          </div>
-
-          {/* Card: Loans */}
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '24px',
-              padding: '24px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
-            }}
-          >
-            <h3 className="kh-text" style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
-              ស្ថានភាពប្រាក់កម្ចីបុគ្គលិក
-            </h3>
-            {activeLoan ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.86rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                  <span className="kh-text" style={{ color: '#64748b' }}>កូដកម្ចី</span>
-                  <strong style={{ fontFamily: 'monospace' }}>{activeLoan.loanCode}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                  <span className="kh-text" style={{ color: '#64748b' }}>ប្រាក់កម្ចីដើម</span>
-                  <strong style={{ fontFamily: 'monospace' }}>${activeLoan.loanAmount.toFixed(2)}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-                  <span className="kh-text" style={{ color: '#64748b' }}>កាត់ប្រចាំខែ</span>
-                  <strong style={{ color: '#4f46e5', fontFamily: 'monospace' }}>${activeLoan.monthlyDeduction.toFixed(2)}</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span className="kh-text" style={{ color: '#64748b' }}>សមតុល្យនៅសល់</span>
-                  <strong style={{ color: '#d97706', fontFamily: 'monospace' }}>${activeLoan.remainingBalance.toFixed(2)}</strong>
-                </div>
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', color: '#94a3b8', padding: '20px 0', fontSize: '0.85rem' }}>
-                មិនមានកំណត់ត្រាប្រាក់កម្ចីនៅឡើយទេ
-              </div>
-            )}
-          </div>
-        </div>
+        <EmployeeBiodataCard
+          employee={employee}
+          activeLoan={activeLoan}
+          onBack={() => setActiveTab('HOME')}
+        />
       )}
 
       {/* 5. MOBILE BOTTOM NAVIGATION BAR (Visible on Mobile Only) */}

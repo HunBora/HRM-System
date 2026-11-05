@@ -84,6 +84,9 @@ export default async function MyPortalPage({
       await Promise.all([
         prisma.employee.findUnique({
           where: { id: targetId },
+          include: {
+            user: { select: { email: true } },
+          },
         }),
         prisma.payroll.findMany({
           where: { employeeId: targetId },
@@ -267,6 +270,10 @@ export default async function MyPortalPage({
       line: rawEmployee.line,
       shift: rawEmployee.shift || 'LF (08:00 AM - 05:00 PM)',
       phone: rawEmployee.phone,
+      email: (rawEmployee as any).user?.email || null,
+      dob: rawEmployee.dob ? rawEmployee.dob.toISOString() : null,
+      gender: rawEmployee.gender || null,
+      maritalStatus: rawEmployee.maritalStatus || null,
       photoUrl: rawEmployee.photoUrl,
       basicSalary: rawEmployee.basicSalary,
       annualLeaveDays: rawEmployee.annualLeaveDays,

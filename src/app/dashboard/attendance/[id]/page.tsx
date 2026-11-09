@@ -5,6 +5,7 @@ import PrintAttendanceButton from './PrintAttendanceButton';
 import ExportExcelButton from './ExportExcelButton';
 import AttendanceReportTable from './AttendanceReportTable';
 import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
+import { getCambodiaTime } from '@/lib/timezone';
 
 export default async function EmployeeAttendancePage({ 
   params,
@@ -138,26 +139,26 @@ export default async function EmployeeAttendancePage({
       const otInPunch = dayPunches.find(p => p.punchType === 'OT_IN');
       const otOutPunch = dayPunches.find(p => p.punchType === 'OT_OUT');
 
-      if (!fIn && checkIn) fIn = new Date(checkIn.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      if (!fOut && breakOut) fOut = new Date(breakOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      if (!sIn && breakIn) sIn = new Date(breakIn.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      if (!sOut && checkOut) sOut = new Date(checkOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      if (!fIn && checkIn) fIn = getCambodiaTime(new Date(checkIn.punchTime));
+      if (!fOut && breakOut) fOut = getCambodiaTime(new Date(breakOut.punchTime));
+      if (!sIn && breakIn) sIn = getCambodiaTime(new Date(breakIn.punchTime));
+      if (!sOut && checkOut) sOut = getCambodiaTime(new Date(checkOut.punchTime));
 
       // Chronological fallback for sequential punches or generic scan logs
       if (!fIn && dayPunches.length > 0) {
-        fIn = new Date(dayPunches[0].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        fIn = getCambodiaTime(new Date(dayPunches[0].punchTime));
       }
       if (!sOut && dayPunches.length > 1) {
-        sOut = new Date(dayPunches[dayPunches.length - 1].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        sOut = getCambodiaTime(new Date(dayPunches[dayPunches.length - 1].punchTime));
       }
       if (!fOut && dayPunches.length === 4) {
-        fOut = new Date(dayPunches[1].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        fOut = getCambodiaTime(new Date(dayPunches[1].punchTime));
       }
       if (!sIn && dayPunches.length === 4) {
-        sIn = new Date(dayPunches[2].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        sIn = getCambodiaTime(new Date(dayPunches[2].punchTime));
       }
-      if (!otIn && otInPunch) otIn = new Date(otInPunch.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      if (!otOut && otOutPunch) otOut = new Date(otOutPunch.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      if (!otIn && otInPunch) otIn = getCambodiaTime(new Date(otInPunch.punchTime));
+      if (!otOut && otOutPunch) otOut = getCambodiaTime(new Date(otOutPunch.punchTime));
     }
 
     let remarks = hasImportedData && attendanceRecord.remarks ? attendanceRecord.remarks : (isHoliday ? HOLIDAYS[`${month + 1}-${i + 1}`] : (isWeekend ? 'សម្រាក' : ''));

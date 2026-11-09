@@ -254,7 +254,7 @@ export default function MyPortalClient({
       }
       const d = new Date(timeOrIso);
       if (isNaN(d.getTime())) return null;
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return d.toLocaleTimeString('en-US', { timeZone: 'Asia/Phnom_Penh', hour: '2-digit', minute: '2-digit', hour12: true });
     };
 
     // Extract actual punches
@@ -311,7 +311,9 @@ export default function MyPortalClient({
       } else {
         const firstPunchDate = todayLogs[0]?.punchTime ? new Date(todayLogs[0].punchTime) : null;
         if (firstPunchDate) {
-          const punchMins = firstPunchDate.getHours() * 60 + firstPunchDate.getMinutes();
+          const khTime = firstPunchDate.toLocaleTimeString('en-GB', { timeZone: 'Asia/Phnom_Penh', hour: '2-digit', minute: '2-digit', hour12: false });
+          const [khH, khM] = khTime.split(':').map(Number);
+          const punchMins = khH * 60 + khM;
           const startMins = 8 * 60; // 08:00 AM standard
           if (punchMins > startMins + 5) {
             const late = punchMins - startMins;

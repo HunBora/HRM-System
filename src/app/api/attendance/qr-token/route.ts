@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { generateDynamicQrToken } from '@/lib/attendanceClockIn';
 import { prisma } from '@/lib/prisma';
+import { getCambodiaTime } from '@/lib/timezone';
 
 export async function GET() {
   try {
@@ -35,7 +36,7 @@ export async function GET() {
         nameEn: `${p.employee.firstNameEn || ''} ${p.employee.lastNameEn || ''}`.trim(),
         department: p.employee.department,
         photoUrl: p.employee.photoUrl,
-        time: new Date(p.punchTime).toTimeString().slice(0, 5),
+        time: getCambodiaTime(new Date(p.punchTime)),
         type: p.punchType,
         mode: p.verifyMode,
       })),

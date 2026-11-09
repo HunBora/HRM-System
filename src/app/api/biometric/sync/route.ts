@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCambodiaTime, getCambodiaStartOfDay } from '@/lib/timezone';
 
 // POST: Process and sync biometric punch logs into DailyAttendance table
 export async function POST(request: Request) {
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
       if (empPunches.length === 0) continue;
 
       const formatTime = (d: Date) => {
-        return d.toTimeString().slice(0, 5); // "HH:MM"
+        return getCambodiaTime(d); // "HH:MM" in Cambodia timezone
       };
 
       const sortedTimes = empPunches.map((p) => new Date(p.punchTime)).sort((a, b) => a.getTime() - b.getTime());

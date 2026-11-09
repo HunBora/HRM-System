@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { sendTelegramNotification } from '@/lib/telegram';
+import { getCambodiaTime, getCambodiaStartOfDay, getCambodiaHoursMinutes } from '@/lib/timezone';
 
 export const DEFAULT_COMPANY_LAT = 11.5564;
 export const DEFAULT_COMPANY_LNG = 104.9282;
@@ -142,11 +143,10 @@ export async function processMobileClockIn(params: {
     }
   }
 
-  // 4. Compute Punch Time and Type
+  // 4. Compute Punch Time and Type in Cambodia Timezone (Asia/Phnom_Penh, UTC+7)
   const now = new Date();
-  const timeStr = now.toTimeString().slice(0, 5); // "HH:MM"
-  const startOfDay = new Date(now);
-  startOfDay.setHours(0, 0, 0, 0);
+  const timeStr = getCambodiaTime(now); // "HH:MM" e.g. "19:20"
+  const startOfDay = getCambodiaStartOfDay(now);
 
   const existingAttendance = await prisma.dailyAttendance.findUnique({
     where: {
@@ -179,10 +179,10 @@ export async function processMobileClockIn(params: {
 
   // 6. Upsert DailyAttendance
   if (isFirstPunch) {
-    // Check if late (after 08:05)
-    const inMinutes = now.getHours() * 60 + now.getMinutes();
+    // Check if late (after 08:00 AM) using Cambodia local time
+    const { totalMinutes } = getCambodiaHoursMinutes(now);
     const standardStartMinutes = 8 * 60; // 08:00
-    const lateMins = Math.max(0, inMinutes - standardStartMinutes);
+    const lateMins = Math.max(0, totalMinutes - standardStartMinutes);
 
     await prisma.dailyAttendance.upsert({
       where: {
@@ -209,13 +209,12 @@ export async function processMobileClockIn(params: {
       },
     });
   } else {
-    // Compute total work hours between fIn and sOut
+    // Compute total work hours between fIn and sOut using Cambodia local time
     const [inHours, inMins] = (existingAttendance.fIn || '08:00').split(':').map(Number);
-    const inDate = new Date(now);
-    inDate.setHours(inHours, inMins, 0, 0);
-
-    const diffMs = Math.max(0, now.getTime() - inDate.getTime());
-    let totalWorkHours = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10;
+    const inTotalMins = inHours * 60 + inMins;
+    const { totalMinutes: outTotalMins } = getCambodiaHoursMinutes(now);
+    const diffMins = Math.max(0, outTotalMins - inTotalMins);
+    let totalWorkHours = Math.round((diffMins / 60) * 10) / 10;
     if (totalWorkHours > 5) {
       totalWorkHours = Math.max(0, totalWorkHours - 1); // 1h lunch deduction
     }

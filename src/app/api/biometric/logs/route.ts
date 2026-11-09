@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
+import { getCambodiaTime, getCambodiaStartOfDay } from '@/lib/timezone';
 
 // GET punch logs with filter
 export async function GET(request: Request) {
@@ -312,9 +313,8 @@ export async function POST(request: Request) {
 
     // Also update DailyAttendance for this punch
     try {
-      const dateOnly = new Date(pTime);
-      dateOnly.setHours(0, 0, 0, 0);
-      const timeStr = pTime.toTimeString().slice(0, 5); // "HH:MM"
+      const dateOnly = getCambodiaStartOfDay(pTime);
+      const timeStr = getCambodiaTime(pTime); // "HH:MM" in Cambodia timezone
 
       const existingAtt = await prisma.dailyAttendance.findUnique({
         where: {

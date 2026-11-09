@@ -2,6 +2,13 @@
 
 import React, { useState, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import {
+  FACTORY_PRESETS,
+  DEFAULT_6_RULES_KH,
+  DEFAULT_6_RULES_EN,
+  DEFAULT_6_RULES_ZH,
+  type FactoryPreset
+} from '@/lib/idCardConstants';
 
 // Common Factory Position Translations
 const POSITION_DICT: Record<string, { kh: string; en: string; zh: string }> = {
@@ -408,24 +415,95 @@ export default function IDCardClient({
   const [expireDate, setExpireDate] = useState(expireDateFormatted);
   const [bloodGroup, setBloodGroup] = useState('O+');
 
+  // Factory Preset Determination (Defaults to Wahgoo Bags as requested)
+  const defaultPresetId = useMemo(() => {
+    if (initialConfig?.factoryPreset) return initialConfig.factoryPreset;
+    if (companyName.toUpperCase().includes('WAHGOO')) return 'wahgoo';
+    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) return 'gs-textile';
+    return 'wahgoo';
+  }, [initialConfig?.factoryPreset, companyName]);
+
+  const [factoryPreset, setFactoryPreset] = useState<string>(defaultPresetId);
+
   // Trilingual Company Header
   const defaultCompanyKh = useMemo(() => {
+    if (initialConfig?.companyKh) return initialConfig.companyKh;
+    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyKh;
     if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return 'ជី.អេស ថិកស្តាយ ហ្គាមិន (ខេមបូឌា)';
+      return FACTORY_PRESETS[1].companyKh;
     }
     return companyName;
-  }, [companyName]);
+  }, [initialConfig?.companyKh, defaultPresetId, companyName]);
 
   const defaultCompanyZh = useMemo(() => {
+    if (initialConfig?.companyZh) return initialConfig.companyZh;
+    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyZh;
     if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return '金边纺织制衣（柬埔寨）有限公司';
+      return FACTORY_PRESETS[1].companyZh;
     }
     return '';
-  }, [companyName]);
+  }, [initialConfig?.companyZh, defaultPresetId, companyName]);
+
+  const defaultCompanyEn = useMemo(() => {
+    if (initialConfig?.companyEn) return initialConfig.companyEn;
+    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyEn;
+    return companyName;
+  }, [initialConfig?.companyEn, defaultPresetId, companyName]);
 
   const [companyKh, setCompanyKh] = useState(defaultCompanyKh);
-  const [companyEn, setCompanyEn] = useState(companyName);
+  const [companyEn, setCompanyEn] = useState(defaultCompanyEn);
   const [companyZh, setCompanyZh] = useState(defaultCompanyZh);
+
+  // Address (Trilingual)
+  const [addressKh, setAddressKh] = useState<string>(
+    initialConfig?.addressKh ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressKh : FACTORY_PRESETS[0].addressKh)
+  );
+  const [addressEn, setAddressEn] = useState<string>(
+    initialConfig?.addressEn ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressEn : FACTORY_PRESETS[0].addressEn)
+  );
+  const [addressZh, setAddressZh] = useState<string>(
+    initialConfig?.addressZh ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressZh : FACTORY_PRESETS[0].addressZh)
+  );
+
+  // Admin Phone (Hotline - អាចកែប្រែបានតាមចិត្ត)
+  const [adminPhone, setAdminPhone] = useState<string>(
+    initialConfig?.adminPhone ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].adminPhone : FACTORY_PRESETS[0].adminPhone)
+  );
+
+  // 6 Factory Rules (Trilingual)
+  const [rulesKh, setRulesKh] = useState<string[]>(initialConfig?.rulesKh || DEFAULT_6_RULES_KH);
+  const [rulesEn, setRulesEn] = useState<string[]>(initialConfig?.rulesEn || DEFAULT_6_RULES_EN);
+  const [rulesZh, setRulesZh] = useState<string[]>(initialConfig?.rulesZh || DEFAULT_6_RULES_ZH);
+
+  // Back Card Configuration
+  const [backLangMode, setBackLangMode] = useState<'trilingual' | 'bilingual' | 'khmer'>(
+    initialConfig?.backLangMode || 'trilingual'
+  );
+  const [showBackQr, setShowBackQr] = useState<boolean>(initialConfig?.showBackQr ?? true);
+  const [showBackSignature, setShowBackSignature] = useState<boolean>(initialConfig?.showBackSignature ?? true);
+  const [showBackDates, setShowBackDates] = useState<boolean>(initialConfig?.showBackDates ?? true);
+
+  // Handle preset switch
+  const handleSelectFactoryPreset = (presetId: string) => {
+    setFactoryPreset(presetId);
+    const p = FACTORY_PRESETS.find((x) => x.id === presetId);
+    if (!p) return;
+    if (presetId !== 'custom') {
+      setCompanyKh(p.companyKh);
+      setCompanyEn(p.companyEn);
+      setCompanyZh(p.companyZh);
+      setAddressKh(p.addressKh);
+      setAddressEn(p.addressEn);
+      setAddressZh(p.addressZh);
+      setAdminPhone(p.adminPhone);
+      if (p.primaryColor) setPrimaryColor(p.primaryColor);
+      if (p.accentColor) setAccentColor(p.accentColor);
+    }
+  };
 
   // Employee Trilingual Name
   const defaultNameKh = `${employee.lastNameKh || ''} ${employee.firstNameKh || ''}`.trim() || employee.firstNameEn;
@@ -512,6 +590,21 @@ export default function IDCardClient({
           if (cfg.qrType) setQrType(cfg.qrType);
           if (cfg.customQrUrl !== undefined) setCustomQrUrl(cfg.customQrUrl);
           if (cfg.langMode) setLangMode(cfg.langMode);
+          if (cfg.factoryPreset) setFactoryPreset(cfg.factoryPreset);
+          if (cfg.companyKh) setCompanyKh(cfg.companyKh);
+          if (cfg.companyEn) setCompanyEn(cfg.companyEn);
+          if (cfg.companyZh) setCompanyZh(cfg.companyZh);
+          if (cfg.addressKh) setAddressKh(cfg.addressKh);
+          if (cfg.addressEn) setAddressEn(cfg.addressEn);
+          if (cfg.addressZh) setAddressZh(cfg.addressZh);
+          if (cfg.adminPhone) setAdminPhone(cfg.adminPhone);
+          if (cfg.rulesKh) setRulesKh(cfg.rulesKh);
+          if (cfg.rulesEn) setRulesEn(cfg.rulesEn);
+          if (cfg.rulesZh) setRulesZh(cfg.rulesZh);
+          if (cfg.backLangMode) setBackLangMode(cfg.backLangMode);
+          if (cfg.showBackQr !== undefined) setShowBackQr(cfg.showBackQr);
+          if (cfg.showBackSignature !== undefined) setShowBackSignature(cfg.showBackSignature);
+          if (cfg.showBackDates !== undefined) setShowBackDates(cfg.showBackDates);
           if (cfg.termsKh) setTermsKh(cfg.termsKh);
           if (cfg.termsEn) setTermsEn(cfg.termsEn);
           if (cfg.termsZh) setTermsZh(cfg.termsZh);
@@ -571,6 +664,21 @@ export default function IDCardClient({
       qrType,
       customQrUrl,
       langMode,
+      factoryPreset,
+      companyKh,
+      companyEn,
+      companyZh,
+      addressKh,
+      addressEn,
+      addressZh,
+      adminPhone,
+      rulesKh,
+      rulesEn,
+      rulesZh,
+      backLangMode,
+      showBackQr,
+      showBackSignature,
+      showBackDates,
       termsKh,
       termsEn,
       termsZh,
@@ -791,18 +899,18 @@ export default function IDCardClient({
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8mm', backgroundColor: `${primaryColor}06`, padding: '1mm 1.5mm', borderRadius: '1.8mm', border: `1px solid ${primaryColor}15`, fontSize: `${6.4 * fontScale}px` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7mm', backgroundColor: `${primaryColor}06`, padding: '0.9mm 1.5mm', borderRadius: '1.8mm', border: `1px solid ${primaryColor}15`, fontSize: `${6.2 * fontScale}px` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b', fontWeight: 600 }}>អត្តលេខ ID:</span>
             <span style={{ fontWeight: 800, color: primaryColor, fontFamily: 'monospace' }}>{employee.employeeId}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b', fontWeight: 600 }}>ផ្នែក Dept:</span>
-            <span style={{ fontWeight: 700 }}>{deptKh} ({deptEn})</span>
+            <span style={{ fontWeight: 700 }}>{deptKh && deptEn && deptKh !== deptEn ? `${deptKh} (${deptEn})` : (deptEn || deptKh || 'Office')}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: '#64748b', fontWeight: 600 }}>កំណើត DOB:</span>
-            <span style={{ fontWeight: 700 }}>{employee.dob ? new Date(employee.dob).toLocaleDateString('en-GB') : 'N/A'}</span>
+            <span style={{ color: '#64748b', fontWeight: 600 }}>តួនាទី Position:</span>
+            <span style={{ fontWeight: 700 }}>{posKh && posEn && posKh !== posEn ? `${posKh} (${posEn})` : (posEn || posKh || 'Human Resource')}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b', fontWeight: 600 }}>ចូលការ Join:</span>
@@ -1028,7 +1136,11 @@ export default function IDCardClient({
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b' }}>🏢 Dept:</span>
-            <span style={{ fontWeight: 700 }}>{deptKh}</span>
+            <span style={{ fontWeight: 700 }}>{deptEn || deptKh}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: '#64748b' }}>💼 Position:</span>
+            <span style={{ fontWeight: 700 }}>{posEn || posKh}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b' }}>📅 ចូលការ Join:</span>
@@ -1125,7 +1237,11 @@ export default function IDCardClient({
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748b' }}>Dept:</span>
-              <span style={{ fontWeight: 700 }}>{deptKh}</span>
+              <span style={{ fontWeight: 700 }}>{deptEn || deptKh}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#64748b' }}>Pos:</span>
+              <span style={{ fontWeight: 700 }}>{posEn || posKh}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#64748b' }}>Hire:</span>
@@ -1205,7 +1321,11 @@ export default function IDCardClient({
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b', fontWeight: 600 }}>ផ្នែក Dept:</span>
-            <span style={{ fontWeight: 700 }}>{deptKh} ({deptEn})</span>
+            <span style={{ fontWeight: 700 }}>{deptKh && deptEn && deptKh !== deptEn ? `${deptKh} (${deptEn})` : (deptEn || deptKh)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: '#64748b', fontWeight: 600 }}>តួនាទី Pos:</span>
+            <span style={{ fontWeight: 700 }}>{posKh && posEn && posKh !== posEn ? `${posKh} (${posEn})` : (posEn || posKh)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: '#64748b', fontWeight: 600 }}>ចូលការ Hire:</span>
@@ -1367,7 +1487,11 @@ export default function IDCardClient({
             </div>
             <div>
               <span style={{ color: '#64748b' }}>Dept: </span>
-              <span style={{ fontWeight: 700 }}>{deptKh}</span>
+              <span style={{ fontWeight: 700 }}>{deptEn || deptKh}</span>
+            </div>
+            <div>
+              <span style={{ color: '#64748b' }}>Pos: </span>
+              <span style={{ fontWeight: 700 }}>{posEn || posKh}</span>
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-around', fontSize: `${6 * fontScale}px` }}>
@@ -1394,112 +1518,244 @@ export default function IDCardClient({
   // =========================================================================
 
   // Standard Vertical Back Side (Used for Wave Gold, Green Wave, Green Eco, Angular, Corporate, Executive)
-  const renderVerticalBack = () => (
-    <>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3.5mm', backgroundColor: primaryColor, borderBottom: `2px solid ${accentColor}` }} />
+  const renderVerticalBack = () => {
+    const isTri = backLangMode === 'trilingual';
+    const isBi = backLangMode === 'bilingual';
 
-      <div style={{ marginTop: '2mm', textAlign: 'center' }}>
-        <div style={{ fontSize: `${7.2 * fontScale}px`, fontWeight: 800, color: primaryColor, letterSpacing: '0.2px', marginBottom: '1mm' }}>
-          {langMode === 'trilingual' ? 'លក្ខខណ្ឌប្រើប្រាស់ • TERMS & CONDITIONS • 使用条款' : 'TERMS AND CONDITIONS'}
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between', position: 'relative' }}>
+        {/* Top Accent Strip */}
+        <div style={{ position: 'absolute', top: '-2.5mm', left: '-2.2mm', right: '-2.2mm', height: '3.2mm', backgroundColor: primaryColor, borderBottom: `2px solid ${accentColor}` }} />
+
+        {/* 1. Header: Company Name (Stylized Banner Box like Factory Reference) */}
+        <div style={{
+          marginTop: '1.2mm',
+          textAlign: 'center',
+          padding: '1mm 0.8mm',
+          backgroundColor: `${primaryColor}0c`,
+          border: `1.2px solid ${primaryColor}35`,
+          borderRadius: '1.5mm'
+        }}>
+          <div style={{ fontSize: `${7.2 * fontScale}px`, fontWeight: 800, color: primaryColor, lineHeight: '1.2' }}>
+            {companyKh}
+          </div>
+          <div style={{ fontSize: `${5.2 * fontScale}px`, fontWeight: 700, color: '#334155', letterSpacing: '0.2px', textTransform: 'uppercase', lineHeight: '1.15' }}>
+            {companyEn}
+          </div>
+          {isTri && companyZh && (
+            <div style={{ fontSize: `${4.8 * fontScale}px`, color: '#64748b', lineHeight: '1.1' }}>
+              {companyZh}
+            </div>
+          )}
         </div>
 
-        <div style={{ backgroundColor: `${primaryColor}06`, border: `1px dashed ${primaryColor}25`, borderRadius: '2mm', padding: '1.4mm 1.6mm', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.8mm' }}>
-          <div style={{ fontSize: `${5.8 * fontScale}px`, color: '#1e293b', lineHeight: '1.2' }}>🇰🇭 {termsKh}</div>
-          <div style={{ fontSize: `${5.2 * fontScale}px`, color: '#475569', lineHeight: '1.15' }}>🇬🇧 {termsEn}</div>
-          {langMode === 'trilingual' && termsZh && (
-            <div style={{ fontSize: `${5.2 * fontScale}px`, color: '#475569', lineHeight: '1.15' }}>🇨🇳 {termsZh}</div>
+        {/* 2. Rules 1 - 6 (Table / Bordered Rows matching Factory ID Rules) */}
+        <div style={{
+          margin: '0.6mm 0',
+          backgroundColor: '#ffffff',
+          border: `1px solid #cbd5e1`,
+          borderRadius: '1.2mm',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          {rulesKh.map((rKh, idx) => {
+            const ruleNum = idx + 1;
+            const rEn = rulesEn[idx] || '';
+            const rZh = rulesZh[idx] || '';
+            const isLast = idx === rulesKh.length - 1;
+
+            return (
+              <div
+                key={idx}
+                style={{
+                  padding: isTri ? '0.45mm 0.8mm' : '0.6mm 1mm',
+                  borderBottom: isLast ? 'none' : `1px solid #e2e8f0`,
+                  backgroundColor: idx % 2 === 0 ? '#fafafa' : '#ffffff',
+                  fontSize: `${(isTri ? 4.5 : 5.2) * fontScale}px`,
+                  lineHeight: '1.18',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.8mm'
+                }}
+              >
+                <span style={{ fontWeight: 800, color: primaryColor, minWidth: '3.2mm', textAlign: 'right', flexShrink: 0 }}>
+                  {ruleNum === 6 ? '6-' : `${ruleNum}.`}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: '#0f172a', fontWeight: 600 }}>{rKh}</div>
+                  {(isTri || isBi) && rEn && (
+                    <div style={{ color: '#475569', fontSize: `${3.9 * fontScale}px`, lineHeight: '1.1', marginTop: '0.15mm' }}>
+                      {rEn}
+                    </div>
+                  )}
+                  {isTri && rZh && (
+                    <div style={{ color: '#64748b', fontSize: `${3.8 * fontScale}px`, lineHeight: '1.1' }}>
+                      {rZh}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 3. Address (អាសយដ្ឋាន) */}
+        <div style={{
+          backgroundColor: `${primaryColor}06`,
+          border: `1px solid ${primaryColor}20`,
+          borderRadius: '1.2mm',
+          padding: '0.6mm 0.8mm',
+          fontSize: `${(isTri ? 4.4 : 5.0) * fontScale}px`,
+          lineHeight: '1.2'
+        }}>
+          <div>
+            <strong style={{ color: primaryColor }}>អាសយដ្ឋាន: </strong>
+            <span style={{ color: '#1e293b' }}>{addressKh}</span>
+          </div>
+          {(isTri || isBi) && addressEn && (
+            <div style={{ color: '#475569', fontSize: `${3.9 * fontScale}px`, lineHeight: '1.1', marginTop: '0.15mm' }}>
+              <strong>Address: </strong>{addressEn}
+            </div>
+          )}
+          {isTri && addressZh && (
+            <div style={{ color: '#64748b', fontSize: `${3.8 * fontScale}px`, lineHeight: '1.1' }}>
+              <strong>地址: </strong>{addressZh}
+            </div>
+          )}
+        </div>
+
+        {/* 4. Admin Hotline Phone (លេខទូរស័ព្ទរដ្ឋបាល) */}
+        <div style={{
+          backgroundColor: '#eff6ff',
+          border: `1px solid #bfdbfe`,
+          borderRadius: '1.2mm',
+          padding: '0.6mm 0.8mm',
+          textAlign: 'center',
+          fontSize: `${5.2 * fontScale}px`,
+          fontWeight: 700,
+          color: '#1e40af',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1mm'
+        }}>
+          <span>លេខទូរស័ព្ទរដ្ឋបាល:</span>
+          <span style={{ color: '#b91c1c', letterSpacing: '0.2px', fontWeight: 800 }}>{adminPhone}</span>
+        </div>
+
+        {/* 5. Bottom Info Bar: Issue/Expiry, Mini QR & Signature */}
+        {(showBackDates || showBackQr || showBackSignature) && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1mm',
+            paddingTop: '0.6mm',
+            borderTop: `1px dashed ${primaryColor}20`,
+            marginBottom: '0.2mm'
+          }}>
+            {/* Dates */}
+            {showBackDates && (
+              <div style={{ fontSize: `${4.6 * fontScale}px`, color: '#64748b', lineHeight: '1.2', display: 'flex', flexDirection: 'column' }}>
+                <div>ចេញ: <strong style={{ color: '#0f172a' }}>{issueDate}</strong></div>
+                <div>ផុត: <strong style={{ color: accentColor }}>{expireDate}</strong></div>
+              </div>
+            )}
+
+            {/* QR Code */}
+            {showBackQr && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ padding: '0.5mm', backgroundColor: '#ffffff', borderRadius: '0.8mm', border: `1px solid ${primaryColor}30` }}>
+                  <QRCodeSVG value={computedQrValue} size={28} level="M" />
+                </div>
+                <div style={{ fontSize: `${4 * fontScale}px`, color: '#64748b', fontWeight: 600 }}>Scan</div>
+              </div>
+            )}
+
+            {/* Signature */}
+            {showBackSignature && (
+              <div style={{ textAlign: 'center', minWidth: '18mm' }}>
+                <div style={{ width: '16mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.4mm auto' }} />
+                <div style={{ fontSize: `${4.6 * fontScale}px`, fontWeight: 700, color: primaryColor }}>
+                  ហត្ថលេខា / Sign
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Bottom Accent Strip */}
+        <div style={{ position: 'absolute', bottom: '-2.5mm', left: '-2.2mm', right: '-2.2mm', height: '3.2mm', backgroundColor: primaryColor, borderTop: `2px solid ${accentColor}` }} />
+      </div>
+    );
+  };
+
+  // Landscape Horizontal Back Side (86mm × 54mm)
+  const renderLandscapeBack = () => {
+    const isTri = backLangMode === 'trilingual';
+    const isBi = backLangMode === 'bilingual';
+
+    return (
+      <div style={{ display: 'flex', height: '100%', width: '100%', boxSizing: 'border-box' }}>
+        {/* Left Column: Header, Rules, Address, Hotline */}
+        <div style={{ flex: 1, padding: '2mm 2.5mm', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: `1.2px solid ${primaryColor}20` }}>
+          <div>
+            <div style={{ fontSize: `${6.5 * fontScale}px`, fontWeight: 800, color: primaryColor, lineHeight: '1.2' }}>{companyKh}</div>
+            <div style={{ fontSize: `${4.8 * fontScale}px`, fontWeight: 700, color: '#334155', textTransform: 'uppercase' }}>{companyEn}</div>
+            {isTri && companyZh && <div style={{ fontSize: `${4.4 * fontScale}px`, color: '#64748b' }}>{companyZh}</div>}
+          </div>
+
+          <div style={{ border: '1px solid #e2e8f0', borderRadius: '1mm', overflow: 'hidden', margin: '0.6mm 0' }}>
+            {rulesKh.map((rKh, idx) => (
+              <div key={idx} style={{ padding: '0.3mm 0.6mm', fontSize: `${4.2 * fontScale}px`, lineHeight: '1.15', display: 'flex', gap: '0.6mm', borderBottom: idx === rulesKh.length - 1 ? 'none' : '1px solid #f1f5f9' }}>
+                <strong style={{ color: primaryColor }}>{idx + 1 === 6 ? '6-' : `${idx + 1}.`}</strong>
+                <span style={{ color: '#0f172a' }}>{rKh}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ fontSize: `${4.3 * fontScale}px`, lineHeight: '1.15' }}>
+            <span style={{ color: primaryColor, fontWeight: 700 }}>អាសយដ្ឋាន: </span>
+            <span style={{ color: '#334155' }}>{addressKh}</span>
+          </div>
+
+          <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '1mm', padding: '0.4mm 0.8mm', fontSize: `${4.8 * fontScale}px`, fontWeight: 700, color: '#1e40af' }}>
+            <span>លេខទូរស័ព្ទរដ្ឋបាល: </span>
+            <span style={{ color: '#b91c1c' }}>{adminPhone}</span>
+          </div>
+        </div>
+
+        {/* Right Column: QR Code, Dates, Signature */}
+        <div style={{ width: '30mm', padding: '2mm', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', textAlign: 'center' }}>
+          {showBackQr && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ padding: '0.8mm', backgroundColor: '#ffffff', borderRadius: '1.2mm', border: `1px solid ${primaryColor}30` }}>
+                <QRCodeSVG value={computedQrValue} size={36} level="M" />
+              </div>
+              <div style={{ fontSize: `${4.4 * fontScale}px`, color: '#64748b', fontWeight: 600, marginTop: '0.4mm' }}>ស្កេនផ្ទៀងផ្ទាត់ / Scan</div>
+            </div>
+          )}
+
+          {showBackDates && (
+            <div style={{ fontSize: `${4.5 * fontScale}px`, color: '#64748b', lineHeight: '1.2' }}>
+              <div>ចេញ: <strong style={{ color: '#0f172a' }}>{issueDate}</strong></div>
+              <div>ផុត: <strong style={{ color: accentColor }}>{expireDate}</strong></div>
+            </div>
+          )}
+
+          {showBackSignature && (
+            <div style={{ width: '100%', marginTop: 'auto', marginBottom: '0.5mm' }}>
+              <div style={{ width: '22mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.4mm auto' }} />
+              <div style={{ fontSize: `${4.8 * fontScale}px`, fontWeight: 700, color: primaryColor }}>
+                ហត្ថលេខា / Authorized Sign
+              </div>
+            </div>
           )}
         </div>
       </div>
-
-      {/* Dates & Blood Group Strip */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 1mm', fontSize: `${6 * fontScale}px`, backgroundColor: '#f1f5f9', borderRadius: '1.5mm', paddingBlock: '0.8mm' }}>
-        <div>
-          <span style={{ color: '#64748b' }}>ចេញកាត / Issued: </span>
-          <span style={{ fontWeight: 700 }}>{issueDate}</span>
-        </div>
-        <div>
-          <span style={{ color: '#64748b' }}>ផុតកំណត់ / Expire: </span>
-          <span style={{ fontWeight: 700, color: accentColor }}>{expireDate}</span>
-        </div>
-      </div>
-
-      {/* Center QR Code Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0.3mm 0' }}>
-        <div style={{ padding: '1.2mm', backgroundColor: '#ffffff', borderRadius: '2mm', border: `1.5px solid ${primaryColor}35`, boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-          <QRCodeSVG value={computedQrValue} size={46} level="M" />
-        </div>
-        <div style={{ fontSize: `${5.5 * fontScale}px`, color: '#64748b', marginTop: '0.8mm', fontWeight: 600 }}>
-          {qrType === 'verify-url' ? 'ស្កេនផ្ទៀងផ្ទាត់កាត (Scan to Verify)' : qrType === 'vcard' ? 'ស្កេនរក្សាទុក Contact (Save vCard)' : 'ស្កេនពិនិត្យទិន្នន័យ (Scan Info)'}
-        </div>
-        {contactPhone && (
-          <div style={{ fontSize: `${5.8 * fontScale}px`, color: primaryColor, fontWeight: 700, marginTop: '0.3mm' }}>
-            📞 ទំនាក់ទំនង/Tel: {contactPhone} {bloodGroup && `• ឈាម/Blood: ${bloodGroup}`}
-          </div>
-        )}
-      </div>
-
-      {/* Authorized Signature */}
-      <div style={{ textAlign: 'center', margin: '0.3mm 0' }}>
-        <div style={{ width: '28mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.8mm auto' }} />
-        <div style={{ fontSize: `${5.8 * fontScale}px`, fontWeight: 700, color: primaryColor }}>
-          {langMode === 'trilingual' ? 'ហត្ថលេខា / Authorized Signature / 授权签署' : 'Authorized Signature'}
-        </div>
-      </div>
-
-      {/* Company Name Footer */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5mm', padding: '0 1mm' }}>
-        <div style={{ fontSize: `${7.2 * fontScale}px`, fontWeight: 800, color: primaryColor, lineHeight: '1.2', wordBreak: 'break-word' }}>
-          {companyKh}
-        </div>
-        <div style={{ fontSize: `${6 * fontScale}px`, fontWeight: 600, color: '#475569', lineHeight: '1.15', textTransform: 'uppercase', wordBreak: 'break-word' }}>
-          {companyEn}
-        </div>
-        {companyZh && langMode === 'trilingual' && (
-          <div style={{ fontSize: `${5.8 * fontScale}px`, color: '#64748b', lineHeight: '1.15', wordBreak: 'break-word' }}>
-            {companyZh}
-          </div>
-        )}
-      </div>
-
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3.5mm', backgroundColor: primaryColor, borderTop: `2px solid ${accentColor}` }} />
-    </>
-  );
-
-  // Landscape Horizontal Back Side (86mm × 54mm)
-  const renderLandscapeBack = () => (
-    <div style={{ display: 'flex', height: '100%', width: '100%', boxSizing: 'border-box' }}>
-      <div style={{ flex: 1, padding: '2.5mm 3mm', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: `1.5px solid ${primaryColor}20` }}>
-        <div>
-          <div style={{ fontSize: `${6.8 * fontScale}px`, fontWeight: 800, color: primaryColor, marginBottom: '0.8mm' }}>
-            {langMode === 'trilingual' ? 'លក្ខខណ្ឌប្រើប្រាស់ • TERMS & CONDITIONS' : 'TERMS & CONDITIONS'}
-          </div>
-          <div style={{ fontSize: `${5.6 * fontScale}px`, color: '#1e293b', lineHeight: '1.2', marginBottom: '0.6mm' }}>🇰🇭 {termsKh}</div>
-          <div style={{ fontSize: `${5 * fontScale}px`, color: '#64748b', lineHeight: '1.15' }}>🇬🇧 {termsEn}</div>
-        </div>
-
-        <div style={{ borderTop: `1px solid ${primaryColor}20`, paddingTop: '1mm' }}>
-          <div style={{ fontSize: `${7 * fontScale}px`, fontWeight: 800, color: primaryColor }}>{companyKh}</div>
-          <div style={{ fontSize: `${5.8 * fontScale}px`, color: '#64748b', textTransform: 'uppercase' }}>{companyEn}</div>
-          {contactPhone && <div style={{ fontSize: `${5.8 * fontScale}px`, color: accentColor, fontWeight: 700 }}>📞 Tel: {contactPhone}</div>}
-        </div>
-      </div>
-
-      <div style={{ width: '34mm', padding: '2mm', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', textAlign: 'center' }}>
-        <div style={{ padding: '1mm', backgroundColor: '#ffffff', borderRadius: '1.5mm', border: `1px solid ${primaryColor}30`, marginTop: '1mm' }}>
-          <QRCodeSVG value={computedQrValue} size={44} level="M" />
-        </div>
-        <div style={{ fontSize: `${5.2 * fontScale}px`, color: '#64748b', fontWeight: 600 }}>ស្កេនផ្ទៀងផ្ទាត់ / Scan</div>
-        
-        <div style={{ width: '100%', marginTop: 'auto', marginBottom: '1mm' }}>
-          <div style={{ width: '24mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.5mm auto' }} />
-          <div style={{ fontSize: `${5.5 * fontScale}px`, fontWeight: 700, color: primaryColor }}>
-            ហត្ថលេខា / Authorized Sign
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
@@ -2341,28 +2597,130 @@ export default function IDCardClient({
             {/* TAB 5: TRILINGUAL DATA & CONTENT */}
             {activeTab === 'content' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '6px', display: 'block' }}>
-                    🌐 របៀបបង្ហាញភាសា (Language Mode)
+                {/* 1. Factory / Company Preset Selector */}
+                <div style={{ backgroundColor: '#f0fdf4', padding: '12px', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+                  <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#166534', marginBottom: '8px', display: 'block' }}>
+                    🏭 ជ្រើសរើសរោងចក្រ ឬក្រុមហ៊ុន (Factory / Company Presets)
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px' }}>
+                    {FACTORY_PRESETS.map((fp) => (
+                      <button
+                        key={fp.id}
+                        type="button"
+                        onClick={() => handleSelectFactoryPreset(fp.id)}
+                        style={{
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          border: factoryPreset === fp.id ? '2px solid #16a34a' : '1px solid #cbd5e1',
+                          backgroundColor: factoryPreset === fp.id ? '#dcfce7' : '#ffffff',
+                          color: factoryPreset === fp.id ? '#15803d' : '#334155',
+                          fontWeight: 700,
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <span>{fp.nameKh}</span>
+                        {factoryPreset === fp.id && <span style={{ fontSize: '14px' }}>✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Admin Phone Hotline (កែប្រែលេខទូរស័ព្ទរដ្ឋបាលតាមចិត្ត) */}
+                <div style={{ backgroundColor: '#eff6ff', padding: '12px', borderRadius: '8px', border: '1.5px solid #93c5fd' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '12.5px', fontWeight: 800, color: '#1e40af' }}>
+                      📞 លេខទូរស័ព្ទរដ្ឋបាល (Admin Hotline Phone):
+                    </label>
+                    <span style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600 }}>*កែប្រែបានតាមចិត្ត</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={adminPhone}
+                    onChange={(e) => setAdminPhone(e.target.value)}
+                    placeholder="069 817 168 , 066 817 168"
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#b91c1c',
+                      borderRadius: '6px',
+                      border: '1.5px solid #3b82f6',
+                      backgroundColor: '#ffffff'
+                    }}
+                  />
+                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                    បង្ហាញនៅផ្នែកខាងក្រោយកាតសម្រាប់បុគ្គលិកទាក់ទងពេលមានបណ្ដឹងតវ៉ា ឬបញ្ហាប្រាក់ខែ
+                  </div>
+                </div>
+
+                {/* 3. Company Address (អាសយដ្ឋានក្រុមហ៊ុន) */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '8px' }}>
+                    📍 អាសយដ្ឋានក្រុមហ៊ុន / រោងចក្រ (Address 3 Languages)
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>🇰🇭 អាសយដ្ឋានខ្មែរ:</div>
+                      <textarea
+                        rows={2}
+                        value={addressKh}
+                        onChange={(e) => setAddressKh(e.target.value)}
+                        placeholder="ផ្លូវជាតិលេខ៤ ភូមិដំណាក់ត្រាច ឃុំដំបូកខ្ពស់..."
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>🇬🇧 អាសយដ្ឋានអង់គ្លេស:</div>
+                      <textarea
+                        rows={2}
+                        value={addressEn}
+                        onChange={(e) => setAddressEn(e.target.value)}
+                        placeholder="National Road 4, Damnak Trach Village..."
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>🇨🇳 អាសយដ្ឋានចិន:</div>
+                      <textarea
+                        rows={2}
+                        value={addressZh}
+                        onChange={(e) => setAddressZh(e.target.value)}
+                        placeholder="柬埔寨实居省普农斯罗县..."
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Back Card Language Mode & Toggles */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '6px', display: 'block' }}>
+                    🌐 របៀបបង្ហាញភាសាខាងក្រោយកាត (Back Language Mode)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '10px' }}>
                     {[
                       { id: 'trilingual', label: '៣ ភាសា (ខ្មែរ/EN/中文)' },
-                      { id: 'bilingual', label: '២ ភាសា (ខ្មែរ/EN)' },
-                      { id: 'khmer', label: 'ខ្មែរតែមួយ (Khmer)' },
-                      { id: 'english', label: 'អង់គ្លេស (English)' }
+                      { id: 'khmer', label: '🇰🇭 ខ្មែរតែមួយ (ដូចគំរូ)' },
+                      { id: 'bilingual', label: '២ ភាសា (ខ្មែរ/EN)' }
                     ].map((m) => (
                       <button
                         key={m.id}
-                        onClick={() => setLangMode(m.id as any)}
+                        type="button"
+                        onClick={() => setBackLangMode(m.id as any)}
                         style={{
-                          padding: '8px 6px',
+                          padding: '7px 4px',
                           borderRadius: '6px',
-                          border: langMode === m.id ? '2px solid #4f46e5' : '1px solid #cbd5e1',
-                          backgroundColor: langMode === m.id ? '#f5f3ff' : '#ffffff',
-                          color: langMode === m.id ? '#4f46e5' : '#334155',
+                          border: backLangMode === m.id ? '2px solid #4f46e5' : '1px solid #cbd5e1',
+                          backgroundColor: backLangMode === m.id ? '#f5f3ff' : '#ffffff',
+                          color: backLangMode === m.id ? '#4f46e5' : '#334155',
                           fontWeight: 600,
-                          fontSize: '11.5px',
+                          fontSize: '11px',
                           cursor: 'pointer'
                         }}
                       >
@@ -2370,9 +2728,120 @@ export default function IDCardClient({
                       </button>
                     ))}
                   </div>
+
+                  <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
+                    ⚙️ ធាតុបង្ហាញបន្ថែមខាងក្រោយកាត:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#1e293b', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={showBackQr}
+                        onChange={(e) => setShowBackQr(e.target.checked)}
+                      />
+                      <span>បង្ហាញ QR Code ខាងក្រោយកាត</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#1e293b', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={showBackSignature}
+                        onChange={(e) => setShowBackSignature(e.target.checked)}
+                      />
+                      <span>បង្ហាញ បន្ទាត់ហត្ថលេខា (Authorized Signature)</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#1e293b', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={showBackDates}
+                        onChange={(e) => setShowBackDates(e.target.checked)}
+                      />
+                      <span>បង្ហាញ ថ្ងៃចេញកាត / ផុតកំណត់ (Issue & Expire Dates)</span>
+                    </label>
+                  </div>
                 </div>
 
-                {/* Company Name Header Inputs */}
+                {/* 5. 6 Factory Rules Editor */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b' }}>
+                      📜 ច្បាប់វិន័យ ៦ ចំណុចលើកាត (Factory 6 Rules)
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRulesKh(DEFAULT_6_RULES_KH);
+                        setRulesEn(DEFAULT_6_RULES_EN);
+                        setRulesZh(DEFAULT_6_RULES_ZH);
+                      }}
+                      style={{
+                        padding: '3px 8px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '4px',
+                        color: '#475569',
+                        cursor: 'pointer'
+                      }}
+                      title="ស្តារច្បាប់វិន័យទាំង ៦ ចំណុចទៅដូចគំរូរោងចក្រដើម"
+                    >
+                      🔄 ស្តារ ៦ ចំណុចដើម
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {rulesKh.map((rKh, i) => (
+                      <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', backgroundColor: '#ffffff' }}>
+                        <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#4338ca', marginBottom: '4px' }}>
+                          ចំណុចទី {i + 1} ({i === 5 ? 'ផ្នែកបណ្តឹងតវ៉ា & លេខទូរស័ព្ទ' : `ច្បាប់ទី ${i + 1}`}):
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <input
+                            type="text"
+                            value={rKh}
+                            onChange={(e) => {
+                              const updated = [...rulesKh];
+                              updated[i] = e.target.value;
+                              setRulesKh(updated);
+                            }}
+                            placeholder={`ច្បាប់ទី ${i + 1} ជាភាសាខ្មែរ...`}
+                            style={{ width: '100%', padding: '5px 7px', fontSize: '11.5px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                          />
+                          {backLangMode !== 'khmer' && (
+                            <>
+                              <input
+                                type="text"
+                                value={rulesEn[i] || ''}
+                                onChange={(e) => {
+                                  const updated = [...rulesEn];
+                                  updated[i] = e.target.value;
+                                  setRulesEn(updated);
+                                }}
+                                placeholder={`Rule ${i + 1} in English...`}
+                                style={{ width: '100%', padding: '5px 7px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1', color: '#475569' }}
+                              />
+                              {backLangMode === 'trilingual' && (
+                                <input
+                                  type="text"
+                                  value={rulesZh[i] || ''}
+                                  onChange={(e) => {
+                                    const updated = [...rulesZh];
+                                    updated[i] = e.target.value;
+                                    setRulesZh(updated);
+                                  }}
+                                  placeholder={`条款 ${i + 1} 中文...`}
+                                  style={{ width: '100%', padding: '5px 7px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1', color: '#475569' }}
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 6. Company Name Header Inputs */}
                 <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
                     🏢 ឈ្មោះក្រុមហ៊ុន និងពាក្យស្លោក (Company Header & Tagline)
@@ -2418,7 +2887,7 @@ export default function IDCardClient({
                   </div>
                 </div>
 
-                {/* Dates & Blood Group */}
+                {/* 7. Dates & Blood Group */}
                 <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
                     📅 កាលបរិច្ឆេទ & ប្រភេទឈាម
@@ -2454,7 +2923,7 @@ export default function IDCardClient({
                   </div>
                 </div>
 
-                {/* Employee Details Tuning */}
+                {/* 8. Employee Details Tuning */}
                 <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
                     👤 ឈ្មោះ និងតួនាទីបុគ្គលិក
@@ -2530,7 +2999,7 @@ export default function IDCardClient({
                     </div>
 
                     <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>លេខទូរស័ព្ទរដ្ឋបាល (Tel):</div>
+                      <div style={{ fontSize: '11px', color: '#64748b' }}>លេខទូរស័ព្ទផ្ទាល់ខ្លួនបុគ្គលិក (Personal Tel):</div>
                       <input
                         type="text"
                         value={contactPhone}
@@ -2538,36 +3007,6 @@ export default function IDCardClient({
                         style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                       />
                     </div>
-                  </div>
-                </div>
-
-                {/* Terms and Conditions (Back Side) */}
-                <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    📜 លក្ខខណ្ឌខាងក្រោយកាត (Terms & Conditions)
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <textarea
-                      rows={2}
-                      value={termsKh}
-                      onChange={(e) => setTermsKh(e.target.value)}
-                      placeholder="លក្ខខណ្ឌភាសាខ្មែរ..."
-                      style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    />
-                    <textarea
-                      rows={2}
-                      value={termsEn}
-                      onChange={(e) => setTermsEn(e.target.value)}
-                      placeholder="Terms in English..."
-                      style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    />
-                    <textarea
-                      rows={2}
-                      value={termsZh}
-                      onChange={(e) => setTermsZh(e.target.value)}
-                      placeholder="使用条款（中文）..."
-                      style={{ width: '100%', padding: '6px 8px', fontSize: '11.5px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                    />
                   </div>
                 </div>
               </div>

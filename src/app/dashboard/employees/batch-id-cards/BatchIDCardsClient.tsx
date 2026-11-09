@@ -3,6 +3,13 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
+import {
+  FACTORY_PRESETS,
+  DEFAULT_6_RULES_KH,
+  DEFAULT_6_RULES_EN,
+  DEFAULT_6_RULES_ZH,
+  type FactoryPreset
+} from '@/lib/idCardConstants';
 
 // Common Factory Position Translations
 const POSITION_DICT: Record<string, { kh: string; en: string; zh: string }> = {
@@ -21,6 +28,10 @@ const POSITION_DICT: Record<string, { kh: string; en: string; zh: string }> = {
   'general manager': { kh: 'អគ្គនាយក', en: 'General Manager', zh: '总经理' },
   hr: { kh: 'មន្ត្រីរដ្ឋបាល', en: 'HR Officer', zh: '人事专员' },
   'hr officer': { kh: 'មន្ត្រីរដ្ឋបាល', en: 'HR Officer', zh: '人事专员' },
+  'human resource': { kh: 'ធនធានមនុស្ស', en: 'Human Resource', zh: '人力资源' },
+  'human resources': { kh: 'ធនធានមនុស្ស', en: 'Human Resources', zh: '人力资源' },
+  office: { kh: 'ការិយាល័យ', en: 'Office', zh: '办公室' },
+  'office staff': { kh: 'បុគ្គលិកការិយាល័យ', en: 'Office Staff', zh: '办公室职员' },
   admin: { kh: 'បុគ្គលិករដ្ឋបាល', en: 'Admin Staff', zh: '行政人员' },
   clerk: { kh: 'ស្មៀន', en: 'Clerk', zh: '文员' },
   accountant: { kh: 'គណនេយ្យករ', en: 'Accountant', zh: '会计师' },
@@ -46,6 +57,9 @@ const DEPARTMENT_DICT: Record<string, { kh: string; en: string; zh: string }> = 
   qc: { kh: 'ផ្នែកត្រួតពិនិត្យ (QC)', en: 'QC Dept', zh: '品检部' },
   warehouse: { kh: 'ផ្នែកឃ្លាំង', en: 'Warehouse Dept', zh: '仓库部' },
   hr: { kh: 'រដ្ឋបាល & ធនធានមនុស្ស', en: 'HR & Admin', zh: '人事行政部' },
+  'human resource': { kh: 'ធនធានមនុស្ស', en: 'Human Resource', zh: '人力资源部' },
+  'human resources': { kh: 'ធនធានមនុស្ស', en: 'Human Resources', zh: '人力资源部' },
+  office: { kh: 'ការិយាល័យ', en: 'Office', zh: '办公室' },
   admin: { kh: 'ផ្នែករដ្ឋបាល', en: 'Administration', zh: '行政部' },
   maintenance: { kh: 'ផ្នែកជួសជុល', en: 'Maintenance', zh: '机修部' },
   mechanic: { kh: 'ផ្នែកជាងម៉ាស៊ីន', en: 'Mechanic Dept', zh: '机修部' },
@@ -174,6 +188,80 @@ export default function BatchIDCardsClient({
   const [isSavingDefault, setIsSavingDefault] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
+  // Factory Preset Determination (Defaults to Wahgoo Bags as requested)
+  const defaultPresetId = useMemo(() => {
+    if (initialConfig?.factoryPreset) return initialConfig.factoryPreset;
+    if (settings?.companyName?.toUpperCase().includes('WAHGOO')) return 'wahgoo';
+    if (settings?.companyName?.toUpperCase().includes('G.S') || settings?.companyName?.toUpperCase().includes('TEXTILE')) return 'gs-textile';
+    return 'wahgoo';
+  }, [initialConfig?.factoryPreset, settings?.companyName]);
+
+  const [factoryPreset, setFactoryPreset] = useState<string>(defaultPresetId);
+
+  // Company Name
+  const companyName = settings?.companyName || 'WAHGOO BAGS (CAMBODIA) TECHNOLOGY CO., LTD';
+  const defaultCompanyKh = useMemo(() => {
+    if (initialConfig?.companyKh) return initialConfig.companyKh;
+    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyKh;
+    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
+      return FACTORY_PRESETS[1].companyKh;
+    }
+    return companyName;
+  }, [initialConfig?.companyKh, defaultPresetId, companyName]);
+
+  const defaultCompanyZh = useMemo(() => {
+    if (initialConfig?.companyZh) return initialConfig.companyZh;
+    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyZh;
+    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
+      return FACTORY_PRESETS[1].companyZh;
+    }
+    return '';
+  }, [initialConfig?.companyZh, defaultPresetId, companyName]);
+
+  const defaultCompanyEn = useMemo(() => {
+    if (initialConfig?.companyEn) return initialConfig.companyEn;
+    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyEn;
+    return companyName;
+  }, [initialConfig?.companyEn, defaultPresetId, companyName]);
+
+  const [companyKh, setCompanyKh] = useState(defaultCompanyKh);
+  const [companyEn, setCompanyEn] = useState(defaultCompanyEn);
+  const [companyZh, setCompanyZh] = useState(defaultCompanyZh);
+  const [tagline, setTagline] = useState(initialConfig?.tagline || 'Excellence in Production');
+
+  // Address (Trilingual)
+  const [addressKh, setAddressKh] = useState<string>(
+    initialConfig?.addressKh ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressKh : FACTORY_PRESETS[0].addressKh)
+  );
+  const [addressEn, setAddressEn] = useState<string>(
+    initialConfig?.addressEn ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressEn : FACTORY_PRESETS[0].addressEn)
+  );
+  const [addressZh, setAddressZh] = useState<string>(
+    initialConfig?.addressZh ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressZh : FACTORY_PRESETS[0].addressZh)
+  );
+
+  // Admin Phone (Hotline)
+  const [adminPhone, setAdminPhone] = useState<string>(
+    initialConfig?.adminPhone ||
+    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].adminPhone : FACTORY_PRESETS[0].adminPhone)
+  );
+
+  // 6 Factory Rules (Trilingual)
+  const [rulesKh, setRulesKh] = useState<string[]>(initialConfig?.rulesKh || DEFAULT_6_RULES_KH);
+  const [rulesEn, setRulesEn] = useState<string[]>(initialConfig?.rulesEn || DEFAULT_6_RULES_EN);
+  const [rulesZh, setRulesZh] = useState<string[]>(initialConfig?.rulesZh || DEFAULT_6_RULES_ZH);
+
+  // Back Card Configuration
+  const [backLangMode, setBackLangMode] = useState<'trilingual' | 'bilingual' | 'khmer'>(
+    initialConfig?.backLangMode || 'trilingual'
+  );
+  const [showBackQr, setShowBackQr] = useState<boolean>(initialConfig?.showBackQr ?? true);
+  const [showBackSignature, setShowBackSignature] = useState<boolean>(initialConfig?.showBackSignature ?? true);
+  const [showBackDates, setShowBackDates] = useState<boolean>(initialConfig?.showBackDates ?? true);
+
   // Check localStorage on mount if no server settings
   React.useEffect(() => {
     if (!initialConfig && typeof window !== 'undefined') {
@@ -192,6 +280,21 @@ export default function BatchIDCardsClient({
           if (cfg.fontScale !== undefined) setFontScale(cfg.fontScale);
           if (cfg.showBarcode !== undefined) setShowBarcode(cfg.showBarcode);
           if (cfg.tagline) setTagline(cfg.tagline);
+          if (cfg.factoryPreset) setFactoryPreset(cfg.factoryPreset);
+          if (cfg.companyKh) setCompanyKh(cfg.companyKh);
+          if (cfg.companyEn) setCompanyEn(cfg.companyEn);
+          if (cfg.companyZh) setCompanyZh(cfg.companyZh);
+          if (cfg.addressKh) setAddressKh(cfg.addressKh);
+          if (cfg.addressEn) setAddressEn(cfg.addressEn);
+          if (cfg.addressZh) setAddressZh(cfg.addressZh);
+          if (cfg.adminPhone) setAdminPhone(cfg.adminPhone);
+          if (cfg.rulesKh) setRulesKh(cfg.rulesKh);
+          if (cfg.rulesEn) setRulesEn(cfg.rulesEn);
+          if (cfg.rulesZh) setRulesZh(cfg.rulesZh);
+          if (cfg.backLangMode) setBackLangMode(cfg.backLangMode);
+          if (cfg.showBackQr !== undefined) setShowBackQr(cfg.showBackQr);
+          if (cfg.showBackSignature !== undefined) setShowBackSignature(cfg.showBackSignature);
+          if (cfg.showBackDates !== undefined) setShowBackDates(cfg.showBackDates);
         }
       } catch (e) {
         console.error('Error reading localStorage in batch ID card', e);
@@ -206,27 +309,6 @@ export default function BatchIDCardsClient({
   // Export Progress
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
-
-  // Company Name
-  const companyName = settings?.companyName || 'G.S TEXTILE GARMENT (CAMBODIA) CO., LTD.';
-  const defaultCompanyKh = useMemo(() => {
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return 'ជី.អេស ថិកស្តាយ ហ្គាមិន (ខេមបូឌា)';
-    }
-    return companyName;
-  }, [companyName]);
-
-  const defaultCompanyZh = useMemo(() => {
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return '金边纺织制衣（柬埔寨）有限公司';
-    }
-    return '';
-  }, [companyName]);
-
-  const [companyKh, setCompanyKh] = useState(defaultCompanyKh);
-  const [companyEn, setCompanyEn] = useState(companyName);
-  const [companyZh, setCompanyZh] = useState(defaultCompanyZh);
-  const [tagline, setTagline] = useState('Excellence in Production');
 
   // Filtered Employees
   const filteredEmployees = useMemo(() => {
@@ -277,6 +359,24 @@ export default function BatchIDCardsClient({
     setAccentColor(s.defaultAccent);
   };
 
+  // Factory Preset Handler
+  const handleSelectFactoryPreset = (presetId: string) => {
+    setFactoryPreset(presetId);
+    const p = FACTORY_PRESETS.find((x) => x.id === presetId);
+    if (!p) return;
+    if (presetId !== 'custom') {
+      setCompanyKh(p.companyKh);
+      setCompanyEn(p.companyEn);
+      setCompanyZh(p.companyZh);
+      setAddressKh(p.addressKh);
+      setAddressEn(p.addressEn);
+      setAddressZh(p.addressZh);
+      setAdminPhone(p.adminPhone);
+      if (p.primaryColor) setPrimaryColor(p.primaryColor);
+      if (p.accentColor) setAccentColor(p.accentColor);
+    }
+  };
+
   // Save current style & options as default for all ID cards
   const handleSaveAsDefault = async (targetStyle?: CardStyleType) => {
     const styleToSave = targetStyle || cardStyle;
@@ -305,6 +405,21 @@ export default function BatchIDCardsClient({
       showBarcode,
       showLanyard: true,
       tagline,
+      factoryPreset,
+      companyKh,
+      companyEn,
+      companyZh,
+      addressKh,
+      addressEn,
+      addressZh,
+      adminPhone,
+      rulesKh,
+      rulesEn,
+      rulesZh,
+      backLangMode,
+      showBackQr,
+      showBackSignature,
+      showBackDates,
       savedAt: new Date().toISOString()
     };
 
@@ -775,6 +890,65 @@ export default function BatchIDCardsClient({
             ✓ CR80 (54×86mm)
           </div>
         </div>
+
+        {/* Row 4: Factory Preset & Admin Phone Hotline */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '6px', fontSize: '11.5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, color: '#475569' }}>🏭 រោងចក្រ:</span>
+            {FACTORY_PRESETS.map((fp) => (
+              <button
+                key={fp.id}
+                type="button"
+                onClick={() => handleSelectFactoryPreset(fp.id)}
+                style={{
+                  padding: '2px 8px',
+                  height: '26px',
+                  borderRadius: '5px',
+                  border: factoryPreset === fp.id ? '1.5px solid #16a34a' : '1px solid #cbd5e1',
+                  backgroundColor: factoryPreset === fp.id ? '#dcfce7' : '#ffffff',
+                  color: factoryPreset === fp.id ? '#15803d' : '#334155',
+                  fontWeight: factoryPreset === fp.id ? 700 : 500,
+                  fontSize: '11px',
+                  cursor: 'pointer'
+                }}
+              >
+                {fp.id === 'wahgoo' ? '🏭 Wahgoo Bags' : fp.id === 'gs-textile' ? '🏭 G.S Textile' : '⚙️ Custom'}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, color: '#1e40af' }}>📞 Tel រដ្ឋបាល:</span>
+            <input
+              type="text"
+              value={adminPhone}
+              onChange={(e) => setAdminPhone(e.target.value)}
+              placeholder="069 817 168 , 066 817 168"
+              style={{
+                padding: '2px 8px',
+                height: '26px',
+                borderRadius: '5px',
+                border: '1.5px solid #93c5fd',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                color: '#b91c1c',
+                width: '185px'
+              }}
+              title="អាចកែប្រែលេខទូរស័ព្ទរដ្ឋបាលបានតាមចិត្ត"
+            />
+
+            <span style={{ fontWeight: 700, color: '#475569', marginLeft: '4px' }}>🌐 ភាសាក្រោយ:</span>
+            <select
+              value={backLangMode}
+              onChange={(e) => setBackLangMode(e.target.value as any)}
+              style={{ padding: '2px 6px', height: '26px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '11px' }}
+            >
+              <option value="trilingual">៣ ភាសា (ខ្មែរ/EN/中文)</option>
+              <option value="khmer">🇰🇭 ខ្មែរ (ដូចគំរូ)</option>
+              <option value="bilingual">២ ភាសា (ខ្មែរ/EN)</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Main Print and Preview Area */}
@@ -938,7 +1112,11 @@ export default function BatchIDCardsClient({
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span style={{ color: '#64748b' }}>Dept:</span>
-                                    <span style={{ fontWeight: 700 }}>{deptTri.kh}</span>
+                                    <span style={{ fontWeight: 700 }}>{deptTri.en || emp.department || deptTri.kh}</span>
+                                  </div>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: '#64748b' }}>Position:</span>
+                                    <span style={{ fontWeight: 700 }}>{posTri.en || emp.position || posTri.kh}</span>
                                   </div>
                                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span style={{ color: '#64748b' }}>ចូលការ Join:</span>
@@ -988,40 +1166,148 @@ export default function BatchIDCardsClient({
                                 padding: '3mm 2.6mm'
                               }}
                             >
-                              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3.5mm', backgroundColor: primaryColor, borderBottom: `2px solid ${accentColor}` }} />
+                              {/* Top Strip */}
+                              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3.2mm', backgroundColor: primaryColor, borderBottom: `2px solid ${accentColor}` }} />
 
-                              <div style={{ marginTop: '2mm', textAlign: 'center' }}>
-                                <div style={{ fontSize: `${7 * fontScale}px`, fontWeight: 800, color: primaryColor, marginBottom: '0.8mm' }}>
-                                  លក្ខខណ្ឌប្រើប្រាស់ • TERMS & CONDITIONS
+                              {/* Header: Company Name */}
+                              <div style={{
+                                marginTop: '1.2mm',
+                                textAlign: 'center',
+                                padding: '0.8mm 0.6mm',
+                                backgroundColor: `${primaryColor}0c`,
+                                border: `1.2px solid ${primaryColor}35`,
+                                borderRadius: '1.2mm'
+                              }}>
+                                <div style={{ fontSize: `${7 * fontScale}px`, fontWeight: 800, color: primaryColor, lineHeight: '1.2' }}>{companyKh}</div>
+                                <div style={{ fontSize: `${5 * fontScale}px`, fontWeight: 700, color: '#334155', textTransform: 'uppercase', lineHeight: '1.15' }}>{companyEn}</div>
+                                {backLangMode === 'trilingual' && companyZh && <div style={{ fontSize: `${4.6 * fontScale}px`, color: '#64748b' }}>{companyZh}</div>}
+                              </div>
+
+                              {/* 6 Rules */}
+                              <div style={{
+                                margin: '0.5mm 0',
+                                backgroundColor: '#ffffff',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: '1.2mm',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column'
+                              }}>
+                                {rulesKh.map((rKh, idx) => {
+                                  const isTri = backLangMode === 'trilingual';
+                                  const isBi = backLangMode === 'bilingual';
+                                  return (
+                                    <div
+                                      key={idx}
+                                      style={{
+                                        padding: isTri ? '0.45mm 0.8mm' : '0.6mm 1mm',
+                                        borderBottom: idx === rulesKh.length - 1 ? 'none' : '1px solid #e2e8f0',
+                                        backgroundColor: idx % 2 === 0 ? '#fafafa' : '#ffffff',
+                                        fontSize: `${(isTri ? 4.5 : 5.2) * fontScale}px`,
+                                        lineHeight: '1.18',
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '0.8mm'
+                                      }}
+                                    >
+                                      <span style={{ fontWeight: 800, color: primaryColor, minWidth: '3.2mm', textAlign: 'right', flexShrink: 0 }}>
+                                        {idx === 5 ? '6-' : `${idx + 1}.`}
+                                      </span>
+                                      <div style={{ flex: 1 }}>
+                                        <div style={{ color: '#0f172a', fontWeight: 600 }}>{rKh}</div>
+                                        {(isTri || isBi) && rulesEn[idx] && (
+                                          <div style={{ color: '#475569', fontSize: `${3.9 * fontScale}px`, lineHeight: '1.1', marginTop: '0.15mm' }}>
+                                            {rulesEn[idx]}
+                                          </div>
+                                        )}
+                                        {isTri && rulesZh[idx] && (
+                                          <div style={{ color: '#64748b', fontSize: `${3.8 * fontScale}px`, lineHeight: '1.1' }}>
+                                            {rulesZh[idx]}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Address */}
+                              <div style={{
+                                backgroundColor: `${primaryColor}06`,
+                                border: `1px solid ${primaryColor}20`,
+                                borderRadius: '1.2mm',
+                                padding: '0.6mm 0.8mm',
+                                fontSize: `${(backLangMode === 'trilingual' ? 4.4 : 5.0) * fontScale}px`,
+                                lineHeight: '1.2'
+                              }}>
+                                <div>
+                                  <strong style={{ color: primaryColor }}>អាសយដ្ឋាន: </strong>
+                                  <span style={{ color: '#1e293b' }}>{addressKh}</span>
                                 </div>
-                                <div style={{ backgroundColor: `${primaryColor}06`, border: `1px dashed ${primaryColor}25`, borderRadius: '1.8mm', padding: '1.2mm', textAlign: 'left', fontSize: `${5.6 * fontScale}px`, lineHeight: '1.2' }}>
-                                  🇰🇭 ប័ណ្ណនេះជាកម្មសិទ្ធិរបស់ក្រុមហ៊ុន។ ប្រសិនបើរើសបាន សូមប្រគល់ជូនការិយាល័យរដ្ឋបាល។
+                                {backLangMode !== 'khmer' && addressEn && (
+                                  <div style={{ color: '#475569', fontSize: `${3.9 * fontScale}px`, lineHeight: '1.1', marginTop: '0.15mm' }}>
+                                    <strong>Address: </strong>{addressEn}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Admin Phone Hotline */}
+                              <div style={{
+                                backgroundColor: '#eff6ff',
+                                border: '1px solid #bfdbfe',
+                                borderRadius: '1.2mm',
+                                padding: '0.5mm 0.8mm',
+                                textAlign: 'center',
+                                fontSize: `${5.2 * fontScale}px`,
+                                fontWeight: 700,
+                                color: '#1e40af',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '1mm'
+                              }}>
+                                <span>លេខទូរស័ព្ទរដ្ឋបាល:</span>
+                                <span style={{ color: '#b91c1c', letterSpacing: '0.2px', fontWeight: 800 }}>{adminPhone}</span>
+                              </div>
+
+                              {/* Bottom Bar: Dates, QR, Signature */}
+                              {(showBackDates || showBackQr || showBackSignature) && (
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: '1mm',
+                                  paddingTop: '0.5mm',
+                                  borderTop: `1px dashed ${primaryColor}20`,
+                                  marginBottom: '0.2mm'
+                                }}>
+                                  {showBackDates && (
+                                    <div style={{ fontSize: `${4.6 * fontScale}px`, color: '#64748b', lineHeight: '1.2' }}>
+                                      <div>ចេញ: <strong style={{ color: '#0f172a' }}>{hireDate}</strong></div>
+                                      <div>ផុត: <strong style={{ color: accentColor }}>{expDate}</strong></div>
+                                    </div>
+                                  )}
+                                  {showBackQr && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                      <div style={{ padding: '0.5mm', backgroundColor: '#ffffff', borderRadius: '0.8mm', border: `1px solid ${primaryColor}30` }}>
+                                        <QRCodeSVG value={qrVal} size={28} level="M" />
+                                      </div>
+                                      <div style={{ fontSize: `${4 * fontScale}px`, color: '#64748b', fontWeight: 600 }}>Scan</div>
+                                    </div>
+                                  )}
+                                  {showBackSignature && (
+                                    <div style={{ textAlign: 'center', minWidth: '18mm' }}>
+                                      <div style={{ width: '16mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.4mm auto' }} />
+                                      <div style={{ fontSize: `${4.6 * fontScale}px`, fontWeight: 700, color: primaryColor }}>
+                                        ហត្ថលេខា / Sign
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
+                              )}
 
-                              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 1mm', fontSize: `${5.8 * fontScale}px`, backgroundColor: '#f1f5f9', borderRadius: '1.5mm', paddingBlock: '0.6mm' }}>
-                                <div><span style={{ color: '#64748b' }}>ចេញ: </span><strong>{hireDate}</strong></div>
-                                <div><span style={{ color: '#64748b' }}>ផុត: </span><strong style={{ color: accentColor }}>{expDate}</strong></div>
-                              </div>
-
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <div style={{ padding: '1mm', backgroundColor: '#ffffff', borderRadius: '1.5mm', border: `1px solid ${primaryColor}30` }}>
-                                  <QRCodeSVG value={qrVal} size={44} level="M" />
-                                </div>
-                                <div style={{ fontSize: `${5.4 * fontScale}px`, color: '#64748b', marginTop: '0.6mm', fontWeight: 600 }}>ស្កេនផ្ទៀងផ្ទាត់ / Scan</div>
-                              </div>
-
-                              <div style={{ textAlign: 'center' }}>
-                                <div style={{ width: '26mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.6mm auto' }} />
-                                <div style={{ fontSize: `${5.6 * fontScale}px`, fontWeight: 700, color: primaryColor }}>ហត្ថលេខា / Authorized Signature</div>
-                              </div>
-
-                              <div style={{ textAlign: 'center', marginBottom: '2.5mm' }}>
-                                <div style={{ fontSize: `${7 * fontScale}px`, fontWeight: 800, color: primaryColor }}>{companyKh}</div>
-                                <div style={{ fontSize: `${5.8 * fontScale}px`, color: '#64748b', textTransform: 'uppercase' }}>{companyEn}</div>
-                              </div>
-
-                              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3.5mm', backgroundColor: primaryColor, borderTop: `2px solid ${accentColor}` }} />
+                              {/* Bottom Strip */}
+                              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3.2mm', backgroundColor: primaryColor, borderTop: `2px solid ${accentColor}` }} />
                             </div>
                           )}
                         </div>
@@ -1084,7 +1370,8 @@ export default function BatchIDCardsClient({
                         </div>
                         <div style={{ backgroundColor: `${primaryColor}06`, padding: '1mm', borderRadius: '1.5mm', fontSize: '6.3px', display: 'flex', flexDirection: 'column', gap: '0.6mm' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>ID:</span><strong>{emp.employeeId}</strong></div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Dept:</span><strong>{deptTri.kh}</strong></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Dept:</span><strong>{deptTri.en || emp.department || deptTri.kh}</strong></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Position:</span><strong>{posTri.en || emp.position || posTri.kh}</strong></div>
                           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Join:</span><strong>{hireDate}</strong></div>
                           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Exp:</span><strong style={{ color: accentColor }}>{expDate}</strong></div>
                         </div>
@@ -1107,27 +1394,152 @@ export default function BatchIDCardsClient({
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        padding: '3mm 2.6mm',
+                        padding: '2.5mm 2.2mm',
                         fontFamily: "'Kantumruy Pro', sans-serif"
                       }}
                     >
-                      <div style={{ textAlign: 'center', fontSize: '7px', fontWeight: 800, color: primaryColor }}>TERMS & CONDITIONS</div>
-                      <div style={{ fontSize: '5.6px', lineHeight: '1.2', backgroundColor: `${primaryColor}06`, padding: '1mm', borderRadius: '1.5mm' }}>
-                        🇰🇭 ប័ណ្ណនេះជាកម្មសិទ្ធិរបស់ក្រុមហ៊ុន។ ប្រសិនបើរើសបាន សូមប្រគល់ជូនការិយាល័យរដ្ឋបាល។
+                      {/* Top Strip */}
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3.2mm', backgroundColor: primaryColor, borderBottom: `2px solid ${accentColor}` }} />
+
+                      {/* Header: Company Name */}
+                      <div style={{
+                        marginTop: '1.2mm',
+                        textAlign: 'center',
+                        padding: '0.8mm 0.6mm',
+                        backgroundColor: `${primaryColor}0c`,
+                        border: `1.2px solid ${primaryColor}35`,
+                        borderRadius: '1.2mm'
+                      }}>
+                        <div style={{ fontSize: `${7 * fontScale}px`, fontWeight: 800, color: primaryColor, lineHeight: '1.2' }}>{companyKh}</div>
+                        <div style={{ fontSize: `${5 * fontScale}px`, fontWeight: 700, color: '#334155', textTransform: 'uppercase', lineHeight: '1.15' }}>{companyEn}</div>
+                        {backLangMode === 'trilingual' && companyZh && <div style={{ fontSize: `${4.6 * fontScale}px`, color: '#64748b' }}>{companyZh}</div>}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '5.8px' }}>
-                        <span>ចេញ: <strong>{hireDate}</strong></span>
-                        <span>ផុត: <strong style={{ color: accentColor }}>{expDate}</strong></span>
+
+                      {/* 6 Rules */}
+                      <div style={{
+                        margin: '0.5mm 0',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '1.2mm',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}>
+                        {rulesKh.map((rKh, idx) => {
+                          const isTri = backLangMode === 'trilingual';
+                          const isBi = backLangMode === 'bilingual';
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                padding: isTri ? '0.45mm 0.8mm' : '0.6mm 1mm',
+                                borderBottom: idx === rulesKh.length - 1 ? 'none' : '1px solid #e2e8f0',
+                                backgroundColor: idx % 2 === 0 ? '#fafafa' : '#ffffff',
+                                fontSize: `${(isTri ? 4.5 : 5.2) * fontScale}px`,
+                                lineHeight: '1.18',
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '0.8mm'
+                              }}
+                            >
+                              <span style={{ fontWeight: 800, color: primaryColor, minWidth: '3.2mm', textAlign: 'right', flexShrink: 0 }}>
+                                {idx === 5 ? '6-' : `${idx + 1}.`}
+                              </span>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ color: '#0f172a', fontWeight: 600 }}>{rKh}</div>
+                                {(isTri || isBi) && rulesEn[idx] && (
+                                  <div style={{ color: '#475569', fontSize: `${3.9 * fontScale}px`, lineHeight: '1.1', marginTop: '0.15mm' }}>
+                                    {rulesEn[idx]}
+                                  </div>
+                                )}
+                                {isTri && rulesZh[idx] && (
+                                  <div style={{ color: '#64748b', fontSize: `${3.8 * fontScale}px`, lineHeight: '1.1' }}>
+                                    {rulesZh[idx]}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <QRCodeSVG value={qrVal} size={44} level="M" />
-                        <div style={{ fontSize: '5.4px', color: '#64748b' }}>Scan to Verify</div>
+
+                      {/* Address */}
+                      <div style={{
+                        backgroundColor: `${primaryColor}06`,
+                        border: `1px solid ${primaryColor}20`,
+                        borderRadius: '1.2mm',
+                        padding: '0.6mm 0.8mm',
+                        fontSize: `${(backLangMode === 'trilingual' ? 4.4 : 5.0) * fontScale}px`,
+                        lineHeight: '1.2'
+                      }}>
+                        <div>
+                          <strong style={{ color: primaryColor }}>អាសយដ្ឋាន: </strong>
+                          <span style={{ color: '#1e293b' }}>{addressKh}</span>
+                        </div>
+                        {backLangMode !== 'khmer' && addressEn && (
+                          <div style={{ color: '#475569', fontSize: `${3.9 * fontScale}px`, lineHeight: '1.1', marginTop: '0.15mm' }}>
+                            <strong>Address: </strong>{addressEn}
+                          </div>
+                        )}
                       </div>
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ width: '26mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.6mm auto' }} />
-                        <div style={{ fontSize: '5.6px', fontWeight: 700, color: primaryColor }}>Authorized Signature</div>
+
+                      {/* Admin Phone Hotline */}
+                      <div style={{
+                        backgroundColor: '#eff6ff',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: '1.2mm',
+                        padding: '0.5mm 0.8mm',
+                        textAlign: 'center',
+                        fontSize: `${5.2 * fontScale}px`,
+                        fontWeight: 700,
+                        color: '#1e40af',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1mm'
+                      }}>
+                        <span>លេខទូរស័ព្ទរដ្ឋបាល:</span>
+                        <span style={{ color: '#b91c1c', letterSpacing: '0.2px', fontWeight: 800 }}>{adminPhone}</span>
                       </div>
-                      <div style={{ textAlign: 'center', fontSize: '6.8px', fontWeight: 800, color: primaryColor }}>{companyKh}</div>
+
+                      {/* Bottom Bar: Dates, QR, Signature */}
+                      {(showBackDates || showBackQr || showBackSignature) && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '1mm',
+                          paddingTop: '0.5mm',
+                          borderTop: `1px dashed ${primaryColor}20`,
+                          marginBottom: '0.2mm'
+                        }}>
+                          {showBackDates && (
+                            <div style={{ fontSize: `${4.6 * fontScale}px`, color: '#64748b', lineHeight: '1.2' }}>
+                              <div>ចេញ: <strong style={{ color: '#0f172a' }}>{hireDate}</strong></div>
+                              <div>ផុត: <strong style={{ color: accentColor }}>{expDate}</strong></div>
+                            </div>
+                          )}
+                          {showBackQr && (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div style={{ padding: '0.5mm', backgroundColor: '#ffffff', borderRadius: '0.8mm', border: `1px solid ${primaryColor}30` }}>
+                                <QRCodeSVG value={qrVal} size={28} level="M" />
+                              </div>
+                              <div style={{ fontSize: `${4 * fontScale}px`, color: '#64748b', fontWeight: 600 }}>Scan</div>
+                            </div>
+                          )}
+                          {showBackSignature && (
+                            <div style={{ textAlign: 'center', minWidth: '18mm' }}>
+                              <div style={{ width: '16mm', borderBottom: `1px solid ${primaryColor}`, margin: '0 auto 0.4mm auto' }} />
+                              <div style={{ fontSize: `${4.6 * fontScale}px`, fontWeight: 700, color: primaryColor }}>
+                                ហត្ថលេខា / Sign
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Bottom Strip */}
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3.2mm', backgroundColor: primaryColor, borderTop: `2px solid ${accentColor}` }} />
                     </div>
                   )}
                 </div>

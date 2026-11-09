@@ -1,13 +1,15 @@
 'use client'
 import { useState } from 'react';
 
-export default function ExportExcelButton({ employeeId }: { employeeId: string }) {
+export default function ExportExcelButton({ employeeId, month, year }: { employeeId: string; month?: number; year?: number }) {
   const [exporting, setExporting] = useState(false);
 
   const handleExport = () => {
     setExporting(true);
     // trigger file download
-    window.location.href = `/api/export/employee-attendance?employeeId=${employeeId}`;
+    const mQuery = month !== undefined ? `&month=${month}` : '';
+    const yQuery = year !== undefined ? `&year=${year}` : '';
+    window.location.href = `/api/export/employee-attendance?employeeId=${employeeId}${mQuery}${yQuery}`;
     
     // reset button state after a short delay
     setTimeout(() => {

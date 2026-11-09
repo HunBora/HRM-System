@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 import notify from '@/lib/notify';
@@ -41,10 +41,17 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDayNo, setSelectedDayNo] = useState<number>(1);
 
+  // Sync state if initialDays changes (e.g. month/year navigation)
+  useEffect(() => {
+    setDays(initialDays);
+  }, [initialDays]);
+
   // Form states
   const [formDate, setFormDate] = useState(() => {
     const d = new Date(year, month, 1);
-    return d.toISOString().slice(0, 10);
+    const yStr = d.getFullYear();
+    const mStr = (d.getMonth() + 1).toString().padStart(2, '0');
+    return `${yStr}-${mStr}-01`;
   });
   const [fIn, setFIn] = useState('07:00');
   const [fOut, setFOut] = useState('11:00');
@@ -58,11 +65,32 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
   const [reason, setReason] = useState('ភ្លេចស្កេន (Forgot to scan)');
   const [notes, setNotes] = useState('');
 
+  // Parsed date components
+  const dateParts = useMemo(() => {
+    if (!formDate) return null;
+    const [y, m, d] = formDate.split('-').map(Number);
+    if (!y || !m || !d) return null;
+    return { year: y, month: m - 1, day: d };
+  }, [formDate]);
+
+  const isCurrentMonthDate = dateParts?.year === year && dateParts?.month === month;
 
   // Selected Day record
-  const selectedDay = useMemo(() => {
+  const currentSelectedDay = useMemo(() => {
+    if (isCurrentMonthDate && dateParts) {
+      return days.find((d) => d.no === dateParts.day);
+    }
     return days.find((d) => d.no === selectedDayNo);
-  }, [days, selectedDayNo]);
+  }, [days, isCurrentMonthDate, dateParts, selectedDayNo]);
+
+  const isOffDay = useMemo(() => {
+    if (currentSelectedDay) return currentSelectedDay.isOffDay;
+    if (dateParts) {
+      const d = new Date(dateParts.year, dateParts.month, dateParts.day);
+      return d.getDay() === 0;
+    }
+    return false;
+  }, [currentSelectedDay, dateParts]);
 
   // Live auto-calculated metrics (Work hours, OT, Night OT, Holiday OT, Late, Early)
   const liveMetrics = useMemo(() => {
@@ -73,30 +101,141 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
       sOut || null,
       hasOt && otIn ? otIn : null,
       hasOt && otOut ? otOut : null,
-      selectedDay?.isOffDay || false
+      isOffDay
     );
-  }, [fIn, fOut, sIn, sOut, otIn, otOut, hasOt, selectedDay]);
+  }, [fIn, fOut, sIn, sOut, otIn, otOut, hasOt, isOffDay]);
+
+  // Formatted date string in Khmer
+  const formattedDateKhmer = useMemo(() => {
+    if (!formDate) return '';
+    const [y, m, d] = formDate.split('-').map(Number);
+    if (!y || !m || !d) return formDate;
+
+    const dateObj = new Date(y, m - 1, d);
+    const daysKh = ['អាទិត្យ (Sun)', 'ចន្ទ (Mon)', 'អង្គារ (Tue)', 'ពុធ (Wed)', 'ព្រហស្បតិ៍ (Thu)', 'សុក្រ (Fri)', 'សៅរ៍ (Sat)'];
+    const monthsKh = [
+      'មករា (Jan)', 'កុម្ភៈ (Feb)', 'មិនា (Mar)', 'មេសា (Apr)', 'ឧសភា (May)', 'មិថុនា (Jun)',
+      'កក្កដា (Jul)', 'សីហា (Aug)', 'កញ្ញា (Sep)', 'តុលា (Oct)', 'វិច្ឆិកា (Nov)', 'ធ្នូ (Dec)'
+    ];
+    const dayKh = daysKh[dateObj.getDay()];
+    const monthKh = monthsKh[m - 1];
+
+    return `ថ្ងៃ${dayKh} ទី ${d} ខែ${monthKh} ឆ្នាំ ${y}`;
+  }, [formDate]);
 
   // Open modal for a specific day
-  const handleOpenDayModal = (d: DayRecord) => {
-    setSelectedDayNo(d.no);
+  const handleOpenDayModal = (d?: DayRecord) => {
+    const targetDay = d?.no || 1;
+    setSelectedDayNo(targetDay);
     const yStr = year.toString();
     const mStr = (month + 1).toString().padStart(2, '0');
-    const dStr = d.no.toString().padStart(2, '0');
+    const dStr = targetDay.toString().padStart(2, '0');
     setFormDate(`${yStr}-${mStr}-${dStr}`);
 
-    setFIn(d.fIn || '07:00');
-    setFOut(d.fOut || '11:00');
-    setSIn(d.sIn || '13:00');
-    setSOut(d.sOut || '17:00');
-    setOtIn(d.otIn || (d.normalOtHrs > 0 || d.nightOtHrs > 0 ? '17:00' : ''));
-    setOtOut(d.otOut || '');
-    setHasOt(!!(d.otIn || d.otOut || d.normalOtHrs > 0 || d.nightOtHrs > 0 || d.holidayOtHrs > 0));
-    setRegDay(d.regDay > 0 ? d.regDay : 1.0);
-    setWorkHrs(d.workHrs > 0 ? d.workHrs : 8.0);
+    setFIn(d?.fIn || '07:00');
+    setFOut(d?.fOut || '11:00');
+    setSIn(d?.sIn || '13:00');
+    setSOut(d?.sOut || '17:00');
+    setOtIn(d?.otIn || (d && (d.normalOtHrs > 0 || d.nightOtHrs > 0) ? '17:00' : ''));
+    setOtOut(d?.otOut || '');
+    setHasOt(!!(d && (d.otIn || d.otOut || d.normalOtHrs > 0 || d.nightOtHrs > 0 || d.holidayOtHrs > 0)));
+    setRegDay(d && d.regDay > 0 ? d.regDay : 1.0);
+    setWorkHrs(d && d.workHrs > 0 ? d.workHrs : 8.0);
     setReason('ភ្លេចស្កេន (Forgot to scan)');
-    setNotes(d.remarks && !d.remarks.includes('សម្រាក') ? d.remarks : '');
+    setNotes(d?.remarks && !d.remarks.includes('សម្រាក') ? d.remarks : '');
     setIsModalOpen(true);
+  };
+
+  // Date change handler (standard calendar datepicker)
+  const handleDateChange = (newDateStr: string) => {
+    if (!newDateStr) return;
+    setFormDate(newDateStr);
+
+    const [y, m, d] = newDateStr.split('-').map(Number);
+    if (!y || !m || !d) return;
+
+    setSelectedDayNo(d);
+
+    // If within current report view, sync data from table
+    if (y === year && m - 1 === month) {
+      const match = days.find((day) => day.no === d);
+      if (match) {
+        setFIn(match.fIn || '07:00');
+        setFOut(match.fOut || '11:00');
+        setSIn(match.sIn || '13:00');
+        setSOut(match.sOut || '17:00');
+        setOtIn(match.otIn || (match.normalOtHrs > 0 || match.nightOtHrs > 0 ? '17:00' : ''));
+        setOtOut(match.otOut || '');
+        setHasOt(!!(match.otIn || match.otOut || match.normalOtHrs > 0 || match.nightOtHrs > 0 || match.holidayOtHrs > 0));
+        setRegDay(match.regDay > 0 ? match.regDay : 1.0);
+        setWorkHrs(match.workHrs > 0 ? match.workHrs : 8.0);
+        setNotes(match.remarks && !match.remarks.includes('សម្រាក') ? match.remarks : '');
+        return;
+      }
+    }
+
+    // Default shift for new date outside current table
+    setFIn('07:00');
+    setFOut('11:00');
+    setSIn('13:00');
+    setSOut('17:00');
+    setOtIn('');
+    setOtOut('');
+    setHasOt(false);
+    setRegDay(1.0);
+    setWorkHrs(8.0);
+  };
+
+  const handlePrevDay = () => {
+    if (!formDate) return;
+    const [y, m, d] = formDate.split('-').map(Number);
+    const curr = new Date(y, m - 1, d);
+    curr.setDate(curr.getDate() - 1);
+    const prevStr = `${curr.getFullYear()}-${(curr.getMonth() + 1).toString().padStart(2, '0')}-${curr.getDate().toString().padStart(2, '0')}`;
+    handleDateChange(prevStr);
+  };
+
+  const handleNextDay = () => {
+    if (!formDate) return;
+    const [y, m, d] = formDate.split('-').map(Number);
+    const curr = new Date(y, m - 1, d);
+    curr.setDate(curr.getDate() + 1);
+    const nextStr = `${curr.getFullYear()}-${(curr.getMonth() + 1).toString().padStart(2, '0')}-${curr.getDate().toString().padStart(2, '0')}`;
+    handleDateChange(nextStr);
+  };
+
+  // Month navigation for entire attendance table
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value; // "YYYY-MM"
+    if (!val) return;
+    const [y, m] = val.split('-').map(Number);
+    if (!y || !m) return;
+    router.push(`/dashboard/attendance/${employee.id}?month=${m - 1}&year=${y}`);
+  };
+
+  const handlePrevMonth = () => {
+    let newM = month - 1;
+    let newY = year;
+    if (newM < 0) {
+      newM = 11;
+      newY -= 1;
+    }
+    router.push(`/dashboard/attendance/${employee.id}?month=${newM}&year=${newY}`);
+  };
+
+  const handleNextMonth = () => {
+    let newM = month + 1;
+    let newY = year;
+    if (newM > 11) {
+      newM = 0;
+      newY += 1;
+    }
+    router.push(`/dashboard/attendance/${employee.id}?month=${newM}&year=${newY}`);
+  };
+
+  const handleCurrentMonth = () => {
+    const now = new Date();
+    router.push(`/dashboard/attendance/${employee.id}?month=${now.getMonth()}&year=${now.getFullYear()}`);
   };
 
   // Shift preset applier
@@ -179,34 +318,36 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
         throw new Error(err.error || 'Failed to save attendance');
       }
 
-      // Update local state immediately with calculated metrics
-      setDays((prev) =>
-        prev.map((d) => {
-          if (d.no === selectedDayNo) {
-            return {
-              ...d,
-              fIn: fIn || '',
-              fOut: fOut || '',
-              sIn: sIn || '',
-              sOut: sOut || '',
-              otIn: hasOt ? otIn : '',
-              otOut: hasOt ? otOut : '',
-              regDay: liveMetrics.regDay,
-              workHrs: liveMetrics.workHrs,
-              normalOtHrs: liveMetrics.normalOtHrs,
-              nightOtHrs: liveMetrics.nightOtHrs,
-              holidayOtHrs: liveMetrics.holidayOtHrs,
-              lateMins: liveMetrics.lateMins,
-              earlyMins: liveMetrics.earlyMins,
-              remarks: fullRemark,
-            };
-          }
-          return d;
-        })
-      );
+      // Update local state immediately with calculated metrics if saved date is in the currently viewed month
+      if (isCurrentMonthDate && dateParts) {
+        setDays((prev) =>
+          prev.map((d) => {
+            if (d.no === dateParts.day) {
+              return {
+                ...d,
+                fIn: fIn || '',
+                fOut: fOut || '',
+                sIn: sIn || '',
+                sOut: sOut || '',
+                otIn: hasOt ? otIn : '',
+                otOut: hasOt ? otOut : '',
+                regDay: liveMetrics.regDay,
+                workHrs: liveMetrics.workHrs,
+                normalOtHrs: liveMetrics.normalOtHrs,
+                nightOtHrs: liveMetrics.nightOtHrs,
+                holidayOtHrs: liveMetrics.holidayOtHrs,
+                lateMins: liveMetrics.lateMins,
+                earlyMins: liveMetrics.earlyMins,
+                remarks: fullRemark,
+              };
+            }
+            return d;
+          })
+        );
+      }
 
       setIsModalOpen(false);
-      notify.toast(`បានកត់ត្រាវត្តមានថ្ងៃទី ${selectedDayNo} ដោយជោគជ័យ!`, 'success');
+      notify.toast(`បានកត់ត្រាវត្តមានកាលបរិច្ឆេទ ${formDate} ដោយជោគជ័យ!`, 'success');
       router.refresh();
     } catch (err: any) {
       notify.error('បរាជ័យក្នុងការកត់ត្រា', err.message);
@@ -285,62 +426,152 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
   return (
     <div>
 
-      {/* Action Buttons Toolbar (No-Print) */}
+      {/* Month & Year Calendar Selector Toolbar + Action Buttons (No-Print) */}
       <div
         className="no-print"
         style={{
           display: 'flex',
-          gap: '10px',
+          gap: '12px',
           alignItems: 'center',
-          justifyContent: 'flex-end',
-          marginBottom: '14px',
+          justifyContent: 'space-between',
+          marginBottom: '16px',
           flexWrap: 'wrap',
+          backgroundColor: '#f8fafc',
+          padding: '10px 14px',
+          borderRadius: '12px',
+          border: '1px solid #cbd5e1',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}
       >
-        <button
-          type="button"
-          onClick={() => handleOpenDayModal(days[0] || ({} as any))}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-            padding: '8px 14px',
-            borderRadius: '8px',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            boxShadow: '0 2px 6px rgba(37,99,235,0.25)',
-          }}
-        >
-          <span>✏️</span>
-          <span>បំពេញម៉ោងដែលភ្លេចស្កេន (Fill Forgot Scan)</span>
-        </button>
+        {/* Left: Global Calendar Month/Year Selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span>📅</span>
+            <span>ខែ / ឆ្នាំ (Period) :</span>
+          </span>
 
-        <button
-          type="button"
-          onClick={handleAutoFillMonth}
-          disabled={isSaving}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#059669',
-            color: '#ffffff',
-            border: 'none',
-            padding: '8px 14px',
-            borderRadius: '8px',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            boxShadow: '0 2px 6px rgba(5,150,105,0.25)',
-          }}
-        >
-          <span>⚡</span>
-          <span>{isSaving ? 'កំពុងដំណើរការ...' : 'បំពេញថ្ងៃខ្វះពេញមួយខែស្វ័យប្រវត្តិ (Auto-Fill Month)'}</span>
-        </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <button
+              type="button"
+              onClick={handlePrevMonth}
+              title="ខែមុន (Previous Month)"
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                color: '#334155',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              ◀ ខែមុន
+            </button>
+
+            <input
+              type="month"
+              value={`${year}-${(month + 1).toString().padStart(2, '0')}`}
+              onChange={handleMonthChange}
+              onClick={(e) => (e.currentTarget as any).showPicker?.()}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1.5px solid #2563eb',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                color: '#0f172a',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={handleNextMonth}
+              title="ខែបន្ទាប់ (Next Month)"
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                color: '#334155',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              ខែបន្ទាប់ ▶
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCurrentMonth}
+              title="ខែនេះ (Current Month)"
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: '1px solid #bfdbfe',
+                backgroundColor: '#eff6ff',
+                color: '#1d4ed8',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              ខែនេះ
+            </button>
+          </div>
+        </div>
+
+        {/* Right: Quick Action Buttons */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => handleOpenDayModal(days[0] || ({} as any))}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(37,99,235,0.25)',
+            }}
+          >
+            <span>✏️</span>
+            <span>បំពេញម៉ោងដែលភ្លេចស្កេន (Fill Forgot Scan)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAutoFillMonth}
+            disabled={isSaving}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#059669',
+              color: '#ffffff',
+              border: 'none',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(5,150,105,0.25)',
+            }}
+          >
+            <span>⚡</span>
+            <span>{isSaving ? 'កំពុងដំណើរការ...' : 'បំពេញថ្ងៃខ្វះពេញមួយខែស្វ័យប្រវត្តិ (Auto-Fill Month)'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Attendance Log Table (Print Area) */}
@@ -511,7 +742,7 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
             >
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: '#0f172a' }}>
-                  ⚡ បំពេញវត្តមានថ្ងៃទី {selectedDayNo} ({formDate})
+                  ⚡ បំពេញវត្តមានថ្ងៃទី {dateParts?.day ?? selectedDayNo} ({formDate})
                 </h3>
                 <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
                   {employee.employeeId} - {employee.firstNameEn} {employee.lastNameEn}
@@ -527,6 +758,121 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
             </div>
 
             <form onSubmit={handleSaveDay} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Standard Global Calendar Date Picker */}
+              <div
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1.5px solid #cbd5e1',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                  <label style={{ fontSize: '0.84rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>📅</span>
+                    <span>ជ្រើសរើសកាលបរិច្ឆេទ (Select Date & Month) :</span>
+                  </label>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                      type="button"
+                      onClick={handlePrevDay}
+                      title="ថ្ងៃមុន (Previous Day)"
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        backgroundColor: '#ffffff',
+                        color: '#334155',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ◀ ថ្ងៃមុន
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const now = new Date();
+                        const yStr = now.getFullYear();
+                        const mStr = (now.getMonth() + 1).toString().padStart(2, '0');
+                        const dStr = now.getDate().toString().padStart(2, '0');
+                        handleDateChange(`${yStr}-${mStr}-${dStr}`);
+                      }}
+                      title="ថ្ងៃនេះ (Today)"
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #bfdbfe',
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ថ្ងៃនេះ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNextDay}
+                      title="ថ្ងៃបន្ទាប់ (Next Day)"
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        backgroundColor: '#ffffff',
+                        color: '#334155',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ថ្ងៃបន្ទាប់ ▶
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="date"
+                    value={formDate}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                    onClick={(e) => (e.currentTarget as any).showPicker?.()}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '2px solid #2563eb',
+                      fontSize: '0.95rem',
+                      fontWeight: 700,
+                      color: '#0f172a',
+                      backgroundColor: '#ffffff',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      boxShadow: '0 1px 3px rgba(37,99,235,0.1)',
+                    }}
+                  />
+                </div>
+
+                {/* Date preview label & flags */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', flexWrap: 'wrap', gap: '4px', fontSize: '0.78rem' }}>
+                  <span style={{ color: '#475569', fontWeight: 600 }}>
+                    🗓️ {formattedDateKhmer}
+                  </span>
+                  {isOffDay && (
+                    <span style={{ color: '#dc2626', backgroundColor: '#fee2e2', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '0.72rem' }}>
+                      🏖️ ថ្ងៃសម្រាក (Off Day)
+                    </span>
+                  )}
+                  {!isCurrentMonthDate && (
+                    <span style={{ color: '#b45309', backgroundColor: '#fef3c7', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '0.72rem' }}>
+                      ⚠️ ថ្ងៃក្រៅខែតារាងបច្ចុប្បន្ន
+                    </span>
+                  )}
+                </div>
+              </div>
               {/* Presets */}
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>

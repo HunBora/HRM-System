@@ -6,8 +6,15 @@ import ExportExcelButton from './ExportExcelButton';
 import AttendanceReportTable from './AttendanceReportTable';
 import { calculateDayAttendanceMetrics } from '@/lib/attendanceCalculator';
 
-export default async function EmployeeAttendancePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EmployeeAttendancePage({ 
+  params,
+  searchParams,
+}: { 
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ month?: string; year?: string }>;
+}) {
   const resolvedParams = await params;
+  const resolvedSearchParams = (await searchParams) || {};
   const employee = await prisma.employee.findUnique({
     where: { id: resolvedParams.id },
     include: {
@@ -26,11 +33,10 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
 
   if (!employee) notFound();
 
-  // Generate 31 days for the current month for demo purposes
-  // In a real app, you would pass month/year in query params
+  // Determine year and month from searchParams or default to current date
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const year = resolvedSearchParams.year ? parseInt(resolvedSearchParams.year, 10) : now.getFullYear();
+  const month = resolvedSearchParams.month !== undefined ? parseInt(resolvedSearchParams.month, 10) : now.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   
   const HOLIDAYS: Record<string, string> = {
@@ -169,9 +175,13 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
       ? attendanceRecord.regDay
       : (isOffDay ? 0 : (matchedLeave ? 0 : metrics.regDay));
 
+    const dStr = (i + 1).toString().padStart(2, '0');
+    const mStr = (month + 1).toString().padStart(2, '0');
+
     return {
       no: i + 1,
-      dateStr: `${(i+1).toString().padStart(2, '0')}-${(month+1).toString().padStart(2, '0')}-${year.toString().slice(2)}`,
+      dateStr: `${dStr}-${mStr}-${year.toString().slice(2)}`,
+      rawDate: `${year}-${mStr}-${dStr}`,
       day: dayName,
       isOffDay: isOffDay,
       fIn,
@@ -200,7 +210,7 @@ export default async function EmployeeAttendancePage({ params }: { params: Promi
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <PrintAttendanceButton targetId="attendance-log-print-area" title={`Attendance_Log_${employee.employeeId}`} />
-          <ExportExcelButton employeeId={employee.id} />
+          <ExportExcelButton employeeId={employee.id} month={month} year={year} />
         </div>
       </div>
 

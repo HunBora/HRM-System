@@ -189,9 +189,16 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Employee and date are required' }, { status: 400 });
       }
 
-      const dateObj = new Date(date);
-      dateObj.setHours(0, 0, 0, 0);
-      const dateStr = dateObj.toISOString().slice(0, 10);
+      let dateStr = typeof date === 'string' ? date.split('T')[0] : '';
+      let dateObj: Date;
+      if (dateStr && dateStr.includes('-')) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        dateObj = new Date(y, m - 1, d, 0, 0, 0, 0);
+      } else {
+        dateObj = new Date(date);
+        dateObj.setHours(0, 0, 0, 0);
+        dateStr = `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1).toString().padStart(2, '0')}-${dateObj.getDate().toString().padStart(2, '0')}`;
+      }
 
       // 1. Create biometric punch logs
       const punchData: any[] = [];

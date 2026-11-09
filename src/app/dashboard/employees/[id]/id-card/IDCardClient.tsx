@@ -3,11 +3,9 @@
 import React, { useState, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
-  FACTORY_PRESETS,
   DEFAULT_6_RULES_KH,
   DEFAULT_6_RULES_EN,
-  DEFAULT_6_RULES_ZH,
-  type FactoryPreset
+  DEFAULT_6_RULES_ZH
 } from '@/lib/idCardConstants';
 
 // Common Factory Position Translations
@@ -415,40 +413,22 @@ export default function IDCardClient({
   const [expireDate, setExpireDate] = useState(expireDateFormatted);
   const [bloodGroup, setBloodGroup] = useState('O+');
 
-  // Factory Preset Determination (Defaults to Wahgoo Bags as requested)
-  const defaultPresetId = useMemo(() => {
-    if (initialConfig?.factoryPreset) return initialConfig.factoryPreset;
-    if (companyName.toUpperCase().includes('WAHGOO')) return 'wahgoo';
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) return 'gs-textile';
-    return 'wahgoo';
-  }, [initialConfig?.factoryPreset, companyName]);
-
-  const [factoryPreset, setFactoryPreset] = useState<string>(defaultPresetId);
-
-  // Trilingual Company Header
+  // Company & Factory Configuration (Fully Generic & Customizable)
+  const resolvedCompanyName = companyName || settings?.companyName || 'HRM System';
   const defaultCompanyKh = useMemo(() => {
     if (initialConfig?.companyKh) return initialConfig.companyKh;
-    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyKh;
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return FACTORY_PRESETS[1].companyKh;
-    }
     return companyName;
-  }, [initialConfig?.companyKh, defaultPresetId, companyName]);
+  }, [initialConfig?.companyKh, companyName]);
 
   const defaultCompanyZh = useMemo(() => {
     if (initialConfig?.companyZh) return initialConfig.companyZh;
-    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyZh;
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return FACTORY_PRESETS[1].companyZh;
-    }
     return '';
-  }, [initialConfig?.companyZh, defaultPresetId, companyName]);
+  }, [initialConfig?.companyZh]);
 
   const defaultCompanyEn = useMemo(() => {
     if (initialConfig?.companyEn) return initialConfig.companyEn;
-    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyEn;
     return companyName;
-  }, [initialConfig?.companyEn, defaultPresetId, companyName]);
+  }, [initialConfig?.companyEn, companyName]);
 
   const [companyKh, setCompanyKh] = useState(defaultCompanyKh);
   const [companyEn, setCompanyEn] = useState(defaultCompanyEn);
@@ -456,22 +436,18 @@ export default function IDCardClient({
 
   // Address (Trilingual)
   const [addressKh, setAddressKh] = useState<string>(
-    initialConfig?.addressKh ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressKh : FACTORY_PRESETS[0].addressKh)
+    initialConfig?.addressKh || 'ផ្លូវជាតិលេខ៤ ភូមិដំណាក់ត្រាច ឃុំដំបូកខ្ពស់ ស្រុកភ្នំស្រួច ខេត្តកំពង់ស្ពឺ'
   );
   const [addressEn, setAddressEn] = useState<string>(
-    initialConfig?.addressEn ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressEn : FACTORY_PRESETS[0].addressEn)
+    initialConfig?.addressEn || 'National Road 4, Damnak Trach Village, Dambouk Khpos, Phnom Sruoch, Kampong Speu'
   );
   const [addressZh, setAddressZh] = useState<string>(
-    initialConfig?.addressZh ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressZh : FACTORY_PRESETS[0].addressZh)
+    initialConfig?.addressZh || '柬埔寨实居省普农斯罗县丹博克波乡达那达村4号国道'
   );
 
   // Admin Phone (Hotline - អាចកែប្រែបានតាមចិត្ត)
   const [adminPhone, setAdminPhone] = useState<string>(
-    initialConfig?.adminPhone ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].adminPhone : FACTORY_PRESETS[0].adminPhone)
+    initialConfig?.adminPhone || settings?.contactPhone || '069 817 168 , 066 817 168'
   );
 
   // 6 Factory Rules (Trilingual)
@@ -487,25 +463,7 @@ export default function IDCardClient({
   const [showBackSignature, setShowBackSignature] = useState<boolean>(initialConfig?.showBackSignature ?? true);
   const [showBackDates, setShowBackDates] = useState<boolean>(initialConfig?.showBackDates ?? true);
 
-  // Handle preset switch
-  const handleSelectFactoryPreset = (presetId: string) => {
-    setFactoryPreset(presetId);
-    const p = FACTORY_PRESETS.find((x) => x.id === presetId);
-    if (!p) return;
-    if (presetId !== 'custom') {
-      setCompanyKh(p.companyKh);
-      setCompanyEn(p.companyEn);
-      setCompanyZh(p.companyZh);
-      setAddressKh(p.addressKh);
-      setAddressEn(p.addressEn);
-      setAddressZh(p.addressZh);
-      setAdminPhone(p.adminPhone);
-      if (p.primaryColor) setPrimaryColor(p.primaryColor);
-      if (p.accentColor) setAccentColor(p.accentColor);
-    }
-  };
-
-  // Employee Trilingual Name
+    // Employee Trilingual Name
   const defaultNameKh = `${employee.lastNameKh || ''} ${employee.firstNameKh || ''}`.trim() || employee.firstNameEn;
   const defaultNameEn = `${employee.firstNameEn || ''} ${employee.lastNameEn || ''}`.trim();
   const [nameKh, setNameKh] = useState(defaultNameKh);
@@ -590,7 +548,6 @@ export default function IDCardClient({
           if (cfg.qrType) setQrType(cfg.qrType);
           if (cfg.customQrUrl !== undefined) setCustomQrUrl(cfg.customQrUrl);
           if (cfg.langMode) setLangMode(cfg.langMode);
-          if (cfg.factoryPreset) setFactoryPreset(cfg.factoryPreset);
           if (cfg.companyKh) setCompanyKh(cfg.companyKh);
           if (cfg.companyEn) setCompanyEn(cfg.companyEn);
           if (cfg.companyZh) setCompanyZh(cfg.companyZh);
@@ -664,7 +621,6 @@ export default function IDCardClient({
       qrType,
       customQrUrl,
       langMode,
-      factoryPreset,
       companyKh,
       companyEn,
       companyZh,
@@ -2597,36 +2553,42 @@ export default function IDCardClient({
             {/* TAB 5: TRILINGUAL DATA & CONTENT */}
             {activeTab === 'content' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {/* 1. Factory / Company Preset Selector */}
-                <div style={{ backgroundColor: '#f0fdf4', padding: '12px', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-                  <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#166534', marginBottom: '8px', display: 'block' }}>
-                    🏭 ជ្រើសរើសរោងចក្រ ឬក្រុមហ៊ុន (Factory / Company Presets)
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px' }}>
-                    {FACTORY_PRESETS.map((fp) => (
-                      <button
-                        key={fp.id}
-                        type="button"
-                        onClick={() => handleSelectFactoryPreset(fp.id)}
-                        style={{
-                          padding: '8px 10px',
-                          borderRadius: '6px',
-                          border: factoryPreset === fp.id ? '2px solid #16a34a' : '1px solid #cbd5e1',
-                          backgroundColor: factoryPreset === fp.id ? '#dcfce7' : '#ffffff',
-                          color: factoryPreset === fp.id ? '#15803d' : '#334155',
-                          fontWeight: 700,
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <span>{fp.nameKh}</span>
-                        {factoryPreset === fp.id && <span style={{ fontSize: '14px' }}>✓</span>}
-                      </button>
-                    ))}
+                {/* 1. Factory / Company Information Header */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+                    🏢 ព័ត៌មានរោងចក្រ / ក្រុមហ៊ុន (Factory & Company Information)
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>🇰🇭 ឈ្មោះជាភាសាខ្មែរ:</div>
+                      <input
+                        type="text"
+                        value={companyKh}
+                        onChange={(e) => setCompanyKh(e.target.value)}
+                        placeholder="ឈ្មោះរោងចក្រ ឬក្រុមហ៊ុន (ខ្មែរ)..."
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: 600 }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>🇬🇧 ឈ្មោះជាភាសាអង់គ្លេស:</div>
+                      <input
+                        type="text"
+                        value={companyEn}
+                        onChange={(e) => setCompanyEn(e.target.value)}
+                        placeholder="Factory / Company Name (English)..."
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>🇨🇳 ឈ្មោះជាភាសាចិន:</div>
+                      <input
+                        type="text"
+                        value={companyZh}
+                        onChange={(e) => setCompanyZh(e.target.value)}
+                        placeholder="工厂/公司名称 (中文)..."
+                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -2841,50 +2803,16 @@ export default function IDCardClient({
                   </div>
                 </div>
 
-                {/* 6. Company Name Header Inputs */}
+                {/* 6. Tagline */}
                 <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    🏢 ឈ្មោះក្រុមហ៊ុន និងពាក្យស្លោក (Company Header & Tagline)
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>🇰🇭 ភាសាខ្មែរ (ខាងលើគេ):</div>
-                      <input
-                        type="text"
-                        value={companyKh}
-                        onChange={(e) => setCompanyKh(e.target.value)}
-                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>🇬🇧 ភាសាអង់គ្លេស:</div>
-                      <input
-                        type="text"
-                        value={companyEn}
-                        onChange={(e) => setCompanyEn(e.target.value)}
-                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>🇨🇳 ភាសាចិន:</div>
-                      <input
-                        type="text"
-                        value={companyZh}
-                        onChange={(e) => setCompanyZh(e.target.value)}
-                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>✨ ពាក្យស្លោកក្រុមហ៊ុន (Tagline):</div>
-                      <input
-                        type="text"
-                        value={tagline}
-                        onChange={(e) => setTagline(e.target.value)}
-                        placeholder="ឧ. Excellence in Quality / គុណភាពជាចម្បង..."
-                        style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                      />
-                    </div>
-                  </div>
+                  <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, marginBottom: '3px' }}>✨ ពាក្យស្លោកក្រុមហ៊ុន (Tagline):</div>
+                  <input
+                    type="text"
+                    value={tagline}
+                    onChange={(e) => setTagline(e.target.value)}
+                    placeholder="ឧ. Excellence in Quality / គុណភាពជាចម្បង..."
+                    style={{ width: '100%', padding: '6px 8px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                  />
                 </div>
 
                 {/* 7. Dates & Blood Group */}

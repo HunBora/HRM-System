@@ -4,11 +4,9 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import {
-  FACTORY_PRESETS,
   DEFAULT_6_RULES_KH,
   DEFAULT_6_RULES_EN,
-  DEFAULT_6_RULES_ZH,
-  type FactoryPreset
+  DEFAULT_6_RULES_ZH
 } from '@/lib/idCardConstants';
 
 // Common Factory Position Translations
@@ -188,41 +186,22 @@ export default function BatchIDCardsClient({
   const [isSavingDefault, setIsSavingDefault] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
-  // Factory Preset Determination (Defaults to Wahgoo Bags as requested)
-  const defaultPresetId = useMemo(() => {
-    if (initialConfig?.factoryPreset) return initialConfig.factoryPreset;
-    if (settings?.companyName?.toUpperCase().includes('WAHGOO')) return 'wahgoo';
-    if (settings?.companyName?.toUpperCase().includes('G.S') || settings?.companyName?.toUpperCase().includes('TEXTILE')) return 'gs-textile';
-    return 'wahgoo';
-  }, [initialConfig?.factoryPreset, settings?.companyName]);
-
-  const [factoryPreset, setFactoryPreset] = useState<string>(defaultPresetId);
-
-  // Company Name
-  const companyName = settings?.companyName || 'WAHGOO BAGS (CAMBODIA) TECHNOLOGY CO., LTD';
+  // Company & Factory Configuration (Fully Generic & Customizable)
+  const companyName = settings?.companyName || 'HRM System';
   const defaultCompanyKh = useMemo(() => {
     if (initialConfig?.companyKh) return initialConfig.companyKh;
-    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyKh;
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return FACTORY_PRESETS[1].companyKh;
-    }
     return companyName;
-  }, [initialConfig?.companyKh, defaultPresetId, companyName]);
+  }, [initialConfig?.companyKh, companyName]);
 
   const defaultCompanyZh = useMemo(() => {
     if (initialConfig?.companyZh) return initialConfig.companyZh;
-    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyZh;
-    if (companyName.toUpperCase().includes('G.S') || companyName.toUpperCase().includes('TEXTILE')) {
-      return FACTORY_PRESETS[1].companyZh;
-    }
     return '';
-  }, [initialConfig?.companyZh, defaultPresetId, companyName]);
+  }, [initialConfig?.companyZh]);
 
   const defaultCompanyEn = useMemo(() => {
     if (initialConfig?.companyEn) return initialConfig.companyEn;
-    if (defaultPresetId === 'wahgoo') return FACTORY_PRESETS[0].companyEn;
     return companyName;
-  }, [initialConfig?.companyEn, defaultPresetId, companyName]);
+  }, [initialConfig?.companyEn, companyName]);
 
   const [companyKh, setCompanyKh] = useState(defaultCompanyKh);
   const [companyEn, setCompanyEn] = useState(defaultCompanyEn);
@@ -231,23 +210,22 @@ export default function BatchIDCardsClient({
 
   // Address (Trilingual)
   const [addressKh, setAddressKh] = useState<string>(
-    initialConfig?.addressKh ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressKh : FACTORY_PRESETS[0].addressKh)
+    initialConfig?.addressKh || 'ផ្លូវជាតិលេខ៤ ភូមិដំណាក់ត្រាច ឃុំដំបូកខ្ពស់ ស្រុកភ្នំស្រួច ខេត្តកំពង់ស្ពឺ'
   );
   const [addressEn, setAddressEn] = useState<string>(
-    initialConfig?.addressEn ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressEn : FACTORY_PRESETS[0].addressEn)
+    initialConfig?.addressEn || 'National Road 4, Damnak Trach Village, Dambouk Khpos, Phnom Sruoch, Kampong Speu'
   );
   const [addressZh, setAddressZh] = useState<string>(
-    initialConfig?.addressZh ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].addressZh : FACTORY_PRESETS[0].addressZh)
+    initialConfig?.addressZh || '柬埔寨实居省普农斯罗县丹博克波乡达那达村4号国道'
   );
 
-  // Admin Phone (Hotline)
+  // Admin Phone (Hotline - អាចកែប្រែបានតាមចិត្ត)
   const [adminPhone, setAdminPhone] = useState<string>(
-    initialConfig?.adminPhone ||
-    (defaultPresetId === 'gs-textile' ? FACTORY_PRESETS[1].adminPhone : FACTORY_PRESETS[0].adminPhone)
+    initialConfig?.adminPhone || settings?.contactPhone || '069 817 168 , 066 817 168'
   );
+
+  // State to open/close Custom Factory Modal in Batch Print
+  const [showCustomModal, setShowCustomModal] = useState(false);
 
   // 6 Factory Rules (Trilingual)
   const [rulesKh, setRulesKh] = useState<string[]>(initialConfig?.rulesKh || DEFAULT_6_RULES_KH);
@@ -280,7 +258,6 @@ export default function BatchIDCardsClient({
           if (cfg.fontScale !== undefined) setFontScale(cfg.fontScale);
           if (cfg.showBarcode !== undefined) setShowBarcode(cfg.showBarcode);
           if (cfg.tagline) setTagline(cfg.tagline);
-          if (cfg.factoryPreset) setFactoryPreset(cfg.factoryPreset);
           if (cfg.companyKh) setCompanyKh(cfg.companyKh);
           if (cfg.companyEn) setCompanyEn(cfg.companyEn);
           if (cfg.companyZh) setCompanyZh(cfg.companyZh);
@@ -359,25 +336,7 @@ export default function BatchIDCardsClient({
     setAccentColor(s.defaultAccent);
   };
 
-  // Factory Preset Handler
-  const handleSelectFactoryPreset = (presetId: string) => {
-    setFactoryPreset(presetId);
-    const p = FACTORY_PRESETS.find((x) => x.id === presetId);
-    if (!p) return;
-    if (presetId !== 'custom') {
-      setCompanyKh(p.companyKh);
-      setCompanyEn(p.companyEn);
-      setCompanyZh(p.companyZh);
-      setAddressKh(p.addressKh);
-      setAddressEn(p.addressEn);
-      setAddressZh(p.addressZh);
-      setAdminPhone(p.adminPhone);
-      if (p.primaryColor) setPrimaryColor(p.primaryColor);
-      if (p.accentColor) setAccentColor(p.accentColor);
-    }
-  };
-
-  // Save current style & options as default for all ID cards
+    // Save current style & options as default for all ID cards
   const handleSaveAsDefault = async (targetStyle?: CardStyleType) => {
     const styleToSave = targetStyle || cardStyle;
     setIsSavingDefault(true);
@@ -405,7 +364,6 @@ export default function BatchIDCardsClient({
       showBarcode,
       showLanyard: true,
       tagline,
-      factoryPreset,
       companyKh,
       companyEn,
       companyZh,
@@ -891,30 +849,51 @@ export default function BatchIDCardsClient({
           </div>
         </div>
 
-        {/* Row 4: Factory Preset & Admin Phone Hotline */}
+        {/* Row 4: Factory Customization & Admin Phone Hotline */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '6px', fontSize: '11.5px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 700, color: '#475569' }}>🏭 រោងចក្រ:</span>
-            {FACTORY_PRESETS.map((fp) => (
-              <button
-                key={fp.id}
-                type="button"
-                onClick={() => handleSelectFactoryPreset(fp.id)}
-                style={{
-                  padding: '2px 8px',
-                  height: '26px',
-                  borderRadius: '5px',
-                  border: factoryPreset === fp.id ? '1.5px solid #16a34a' : '1px solid #cbd5e1',
-                  backgroundColor: factoryPreset === fp.id ? '#dcfce7' : '#ffffff',
-                  color: factoryPreset === fp.id ? '#15803d' : '#334155',
-                  fontWeight: factoryPreset === fp.id ? 700 : 500,
-                  fontSize: '11px',
-                  cursor: 'pointer'
-                }}
-              >
-                {fp.id === 'wahgoo' ? '🏭 Wahgoo Bags' : fp.id === 'gs-textile' ? '🏭 G.S Textile' : '⚙️ Custom'}
-              </button>
-            ))}
+            <span style={{ fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🏢 <span>រោងចក្រ/ក្រុមហ៊ុន:</span>
+            </span>
+            <input
+              type="text"
+              value={companyKh}
+              onChange={(e) => setCompanyKh(e.target.value)}
+              placeholder="ឈ្មោះរោងចក្រ ឬក្រុមហ៊ុន (ខ្មែរ)..."
+              style={{
+                padding: '2px 8px',
+                height: '26px',
+                borderRadius: '5px',
+                border: '1.5px solid #cbd5e1',
+                fontSize: '11.5px',
+                fontWeight: 600,
+                color: '#0f172a',
+                minWidth: '220px'
+              }}
+              title="ឈ្មោះរោងចក្រ/ក្រុមហ៊ុនលើកាត (អាចកែប្រែបានភ្លាមៗ)"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowCustomModal(true)}
+              style={{
+                padding: '2px 10px',
+                height: '26px',
+                borderRadius: '5px',
+                border: '1.5px solid #6366f1',
+                backgroundColor: '#eef2ff',
+                color: '#4338ca',
+                fontWeight: 700,
+                fontSize: '11px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="កែប្រែព័ត៌មានលម្អិត៖ ឈ្មោះ ៣ ភាសា, អាសយដ្ឋាន ៣ ភាសា, ច្បាប់វិន័យ ៦ ចំណុច..."
+            >
+              ⚙️ កែប្រែព័ត៌មានកាត / រោងចក្រ (Custom Info)
+            </button>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -941,7 +920,7 @@ export default function BatchIDCardsClient({
             <select
               value={backLangMode}
               onChange={(e) => setBackLangMode(e.target.value as any)}
-              style={{ padding: '2px 6px', height: '26px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '11px' }}
+              style={{ padding: '2px 6px', height: '26px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '11px', fontWeight: 600 }}
             >
               <option value="trilingual">៣ ភាសា (ខ្មែរ/EN/中文)</option>
               <option value="khmer">🇰🇭 ខ្មែរ (ដូចគំរូ)</option>
@@ -1547,6 +1526,375 @@ export default function BatchIDCardsClient({
             })}
           </div>
         )}
+      {/* Custom Factory & ID Card Info Modal */}
+      {showCustomModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px'
+          }}
+          onClick={() => setShowCustomModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '14px',
+              maxWidth: '820px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'sticky',
+                top: 0,
+                backgroundColor: '#ffffff',
+                zIndex: 10
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                  ⚙️ កំណត់ព័ត៌មានរោងចក្រ / ក្រុមហ៊ុន (Custom Factory & ID Card Info)
+                </h3>
+                <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                  កែប្រែព័ត៌មានជាក់ស្តែងសម្រាប់រោងចក្រ ឬក្រុមហ៊ុនរបស់អ្នក — រក្សាទុកជាលំនាំដើមដើម្បីចេញតែរោងចក្រនេះរហូត
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCustomModal(false)}
+                style={{
+                  border: 'none',
+                  background: '#f1f5f9',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  color: '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* 1. Company Name & Tagline */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+                  🏢 ឈ្មោះរោងចក្រ / ក្រុមហ៊ុន (៣ ភាសា) & ពាក្យស្លោក
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      🇰🇭 ឈ្មោះជាភាសាខ្មែរ (ខាងលើគេលើកាត):
+                    </label>
+                    <input
+                      type="text"
+                      value={companyKh}
+                      onChange={(e) => setCompanyKh(e.target.value)}
+                      placeholder="ឧ. វ៉ាហ្គូ ប៊ែក (ខេមបូឌា) / ជី.អេស ថិចស្ដាយ..."
+                      style={{ width: '100%', padding: '7px 10px', fontSize: '12.5px', borderRadius: '6px', border: '1px solid #cbd5e1', fontWeight: 600 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      🇬🇧 ឈ្មោះជាភាសាអង់គ្លេស:
+                    </label>
+                    <input
+                      type="text"
+                      value={companyEn}
+                      onChange={(e) => setCompanyEn(e.target.value)}
+                      placeholder="ឧ. WAHGOO BAGS / G.S TEXTILE GARMENT CO., LTD..."
+                      style={{ width: '100%', padding: '7px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      🇨🇳 ឈ្មោះជាភាសាចិន:
+                    </label>
+                    <input
+                      type="text"
+                      value={companyZh}
+                      onChange={(e) => setCompanyZh(e.target.value)}
+                      placeholder="ឧ. 华高箱包（柬埔寨）科技有限公司..."
+                      style={{ width: '100%', padding: '7px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      ✨ ពាក្យស្លោកក្រុមហ៊ុន (Tagline):
+                    </label>
+                    <input
+                      type="text"
+                      value={tagline}
+                      onChange={(e) => setTagline(e.target.value)}
+                      placeholder="ឧ. Excellence in Quality / គុណភាពជាចម្បង..."
+                      style={{ width: '100%', padding: '7px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Admin Phone Hotline */}
+              <div style={{ backgroundColor: '#eff6ff', padding: '14px', borderRadius: '10px', border: '1.5px solid #93c5fd' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 800, color: '#1e40af' }}>
+                    📞 លេខទូរស័ព្ទរដ្ឋបាល (Admin Hotline Phone):
+                  </label>
+                  <span style={{ fontSize: '11px', color: '#2563eb', fontWeight: 700 }}>*កែប្រែបានសេរី</span>
+                </div>
+                <input
+                  type="text"
+                  value={adminPhone}
+                  onChange={(e) => setAdminPhone(e.target.value)}
+                  placeholder="069 817 168 , 066 817 168"
+                  style={{
+                    width: '100%',
+                    padding: '8px 10px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#b91c1c',
+                    borderRadius: '6px',
+                    border: '1.5px solid #3b82f6',
+                    backgroundColor: '#ffffff'
+                  }}
+                />
+                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                  បង្ហាញនៅផ្នែកខាងក្រោយកាត សម្រាប់កម្មករនិយោជិតទំនាក់ទំនងរដ្ឋបាលពេលមានបញ្ហា
+                </div>
+              </div>
+
+              {/* 3. Address (3 Languages) */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+                  📍 អាសយដ្ឋានរោងចក្រ / ក្រុមហ៊ុន (៣ ភាសា)
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      🇰🇭 អាសយដ្ឋានខ្មែរ:
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={addressKh}
+                      onChange={(e) => setAddressKh(e.target.value)}
+                      placeholder="ផ្លូវជាតិលេខ... ភូមិ... ឃុំ/សង្កាត់... ស្រុក/ខណ្ឌ... ខេត្ត/រាជធានី..."
+                      style={{ width: '100%', padding: '6px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      🇬🇧 អាសយដ្ឋានអង់គ្លេស:
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={addressEn}
+                      onChange={(e) => setAddressEn(e.target.value)}
+                      placeholder="National Road... Village... Commune... District... Province..."
+                      style={{ width: '100%', padding: '6px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      🇨🇳 អាសយដ្ឋានចិន:
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={addressZh}
+                      onChange={(e) => setAddressZh(e.target.value)}
+                      placeholder="柬埔寨..."
+                      style={{ width: '100%', padding: '6px 10px', fontSize: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. 6 Factory Rules Editor */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>
+                    📜 ច្បាប់វិន័យ ៦ ចំណុចខាងក្រោយកាត (Factory 6 Rules)
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRulesKh(DEFAULT_6_RULES_KH);
+                      setRulesEn(DEFAULT_6_RULES_EN);
+                      setRulesZh(DEFAULT_6_RULES_ZH);
+                    }}
+                    style={{
+                      padding: '3px 8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '5px',
+                      color: '#475569',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🔄 ស្តារ ៦ ចំណុចគំរូដើម
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {rulesKh.map((rKh, i) => (
+                    <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', backgroundColor: '#ffffff' }}>
+                      <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#4338ca', marginBottom: '3px' }}>
+                        ចំណុចទី {i + 1} ({i === 5 ? 'ផ្នែកបណ្តឹងតវ៉ា & Hotline' : `ច្បាប់ទី ${i + 1}`}):
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <input
+                          type="text"
+                          value={rKh}
+                          onChange={(e) => {
+                            const updated = [...rulesKh];
+                            updated[i] = e.target.value;
+                            setRulesKh(updated);
+                          }}
+                          placeholder={`ច្បាប់ទី ${i + 1} ជាភាសាខ្មែរ...`}
+                          style={{ width: '100%', padding: '5px 8px', fontSize: '11.5px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                        />
+                        {backLangMode !== 'khmer' && (
+                          <>
+                            <input
+                              type="text"
+                              value={rulesEn[i] || ''}
+                              onChange={(e) => {
+                                const updated = [...rulesEn];
+                                updated[i] = e.target.value;
+                                setRulesEn(updated);
+                              }}
+                              placeholder={`Rule ${i + 1} in English...`}
+                              style={{ width: '100%', padding: '4px 8px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                            />
+                            {backLangMode === 'trilingual' && (
+                              <input
+                                type="text"
+                                value={rulesZh[i] || ''}
+                                onChange={(e) => {
+                                  const updated = [...rulesZh];
+                                  updated[i] = e.target.value;
+                                  setRulesZh(updated);
+                                }}
+                                placeholder={`第 ${i + 1} 条 中文...`}
+                                style={{ width: '100%', padding: '4px 8px', fontSize: '11px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 5. Back Card Elements Toggles */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>
+                  ⚙️ ធាតុបង្ហាញខាងក្រោយកាត (Back Card Elements)
+                </div>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={showBackQr} onChange={(e) => setShowBackQr(e.target.checked)} />
+                    <span>QR Code ខាងក្រោយ</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={showBackSignature} onChange={(e) => setShowBackSignature(e.target.checked)} />
+                    <span>បន្ទាត់ហត្ថលេខា (Sign)</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={showBackDates} onChange={(e) => setShowBackDates(e.target.checked)} />
+                    <span>កាលបរិច្ឆេទ ចេញ/ផុតកំណត់</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              style={{
+                padding: '14px 20px',
+                borderTop: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'sticky',
+                bottom: 0,
+                backgroundColor: '#ffffff',
+                zIndex: 10
+              }}
+            >
+              <div style={{ fontSize: '11.5px', color: '#16a34a', fontWeight: 700 }}>
+                {saveSuccessMessage || ''}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => handleSaveAsDefault()}
+                  disabled={isSavingDefault}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '7px',
+                    border: 'none',
+                    backgroundColor: '#16a34a',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '12.5px',
+                    cursor: isSavingDefault ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}
+                >
+                  {isSavingDefault ? 'កំពុងរក្សាទុក...' : '💾 រក្សាទុកជាលំនាំដើម (Save as Default)'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCustomModal(false)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '7px',
+                    border: '1px solid #cbd5e1',
+                    backgroundColor: '#f8fafc',
+                    color: '#334155',
+                    fontWeight: 700,
+                    fontSize: '12.5px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✓ រួចរាល់ (Close)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

@@ -200,70 +200,209 @@ export default function MyPortalClient({
     });
   }, [allEmployees, portalSearchQuery]);
 
-  // Extract Today's Real Punches
+  // Extract Today's Real Punches (checking both local and UTC date)
   const todayLogs = useMemo(() => {
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const logs = (employee.biometricLogs || []).filter((l) => l.punchTime.startsWith(todayStr));
+    if (!employee || !employee.biometricLogs) return [];
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth();
+    const curDate = now.getDate();
+
+    const logs = employee.biometricLogs.filter((l) => {
+      if (!l.punchTime) return false;
+      const d = new Date(l.punchTime);
+      const isLocal = d.getFullYear() === curYear && d.getMonth() === curMonth && d.getDate() === curDate;
+      const isUtc = d.getUTCFullYear() === curYear && d.getUTCMonth() === curMonth && d.getUTCDate() === curDate;
+      return isLocal || isUtc;
+    });
+
     logs.sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
     return logs;
-  }, [employee.biometricLogs]);
+  }, [employee]);
 
-  // Calculate or fallback today's 4 punch slots
+  // Today's Daily Attendance record if exists
+  const todayDailyAttendance = useMemo(() => {
+    if (!employee || !employee.dailyAttendances) return null;
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth();
+    const curDate = now.getDate();
+
+    return (
+      employee.dailyAttendances.find((d) => {
+        if (!d.date) return false;
+        const dt = new Date(d.date);
+        return (
+          (dt.getFullYear() === curYear && dt.getMonth() === curMonth && dt.getDate() === curDate) ||
+          (dt.getUTCFullYear() === curYear && dt.getUTCMonth() === curMonth && dt.getUTCDate() === curDate)
+        );
+      }) || null
+    );
+  }, [employee]);
+
+  // Calculate today's 4 punch slots strictly from actual scan data
   const punchSlots = useMemo(() => {
-    const formatTime = (isoString?: string) => {
-      if (!isoString) return null;
-      const d = new Date(isoString);
+    const formatTime = (timeOrIso?: string | null) => {
+      if (!timeOrIso) return null;
+      if (/^\d{1,2}:\d{2}/.test(timeOrIso) && !timeOrIso.includes('T')) {
+        const [hStr, mStr] = timeOrIso.split(':');
+        const h = parseInt(hStr, 10);
+        const m = parseInt(mStr, 10);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayH = h % 12 || 12;
+        return `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
+      }
+      const d = new Date(timeOrIso);
+      if (isNaN(d.getTime())) return null;
       return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     };
 
-    const firstIn = todayLogs[0]?.punchTime ? formatTime(todayLogs[0].punchTime) : '08:25 AM';
-    const firstOut = todayLogs[1]?.punchTime ? formatTime(todayLogs[1].punchTime) : '12:07 PM';
-    const secondIn = todayLogs[2]?.punchTime ? formatTime(todayLogs[2].punchTime) : '12:32 PM';
-    const secondOut = todayLogs[3]?.punchTime ? formatTime(todayLogs[3].punchTime) : '05:19 PM';
+    // Extract actual punches
+    let pFIn: string | null = null;
+    let pFOut: string | null = null;
+    let pSIn: string | null = null;
+    let pSOut: string | null = null;
+
+    // 1. From Daily Attendance if already recorded
+    if (todayDailyAttendance) {
+      if (todayDailyAttendance.fIn) pFIn = formatTime(todayDailyAttendance.fIn);
+      if (todayDailyAttendance.fOut) pFOut = formatTime(todayDailyAttendance.fOut);
+      if (todayDailyAttendance.sIn) pSIn = formatTime(todayDailyAttendance.sIn);
+      if (todayDailyAttendance.sOut) pSOut = formatTime(todayDailyAttendance.sOut);
+    }
+
+    // 2. From real biometric punch logs
+    if (todayLogs.length > 0) {
+      const checkIn = todayLogs.find((p) => p.punchType === 'CHECK_IN');
+      const checkOut = todayLogs.find((p) => p.punchType === 'CHECK_OUT');
+      const breakIn = todayLogs.find((p) => p.punchType === 'BREAK_IN');
+      const breakOut = todayLogs.find((p) => p.punchType === 'BREAK_OUT');
+
+      if (!pFIn && checkIn) pFIn = formatTime(checkIn.punchTime);
+      if (!pFOut && breakOut) pFOut = formatTime(breakOut.punchTime);
+      if (!pSIn && breakIn) pSIn = formatTime(breakIn.punchTime);
+      if (!pSOut && checkOut) pSOut = formatTime(checkOut.punchTime);
+
+      // Chronological fallback if punches don't have explicit punchType
+      if (!pFIn && todayLogs.length > 0) {
+        pFIn = formatTime(todayLogs[0].punchTime);
+      }
+      if (!pSOut && todayLogs.length > 1) {
+        pSOut = formatTime(todayLogs[todayLogs.length - 1].punchTime);
+      }
+      if (!pFOut && todayLogs.length === 4) {
+        pFOut = formatTime(todayLogs[1].punchTime);
+      }
+      if (!pSIn && todayLogs.length === 4) {
+        pSIn = formatTime(todayLogs[2].punchTime);
+      }
+    }
+
+    // Slot 1: Morning Check-In
+    const hasSlot1 = !!pFIn;
+    let slot1Sub = 'ចូលព្រឹក (Morning In)';
+    let slot1Tag = '--:--';
+    let slot1TagColor = '#94a3b8';
+    if (hasSlot1) {
+      if (todayDailyAttendance?.lateMins && todayDailyAttendance.lateMins > 0) {
+        slot1Sub = 'ចូលយឺត';
+        slot1Tag = `${todayDailyAttendance.lateMins} min`;
+        slot1TagColor = '#ef4444';
+      } else {
+        const firstPunchDate = todayLogs[0]?.punchTime ? new Date(todayLogs[0].punchTime) : null;
+        if (firstPunchDate) {
+          const punchMins = firstPunchDate.getHours() * 60 + firstPunchDate.getMinutes();
+          const startMins = 8 * 60; // 08:00 AM standard
+          if (punchMins > startMins + 5) {
+            const late = punchMins - startMins;
+            slot1Sub = 'ចូលយឺត';
+            slot1Tag = `${late} min`;
+            slot1TagColor = '#ef4444';
+          } else {
+            slot1Sub = 'ចូលទាន់ពេល';
+            slot1Tag = 'ទាន់ពេល';
+            slot1TagColor = '#16a34a';
+          }
+        } else {
+          slot1Sub = 'បានស្កេនចូល';
+          slot1Tag = 'ទាន់ពេល';
+          slot1TagColor = '#16a34a';
+        }
+      }
+    }
+
+    // Slot 2: Lunch Out
+    const hasSlot2 = !!pFOut;
+    const slot2Sub = hasSlot2 ? 'ចេញថ្ងៃត្រង់' : 'ចេញថ្ងៃ (Lunch Out)';
+    const slot2Tag = hasSlot2 ? 'បានស្កេន' : '--:--';
+    const slot2TagColor = hasSlot2 ? '#2563eb' : '#94a3b8';
+
+    // Slot 3: Afternoon In
+    const hasSlot3 = !!pSIn;
+    const slot3Sub = hasSlot3 ? 'ចូលរសៀល' : 'ចូលរសៀល (Afternoon In)';
+    const slot3Tag = hasSlot3 ? 'បានស្កេន' : '--:--';
+    const slot3TagColor = hasSlot3 ? '#16a34a' : '#94a3b8';
+
+    // Slot 4: Evening Out
+    const hasSlot4 = !!pSOut;
+    let slot4Sub = hasSlot4 ? 'ចេញល្ងាច' : 'ចេញល្ងាច (Evening Out)';
+    let slot4Tag = '--:--';
+    let slot4TagColor = '#94a3b8';
+    if (hasSlot4) {
+      if (todayDailyAttendance?.earlyMins && todayDailyAttendance.earlyMins > 0) {
+        slot4Sub = 'ចេញមុន';
+        slot4Tag = `ចេញមុន ${todayDailyAttendance.earlyMins}m`;
+        slot4TagColor = '#ef4444';
+      } else {
+        slot4Sub = 'ចេញល្ងាច';
+        slot4Tag = 'បានស្កេន';
+        slot4TagColor = '#16a34a';
+      }
+    }
 
     return [
       {
         id: 1,
         title: 'ម៉ោងចូល',
-        sub: 'ចូលយឺត',
-        time: firstIn,
-        tag: '25 min',
-        tagColor: '#ef4444',
-        iconBg: '#dcfce7',
-        iconColor: '#16a34a',
+        sub: slot1Sub,
+        time: pFIn || '--:--',
+        tag: slot1Tag,
+        tagColor: slot1TagColor,
+        iconBg: hasSlot1 ? '#dcfce7' : '#f1f5f9',
+        iconColor: hasSlot1 ? '#16a34a' : '#94a3b8',
       },
       {
         id: 2,
         title: 'ម៉ោងចេញ',
-        sub: 'ចេញមុន',
-        time: firstOut,
-        tag: '--:--',
-        tagColor: '#94a3b8',
-        iconBg: '#fee2e2',
-        iconColor: '#ef4444',
+        sub: slot2Sub,
+        time: pFOut || '--:--',
+        tag: slot2Tag,
+        tagColor: slot2TagColor,
+        iconBg: hasSlot2 ? '#fee2e2' : '#f1f5f9',
+        iconColor: hasSlot2 ? '#ef4444' : '#94a3b8',
       },
       {
         id: 3,
         title: 'ម៉ោងចូល',
-        sub: 'ចូលយឺត',
-        time: secondIn,
-        tag: '--:--',
-        tagColor: '#94a3b8',
-        iconBg: '#dcfce7',
-        iconColor: '#16a34a',
+        sub: slot3Sub,
+        time: pSIn || '--:--',
+        tag: slot3Tag,
+        tagColor: slot3TagColor,
+        iconBg: hasSlot3 ? '#dcfce7' : '#f1f5f9',
+        iconColor: hasSlot3 ? '#16a34a' : '#94a3b8',
       },
       {
         id: 4,
         title: 'ម៉ោងចេញ',
-        sub: 'ចេញមុន',
-        time: secondOut,
-        tag: '--:--',
-        tagColor: '#94a3b8',
-        iconBg: '#fee2e2',
-        iconColor: '#ef4444',
+        sub: slot4Sub,
+        time: pSOut || '--:--',
+        tag: slot4Tag,
+        tagColor: slot4TagColor,
+        iconBg: hasSlot4 ? '#fee2e2' : '#f1f5f9',
+        iconColor: hasSlot4 ? '#ef4444' : '#94a3b8',
       },
     ];
-  }, [todayLogs]);
+  }, [todayLogs, todayDailyAttendance]);
 
   return (
     <div className="portal-container">

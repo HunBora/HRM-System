@@ -70,6 +70,7 @@ export async function GET(request: Request) {
     const isSameCalendarDay = (d1: Date, d2: Date) => {
       return (
         (d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()) ||
+        (d1.getUTCFullYear() === d2.getFullYear() && d1.getUTCMonth() === d2.getMonth() && d1.getUTCDate() === d2.getDate()) ||
         d1.toISOString().slice(0, 10) === d2.toISOString().slice(0, 10)
       );
     };
@@ -81,8 +82,8 @@ export async function GET(request: Request) {
       const isHoliday = !!HOLIDAYS[`${month + 1}-${i + 1}`];
       const isOffDay = isWeekend || isHoliday;
       
-      const attendanceRecord = employee.dailyAttendances.find(
-        (a) => a.date.getDate() === i + 1 && a.date.getMonth() === month && a.date.getFullYear() === year
+      const attendanceRecord = employee.dailyAttendances.find((a) =>
+        isSameCalendarDay(new Date(a.date), date)
       );
       const hasImportedData = !!attendanceRecord;
 
@@ -123,6 +124,8 @@ export async function GET(request: Request) {
       let sOut = hasImportedData ? (attendanceRecord.sOut || '') : '';
 
       if (dayPunches.length > 0) {
+        dayPunches.sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
+
         const checkIn = dayPunches.find(p => p.punchType === 'CHECK_IN');
         const checkOut = dayPunches.find(p => p.punchType === 'CHECK_OUT');
         const breakIn = dayPunches.find(p => p.punchType === 'BREAK_IN');
@@ -131,9 +134,23 @@ export async function GET(request: Request) {
         const otOutPunch = dayPunches.find(p => p.punchType === 'OT_OUT');
 
         if (!fIn && checkIn) fIn = new Date(checkIn.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-        if (!fOut && checkOut) fOut = new Date(checkOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        if (!fOut && breakOut) fOut = new Date(breakOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         if (!sIn && breakIn) sIn = new Date(breakIn.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-        if (!sOut && breakOut) sOut = new Date(breakOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        if (!sOut && checkOut) sOut = new Date(checkOut.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+        // Chronological fallback for sequential punches or generic scan logs
+        if (!fIn && dayPunches.length > 0) {
+          fIn = new Date(dayPunches[0].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+        if (!sOut && dayPunches.length > 1) {
+          sOut = new Date(dayPunches[dayPunches.length - 1].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+        if (!fOut && dayPunches.length === 4) {
+          fOut = new Date(dayPunches[1].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+        if (!sIn && dayPunches.length === 4) {
+          sIn = new Date(dayPunches[2].punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
         if (!otIn && otInPunch) otIn = new Date(otInPunch.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         if (!otOut && otOutPunch) otOut = new Date(otOutPunch.punchTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       }

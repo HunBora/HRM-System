@@ -281,47 +281,6 @@ export default function AttendanceHistoryModal({
         }
       }
 
-      // High-fidelity fallback for reference mock days (Nov 2, 3, 4, 5, 2026) matching user's image exactly!
-      if (!fIn && !fOut && !sIn && !sOut && !dayLeave && !isWeekend) {
-        if (dateStr === '2026-11-04') {
-          fIn = '08:25 AM';
-          fOut = '12:07 PM';
-          sIn = '12:32 PM';
-          sOut = '05:19 PM';
-          lateMins = 25;
-          otMins = 19;
-          otHours = 0.32;
-          workHrs = 8.3;
-        } else if (dateStr === '2026-11-03') {
-          fIn = '08:42 AM';
-          fOut = '12:19 PM';
-          sIn = '12:33 PM';
-          sOut = '05:08 PM';
-          lateMins = 42;
-          otMins = 8;
-          otHours = 0.13;
-          workHrs = 8.1;
-        } else if (dateStr === '2026-11-02') {
-          fIn = '08:46 AM';
-          fOut = '12:08 PM';
-          sIn = '12:55 PM';
-          sOut = '05:12 PM';
-          lateMins = 46;
-          otMins = 12;
-          otHours = 0.2;
-          workHrs = 8.2;
-        } else if (dateStr === '2026-11-05') {
-          fIn = '08:25 AM';
-          fOut = '12:07 PM';
-          sIn = '12:32 PM';
-          sOut = '05:19 PM';
-          lateMins = 25;
-          otMins = 19;
-          otHours = 0.32;
-          workHrs = 8.3;
-        }
-      }
-
       // Calculate Late / Early / OT from punch times if not already set
       if (fIn) {
         const mIn = parseTimeToMinutes(fIn);

@@ -161,35 +161,48 @@ export default async function EmployeeAttendancePage({
       if (!otOut && otOutPunch) otOut = getCambodiaTime(new Date(otOutPunch.punchTime));
     }
 
-    let remarks = hasImportedData && attendanceRecord.remarks ? attendanceRecord.remarks : (isHoliday ? HOLIDAYS[`${month + 1}-${i + 1}`] : (isWeekend ? 'សម្រាក' : ''));
+    const hireDateObj = employee.hireDate ? new Date(employee.hireDate) : null;
+    if (hireDateObj) hireDateObj.setHours(0, 0, 0, 0);
+    const curDateObj = new Date(year, month, i + 1);
+    curDateObj.setHours(0, 0, 0, 0);
+    const isBeforeHire = hireDateObj ? curDateObj < hireDateObj : false;
+
+    let remarks = hasImportedData && attendanceRecord.remarks 
+      ? attendanceRecord.remarks 
+      : (isBeforeHire 
+          ? 'មិនទាន់ចូលបម្រើការងារ (Before Join Date)' 
+          : (isHoliday ? HOLIDAYS[`${month + 1}-${i + 1}`] : (isWeekend ? 'សម្រាក' : '')));
+
     if (matchedLeave) {
       const leaveLabel = LEAVE_TYPE_MAP[matchedLeave.leaveType] || matchedLeave.leaveType;
       remarks = remarks ? `${remarks} | ${leaveLabel}` : leaveLabel;
     }
 
     // Calculate live metrics based on punch times (including OT, Night OT, Holiday OT, Late, Early)
-    const metrics = calculateDayAttendanceMetrics(fIn, fOut, sIn, sOut, otIn, otOut, isOffDay);
+    const metrics = calculateDayAttendanceMetrics(fIn, fOut, sIn, sOut, otIn, otOut, isOffDay || isBeforeHire);
 
     // If attendance record had 0 OT but punches had OT, auto-populate from calculated metrics!
-    const finalNormalOt = normalOtHrs > 0 ? normalOtHrs : metrics.normalOtHrs;
-    const finalNightOt = nightOtHrs > 0 ? nightOtHrs : metrics.nightOtHrs;
-    const finalHolidayOt = holidayOtHrs > 0 ? holidayOtHrs : metrics.holidayOtHrs;
+    const finalNormalOt = isBeforeHire ? 0 : (normalOtHrs > 0 ? normalOtHrs : metrics.normalOtHrs);
+    const finalNightOt = isBeforeHire ? 0 : (nightOtHrs > 0 ? nightOtHrs : metrics.nightOtHrs);
+    const finalHolidayOt = isBeforeHire ? 0 : (holidayOtHrs > 0 ? holidayOtHrs : metrics.holidayOtHrs);
 
-    const finalLateMins = (hasImportedData && (attendanceRecord.lateMins || 0) > 0)
+    const finalLateMins = isBeforeHire ? 0 : ((hasImportedData && (attendanceRecord.lateMins || 0) > 0)
       ? attendanceRecord.lateMins
-      : metrics.lateMins;
+      : metrics.lateMins);
 
-    const finalEarlyMins = (hasImportedData && (attendanceRecord.earlyMins || 0) > 0)
+    const finalEarlyMins = isBeforeHire ? 0 : ((hasImportedData && (attendanceRecord.earlyMins || 0) > 0)
       ? attendanceRecord.earlyMins
-      : metrics.earlyMins;
+      : metrics.earlyMins);
 
-    const finalWorkHrs = (hasImportedData && (attendanceRecord.workHrs || 0) > 0)
+    const finalWorkHrs = isBeforeHire ? 0 : ((hasImportedData && (attendanceRecord.workHrs || 0) > 0)
       ? attendanceRecord.workHrs
-      : metrics.workHrs;
+      : metrics.workHrs);
 
-    const finalRegDay = (hasImportedData && attendanceRecord.regDay !== undefined && attendanceRecord.regDay !== null)
-      ? attendanceRecord.regDay
-      : (isOffDay ? 0 : (matchedLeave ? 0 : metrics.regDay));
+    const finalRegDay = isBeforeHire 
+      ? 0 
+      : ((hasImportedData && attendanceRecord.regDay !== undefined && attendanceRecord.regDay !== null)
+          ? attendanceRecord.regDay
+          : (isOffDay ? 0 : (matchedLeave ? 0 : metrics.regDay)));
 
     const dStr = (i + 1).toString().padStart(2, '0');
     const mStr = (month + 1).toString().padStart(2, '0');

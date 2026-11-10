@@ -113,9 +113,16 @@ export async function POST(request: Request) {
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       let filledCount = 0;
 
+      const targetEmp = await prisma.employee.findUnique({ where: { id: employeeId } });
+      const hireDateObj = targetEmp?.hireDate ? new Date(targetEmp.hireDate) : null;
+      if (hireDateObj) hireDateObj.setHours(0, 0, 0, 0);
+
       for (let day = 1; day <= daysInMonth; day++) {
         const dateObj = new Date(year, month, day);
         dateObj.setHours(0, 0, 0, 0);
+
+        // Do not fill attendance before employee's official hire date!
+        if (hireDateObj && dateObj < hireDateObj) continue;
 
         // Check if Sunday (off day)
         if (dateObj.getDay() === 0) continue;

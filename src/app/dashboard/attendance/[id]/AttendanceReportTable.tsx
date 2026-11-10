@@ -394,10 +394,19 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
 
       const data = await res.json();
 
-      // Update local days
+      const hireDateObj = employee?.hireDate ? new Date(employee.hireDate) : null;
+      if (hireDateObj) hireDateObj.setHours(0, 0, 0, 0);
+
+      // Update local days (excluding days before hire date)
       setDays((prev) =>
         prev.map((d) => {
           if (d.isOffDay) return d;
+          if (hireDateObj && d.rawDate) {
+            const [dy, dm, dd] = d.rawDate.split('-').map(Number);
+            const curDate = new Date(dy, dm - 1, dd);
+            curDate.setHours(0, 0, 0, 0);
+            if (curDate < hireDateObj) return d;
+          }
           return {
             ...d,
             fIn: d.fIn || '07:00',

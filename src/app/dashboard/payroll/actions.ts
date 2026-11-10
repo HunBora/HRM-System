@@ -80,7 +80,37 @@ export async function generatePayroll(month: number, year: number) {
           '11-25': 'ព្រះរាជពិធីបុណ្យអុំទូក',
         };
 
-        let workingDays = 26;
+        // Determine eligible working days in this month based on employee hireDate
+        let maxEligibleWorkingDays = 26;
+        let isHiredInFuture = false;
+
+        const hireDateObj = emp.hireDate ? new Date(emp.hireDate) : null;
+        if (hireDateObj) {
+          hireDateObj.setHours(0, 0, 0, 0);
+
+          if (hireDateObj > endDate) {
+            // Employee not yet hired in this payroll month
+            isHiredInFuture = true;
+            maxEligibleWorkingDays = 0;
+          } else if (hireDateObj >= startDate && hireDateObj <= endDate) {
+            // Mid-month hire: count working days from hireDate to end of month
+            let count = 0;
+            const daysInMonth = new Date(year, month, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+              const curDate = new Date(year, month - 1, d);
+              curDate.setHours(0, 0, 0, 0);
+              if (curDate < hireDateObj) continue;
+              const isSun = curDate.getDay() === 0;
+              const isHol = !!HOLIDAYS[`${month}-${d}`];
+              if (!isSun && !isHol) {
+                count++;
+              }
+            }
+            maxEligibleWorkingDays = count;
+          }
+        }
+
+        let workingDays = 0;
         let absentDays = 0;
         let leaveDays = 0;
         let otHours = 0;
@@ -88,19 +118,27 @@ export async function generatePayroll(month: number, year: number) {
         let nightOtHours = 0;
         let otDaysWithMeal = 0;
 
-        if (dailyRecords.length > 0) {
+        if (isHiredInFuture) {
+          workingDays = 0;
+          absentDays = 0;
+        } else if (dailyRecords.length > 0) {
           let sumRegDays = 0;
           let sumNormOt = 0;
           let sumNightOt = 0;
           let sumHolidayOt = 0;
 
           for (const r of dailyRecords) {
+            const rDate = new Date(r.date);
+            rDate.setHours(0, 0, 0, 0);
+            if (hireDateObj && rDate < hireDateObj) {
+              continue; // Exclude punches before hireDate
+            }
+
             let rNormalOt = r.normalOtHrs || 0;
             let rNightOt = r.nightOtHrs || 0;
             let rHolidayOt = r.holidayOtHrs || 0;
             let rRegDay = (r.regDay !== undefined && r.regDay !== null) ? r.regDay : 0;
 
-            const rDate = new Date(r.date);
             const isSunday = rDate.getDay() === 0;
             const isHoliday = !!HOLIDAYS[`${rDate.getMonth() + 1}-${rDate.getDate()}`];
             const isOffDay = isSunday || isHoliday;
@@ -113,7 +151,6 @@ export async function generatePayroll(month: number, year: number) {
               rHolidayOt = metrics.holidayOtHrs;
               if (rRegDay === 0 && metrics.regDay > 0) rRegDay = metrics.regDay;
 
-              // Save to database so dailyAttendance record is permanently accurate
               await prisma.dailyAttendance.update({
                 where: { id: r.id },
                 data: {
@@ -137,26 +174,27 @@ export async function generatePayroll(month: number, year: number) {
             if (dayTotalOt >= 2) otDaysWithMeal++;
           }
 
-          workingDays = sumRegDays > 0 ? sumRegDays : dailyRecords.length;
+          workingDays = sumRegDays;
           otHours = sumNormOt;
           nightOtHours = sumNightOt;
           sunOtHours = sumHolidayOt;
-          absentDays = Math.max(0, 26 - workingDays);
-        } else if (attendance) {
-          workingDays = attendance.daysWorked;
-          absentDays = attendance.absentDays;
-          leaveDays = attendance.leaveDays;
-          otHours = attendance.otHours;
+          absentDays = Math.max(0, maxEligibleWorkingDays - workingDays);
+        } else {
+          // No daily records -> Employee did not work in this month!
+          workingDays = 0;
+          absentDays = maxEligibleWorkingDays;
         }
 
-        // Merge approved Overtime Requests if any exist (avoid double counting if punches already recorded on same day)
+        // Merge approved Overtime Requests if any exist
         approvedOtRequests.forEach((ot) => {
           const otDate = new Date(ot.otDate);
+          otDate.setHours(0, 0, 0, 0);
+          if (hireDateObj && otDate < hireDateObj) return;
+
           const hasPunchedOnDate = dailyRecords.some((r) => {
             const rd = new Date(r.date);
-            return rd.getFullYear() === otDate.getFullYear() &&
-                   rd.getMonth() === otDate.getMonth() &&
-                   rd.getDate() === otDate.getDate() &&
+            rd.setHours(0, 0, 0, 0);
+            return rd.getTime() === otDate.getTime() &&
                    ((r.normalOtHrs || 0) > 0 || (r.nightOtHrs || 0) > 0 || (r.holidayOtHrs || 0) > 0 || (r.otIn && r.otOut));
           });
 
@@ -175,6 +213,9 @@ export async function generatePayroll(month: number, year: number) {
         // Merge approved Leave Requests if any exist
         const reqLeaveDays = approvedLeaveRequests.reduce((sum, lv) => sum + (lv.duration || 1), 0);
         leaveDays += reqLeaveDays;
+        if (absentDays >= reqLeaveDays) {
+          absentDays -= reqLeaveDays;
+        }
 
         // Keep MonthlyAttendance table in sync
         await prisma.monthlyAttendance.upsert({
@@ -185,7 +226,7 @@ export async function generatePayroll(month: number, year: number) {
 
         const basicSalary = emp.basicSalary || 0;
         
-        // --- 2025 Salary Calculation Formulas (Cambodian Labor Law Standard) ---
+        // --- Salary Calculation Formulas (Cambodian Labor Law Standard) ---
         const dailyRate = basicSalary / 26;
         const hourlyRate = dailyRate / 8;
 
@@ -196,37 +237,41 @@ export async function generatePayroll(month: number, year: number) {
         const sunOtWage = hourlyRate * 2.0 * sunOtHours; // 200% for Sunday/Holiday Overtime
         const nightOtWage = hourlyRate * 2.0 * nightOtHours; // 200% for Night Overtime
 
-        // Allowances & Incentives configured dynamically by the company/factory
+        // Allowances & Incentives: Only granted if employee worked or attended
         const lunchRate = companySettings?.lunchAllowancePerDay ?? 0.50;
         const lunchAllowance = workingDays * lunchRate;
         
         const otMealRate = companySettings?.otMealAllowance ?? 0.50;
         const otMealAllowance = otDaysWithMeal > 0 ? otDaysWithMeal * otMealRate : 0;
         
-        const transportation = companySettings?.transportationAllowance ?? 7.0;
+        // Transportation allowance: Only for working employees
+        const transpSetting = companySettings?.transportationAllowance ?? 7.0;
+        const transportation = workingDays > 0 ? transpSetting : 0;
         
+        // Attendance bonus: Requires no unexcused absences and active work
         const attBonusSetting = companySettings?.attendanceBonus ?? 15.0;
-        const attendanceBonus = absentDays > 0 ? 0 : attBonusSetting;
+        const attendanceBonus = (absentDays > 0 || workingDays === 0) ? 0 : attBonusSetting;
         
-        const payScaleIncentive = emp.positionAllowance1 || 0; // Connect to employee position allowance
-        const adjustmentSkill = emp.skillAllowance1 || 0; // Connect to employee skill allowance
+        const payScaleIncentive = workingDays > 0 ? (emp.positionAllowance1 || 0) : 0;
+        const adjustmentSkill = workingDays > 0 ? (emp.skillAllowance1 || 0) : 0;
         const annualLeaveAmount = 0;
         
         const dayCareRate = companySettings?.dayCareAllowancePerChild ?? 0.0;
-        const dayCareAllowance = (emp.numberOfChildren || 0) * dayCareRate;
-        // Seniority Allowance ($2 - $11/mo): based on full years from hireDate (Cambodian Labor Standard)
+        const dayCareAllowance = workingDays > 0 ? ((emp.numberOfChildren || 0) * dayCareRate) : 0;
+        
+        // Seniority Allowance ($2 - $11/mo): based on full years from hireDate
         let seniority = 0;
-        if (emp.hireDate) {
+        if (workingDays > 0 && emp.hireDate) {
           const hire = new Date(emp.hireDate);
           const targetDate = new Date(year, month - 1, 1);
           const diffMonths = (targetDate.getFullYear() - hire.getFullYear()) * 12 + (targetDate.getMonth() - hire.getMonth());
           const fullYears = Math.floor(diffMonths / 12);
           if (fullYears >= 1) {
-            seniority = Math.min(fullYears + 1, 11); // 1yr=$2, 2yr=$3, ..., 10+yr=$11
+            seniority = Math.min(fullYears + 1, 11);
           }
         }
 
-        // Seniority Indemnity (UDC 15 days/year: 7.5 days in June [month 6] and December [month 12] - New Article 89 & Prakas 442/18)
+        // Seniority Indemnity (UDC 15 days/year: 7.5 days in June [month 6] and December [month 12])
         let seniorityIndemnity = 0;
         const isSeniorityMonth = month === 6 || month === 12;
         const isUdc = !emp.regularContract1;
@@ -258,21 +303,21 @@ export async function generatePayroll(month: number, year: number) {
 
         const exchangeRate = defaultExchangeRate;
 
-        // NSSF Contribution: 2% of contributory wage based on Cambodian Law
-        // - Prior to Nov 2026: Min 400,000 KHR ($100), Ceiling 1,200,000 KHR ($300) -> Max $6.00
-        // - From Nov 2026 onwards (Prakas 234/26 & Notice 3134/26): Min 600,000 KHR ($150), Ceiling 1,500,000 KHR ($375) -> Max $7.50
-        const nssf = calculateNssf(basicSalary, !!emp.nssfNo, month, year, exchangeRate);
+        // NSSF Contribution: 2% of contributory wage based on Cambodian Law (only if employee has earnings)
+        const nssf = totalSalary > 0 ? calculateNssf(basicSalary, !!emp.nssfNo, month, year, exchangeRate) : 0;
         const taxPayment = 0; 
         
         // Union Contribution Deduction based on Company Policy & Worker's Voluntary Consent (Article 48)
         let unionDeduction = 0;
         const unionPolicy = companySettings?.unionDeductionPolicy || 'VOLUNTARY';
         const defaultUnionFee = companySettings?.unionMonthlyFee ?? 1.0;
-        if (unionPolicy === 'ALL') {
-          unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
-        } else if (unionPolicy === 'VOLUNTARY') {
-          if (emp.isUnionMember) {
+        if (totalSalary > 0) {
+          if (unionPolicy === 'ALL') {
             unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
+          } else if (unionPolicy === 'VOLUNTARY') {
+            if (emp.isUnionMember) {
+              unionDeduction = emp.unionFee !== null && emp.unionFee !== undefined ? emp.unionFee : defaultUnionFee;
+            }
           }
         }
 
@@ -364,7 +409,9 @@ export async function generatePayroll(month: number, year: number) {
       }
     }
     
-    revalidatePath('/dashboard/payroll');
+    try {
+      revalidatePath('/dashboard/payroll');
+    } catch {}
     return { success: true };
   } catch (error) {
     console.error('Error generating payroll:', error);

@@ -258,7 +258,7 @@ export default function MobileClockInModal({
     }
   };
 
-  // Get GPS Location
+  // Get GPS Location with Live High-Precision Calibration
   const fetchGpsLocation = () => {
     setGpsLoading(true);
     setGpsError(null);
@@ -269,29 +269,56 @@ export default function MobileClockInModal({
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
+    let bestFix: { lat: number; lng: number; accuracy: number } | null = null;
+    let ticks = 0;
+
+    const applyFix = (fix: { lat: number; lng: number; accuracy: number }) => {
+      setGpsCoords({ lat: fix.lat, lng: fix.lng, accuracy: fix.accuracy });
+      const dist = calculateHaversineDistance(
+        geoSettings.companyLat,
+        geoSettings.companyLng,
+        fix.lat,
+        fix.lng
+      );
+      setDistance(dist);
+      setGpsLoading(false);
+    };
+
+    const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         const acc = Math.round(pos.coords.accuracy);
-        setGpsCoords({ lat, lng, accuracy: acc });
 
-        const dist = calculateHaversineDistance(
-          geoSettings.companyLat,
-          geoSettings.companyLng,
-          lat,
-          lng
-        );
-        setDistance(dist);
-        setGpsLoading(false);
+        if (!bestFix || acc < bestFix.accuracy) {
+          bestFix = { lat, lng, accuracy: acc };
+        }
+
+        // If phone GPS achieved high precision <= 15m, finalize early
+        if (acc <= 15) {
+          navigator.geolocation.clearWatch(watchId);
+          applyFix(bestFix);
+        }
       },
       (err) => {
         console.error('GPS Error:', err);
-        setGpsError('មិនអាចទាញយកទីតាំងបានទេ សូមបើក Location លើទូរស័ព្ទ ឬកុំព្យូទ័រ និងចុច Allow!');
-        setGpsLoading(false);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
+
+    const timer = setInterval(() => {
+      ticks += 1;
+      if (ticks >= 3 || (bestFix && bestFix.accuracy <= 20)) {
+        clearInterval(timer);
+        navigator.geolocation.clearWatch(watchId);
+        if (bestFix) {
+          applyFix(bestFix);
+        } else {
+          setGpsError('មិនអាចទាញយកទីតាំងបានទេ សូមបើក Location លើទូរស័ព្ទ និងចុច Allow!');
+          setGpsLoading(false);
+        }
+      }
+    }, 1000);
   };
 
   useEffect(() => {

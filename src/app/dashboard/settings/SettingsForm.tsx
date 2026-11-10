@@ -11,6 +11,7 @@ import {
 } from './actions';
 import Image from 'next/image';
 import { SIDEBAR_THEMES, SidebarThemeId } from '@/components/ResizableSidebar';
+import GpsLocationPickerMap from '@/components/GpsLocationPickerMap';
 
 export default function SettingsForm({ settings }: { settings: any }) {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,10 @@ export default function SettingsForm({ settings }: { settings: any }) {
   const [preview, setPreview] = useState<string | null>(settings?.logoUrl || null);
   const [currentThemeId, setCurrentThemeId] = useState<SidebarThemeId>('dark');
   const [rateValue, setRateValue] = useState<number>(settings?.exchangeRate || 4000);
+  const [companyLat, setCompanyLat] = useState<number>(settings?.companyLat ?? 11.5564);
+  const [companyLng, setCompanyLng] = useState<number>(settings?.companyLng ?? 104.9282);
+  const [geoRadiusMeters, setGeoRadiusMeters] = useState<number>(settings?.geoRadiusMeters ?? 500);
+  const [geoFenceEnabled, setGeoFenceEnabled] = useState<boolean>(settings?.geoFenceEnabled !== false);
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebar_theme_v2') as SidebarThemeId;
@@ -218,38 +223,74 @@ export default function SettingsForm({ settings }: { settings: any }) {
       return;
     }
     setFetchingCurrentLocation(true);
-    navigator.geolocation.getCurrentPosition(
+
+    let bestReading: { lat: number; lng: number; accuracy: number } | null = null;
+    let ticks = 0;
+
+    const watchId = navigator.geolocation.watchPosition(
       (pos) => {
-        const latInput = document.getElementById('companyLatInput') as HTMLInputElement;
-        const lngInput = document.getElementById('companyLngInput') as HTMLInputElement;
-        if (latInput) latInput.value = pos.coords.latitude.toFixed(6);
-        if (lngInput) lngInput.value = pos.coords.longitude.toFixed(6);
-        setFetchingCurrentLocation(false);
-        Swal.fire({
-          icon: 'success',
-          title: 'ចាប់យកទីតាំងជោគជ័យ!',
-          text: `Latitude: ${pos.coords.latitude.toFixed(6)}, Longitude: ${pos.coords.longitude.toFixed(6)} (±${Math.round(pos.coords.accuracy)}m)`,
-          confirmButtonColor: '#10b981',
-        });
+        const cLat = pos.coords.latitude;
+        const cLng = pos.coords.longitude;
+        const cAcc = Math.round(pos.coords.accuracy);
+
+        if (!bestReading || cAcc < bestReading.accuracy) {
+          bestReading = { lat: cLat, lng: cLng, accuracy: cAcc };
+        }
+
+        if (cAcc <= 15) {
+          navigator.geolocation.clearWatch(watchId);
+          applyFix(bestReading);
+        }
       },
       (err) => {
-        setFetchingCurrentLocation(false);
-        Swal.fire({
-          icon: 'error',
-          title: 'មិនអាចចាប់យកទីតាំងបានទេ',
-          text: err.message || 'សូមចុច Allow Permission លើ Browser ដើម្បីចាប់យក GPS',
-        });
+        console.warn('GPS error:', err);
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
+
+    const timer = setInterval(() => {
+      ticks += 1;
+      if (ticks >= 4 || (bestReading && bestReading.accuracy <= 15)) {
+        clearInterval(timer);
+        navigator.geolocation.clearWatch(watchId);
+        if (bestReading) {
+          applyFix(bestReading);
+        } else {
+          setFetchingCurrentLocation(false);
+          Swal.fire({
+            icon: 'error',
+            title: 'មិនអាចចាប់យកទីតាំងបានទេ',
+            text: 'សូមចុច Allow Permission លើ Browser ដើម្បីចាប់យក GPS',
+          });
+        }
+      }
+    }, 1000);
+
+    const applyFix = (fix: { lat: number; lng: number; accuracy: number }) => {
+      setFetchingCurrentLocation(false);
+      const roundedLat = Number(fix.lat.toFixed(6));
+      const roundedLng = Number(fix.lng.toFixed(6));
+      setCompanyLat(roundedLat);
+      setCompanyLng(roundedLng);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ចាប់យកទីតាំង Device ជោគជ័យ!',
+        html: `
+          <div style="font-size: 0.88rem; text-align: left; line-height: 1.6;">
+            <div>📍 <b>Latitude:</b> ${roundedLat}</div>
+            <div>📍 <b>Longitude:</b> ${roundedLng}</div>
+            <div>🎯 <b>ភាពសុក្រិត (Accuracy):</b> ±${fix.accuracy} ម៉ែត្រ ${fix.accuracy <= 25 ? '⭐ (ខ្ពស់បំផុត ១០០%)' : '(តាម Wi-Fi/IP)'}</div>
+            ${fix.accuracy > 25 ? '<div style="color: #b45309; margin-top: 6px; font-size: 0.8rem;">💡 អ្នកអាចអូស Pin ក្រហមលើផែនទី ឬ Paste កូអរដោនេពី Google Maps ដើម្បីដាក់ឱ្យចំរោងចក្រ ១០០%!</div>' : ''}
+          </div>
+        `,
+        confirmButtonColor: '#10b981',
+      });
+    };
   };
 
   const handleViewGoogleMaps = () => {
-    const latInput = document.getElementById('companyLatInput') as HTMLInputElement;
-    const lngInput = document.getElementById('companyLngInput') as HTMLInputElement;
-    const lat = latInput?.value || '11.5564';
-    const lng = lngInput?.value || '104.9282';
-    window.open(`https://maps.google.com/?q=${lat},${lng}`, '_blank');
+    window.open(`https://maps.google.com/?q=${companyLat},${companyLng}`, '_blank');
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -719,18 +760,55 @@ export default function SettingsForm({ settings }: { settings: any }) {
           </span>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Geo-Fence Enable Toggle Switch */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 14px',
+            backgroundColor: geoFenceEnabled ? '#eff6ff' : '#f8fafc',
+            border: geoFenceEnabled ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
+            borderRadius: '8px',
+          }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>
+                🛡️ បើកដំណើរការកំណត់ព្រំប្រទល់វត្តមាន GPS (Enable Geo-Fencing Attendance)
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>
+                {geoFenceEnabled
+                  ? 'បុគ្គលិកអាចស្កេនវត្តមានតាមទូរស័ព្ទដៃបាន លុះត្រាតែស្ថិតក្នុងកាំរង្វង់រោងចក្រដែលបានកំណត់ខាងក្រោម។'
+                  : 'បានបិទ Geo-Fencing៖ បុគ្គលិកអាចស្កេនវត្តមានបានពីគ្រប់ទីកន្លែង។'}
+              </div>
+            </div>
+            <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                name="geoFenceEnabled"
+                value="true"
+                checked={geoFenceEnabled}
+                onChange={(e) => setGeoFenceEnabled(e.target.checked)}
+                style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#2563eb' }}
+              />
+              <span style={{ marginLeft: '8px', fontWeight: 700, fontSize: '0.85rem', color: geoFenceEnabled ? '#2563eb' : '#64748b' }}>
+                {geoFenceEnabled ? 'បើក (ON)' : 'បិទ (OFF)'}
+              </span>
+            </label>
+          </div>
+
+          {/* Coordinate & Radius Inputs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
             <div>
               <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
-                រយៈទទឹង Latitude (ឧ. 11.5564)
+                រយៈទទឹង Latitude (ឧ. 11.555052)
               </label>
               <input
                 type="number"
                 step="any"
                 name="companyLat"
                 id="companyLatInput"
-                defaultValue={settings?.companyLat ?? 11.5564}
+                value={companyLat}
+                onChange={(e) => setCompanyLat(parseFloat(e.target.value) || 0)}
                 style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
                 placeholder="Latitude..."
                 required
@@ -738,14 +816,15 @@ export default function SettingsForm({ settings }: { settings: any }) {
             </div>
             <div>
               <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
-                រយៈបណ្តោយ Longitude (ឧ. 104.9282)
+                រយៈបណ្តោយ Longitude (ឧ. 104.906843)
               </label>
               <input
                 type="number"
                 step="any"
                 name="companyLng"
                 id="companyLngInput"
-                defaultValue={settings?.companyLng ?? 104.9282}
+                value={companyLng}
+                onChange={(e) => setCompanyLng(parseFloat(e.target.value) || 0)}
                 style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
                 placeholder="Longitude..."
                 required
@@ -762,7 +841,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 max="10000"
                 name="geoRadiusMeters"
                 id="geoRadiusMetersInput"
-                defaultValue={settings?.geoRadiusMeters ?? 500}
+                value={geoRadiusMeters}
+                onChange={(e) => setGeoRadiusMeters(parseFloat(e.target.value) || 500)}
                 style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
                 placeholder="Radius meters..."
                 required
@@ -770,7 +850,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
             </div>
           </div>
 
-          {/* Quick Buttons for GPS Location */}
+          {/* Quick Buttons for GPS Location & Radius */}
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               type="button"
@@ -780,7 +860,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '7px 14px',
+                padding: '8px 14px',
                 backgroundColor: '#10b981',
                 color: '#ffffff',
                 border: 'none',
@@ -788,9 +868,10 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 fontSize: '0.84rem',
                 fontWeight: 700,
                 cursor: fetchingCurrentLocation ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 5px rgba(16, 185, 129, 0.25)',
               }}
             >
-              <span>{fetchingCurrentLocation ? 'កំពុងចាប់យក...' : '📍 ចាប់យកទីតាំងបច្ចុប្បន្នរបស់ខ្ញុំ (Get My Location)'}</span>
+              <span>{fetchingCurrentLocation ? 'កំពុងស្ទង់ GPS ពី Device...' : '📍 ចាប់យកទីតាំង Device ជាក់ស្តែង (Get My Location)'}</span>
             </button>
 
             <button
@@ -800,7 +881,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '7px 14px',
+                padding: '8px 14px',
                 backgroundColor: '#0284c7',
                 color: '#ffffff',
                 border: 'none',
@@ -815,28 +896,40 @@ export default function SettingsForm({ settings }: { settings: any }) {
 
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
               <span style={{ fontSize: '0.78rem', color: '#64748b' }}>កាំរហ័ស:</span>
-              {[200, 500, 1000].map((r) => (
+              {[200, 500, 1000, 2000].map((r) => (
                 <button
                   key={r}
                   type="button"
-                  onClick={() => {
-                    const el = document.getElementById('geoRadiusMetersInput') as HTMLInputElement;
-                    if (el) el.value = String(r);
-                  }}
+                  onClick={() => setGeoRadiusMeters(r)}
                   style={{
-                    padding: '3px 8px',
+                    padding: '4px 10px',
                     borderRadius: '4px',
-                    border: '1px solid #cbd5e1',
-                    background: '#f8fafc',
+                    border: geoRadiusMeters === r ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                    background: geoRadiusMeters === r ? '#2563eb' : '#f8fafc',
+                    color: geoRadiusMeters === r ? '#ffffff' : '#334155',
                     fontSize: '0.75rem',
                     fontWeight: 700,
                     cursor: 'pointer',
+                    transition: 'all 0.15s ease',
                   }}
                 >
                   {r}m
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Interactive Visual Map with Draggable Pin ("អាច move ប្តូរទីតាំងបានតាមចិត្តទៅរោងចក្រនីមួយៗ") */}
+          <div style={{ marginTop: '4px' }}>
+            <GpsLocationPickerMap
+              lat={companyLat}
+              lng={companyLng}
+              radiusMeters={geoRadiusMeters}
+              onLocationChange={(newLat, newLng) => {
+                setCompanyLat(newLat);
+                setCompanyLng(newLng);
+              }}
+            />
           </div>
         </div>
       </div>

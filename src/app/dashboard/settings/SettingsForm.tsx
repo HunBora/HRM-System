@@ -327,7 +327,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
           </span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           {Object.values(SIDEBAR_THEMES).map((th) => {
             const isSelected = th.id === currentThemeId;
             return (
@@ -335,47 +335,54 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 key={th.id}
                 type="button"
                 onClick={() => handlePickTheme(th.id)}
+                title={`${th.nameKh} (${th.nameEn})`}
+                aria-label={`${th.nameKh} (${th.nameEn})`}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '10px 12px',
-                  borderRadius: '10px',
+                  position: 'relative',
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
                   border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
                   background: th.bgColor,
                   backgroundImage: th.bgImage,
                   color: th.textColor,
                   cursor: 'pointer',
-                  textAlign: 'left',
-                  boxShadow: isSelected ? '0 0 0 3px rgba(37, 99, 235, 0.25), 0 4px 12px rgba(0,0,0,0.15)' : '0 2px 6px rgba(0,0,0,0.04)',
-                  transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-                  transition: 'all 0.18s ease',
-                }}
-              >
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: th.cardBg,
-                  border: `1px solid ${th.cardBorder}`,
-                  fontSize: '1.1rem',
-                  flexShrink: 0,
-                }}>
-                  {th.icon}
-                </div>
-                <div style={{ overflow: 'hidden', flex: 1 }}>
-                  <div className="kh-text" style={{ fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {th.nameKh}
-                  </div>
-                  <div style={{ fontSize: '0.68rem', color: th.textMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {th.nameEn}
-                  </div>
-                </div>
+                  fontSize: '1.3rem',
+                  boxShadow: isSelected
+                    ? '0 0 0 3px rgba(37, 99, 235, 0.25), 0 4px 12px rgba(0,0,0,0.2)'
+                    : '0 2px 6px rgba(0,0,0,0.05)',
+                  transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                  transition: 'all 0.18s ease',
+                  padding: 0,
+                  outline: 'none',
+                }}
+              >
+                <span>{th.icon}</span>
                 {isSelected && (
-                  <span style={{ color: th.accent, fontSize: '0.95rem', fontWeight: 900 }}>✓</span>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '-4px',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      backgroundColor: '#2563eb',
+                      color: '#ffffff',
+                      fontSize: '10px',
+                      fontWeight: 900,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.25)',
+                      border: '2px solid #ffffff',
+                    }}
+                  >
+                    ✓
+                  </span>
                 )}
               </button>
             );

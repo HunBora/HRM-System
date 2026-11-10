@@ -797,10 +797,11 @@ export default function SettingsForm({ settings }: { settings: any }) {
           </div>
 
           {/* Coordinate & Radius Inputs */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-            <div>
-              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
-                រយៈទទឹង Latitude (ឧ. 11.555052)
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label className="kh-text" style={{ fontSize: '0.84rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', color: '#1e293b' }}>
+                <span>📍 រយៈទទឹង (Latitude)</span>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 400 }}>ឧ. 11.555052</span>
               </label>
               <input
                 type="number"
@@ -809,14 +810,15 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 id="companyLatInput"
                 value={companyLat}
                 onChange={(e) => setCompanyLat(parseFloat(e.target.value) || 0)}
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
-                placeholder="Latitude..."
+                style={{ width: '100%', height: '42px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '0.92rem', boxSizing: 'border-box' }}
+                placeholder="Latitude (ឧ. 11.555052)..."
                 required
               />
             </div>
-            <div>
-              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
-                រយៈបណ្តោយ Longitude (ឧ. 104.906843)
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label className="kh-text" style={{ fontSize: '0.84rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', color: '#1e293b' }}>
+                <span>📍 រយៈបណ្តោយ (Longitude)</span>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 400 }}>ឧ. 104.906843</span>
               </label>
               <input
                 type="number"
@@ -825,14 +827,15 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 id="companyLngInput"
                 value={companyLng}
                 onChange={(e) => setCompanyLng(parseFloat(e.target.value) || 0)}
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
-                placeholder="Longitude..."
+                style={{ width: '100%', height: '42px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '0.92rem', boxSizing: 'border-box' }}
+                placeholder="Longitude (ឧ. 104.906843)..."
                 required
               />
             </div>
-            <div>
-              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 600, display: 'block', marginBottom: '5px' }}>
-                កាំរង្វង់អនុញ្ញាត Geo-Radius (ម៉ែត្រ)
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label className="kh-text" style={{ fontSize: '0.84rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', color: '#1e293b' }}>
+                <span>🎯 កាំរង្វង់អនុញ្ញាត (Geo-Radius)</span>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 400 }}>គិតជាម៉ែត្រ</span>
               </label>
               <input
                 type="number"
@@ -843,8 +846,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
                 id="geoRadiusMetersInput"
                 value={geoRadiusMeters}
                 onChange={(e) => setGeoRadiusMeters(parseFloat(e.target.value) || 500)}
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '0.9rem' }}
-                placeholder="Radius meters..."
+                style={{ width: '100%', height: '42px', padding: '0 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '0.92rem', boxSizing: 'border-box' }}
+                placeholder="Radius meters (ឧ. 500)..."
                 required
               />
             </div>

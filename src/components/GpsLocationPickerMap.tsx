@@ -2,45 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-export interface FactoryLocationPreset {
-  id: string;
-  nameKh: string;
-  lat: number;
-  lng: number;
-  address?: string;
-}
-
-export const KNOWN_FACTORY_PRESETS: FactoryLocationPreset[] = [
-  {
-    id: 'st219-current',
-    nameKh: '📍 ទីតាំងបច្ចុប្បន្ន St 219 (52-27 St 318)',
-    lat: 11.555052,
-    lng: 104.906843,
-    address: '52-27 St 318, Toul Svay Prey, Phnom Penh',
-  },
-  {
-    id: 'wahgoo-bags',
-    nameKh: '🏭 រោងចក្រ វ៉ាហ្គូ ប៊ែក (Wahgoo Bags - កំពង់ស្ពឺ)',
-    lat: 11.412500,
-    lng: 104.425800,
-    address: 'ផ្លូវជាតិលេខ៤ ភូមិដំណាក់ត្រាច ឃុំដំបូកខ្ពស់ ស្រុកភ្នំស្រួច ខេត្តកំពង់ស្ពឺ',
-  },
-  {
-    id: 'gs-textile',
-    nameKh: '🏭 រោងចក្រ ជី.អេស ថិចស្ដាយ (G.S Textile - វេងស្រេង)',
-    lat: 11.531200,
-    lng: 104.862100,
-    address: 'ផ្លូវវេងស្រេង សង្កាត់ចោមចៅ ខណ្ឌពោធិ៍សែនជ័យ រាជធានីភ្នំពេញ',
-  },
-  {
-    id: 'olympic-stadium',
-    nameKh: '🏟️ ពហុកីឡដ្ឋានជាតិអូឡាំពិក (Olympic Stadium)',
-    lat: 11.558200,
-    lng: 104.912100,
-    address: 'Olympic National Stadium, Khan 7 Makara, Phnom Penh',
-  },
-];
-
 interface GpsLocationPickerMapProps {
   lat: number;
   lng: number;
@@ -358,113 +319,91 @@ export default function GpsLocationPickerMap({
         `
       }} />
 
-      {/* Top Controls: Search / Paste Coords + GPS Device Calibration */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* Search / Paste Box */}
-        <div style={{ display: 'flex', gap: '6px', flex: '1 1 320px', position: 'relative' }}>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleParseOrSearch();
-              }
-            }}
-            placeholder="🔍 ស្វែងរកទីតាំង ឬ Paste Google Maps Coords/Link (ឧ. 11.555052, 104.906843)..."
-            style={{
-              flex: 1,
-              padding: '8px 12px',
-              fontSize: '0.84rem',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              outline: 'none',
-              backgroundColor: '#ffffff',
-            }}
-          />
-          <button
-            type="button"
-            onClick={handleParseOrSearch}
-            disabled={isSearching}
-            style={{
-              padding: '8px 14px',
-              backgroundColor: '#0284c7',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {isSearching ? 'កំពុងស្វែងរក...' : 'ស្វែងរក / អនុវត្ត'}
-          </button>
-
-          {/* Autocomplete Search Results Dropdown */}
-          {searchResults.length > 0 && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                marginTop: '4px',
-                backgroundColor: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-                zIndex: 1000,
-                maxHeight: '220px',
-                overflowY: 'auto',
-              }}
-            >
-              {searchResults.map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleSelectSearchResult(item)}
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: '0.82rem',
-                    borderBottom: '1px solid #f1f5f9',
-                    cursor: 'pointer',
-                    transition: 'background 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
-                >
-                  <div style={{ fontWeight: 600, color: '#0f172a' }}>{item.display_name?.split(',')[0]}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.display_name}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* High-Accuracy Device GPS Calibration Button */}
+      {/* Search / Paste Google Maps Coords or Link */}
+      <div style={{ display: 'flex', gap: '8px', position: 'relative', width: '100%' }}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleParseOrSearch();
+            }
+          }}
+          placeholder="🔍 ស្វែងរកទីតាំង ឬ Paste Google Maps Coords / Link (ឧ. 11.555052, 104.906843)..."
+          style={{
+            flex: 1,
+            height: '42px',
+            padding: '0 14px',
+            fontSize: '0.88rem',
+            borderRadius: '8px',
+            border: '1px solid #cbd5e1',
+            outline: 'none',
+            backgroundColor: '#ffffff',
+            boxSizing: 'border-box',
+          }}
+        />
         <button
           type="button"
-          onClick={handleCalibrateDeviceGps}
-          disabled={isCalibratingGps}
+          onClick={handleParseOrSearch}
+          disabled={isSearching}
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '8px 14px',
-            backgroundColor: '#10b981',
+            height: '42px',
+            padding: '0 18px',
+            backgroundColor: '#0284c7',
             color: '#ffffff',
             border: 'none',
-            borderRadius: '6px',
-            fontSize: '0.82rem',
+            borderRadius: '8px',
+            fontSize: '0.84rem',
             fontWeight: 700,
-            cursor: isCalibratingGps ? 'not-allowed' : 'pointer',
-            boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            boxSizing: 'border-box',
+            boxShadow: '0 2px 5px rgba(2, 132, 199, 0.25)',
           }}
         >
-          <span>🎯</span>
-          <span>{isCalibratingGps ? 'កំពុងស្ទង់ GPS ពី Device...' : 'ចាប់យក GPS ពី Device (100% Precision)'}</span>
+          {isSearching ? 'កំពុងស្វែងរក...' : 'ស្វែងរក / អនុវត្ត'}
         </button>
+
+        {/* Autocomplete Search Results Dropdown */}
+        {searchResults.length > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              marginTop: '4px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: '8px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              zIndex: 1000,
+              maxHeight: '220px',
+              overflowY: 'auto',
+            }}
+          >
+            {searchResults.map((item, idx) => (
+              <div
+                key={idx}
+                onClick={() => handleSelectSearchResult(item)}
+                style={{
+                  padding: '9px 14px',
+                  fontSize: '0.84rem',
+                  borderBottom: '1px solid #f1f5f9',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ffffff')}
+              >
+                <div style={{ fontWeight: 600, color: '#0f172a' }}>{item.display_name?.split(',')[0]}</div>
+                <div style={{ fontSize: '0.74rem', color: '#64748b' }}>{item.display_name}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* GPS Accuracy Status / Calibration Feedback */}
@@ -493,42 +432,6 @@ export default function GpsLocationPickerMap({
           )}
         </div>
       )}
-
-      {/* Factory Quick Location Presets Bar ("ទៅរោងចក្រនីមួយៗ") */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569' }}>
-          🏢 រោងចក្ររហ័ស:
-        </span>
-        {KNOWN_FACTORY_PRESETS.map((p) => {
-          const isCurrent = Math.abs(lat - p.lat) < 0.0001 && Math.abs(lng - p.lng) < 0.0001;
-          return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => {
-                onLocationChange(p.lat, p.lng);
-                if (mapInstanceRef.current) {
-                  mapInstanceRef.current.setView([p.lat, p.lng], 17);
-                }
-              }}
-              title={p.address || p.nameKh}
-              style={{
-                padding: '4px 9px',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: isCurrent ? 700 : 500,
-                backgroundColor: isCurrent ? '#2563eb' : '#f1f5f9',
-                color: isCurrent ? '#ffffff' : '#334155',
-                border: isCurrent ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {p.nameKh}
-            </button>
-          );
-        })}
-      </div>
 
       {/* Interactive Map Box */}
       <div

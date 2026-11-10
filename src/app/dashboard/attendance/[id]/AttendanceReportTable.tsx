@@ -421,20 +421,32 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
   };
 
   const thStyle: React.CSSProperties = {
-    padding: '5px 3px',
+    padding: '8px 10px',
     whiteSpace: 'nowrap',
-    fontSize: '0.72rem',
-    fontWeight: 800,
-    color: '#1e293b',
+    fontSize: '0.78rem',
+    fontWeight: 700,
+    color: '#0f172a',
     backgroundColor: '#f1f5f9',
     border: '1px solid #cbd5e1',
-    lineHeight: 1.15,
+    lineHeight: 1.25,
+    textAlign: 'center',
+    verticalAlign: 'middle',
+  };
+  const subHeaderStyle: React.CSSProperties = {
+    fontSize: '0.68rem',
+    color: '#64748b',
+    fontWeight: 600,
+    display: 'inline-block',
+    marginTop: '2px',
   };
   const tdStyle: React.CSSProperties = {
-    padding: '3px 2px',
-    fontSize: '0.74rem',
+    padding: '6px 8px',
+    fontSize: '0.78rem',
     border: '1px solid #e2e8f0',
-    lineHeight: 1.2,
+    lineHeight: 1.3,
+    whiteSpace: 'nowrap',
+    textAlign: 'center',
+    verticalAlign: 'middle',
   };
 
   return (
@@ -593,61 +605,40 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
         style={{
           width: '100%',
           overflowX: 'auto',
-          borderRadius: '10px',
+          borderRadius: '12px',
           border: '1px solid #cbd5e1',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          backgroundColor: '#ffffff',
         }}
       >
         <table
           style={{
             width: '100%',
-            minWidth: '950px',
             borderCollapse: 'collapse',
             textAlign: 'center',
-            fontSize: '0.75rem',
-            tableLayout: 'fixed',
+            fontSize: '0.78rem',
           }}
         >
-          <colgroup>
-            <col style={{ width: '32px' }} />
-            <col style={{ width: '70px' }} />
-            <col style={{ width: '38px' }} />
-            <col style={{ width: '48px' }} />
-            <col style={{ width: '48px' }} />
-            <col style={{ width: '48px' }} />
-            <col style={{ width: '48px' }} />
-            <col style={{ width: '48px' }} />
-            <col style={{ width: '48px' }} />
-            <col style={{ width: '42px' }} />
-            <col style={{ width: '45px' }} />
-            <col style={{ width: '46px' }} />
-            <col style={{ width: '46px' }} />
-            <col style={{ width: '46px' }} />
-            <col style={{ width: '44px' }} />
-            <col style={{ width: '44px' }} />
-            <col style={{ width: '130px' }} />
-            <col style={{ width: '46px' }} className="no-print" />
-          </colgroup>
           <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <tr style={{ borderBottom: '2px solid #94a3b8' }}>
-              <th style={thStyle}>លេខ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>No</span></th>
-              <th style={thStyle}>កាលបរិច្ឆេទ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Date</span></th>
-              <th style={thStyle}>ថ្ងៃ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Day</span></th>
-              <th style={thStyle}>ម៉ោងចូលព្រឹក<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>F-In</span></th>
-              <th style={thStyle}>ម៉ោងចេញព្រឹក<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>F-Out</span></th>
-              <th style={thStyle}>ម៉ោងចូលថ្ងៃ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>S-In</span></th>
-              <th style={thStyle}>ម៉ោងចេញថ្ងៃ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>S-Out</span></th>
-              <th style={thStyle}>ម៉ោងចូលOT<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>OT-In</span></th>
-              <th style={thStyle}>ម៉ោងចេញOT<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>OT-Out</span></th>
-              <th style={thStyle}>ថ្ងៃធម្មតា<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Reg Day</span></th>
-              <th style={thStyle}>ម៉ោងធ្វើការ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Work Hrs</span></th>
-              <th style={thStyle}>ម៉ោងថែមធម្មតា<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Normal OT</span></th>
-              <th style={thStyle}>ម៉ោងថែមយប់<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Night OT</span></th>
-              <th style={thStyle}>ម៉ោងថែមបុណ្យ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Holiday OT</span></th>
-              <th style={thStyle}>ចូលយឺត<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Late (m)</span></th>
-              <th style={thStyle}>ចេញមុន<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Early (m)</span></th>
-              <th style={thStyle}>ផ្សេងៗ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Remarks</span></th>
-              <th style={thStyle} className="no-print">កែ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Edit</span></th>
+              <th style={thStyle}>ល.រ<br /><span style={subHeaderStyle}>No</span></th>
+              <th style={thStyle}>កាលបរិច្ឆេទ<br /><span style={subHeaderStyle}>Date</span></th>
+              <th style={thStyle}>ថ្ងៃ<br /><span style={subHeaderStyle}>Day</span></th>
+              <th style={thStyle}>ចូលព្រឹក<br /><span style={subHeaderStyle}>F-In</span></th>
+              <th style={thStyle}>ចេញព្រឹក<br /><span style={subHeaderStyle}>F-Out</span></th>
+              <th style={thStyle}>ចូលថ្ងៃ<br /><span style={subHeaderStyle}>S-In</span></th>
+              <th style={thStyle}>ចេញថ្ងៃ<br /><span style={subHeaderStyle}>S-Out</span></th>
+              <th style={thStyle}>ចូល OT<br /><span style={subHeaderStyle}>OT-In</span></th>
+              <th style={thStyle}>ចេញ OT<br /><span style={subHeaderStyle}>OT-Out</span></th>
+              <th style={thStyle}>ថ្ងៃធ្វើការ<br /><span style={subHeaderStyle}>Reg Day</span></th>
+              <th style={thStyle}>ម៉ោងសរុប<br /><span style={subHeaderStyle}>Work Hrs</span></th>
+              <th style={thStyle}>OT ធម្មតា<br /><span style={subHeaderStyle}>Normal OT</span></th>
+              <th style={thStyle}>OT យប់<br /><span style={subHeaderStyle}>Night OT</span></th>
+              <th style={thStyle}>OT បុណ្យ<br /><span style={subHeaderStyle}>Holiday OT</span></th>
+              <th style={thStyle}>ចូលយឺត<br /><span style={subHeaderStyle}>Late (m)</span></th>
+              <th style={thStyle}>ចេញមុន<br /><span style={subHeaderStyle}>Early (m)</span></th>
+              <th style={thStyle}>ផ្សេងៗ<br /><span style={subHeaderStyle}>Remarks</span></th>
+              <th style={thStyle} className="no-print">កែសម្រួល<br /><span style={subHeaderStyle}>Edit</span></th>
             </tr>
           </thead>
           <tbody>
@@ -673,7 +664,7 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                   }}
                 >
                   <td style={{ ...tdStyle, fontWeight: 700 }}>{d.no}</td>
-                  <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '0.72rem' }}>{d.dateStr}</td>
+                  <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '0.74rem' }}>{d.dateStr}</td>
                   <td style={{ ...tdStyle, fontWeight: d.isOffDay ? 800 : 500 }}>{d.day}</td>
                   <td style={{ ...tdStyle, fontWeight: d.fIn ? 700 : 400, color: d.fIn ? '#0f172a' : '#94a3b8' }}>{d.fIn || '-'}</td>
                   <td style={{ ...tdStyle, fontWeight: d.fOut ? 700 : 400, color: d.fOut ? '#0f172a' : '#94a3b8' }}>{d.fOut || '-'}</td>
@@ -685,7 +676,7 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                   <td style={{ ...tdStyle, fontWeight: 700 }}>{d.workHrs}</td>
                   <td style={{ ...tdStyle, fontWeight: d.normalOtHrs > 0 ? 800 : 400 }}>
                     {d.normalOtHrs > 0 ? (
-                      <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                      <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
                         {d.normalOtHrs}
                       </span>
                     ) : (
@@ -694,7 +685,7 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                   </td>
                   <td style={{ ...tdStyle, fontWeight: d.nightOtHrs > 0 ? 800 : 400 }}>
                     {d.nightOtHrs > 0 ? (
-                      <span style={{ backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                      <span style={{ backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
                         {d.nightOtHrs}
                       </span>
                     ) : (
@@ -703,7 +694,7 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                   </td>
                   <td style={{ ...tdStyle, fontWeight: d.holidayOtHrs > 0 ? 800 : 400 }}>
                     {d.holidayOtHrs > 0 ? (
-                      <span style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                      <span style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
                         {d.holidayOtHrs}
                       </span>
                     ) : (
@@ -728,11 +719,13 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                     style={{
                       ...tdStyle,
                       textAlign: 'left',
-                      padding: '3px 6px',
+                      padding: '6px 10px',
+                      minWidth: '120px',
+                      maxWidth: '220px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
-                      fontSize: '0.7rem',
+                      fontSize: '0.75rem',
                     }}
                     title={d.remarks}
                   >
@@ -742,25 +735,30 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
                     <button
                       type="button"
                       onClick={() => handleOpenDayModal(d)}
+                      title={isMissingScan ? 'បំពេញម៉ោងស្កេនខ្វះ' : 'កែសម្រួលទិន្នន័យ'}
                       style={{
                         background: isMissingScan ? '#2563eb' : '#f1f5f9',
                         color: isMissingScan ? '#ffffff' : '#334155',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '4px',
-                        padding: '1px 6px',
-                        fontSize: '0.68rem',
+                        border: isMissingScan ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                        borderRadius: '6px',
+                        padding: '3px 8px',
+                        fontSize: '0.72rem',
                         fontWeight: 600,
                         cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
                       }}
                     >
-                      {isMissingScan ? '⚡' : '✏️'}
+                      <span>{isMissingScan ? '⚡' : '✏️'}</span>
+                      <span>{isMissingScan ? 'បំពេញ' : 'កែ'}</span>
                     </button>
                   </td>
                 </tr>
               );
             })}
             <tr style={{ fontWeight: 'bold', backgroundColor: '#f1f5f9', borderTop: '2px solid #94a3b8' }}>
-              <td colSpan={9} style={{ textAlign: 'right', padding: '6px 10px', fontSize: '0.78rem' }}>សរុប-Total</td>
+              <td colSpan={9} style={{ textAlign: 'right', padding: '8px 12px', fontSize: '0.82rem', fontWeight: 800 }}>សរុប-Total</td>
               <td style={{ ...tdStyle, fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.regDay || 0), 0).toFixed(1)}</td>
               <td style={{ ...tdStyle, fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.workHrs || 0), 0).toFixed(1)}</td>
               <td style={{ ...tdStyle, color: '#1d4ed8', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.normalOtHrs || 0), 0).toFixed(1)}</td>
@@ -768,8 +766,8 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
               <td style={{ ...tdStyle, color: '#991b1b', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.holidayOtHrs || 0), 0).toFixed(1)}</td>
               <td style={{ ...tdStyle, color: '#dc2626', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.lateMins || 0), 0)}</td>
               <td style={{ ...tdStyle, color: '#d97706', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.earlyMins || 0), 0)}</td>
-              <td></td>
-              <td className="no-print"></td>
+              <td style={tdStyle}></td>
+              <td style={tdStyle} className="no-print"></td>
             </tr>
           </tbody>
         </table>

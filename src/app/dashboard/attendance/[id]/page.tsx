@@ -230,20 +230,41 @@ export default async function EmployeeAttendancePage({
         </div>
       </div>
 
-      <div id="attendance-log-print-area" className="card" style={{ overflowX: 'auto', padding: '20px', backgroundColor: '#fbff00' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', marginBottom: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+      <div
+        id="attendance-log-print-area"
+        className="card"
+        style={{
+          overflowX: 'auto',
+          padding: '16px 20px',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1.2fr 1fr 1.2fr',
+            marginBottom: '12px',
+            fontSize: '0.82rem',
+            lineHeight: 1.4,
+            borderBottom: '1px solid #e2e8f0',
+            paddingBottom: '10px',
+          }}
+        >
           <div>
-            <p>អត្តលេខ និង ឈ្មោះ(EmpID-Name): {employee.employeeId} / {employee.firstNameEn} {employee.lastNameEn}</p>
-            <p>តួនាទី (Position): {employee.position}</p>
-            <p>ផ្នែក (Depart): {employee.department}</p>
-            <p>ក្រុម (Line): {employee.line || '-'}</p>
+            <p style={{ margin: '2px 0' }}><b>អត្តលេខ និង ឈ្មោះ:</b> {employee.employeeId} / {employee.firstNameKh || employee.firstNameEn} {employee.lastNameKh || employee.lastNameEn}</p>
+            <p style={{ margin: '2px 0' }}><b>តួនាទី (Position):</b> {employee.position}</p>
+            <p style={{ margin: '2px 0' }}><b>ផ្នែក (Depart):</b> {employee.department} {employee.line ? `(Line: ${employee.line})` : ''}</p>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <h2>Attendance Log</h2>
+            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>Attendance Log</h2>
+            <p style={{ margin: '2px 0', fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>Period: {month + 1}/{year}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p>Period: {month + 1}/{year}</p>
-            <p>ថ្ងៃចូលធ្វើការ (Date of Join): {new Date(employee.hireDate).toLocaleDateString('en-GB')}</p>
+            <p style={{ margin: '2px 0' }}><b>កាលបរិច្ឆេទបោះពុម្ព:</b> {new Date().toLocaleDateString('en-GB')}</p>
+            <p style={{ margin: '2px 0' }}><b>ថ្ងៃចូលធ្វើការ (Date of Join):</b> {new Date(employee.hireDate).toLocaleDateString('en-GB')}</p>
           </div>
         </div>
 

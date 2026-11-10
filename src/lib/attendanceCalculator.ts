@@ -8,6 +8,8 @@ export interface ShiftConfig {
   nightShiftAftIn?: string; // default "23:00"
   nightShiftAftOut?: string; // default "04:00"
   nightOtStart?: string; // default "22:00"
+  autoOtEnabled?: boolean; // default true
+  autoOtThresholdMinutes?: number; // default 60 minutes (1 hour)
 }
 
 export interface AttendanceMetricsResult {
@@ -140,8 +142,15 @@ export function calculateDayAttendanceMetrics(
   }
 
   // Case B: If no explicit OT punches, but sOut stayed past shift end (17:00)
-  if (actualOtIn < 0 && actualSOut > aftOutCfg) {
-    totalOtMins += actualSOut - aftOutCfg;
+  // Smart Auto-OT Rule: Must exceed shift out time by at least threshold (default: 60 minutes / 1 hour)
+  const isAutoOtEnabled = config?.autoOtEnabled !== false;
+  const otThreshold = config?.autoOtThresholdMinutes ?? 60; // default 60 minutes
+
+  if (isAutoOtEnabled && actualOtIn < 0 && actualSOut > aftOutCfg) {
+    const extraPastShift = actualSOut - aftOutCfg;
+    if (extraPastShift >= otThreshold) {
+      totalOtMins += extraPastShift;
+    }
   }
 
   // Split Overtime into Normal, Night, and Holiday

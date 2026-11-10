@@ -420,8 +420,22 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
     }
   };
 
-  const thStyle: React.CSSProperties = { padding: '5px', whiteSpace: 'nowrap' };
-  const tdStyle: React.CSSProperties = { padding: '5px' };
+  const thStyle: React.CSSProperties = {
+    padding: '5px 3px',
+    whiteSpace: 'nowrap',
+    fontSize: '0.72rem',
+    fontWeight: 800,
+    color: '#1e293b',
+    backgroundColor: '#f1f5f9',
+    border: '1px solid #cbd5e1',
+    lineHeight: 1.15,
+  };
+  const tdStyle: React.CSSProperties = {
+    padding: '3px 2px',
+    fontSize: '0.74rem',
+    border: '1px solid #e2e8f0',
+    lineHeight: 1.2,
+  };
 
   return (
     <div>
@@ -575,131 +589,191 @@ export default function AttendanceReportTable({ employee, initialDays, month, ye
       </div>
 
       {/* Attendance Log Table (Print Area) */}
-      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.85rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid #000' }}>
-            <th style={thStyle}>លេខ<br />No</th>
-            <th style={thStyle}>កាលបរិច្ឆេទ<br />Date</th>
-            <th style={thStyle}>ថ្ងៃ<br />Day</th>
-            <th style={thStyle}>ម៉ោងចូលព្រឹក<br />F-In</th>
-            <th style={thStyle}>ម៉ោងចេញព្រឹក<br />F-Out</th>
-            <th style={thStyle}>ម៉ោងចូលថ្ងៃ<br />S-In</th>
-            <th style={thStyle}>ម៉ោងចេញថ្ងៃ<br />S-Out</th>
-            <th style={thStyle}>ម៉ោងចូលOT<br />OT-In</th>
-            <th style={thStyle}>ម៉ោងចេញOT<br />OT-Out</th>
-            <th style={thStyle}>ថ្ងៃធម្មតា<br />Reg Day</th>
-            <th style={thStyle}>ម៉ោងធ្វើការ<br />Work Hrs</th>
-            <th style={thStyle}>ម៉ោងថែមធម្មតា<br />Normal OT</th>
-            <th style={thStyle}>ម៉ោងថែមយប់<br />Night OT</th>
-            <th style={thStyle}>ម៉ោងថែមថ្ងៃបុណ្យ<br />Holiday OT</th>
-            <th style={thStyle}>ចូលយឺត(នាទី)<br />Late</th>
-            <th style={thStyle}>ចេញមុន<br />Early</th>
-            <th style={thStyle}>ផ្សេងៗ<br />Remarks</th>
-            <th style={thStyle} className="no-print">កែសម្រួល<br />Edit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {days.map((d) => {
-            const isMissingScan = !d.isOffDay && (!d.fIn || !d.sOut);
-            return (
-              <tr
-                key={d.no}
-                style={{
-                  backgroundColor: d.isOffDay ? '#fee2e2' : (isMissingScan ? 'rgba(254, 240, 138, 0.45)' : 'transparent'),
-                  color: d.isOffDay ? '#b91c1c' : '#000000',
-                  borderBottom: '1px solid rgba(0,0,0,0.12)',
-                }}
-              >
-                <td style={tdStyle}>{d.no}</td>
-                <td style={tdStyle}>{d.dateStr}</td>
-                <td style={tdStyle}>{d.day}</td>
-                <td style={{ ...tdStyle, fontWeight: d.fIn ? 700 : 400 }}>{d.fIn || '-'}</td>
-                <td style={{ ...tdStyle, fontWeight: d.fOut ? 700 : 400 }}>{d.fOut || '-'}</td>
-                <td style={{ ...tdStyle, fontWeight: d.sIn ? 700 : 400 }}>{d.sIn || '-'}</td>
-                <td style={{ ...tdStyle, fontWeight: d.sOut ? 700 : 400 }}>{d.sOut || '-'}</td>
-                <td style={tdStyle}>{d.otIn || '-'}</td>
-                <td style={tdStyle}>{d.otOut || '-'}</td>
-                <td style={{ ...tdStyle, fontWeight: 700 }}>{d.regDay}</td>
-                <td style={{ ...tdStyle, fontWeight: 700 }}>{d.workHrs}</td>
-                <td style={{ ...tdStyle, fontWeight: d.normalOtHrs > 0 ? 800 : 400 }}>
-                  {d.normalOtHrs > 0 ? (
-                    <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
-                      {d.normalOtHrs}
-                    </span>
-                  ) : (
-                    d.normalOtHrs
-                  )}
-                </td>
-                <td style={{ ...tdStyle, fontWeight: d.nightOtHrs > 0 ? 800 : 400 }}>
-                  {d.nightOtHrs > 0 ? (
-                    <span style={{ backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
-                      {d.nightOtHrs}
-                    </span>
-                  ) : (
-                    d.nightOtHrs
-                  )}
-                </td>
-                <td style={{ ...tdStyle, fontWeight: d.holidayOtHrs > 0 ? 800 : 400 }}>
-                  {d.holidayOtHrs > 0 ? (
-                    <span style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
-                      {d.holidayOtHrs}
-                    </span>
-                  ) : (
-                    d.holidayOtHrs
-                  )}
-                </td>
-                <td style={{ ...tdStyle, fontWeight: d.lateMins > 0 ? 700 : 400, color: d.lateMins > 0 ? '#dc2626' : 'inherit' }}>
-                  {d.lateMins > 0 ? (
-                    <span style={{ color: '#dc2626', fontWeight: 700 }}>{d.lateMins}</span>
-                  ) : (
-                    d.lateMins
-                  )}
-                </td>
-                <td style={{ ...tdStyle, fontWeight: d.earlyMins > 0 ? 700 : 400, color: d.earlyMins > 0 ? '#d97706' : 'inherit' }}>
-                  {d.earlyMins > 0 ? (
-                    <span style={{ color: '#d97706', fontWeight: 700 }}>{d.earlyMins}</span>
-                  ) : (
-                    d.earlyMins
-                  )}
-                </td>
-                <td style={{ ...tdStyle, textAlign: 'left', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {d.remarks}
-                </td>
-                <td style={tdStyle} className="no-print">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenDayModal(d)}
+      <div
+        style={{
+          width: '100%',
+          overflowX: 'auto',
+          borderRadius: '10px',
+          border: '1px solid #cbd5e1',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        }}
+      >
+        <table
+          style={{
+            width: '100%',
+            minWidth: '950px',
+            borderCollapse: 'collapse',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            tableLayout: 'fixed',
+          }}
+        >
+          <colgroup>
+            <col style={{ width: '32px' }} />
+            <col style={{ width: '70px' }} />
+            <col style={{ width: '38px' }} />
+            <col style={{ width: '48px' }} />
+            <col style={{ width: '48px' }} />
+            <col style={{ width: '48px' }} />
+            <col style={{ width: '48px' }} />
+            <col style={{ width: '48px' }} />
+            <col style={{ width: '48px' }} />
+            <col style={{ width: '42px' }} />
+            <col style={{ width: '45px' }} />
+            <col style={{ width: '46px' }} />
+            <col style={{ width: '46px' }} />
+            <col style={{ width: '46px' }} />
+            <col style={{ width: '44px' }} />
+            <col style={{ width: '44px' }} />
+            <col style={{ width: '130px' }} />
+            <col style={{ width: '46px' }} className="no-print" />
+          </colgroup>
+          <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+            <tr style={{ borderBottom: '2px solid #94a3b8' }}>
+              <th style={thStyle}>លេខ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>No</span></th>
+              <th style={thStyle}>កាលបរិច្ឆេទ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Date</span></th>
+              <th style={thStyle}>ថ្ងៃ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Day</span></th>
+              <th style={thStyle}>ម៉ោងចូលព្រឹក<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>F-In</span></th>
+              <th style={thStyle}>ម៉ោងចេញព្រឹក<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>F-Out</span></th>
+              <th style={thStyle}>ម៉ោងចូលថ្ងៃ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>S-In</span></th>
+              <th style={thStyle}>ម៉ោងចេញថ្ងៃ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>S-Out</span></th>
+              <th style={thStyle}>ម៉ោងចូលOT<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>OT-In</span></th>
+              <th style={thStyle}>ម៉ោងចេញOT<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>OT-Out</span></th>
+              <th style={thStyle}>ថ្ងៃធម្មតា<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Reg Day</span></th>
+              <th style={thStyle}>ម៉ោងធ្វើការ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Work Hrs</span></th>
+              <th style={thStyle}>ម៉ោងថែមធម្មតា<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Normal OT</span></th>
+              <th style={thStyle}>ម៉ោងថែមយប់<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Night OT</span></th>
+              <th style={thStyle}>ម៉ោងថែមបុណ្យ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Holiday OT</span></th>
+              <th style={thStyle}>ចូលយឺត<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Late (m)</span></th>
+              <th style={thStyle}>ចេញមុន<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Early (m)</span></th>
+              <th style={thStyle}>ផ្សេងៗ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Remarks</span></th>
+              <th style={thStyle} className="no-print">កែ<br /><span style={{ fontSize: '0.65rem', color: '#64748b' }}>Edit</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map((d, idx) => {
+              const isMissingScan = !d.isOffDay && (!d.fIn || !d.sOut);
+              const isEven = idx % 2 === 0;
+              const rowBg = d.isOffDay
+                ? '#fef2f2'
+                : isMissingScan
+                ? '#fefce8'
+                : isEven
+                ? '#ffffff'
+                : '#f8fafc';
+              const rowColor = d.isOffDay ? '#b91c1c' : '#0f172a';
+
+              return (
+                <tr
+                  key={d.no}
+                  style={{
+                    backgroundColor: rowBg,
+                    color: rowColor,
+                    borderBottom: '1px solid #e2e8f0',
+                  }}
+                >
+                  <td style={{ ...tdStyle, fontWeight: 700 }}>{d.no}</td>
+                  <td style={{ ...tdStyle, fontFamily: 'monospace', fontSize: '0.72rem' }}>{d.dateStr}</td>
+                  <td style={{ ...tdStyle, fontWeight: d.isOffDay ? 800 : 500 }}>{d.day}</td>
+                  <td style={{ ...tdStyle, fontWeight: d.fIn ? 700 : 400, color: d.fIn ? '#0f172a' : '#94a3b8' }}>{d.fIn || '-'}</td>
+                  <td style={{ ...tdStyle, fontWeight: d.fOut ? 700 : 400, color: d.fOut ? '#0f172a' : '#94a3b8' }}>{d.fOut || '-'}</td>
+                  <td style={{ ...tdStyle, fontWeight: d.sIn ? 700 : 400, color: d.sIn ? '#0f172a' : '#94a3b8' }}>{d.sIn || '-'}</td>
+                  <td style={{ ...tdStyle, fontWeight: d.sOut ? 700 : 400, color: d.sOut ? '#0f172a' : '#94a3b8' }}>{d.sOut || '-'}</td>
+                  <td style={{ ...tdStyle, color: d.otIn ? '#1e40af' : '#94a3b8' }}>{d.otIn || '-'}</td>
+                  <td style={{ ...tdStyle, color: d.otOut ? '#1e40af' : '#94a3b8' }}>{d.otOut || '-'}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700 }}>{d.regDay}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700 }}>{d.workHrs}</td>
+                  <td style={{ ...tdStyle, fontWeight: d.normalOtHrs > 0 ? 800 : 400 }}>
+                    {d.normalOtHrs > 0 ? (
+                      <span style={{ backgroundColor: '#dbeafe', color: '#1e40af', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                        {d.normalOtHrs}
+                      </span>
+                    ) : (
+                      d.normalOtHrs
+                    )}
+                  </td>
+                  <td style={{ ...tdStyle, fontWeight: d.nightOtHrs > 0 ? 800 : 400 }}>
+                    {d.nightOtHrs > 0 ? (
+                      <span style={{ backgroundColor: '#f3e8ff', color: '#6b21a8', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                        {d.nightOtHrs}
+                      </span>
+                    ) : (
+                      d.nightOtHrs
+                    )}
+                  </td>
+                  <td style={{ ...tdStyle, fontWeight: d.holidayOtHrs > 0 ? 800 : 400 }}>
+                    {d.holidayOtHrs > 0 ? (
+                      <span style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                        {d.holidayOtHrs}
+                      </span>
+                    ) : (
+                      d.holidayOtHrs
+                    )}
+                  </td>
+                  <td style={{ ...tdStyle, fontWeight: d.lateMins > 0 ? 700 : 400 }}>
+                    {d.lateMins > 0 ? (
+                      <span style={{ color: '#dc2626', fontWeight: 700 }}>{d.lateMins}</span>
+                    ) : (
+                      d.lateMins
+                    )}
+                  </td>
+                  <td style={{ ...tdStyle, fontWeight: d.earlyMins > 0 ? 700 : 400 }}>
+                    {d.earlyMins > 0 ? (
+                      <span style={{ color: '#d97706', fontWeight: 700 }}>{d.earlyMins}</span>
+                    ) : (
+                      d.earlyMins
+                    )}
+                  </td>
+                  <td
                     style={{
-                      background: isMissingScan ? '#2563eb' : '#f1f5f9',
-                      color: isMissingScan ? '#ffffff' : '#334155',
-                      border: '1px solid #cbd5e1',
-                      borderRadius: '6px',
-                      padding: '2px 8px',
-                      fontSize: '0.74rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
+                      ...tdStyle,
+                      textAlign: 'left',
+                      padding: '3px 6px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      fontSize: '0.7rem',
                     }}
+                    title={d.remarks}
                   >
-                    {isMissingScan ? '⚡ បំពេញ' : '✏️ កែ'}
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-          <tr style={{ fontWeight: 'bold', borderTop: '1px solid #000' }}>
-            <td colSpan={9} style={{ textAlign: 'right', padding: '10px' }}>សរុប-Total</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + Number(d.regDay || 0), 0).toFixed(1)}</td>
-            <td style={tdStyle}>{days.reduce((sum, d) => sum + Number(d.workHrs || 0), 0).toFixed(1)}</td>
-            <td style={{ ...tdStyle, color: '#1d4ed8' }}>{days.reduce((sum, d) => sum + Number(d.normalOtHrs || 0), 0).toFixed(1)}</td>
-            <td style={{ ...tdStyle, color: '#6b21a8' }}>{days.reduce((sum, d) => sum + Number(d.nightOtHrs || 0), 0).toFixed(1)}</td>
-            <td style={{ ...tdStyle, color: '#991b1b' }}>{days.reduce((sum, d) => sum + Number(d.holidayOtHrs || 0), 0).toFixed(1)}</td>
-            <td style={{ ...tdStyle, color: '#dc2626' }}>{days.reduce((sum, d) => sum + Number(d.lateMins || 0), 0)}</td>
-            <td style={{ ...tdStyle, color: '#d97706' }}>{days.reduce((sum, d) => sum + Number(d.earlyMins || 0), 0)}</td>
-            <td></td>
-            <td className="no-print"></td>
-          </tr>
-        </tbody>
-      </table>
+                    {d.remarks}
+                  </td>
+                  <td style={tdStyle} className="no-print">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDayModal(d)}
+                      style={{
+                        background: isMissingScan ? '#2563eb' : '#f1f5f9',
+                        color: isMissingScan ? '#ffffff' : '#334155',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '4px',
+                        padding: '1px 6px',
+                        fontSize: '0.68rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {isMissingScan ? '⚡' : '✏️'}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            <tr style={{ fontWeight: 'bold', backgroundColor: '#f1f5f9', borderTop: '2px solid #94a3b8' }}>
+              <td colSpan={9} style={{ textAlign: 'right', padding: '6px 10px', fontSize: '0.78rem' }}>សរុប-Total</td>
+              <td style={{ ...tdStyle, fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.regDay || 0), 0).toFixed(1)}</td>
+              <td style={{ ...tdStyle, fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.workHrs || 0), 0).toFixed(1)}</td>
+              <td style={{ ...tdStyle, color: '#1d4ed8', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.normalOtHrs || 0), 0).toFixed(1)}</td>
+              <td style={{ ...tdStyle, color: '#6b21a8', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.nightOtHrs || 0), 0).toFixed(1)}</td>
+              <td style={{ ...tdStyle, color: '#991b1b', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.holidayOtHrs || 0), 0).toFixed(1)}</td>
+              <td style={{ ...tdStyle, color: '#dc2626', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.lateMins || 0), 0)}</td>
+              <td style={{ ...tdStyle, color: '#d97706', fontWeight: 800 }}>{days.reduce((sum, d) => sum + Number(d.earlyMins || 0), 0)}</td>
+              <td></td>
+              <td className="no-print"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       {/* QUICK FILL MODAL (No-Print) */}
       {isModalOpen && (

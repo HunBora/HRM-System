@@ -36,6 +36,11 @@ export async function updateSettings(formData: FormData) {
   const geoRadiusMeters = geoRadiusMetersRaw ? parseFloat(geoRadiusMetersRaw) : 500.0;
   const geoFenceEnabled = geoFenceEnabledRaw === 'true' || geoFenceEnabledRaw === 'on';
   
+  const autoOtEnabledRaw = formData.get('autoOtEnabled') as string;
+  const autoOtThresholdMinutesRaw = formData.get('autoOtThresholdMinutes') as string;
+  const autoOtEnabled = autoOtEnabledRaw === 'true' || autoOtEnabledRaw === 'on';
+  const autoOtThresholdMinutes = autoOtThresholdMinutesRaw ? parseInt(autoOtThresholdMinutesRaw, 10) : 60;
+  
   let logoUrl = undefined;
   
   if (logo && logo.size > 0) {
@@ -69,6 +74,8 @@ export async function updateSettings(formData: FormData) {
     companyLng,
     geoRadiusMeters,
     geoFenceEnabled,
+    autoOtEnabled,
+    autoOtThresholdMinutes,
     ...(logoUrl ? { logoUrl } : {})
   };
 

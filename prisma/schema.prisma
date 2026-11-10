@@ -286,6 +286,10 @@ model CompanySettings {
   unionMonthlyFee           Float    @default(1.0)
   unionDeductionPolicy      String   @default("VOLUNTARY")
 
+  // Auto Overtime (OT) Settings (Customizable per company/factory)
+  autoOtEnabled             Boolean? @default(true)
+  autoOtThresholdMinutes    Int?     @default(60)
+
   updatedAt         DateTime @updatedAt
 }
 

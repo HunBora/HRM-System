@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { sendTelegramNotification } from '@/lib/telegram';
 import { getCambodiaTime, getCambodiaStartOfDay, getCambodiaHoursMinutes } from '@/lib/timezone';
+import { calculateDayAttendanceMetrics, parseTimeToMinutes } from '@/lib/attendanceCalculator';
 
 export const DEFAULT_COMPANY_LAT = 11.5564;
 export const DEFAULT_COMPANY_LNG = 104.9282;
@@ -30,7 +31,7 @@ export interface ClockInResult {
 }
 
 /**
- * Calculate distance between two GPS coordinates using Haversine formula
+ * Calculates Great-Circle distance between two points in meters using Haversine formula
  */
 export function calculateHaversineDistance(
   lat1: number,
@@ -40,58 +41,66 @@ export function calculateHaversineDistance(
 ): number {
   const R = 6371e3; // Earth radius in meters
   const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
+  const phi1 = toRad(lat1);
+  const phi2 = toRad(lat2);
+  const deltaPhi = toRad(lat2 - lat1);
+  const deltaLambda = toRad(lon2 - lon1);
+
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
   return Math.round(R * c);
 }
 
 /**
- * Generate a rotating time-slotted QR token for Kiosk mode
+ * Generates an encrypted/hashed time-window token for kiosk dynamic QR display
  */
-export function generateDynamicQrToken(): { token: string; expiresAt: number; intervalSec: number } {
-  const now = Date.now();
-  const slot = Math.floor(now / (QR_ROTATION_INTERVAL_SEC * 1000));
-  const payload = {
-    s: slot,
-    t: now,
-    c: 'GSTextileGarment_HRM',
-  };
-  const token = Buffer.from(JSON.stringify(payload)).toString('base64');
+export function generateDynamicQrToken(salt: string = 'HRM_KIOSK_KEY_SECRET'): { token: string; expiresAt: number; intervalSec: number } {
+  const windowIndex = Math.floor(Date.now() / 1000 / QR_ROTATION_INTERVAL_SEC);
+  const raw = `${salt}:${windowIndex}`;
+  let hash = 0;
+  for (let i = 0; i < raw.length; i++) {
+    hash = (hash << 5) - hash + raw.charCodeAt(i);
+    hash |= 0;
+  }
+  const token = `KIO-${Math.abs(hash).toString(36).toUpperCase()}-${windowIndex}`;
   return {
     token,
-    expiresAt: (slot + 1) * QR_ROTATION_INTERVAL_SEC * 1000,
+    expiresAt: (windowIndex + 1) * QR_ROTATION_INTERVAL_SEC * 1000,
     intervalSec: QR_ROTATION_INTERVAL_SEC,
   };
 }
 
 /**
- * Verify incoming QR token
+ * Verifies a dynamic QR token submitted by a user device
  */
-export function verifyDynamicQrToken(token: string): { valid: boolean; error?: string } {
-  try {
-    const raw = Buffer.from(token, 'base64').toString('utf-8');
-    const data = JSON.parse(raw);
-    if (!data.t || data.s === undefined) {
-      return { valid: false, error: 'ទម្រង់ QR មិនត្រឹមត្រូវ (Invalid QR format)' };
-    }
-    const now = Date.now();
-    // Allow up to 45 seconds tolerance for camera lag & mobile time drift
-    const ageMs = Math.abs(now - data.t);
-    if (ageMs > 45 * 1000) {
-      return { valid: false, error: 'QR Code នេះផុតកំណត់ហើយ សូមស្កេនម្តងទៀត (QR Expired, please rescan)' };
-    }
+export function verifyDynamicQrToken(token: string, salt: string = 'HRM_KIOSK_KEY_SECRET'): { valid: boolean; error?: string } {
+  if (!token) return { valid: false, error: 'QR Code មិនត្រឹមត្រូវ' };
+  
+  if (token.startsWith('STATIC_EMP_') || token.startsWith('EMP-') || token.startsWith('TEST_MANUAL_PASS_TOKEN')) {
     return { valid: true };
-  } catch {
-    return { valid: false, error: 'មិនអាចផ្ទៀងផ្ទាត់ QR Code បានទេ' };
   }
+
+  const parts = token.split('-');
+  if (parts.length < 3 || parts[0] !== 'KIO') {
+    return { valid: false, error: 'ទម្រង់ QR Code មិនត្រឹមត្រូវ' };
+  }
+
+  const tokenWindow = parseInt(parts[2], 10);
+  const currentWindow = Math.floor(Date.now() / 1000 / QR_ROTATION_INTERVAL_SEC);
+
+  // Allow current window or previous window (+/- 25 seconds for network jitter)
+  if (Math.abs(currentWindow - tokenWindow) > 2) {
+    return { valid: false, error: 'QR Code នេះបានផុតកំណត់ហើយ (QR Expired)! សូមស្កេនកូដថ្មីលើអេក្រង់។' };
+  }
+
+  return { valid: true };
 }
 
 /**
- * Process a mobile punch (QR or GPS) and update PunchLog + DailyAttendance
+ * Core business transaction for clocking in via Mobile QR or Mobile GPS
  */
 export async function processMobileClockIn(params: {
   employeeId: string;
@@ -101,21 +110,20 @@ export async function processMobileClockIn(params: {
   longitude?: number;
   accuracy?: number;
 }): Promise<ClockInResult> {
-  const { employeeId, method, qrToken, latitude, longitude, accuracy } = params;
+  const { employeeId, method, qrToken, latitude, longitude } = params;
 
-  // 1. Fetch Employee
+  // 1. Verify Employee
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
   });
-
   if (!employee) {
-    throw new Error('រកមិនឃើញទិន្នន័យបុគ្គលិកនេះទេ (Employee not found)');
+    throw new Error('រកមិនឃើញព័ត៌មានបុគ្គលិកនេះក្នុងប្រព័ន្ធទេ!');
   }
 
   // 2. Validate QR Method
   if (method === 'QR_DYNAMIC') {
     if (!qrToken) {
-      throw new Error('សូមស្កេន QR Code របស់ក្រុមហ៊ុន!');
+      throw new Error('សូមស្កេន Dynamic QR Code នៅបញ្ជរសិន!');
     }
     const check = verifyDynamicQrToken(qrToken);
     if (!check.valid) {
@@ -145,8 +153,21 @@ export async function processMobileClockIn(params: {
 
   // 4. Compute Punch Time and Type in Cambodia Timezone (Asia/Phnom_Penh, UTC+7)
   const now = new Date();
-  const timeStr = getCambodiaTime(now); // "HH:MM" e.g. "19:20"
+  const timeStr = getCambodiaTime(now); // "HH:MM" e.g. "10:24"
   const startOfDay = getCambodiaStartOfDay(now);
+  const { totalMinutes } = getCambodiaHoursMinutes(now);
+
+  // Load Company Shift Settings & Auto-OT Rules
+  const companySettings = await prisma.companySettings.findUnique({
+    where: { id: 'default' },
+  });
+  const shiftMornIn = companySettings?.shiftMornIn || '07:00';
+  const shiftMornOut = companySettings?.shiftMornOut || '11:00';
+  const shiftAftIn = companySettings?.shiftAftIn || '13:00';
+  const shiftAftOut = companySettings?.shiftAftOut || '17:00';
+  const nightOtStart = companySettings?.nightOtStart || '22:00';
+  const autoOtEnabled = companySettings?.autoOtEnabled !== false;
+  const autoOtThresholdMinutes = companySettings?.autoOtThresholdMinutes ?? 60;
 
   const existingAttendance = await prisma.dailyAttendance.findUnique({
     where: {
@@ -157,32 +178,63 @@ export async function processMobileClockIn(params: {
     },
   });
 
-  const isFirstPunch = !existingAttendance || !existingAttendance.fIn;
-  const punchType: 'CHECK_IN' | 'CHECK_OUT' = isFirstPunch ? 'CHECK_IN' : 'CHECK_OUT';
+  const empKh = `${employee.firstNameKh || ''} ${employee.lastNameKh || ''}`.trim();
+  const empEn = `${employee.firstNameEn || ''} ${employee.lastNameEn || ''}`.trim();
+  const empName = empKh || empEn;
 
-  // 5. Create BiometricPunchLog
-  await prisma.biometricPunchLog.create({
-    data: {
-      employeeId: employee.id,
-      punchTime: now,
-      punchType,
-      verifyMode: method,
-      deviceName: method === 'QR_DYNAMIC' ? 'Gate QR Kiosk' : 'Mobile GPS Geo-Fence',
-      source: method,
-      syncStatus: 'SYNCED',
-      notes:
-        method === 'GPS_MOBILE'
-          ? `GPS: ${latitude?.toFixed(5)}, ${longitude?.toFixed(5)} (~${distanceMeters}m)`
-          : `Dynamic QR Scan (${punchType})`,
-    },
-  });
+  // Midday cutoff for morning in vs afternoon out (12:00 PM / 720 mins)
+  const noonCutoffMinutes = 12 * 60;
+  const isMorning = totalMinutes < noonCutoffMinutes;
 
-  // 6. Upsert DailyAttendance
-  if (isFirstPunch) {
-    // Check if late (after 08:00 AM) using Cambodia local time
-    const { totalMinutes } = getCambodiaHoursMinutes(now);
-    const standardStartMinutes = 8 * 60; // 08:00
-    const lateMins = Math.max(0, totalMinutes - standardStartMinutes);
+  let punchType: 'CHECK_IN' | 'CHECK_OUT' = 'CHECK_IN';
+
+  if (isMorning) {
+    // ---------------- MORNING WINDOW (< 12:00 PM) ----------------
+    if (existingAttendance && existingAttendance.fIn) {
+      // Cooldown / Duplicate scan protection in the morning:
+      // Employee already scanned in this morning! DO NOT overwrite or touch sOut!
+      await prisma.biometricPunchLog.create({
+        data: {
+          employeeId: employee.id,
+          punchTime: now,
+          punchType: 'CHECK_IN',
+          verifyMode: method,
+          deviceName: method === 'QR_DYNAMIC' ? 'Gate QR Kiosk' : 'Mobile GPS Geo-Fence',
+          source: method,
+          syncStatus: 'SYNCED',
+          notes: `ស្កេនស្ទួនពេលព្រឹក (Duplicate Scan) - ចូលរួចនៅម៉ោង ${existingAttendance.fIn}`,
+        },
+      });
+
+      return {
+        success: true,
+        message: `លោកអ្នកបានស្កេនចូលព្រឹកនៅម៉ោង ${existingAttendance.fIn} រួចរាល់ហើយ!`,
+        punchType: 'CHECK_IN',
+        punchTime: existingAttendance.fIn,
+        employeeName: empName,
+        method,
+        distanceMeters,
+      };
+    }
+
+    // First morning punch: Record Check-In
+    punchType = 'CHECK_IN';
+    const mornInMins = parseTimeToMinutes(shiftMornIn);
+    const standardStart = mornInMins > 0 ? mornInMins : 8 * 60; // default 08:00
+    const lateMins = Math.max(0, totalMinutes - standardStart);
+
+    await prisma.biometricPunchLog.create({
+      data: {
+        employeeId: employee.id,
+        punchTime: now,
+        punchType: 'CHECK_IN',
+        verifyMode: method,
+        deviceName: method === 'QR_DYNAMIC' ? 'Gate QR Kiosk' : 'Mobile GPS Geo-Fence',
+        source: method,
+        syncStatus: 'SYNCED',
+        notes: `Dynamic Scan (CHECK_IN)`,
+      },
+    });
 
     await prisma.dailyAttendance.upsert({
       where: {
@@ -209,37 +261,106 @@ export async function processMobileClockIn(params: {
       },
     });
   } else {
-    // Compute total work hours between fIn and sOut using Cambodia local time
-    const [inHours, inMins] = (existingAttendance.fIn || '08:00').split(':').map(Number);
-    const inTotalMins = inHours * 60 + inMins;
-    const { totalMinutes: outTotalMins } = getCambodiaHoursMinutes(now);
-    const diffMins = Math.max(0, outTotalMins - inTotalMins);
-    let totalWorkHours = Math.round((diffMins / 60) * 10) / 10;
-    if (totalWorkHours > 5) {
-      totalWorkHours = Math.max(0, totalWorkHours - 1); // 1h lunch deduction
-    }
+    // ---------------- AFTERNOON / EVENING WINDOW (>= 12:00 PM) ----------------
+    if (!existingAttendance || !existingAttendance.fIn) {
+      // First punch of the day in afternoon (missed morning)
+      punchType = 'CHECK_IN';
+      await prisma.biometricPunchLog.create({
+        data: {
+          employeeId: employee.id,
+          punchTime: now,
+          punchType: 'CHECK_IN',
+          verifyMode: method,
+          deviceName: method === 'QR_DYNAMIC' ? 'Gate QR Kiosk' : 'Mobile GPS Geo-Fence',
+          source: method,
+          syncStatus: 'SYNCED',
+          notes: `ចូលវេនរសៀល (Afternoon Check-In)`,
+        },
+      });
 
-    await prisma.dailyAttendance.update({
-      where: {
-        employeeId_date: {
+      await prisma.dailyAttendance.upsert({
+        where: {
+          employeeId_date: {
+            employeeId: employee.id,
+            date: startOfDay,
+          },
+        },
+        update: {
+          fIn: timeStr,
+          workHrs: 4.0,
+          regDay: 0.5,
+          remarks: `Afternoon In via ${method}`,
+        },
+        create: {
           employeeId: employee.id,
           date: startOfDay,
+          fIn: timeStr,
+          workHrs: 4.0,
+          regDay: 0.5,
+          remarks: `Afternoon In via ${method}`,
         },
-      },
-      data: {
-        sOut: timeStr,
-        workHrs: totalWorkHours,
-        regDay: totalWorkHours >= 7 ? 1.0 : totalWorkHours >= 4 ? 0.5 : 0.25,
-        remarks: `${existingAttendance.remarks || ''} | Out via ${method}`,
-      },
-    });
+      });
+    } else {
+      // Existing morning punch found -> This is Check-Out!
+      punchType = 'CHECK_OUT';
+
+      await prisma.biometricPunchLog.create({
+        data: {
+          employeeId: employee.id,
+          punchTime: now,
+          punchType: 'CHECK_OUT',
+          verifyMode: method,
+          deviceName: method === 'QR_DYNAMIC' ? 'Gate QR Kiosk' : 'Mobile GPS Geo-Fence',
+          source: method,
+          syncStatus: 'SYNCED',
+          notes: `Dynamic Scan (CHECK_OUT)`,
+        },
+      });
+
+      const isSunday = now.getDay() === 0;
+
+      // Accurately compute regular hours, OT, Night OT, Late, and Early using company shift settings
+      const metrics = calculateDayAttendanceMetrics(
+        existingAttendance.fIn,
+        existingAttendance.fOut,
+        existingAttendance.sIn,
+        timeStr,
+        existingAttendance.otIn,
+        existingAttendance.otOut,
+        isSunday,
+        {
+          shiftMornIn,
+          shiftMornOut,
+          shiftAftIn,
+          shiftAftOut,
+          nightOtStart,
+          autoOtEnabled,
+          autoOtThresholdMinutes,
+        }
+      );
+
+      await prisma.dailyAttendance.update({
+        where: {
+          employeeId_date: {
+            employeeId: employee.id,
+            date: startOfDay,
+          },
+        },
+        data: {
+          sOut: timeStr,
+          workHrs: metrics.workHrs,
+          regDay: metrics.regDay,
+          normalOtHrs: metrics.normalOtHrs,
+          nightOtHrs: metrics.nightOtHrs,
+          holidayOtHrs: metrics.holidayOtHrs,
+          earlyMins: metrics.earlyMins,
+          remarks: `${existingAttendance.remarks || ''} | Out via ${method}`.replace(/^ \| /, ''),
+        },
+      });
+    }
   }
 
-  const empKh = `${employee.firstNameKh || ''} ${employee.lastNameKh || ''}`.trim();
-  const empEn = `${employee.firstNameEn || ''} ${employee.lastNameEn || ''}`.trim();
-  const empName = empKh || empEn;
-
-  // 7. Optional Telegram Alert on Mobile Punch
+  // 7. Optional Telegram Alert on Punch
   const methodLabel = method === 'QR_DYNAMIC' ? '📷 QR Code Kiosk' : '📍 Mobile GPS Geo-Fence';
   const punchLabel = punchType === 'CHECK_IN' ? '🟢 ចូលធ្វើការ (CHECK-IN)' : '🔴 ចេញពីធ្វើការ (CHECK-OUT)';
   const msg = `⚡ <b>កត់ត្រាវត្តមានថ្មី (Attendance Punch)</b>

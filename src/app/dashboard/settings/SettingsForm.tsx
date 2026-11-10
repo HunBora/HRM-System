@@ -572,6 +572,101 @@ export default function SettingsForm({ settings }: { settings: any }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
           <div>
             <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⏱️</span> កំណត់ការគិតថែមម៉ោងអូតូ (Auto Overtime Settings)
+            </h3>
+            <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+              កំណត់លក្ខខណ្ឌម៉ោងចេញលើសកំណត់វេនធ្វើការ (ឧ. លើសពី 60 នាទី / 1 ម៉ោង) ដើម្បីប្រព័ន្ធគិត OT ដោយស្វ័យប្រវត្តិតាមតម្រូវការរោងចក្រ/ក្រុមហ៊ុន។
+            </p>
+          </div>
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'var(--bg-secondary, #f8fafc)', padding: '6px 14px', borderRadius: '10px', border: '1px solid var(--border-color, #e2e8f0)' }}>
+            <input
+              type="checkbox"
+              name="autoOtEnabled"
+              value="true"
+              defaultChecked={settings?.autoOtEnabled !== false}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <span className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 700 }}>
+              បើកគិតថែមម៉ោងអូតូ (Auto-OT)
+            </span>
+          </label>
+        </div>
+
+        <div style={{ background: 'var(--bg-secondary, #f8fafc)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color, #e2e8f0)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', alignItems: 'center' }}>
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.88rem', fontWeight: 700, display: 'block', marginBottom: '6px' }}>
+                លក្ខខណ្ឌលើសម៉ោងចេញដើម្បីចាប់ផ្តើមគិតថែមម៉ោង (គិតជានាទី / Minutes Threshold)
+              </label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type="number"
+                  name="autoOtThresholdMinutes"
+                  id="autoOtThresholdInput"
+                  defaultValue={settings?.autoOtThresholdMinutes ?? 60}
+                  min={1}
+                  max={300}
+                  step={5}
+                  style={{
+                    width: '120px',
+                    height: '42px',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                  }}
+                  required
+                />
+                <span className="kh-text" style={{ fontSize: '0.85rem', color: '#64748b' }}>នាទី (ឧ. 60 = 1 ម៉ោង)</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="kh-text" style={{ fontSize: '0.8rem', color: '#64748b', display: 'block', marginBottom: '6px' }}>
+                កំណត់រហ័ស (Presets)៖
+              </label>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {[
+                  { label: '30 នាទី', val: 30 },
+                  { label: '60 នាទី (1 ម៉ោង)', val: 60 },
+                  { label: '90 នាទី (1.5 ម៉ោង)', val: 90 },
+                  { label: '120 នាទី (2 ម៉ោង)', val: 120 },
+                ].map((preset) => (
+                  <button
+                    key={preset.val}
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById('autoOtThresholdInput') as HTMLInputElement | null;
+                      if (input) input.value = preset.val.toString();
+                    }}
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(59, 130, 246, 0.08)', borderRadius: '8px', borderLeft: '4px solid #3b82f6', fontSize: '0.82rem', color: '#1e40af' }} className="kh-text">
+            💡 <b>របៀបគិត៖</b> ប្រសិនបើម៉ោងចេញវេនល្ងាចគឺ <b>{settings?.shiftAftOut || '17:00'}</b> ហើយកំណត់លើសពី <b>60 នាទី</b> នោះបុគ្គលិកណាដែលស្កេនចេញចាប់ពីម៉ោង <b>18:00</b> ឡើងទៅ ទើបប្រព័ន្ធគិតម៉ោងថែម (OT) ជូនដោយស្វ័យប្រវត្តិ។ បើស្កេនចេញមុនម៉ោង 18:00 (មិនដល់ 1 ម៉ោង) គឺមិនគិត OT ឡើយ។
+          </div>
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h3 className="kh-text" style={{ margin: 0, fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>🤖</span> Telegram Interactive Bot & Webhook (1-Click Approvals)
             </h3>
             <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748b' }}>

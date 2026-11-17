@@ -66,6 +66,7 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
       if (data.startsWith('data:application/vnd.ms-excel')) return 'EXCEL';
       if (data.startsWith('data:text/csv')) return 'CSV';
       if (data.startsWith('data:image/')) return 'IMAGE';
+      if (data.startsWith('data:text/html')) return 'HTML';
       if (data.startsWith('data:application/zip') || data.startsWith('data:application/x-zip')) return 'ZIP';
       if (data.startsWith('data:application/vnd.rar') || data.startsWith('data:application/x-rar')) return 'RAR';
       return 'FILE';
@@ -73,6 +74,7 @@ export default function DocumentsClient({ documents, isAdmin }: { documents: any
     if (url) {
       const lower = url.toLowerCase();
       if (lower.includes('.pdf')) return 'PDF';
+      if (lower.includes('.html') || lower.includes('.htm')) return 'HTML';
       if (lower.includes('.doc')) return 'DOCX';
       if (lower.includes('.xls') || lower.includes('.csv')) return 'EXCEL';
       if (lower.includes('.jpg') || lower.includes('.png') || lower.includes('.jpeg')) return 'IMAGE';

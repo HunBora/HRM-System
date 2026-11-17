@@ -74,6 +74,42 @@ export interface IsoContractDocxData {
   signedLocationEn?: string;
   signedLocationZh?: string;
   langMode?: IsoLangMode;
+
+  // ISO Document Approval Matrix Dates
+  approvalDate?: string;
+  approvalDatePrepared?: string;
+  approvalDateReviewed?: string;
+  approvalDateApproved?: string;
+}
+
+// Helper to parse DD/MM/YYYY or YYYY-MM-DD into { day, month, year }
+export function parseDateParts(dateStr?: string) {
+  if (!dateStr) return { day: '', month: '', year: '' };
+  const trimmed = dateStr.trim();
+  if (trimmed.includes('/')) {
+    const parts = trimmed.split('/');
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        return { year: parts[0], month: parts[1], day: parts[2] };
+      }
+      return { day: parts[0], month: parts[1], year: parts[2] };
+    }
+  } else if (trimmed.includes('-')) {
+    const parts = trimmed.split('-');
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        return { year: parts[0], month: parts[1], day: parts[2] };
+      }
+      return { day: parts[0], month: parts[1], year: parts[2] };
+    }
+  }
+  return { day: trimmed, month: '', year: '' };
+}
+
+// Convert numbers/digits to Khmer numerals
+export function toKhmerNum(str: string | number): string {
+  const khmerDigits = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+  return String(str).replace(/[0-9]/g, (d) => khmerDigits[parseInt(d, 10)]);
 }
 
 // Helper to detect factory/signing location from company address
@@ -1012,9 +1048,14 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
   const locationEn = data.signedLocationEn || loc.en;
   const locationZh = data.signedLocationZh || loc.zh;
 
-  const dateStrKh = `ធ្វើនៅ${locationKh}, ថ្ងៃទី ${data.signedDate || '...................'} ខែ ............ ឆ្នាំ២០២៦`;
+  const parts = parseDateParts(data.signedDate);
+  const dateStrKh = (parts.day && parts.month && parts.year)
+    ? `ធ្វើនៅ${locationKh}, ថ្ងៃទី ${toKhmerNum(parts.day)} ខែ ${toKhmerNum(parts.month)} ឆ្នាំ ${toKhmerNum(parts.year)}`
+    : `ធ្វើនៅ${locationKh}, ថ្ងៃទី ${data.signedDate || '...................'} ខែ ............ ឆ្នាំ២០២៦`;
   const dateStrEn = `Done in ${locationEn}, Date: ${data.signedDate || '...... / ...... / 2026'}`;
-  const dateStrZh = `于${locationZh}签订，日期：${data.signedDate || '......年...月...日'}`;
+  const dateStrZh = (parts.year && parts.month && parts.day)
+    ? `于${locationZh}签订，日期：${parts.year}年${parts.month}月${parts.day}日`
+    : `于${locationZh}签订，日期：${data.signedDate || '......年...月...日'}`;
 
   const dateRuns: TextRun[] = [];
   if (showKhmer) dateRuns.push(new TextRun({ text: `${dateStrKh}\n`, size: 17, font: FONT_KHMER, color: '334155' }));
@@ -1147,9 +1188,9 @@ export async function generateIsoContractDocxBlob(data: IsoContractDocxData): Pr
       }),
       new TableRow({
         children: [
-          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: '\n\nSign: ______________\nDate: 01/01/2026', size: 14 })] })] }),
-          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: '\n\nSign: ______________\nDate: 01/01/2026', size: 14 })] })] }),
-          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: '\n\nSign: ______________\nDate: 01/01/2026', size: 14 })] })] }),
+          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `\n\nSign: ______________\nDate: ${data.approvalDatePrepared || data.approvalDate || data.effectiveDate || '01/01/2026'}`, size: 14 })] })] }),
+          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `\n\nSign: ______________\nDate: ${data.approvalDateReviewed || data.approvalDate || data.effectiveDate || '01/01/2026'}`, size: 14 })] })] }),
+          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: `\n\nSign: ______________\nDate: ${data.approvalDateApproved || data.approvalDate || data.effectiveDate || '01/01/2026'}`, size: 14 })] })] }),
         ],
       }),
     ],

@@ -9,6 +9,8 @@ import {
   IsoLangMode,
   ISO_TYPE_DEFAULTS,
   detectFactoryLocation,
+  parseDateParts,
+  toKhmerNum,
 } from '@/lib/isoProbationDocx';
 import { analyzeContractAlert } from '@/lib/contractAlerts';
 
@@ -181,6 +183,10 @@ export default function IsoProbationContractModal({
       transportAllowanceUsd: 9.5,
       mealAllowanceRiel: 2000,
       signedDate: formatDate(dStart),
+      approvalDatePrepared: '01/01/2026',
+      approvalDateReviewed: '01/01/2026',
+      approvalDateApproved: '01/01/2026',
+      approvalDate: '01/01/2026',
       langMode: 'trilingual',
     };
   }
@@ -1252,6 +1258,232 @@ export default function IsoProbationContractModal({
                 </div>
               </div>
 
+              {/* ISO Dates & Approval Matrix Settings */}
+              <div
+                style={{
+                  marginTop: '16px',
+                  padding: '16px 18px',
+                  background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
+                  borderRadius: '10px',
+                  border: '1.5px solid #cbd5e1',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0369a1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>📅</span>
+                    <span>ការកំណត់កាលបរិច្ឆេទ &amp; តារាងអនុម័ត ISO (Dates &amp; Approval Matrix):</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const today = new Date();
+                        const d = String(today.getDate()).padStart(2, '0');
+                        const m = String(today.getMonth() + 1).padStart(2, '0');
+                        const y = today.getFullYear();
+                        const formatted = `${d}/${m}/${y}`;
+                        setFormData((prev) => ({
+                          ...prev,
+                          signedDate: formatted,
+                          approvalDatePrepared: formatted,
+                          approvalDateReviewed: formatted,
+                          approvalDateApproved: formatted,
+                        }));
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        background: '#0284c7',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ⚡ ដាក់ថ្ងៃនេះទាំងអស់ (Set Today to All)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          approvalDatePrepared: prev.signedDate,
+                          approvalDateReviewed: prev.signedDate,
+                          approvalDateApproved: prev.signedDate,
+                        }));
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        background: '#059669',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      📝 យកតាមថ្ងៃចុះកិច្ចសន្យា (Use Contract Date)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          approvalDatePrepared: '01/01/2026',
+                          approvalDateReviewed: '01/01/2026',
+                          approvalDateApproved: '01/01/2026',
+                        }));
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        background: '#64748b',
+                        color: '#ffffff',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      🔄 កំណត់ដើម 01/01/2026
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px' }}>
+                  {/* Signed Date */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '4px' }}>
+                      ✍️ ថ្ងៃចុះហត្ថលេខាកិច្ចសន្យា (Signed Date):
+                    </label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input
+                        type="text"
+                        placeholder="DD/MM/YYYY"
+                        value={formData.signedDate}
+                        onChange={(e) => setFormData({ ...formData, signedDate: e.target.value })}
+                        style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1.5px solid #3b82f6', fontSize: '0.84rem', fontWeight: 600 }}
+                      />
+                      <input
+                        type="date"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const [y, m, d] = e.target.value.split('-');
+                            setFormData({ ...formData, signedDate: `${d}/${m}/${y}` });
+                          }
+                        }}
+                        style={{ width: '38px', padding: '4px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+                        title="ជ្រើសរើសពីប្រតិទិន"
+                      />
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>
+                      {(() => {
+                        const p = parseDateParts(formData.signedDate);
+                        return `ខ្មែរ៖ ថ្ងៃទី ${toKhmerNum(p.day || '..')} ខែ ${toKhmerNum(p.month || '..')} ឆ្នាំ ${toKhmerNum(p.year || '....')}`;
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Effective Date */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                      📋 ថ្ងៃចូលជាធរមាន ISO (Eff Date):
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="01/01/2026"
+                      value={formData.effectiveDate}
+                      onChange={(e) => setFormData({ ...formData, effectiveDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                    />
+                  </div>
+
+                  {/* Prepared By Date */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>
+                      👤 រៀបចំដោយ / HR Manager Date:
+                    </label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input
+                        type="text"
+                        placeholder="01/01/2026"
+                        value={formData.approvalDatePrepared ?? '01/01/2026'}
+                        onChange={(e) => setFormData({ ...formData, approvalDatePrepared: e.target.value })}
+                        style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem', fontWeight: 600 }}
+                      />
+                      <input
+                        type="date"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const [y, m, d] = e.target.value.split('-');
+                            setFormData({ ...formData, approvalDatePrepared: `${d}/${m}/${y}` });
+                          }
+                        }}
+                        style={{ width: '38px', padding: '4px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+                        title="ជ្រើសរើសពីប្រតិទិន"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reviewed By Date */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>
+                      🔍 ពិនិត្យដោយ / Director Date:
+                    </label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input
+                        type="text"
+                        placeholder="01/01/2026"
+                        value={formData.approvalDateReviewed ?? '01/01/2026'}
+                        onChange={(e) => setFormData({ ...formData, approvalDateReviewed: e.target.value })}
+                        style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem', fontWeight: 600 }}
+                      />
+                      <input
+                        type="date"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const [y, m, d] = e.target.value.split('-');
+                            setFormData({ ...formData, approvalDateReviewed: `${d}/${m}/${y}` });
+                          }
+                        }}
+                        style={{ width: '38px', padding: '4px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+                        title="ជ្រើសរើសពីប្រតិទិន"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Approved By Date */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>
+                      ✅ អនុម័តដោយ / General Manager Date:
+                    </label>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input
+                        type="text"
+                        placeholder="01/01/2026"
+                        value={formData.approvalDateApproved ?? '01/01/2026'}
+                        onChange={(e) => setFormData({ ...formData, approvalDateApproved: e.target.value })}
+                        style={{ width: '100%', padding: '6px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.84rem', fontWeight: 600 }}
+                      />
+                      <input
+                        type="date"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const [y, m, d] = e.target.value.split('-');
+                            setFormData({ ...formData, approvalDateApproved: `${d}/${m}/${y}` });
+                          }
+                        }}
+                        style={{ width: '38px', padding: '4px', borderRadius: '6px', border: '1px solid #cbd5e1', cursor: 'pointer' }}
+                        title="ជ្រើសរើសពីប្រតិទិន"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Submit Buttons */}
               <div style={{ marginTop: '24px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button
@@ -1308,6 +1540,18 @@ export default function IsoProbationContractModal({
                   .no-print {
                     display: none !important;
                   }
+                  .print-only {
+                    display: inline !important;
+                  }
+                  .iso-inline-date-input {
+                    border: none !important;
+                    background: transparent !important;
+                    padding: 0 !important;
+                    color: #000000 !important;
+                    box-shadow: none !important;
+                    text-align: center !important;
+                    width: auto !important;
+                  }
                   .iso-page {
                     page-break-after: always !important;
                     break-after: page !important;
@@ -1318,6 +1562,36 @@ export default function IsoProbationContractModal({
                     width: 100% !important;
                     min-height: 297mm !important;
                   }
+                }
+                @media screen {
+                  .print-only {
+                    display: none !important;
+                  }
+                }
+                .iso-inline-date-input {
+                  border: 1.5px dashed #38bdf8;
+                  background: #f0f9ff;
+                  color: #0369a1;
+                  font-weight: 700;
+                  font-size: 0.76rem;
+                  padding: 1px 6px;
+                  border-radius: 4px;
+                  width: 96px;
+                  text-align: center;
+                  transition: all 0.15s ease-in-out;
+                  cursor: pointer;
+                }
+                .iso-inline-date-input:hover {
+                  border-color: #0284c7;
+                  background: #e0f2fe;
+                }
+                .iso-inline-date-input:focus {
+                  outline: none;
+                  border-color: #0284c7;
+                  border-style: solid;
+                  background: #ffffff;
+                  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+                  cursor: text;
                 }
                 .iso-page {
                   background: #ffffff;
@@ -2161,11 +2435,39 @@ export default function IsoProbationContractModal({
                   const locationKh = formData.signedLocationKh || loc.kh;
                   const locationEn = formData.signedLocationEn || loc.en;
                   const locationZh = formData.signedLocationZh || loc.zh;
+                  const parts = parseDateParts(formData.signedDate);
+                  const khDay = parts.day ? toKhmerNum(parts.day) : '.......';
+                  const khMonth = parts.month ? toKhmerNum(parts.month) : '.......';
+                  const khYear = parts.year ? toKhmerNum(parts.year) : '២០២៦';
+
                   return (
                     <div style={{ textAlign: 'right', margin: '14px 0 10px 0', fontSize: '0.82rem' }}>
-                      {showKhmer && <div>ធ្វើនៅ{locationKh}, ថ្ងៃទី {formData.signedDate} ខែ ............ ឆ្នាំ២០២៦</div>}
-                      {showEn && <div style={{ color: '#475569', fontSize: '0.78rem', fontStyle: 'italic' }}>Done in {locationEn}, Date: {formData.signedDate}</div>}
-                      {showZh && <div style={{ color: '#64748b', fontSize: '0.78rem' }}>于{locationZh}签订，日期：{formData.signedDate}</div>}
+                      {showKhmer && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span>ធ្វើនៅ{locationKh}, ថ្ងៃទី {khDay} ខែ {khMonth} ឆ្នាំ {khYear}</span>
+                          <span className="no-print" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff6ff', padding: '1px 6px', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#1e40af', fontWeight: 600 }}>កែថ្ងៃចុះកិច្ចសន្យា:</span>
+                            <input
+                              type="text"
+                              value={formData.signedDate}
+                              onChange={(e) => setFormData({ ...formData, signedDate: e.target.value })}
+                              className="iso-inline-date-input"
+                              style={{ width: '88px' }}
+                              title="ចុចដើម្បីកែប្រែថ្ងៃខែឆ្នាំចុះកិច្ចសន្យា (DD/MM/YYYY)"
+                            />
+                          </span>
+                        </div>
+                      )}
+                      {showEn && (
+                        <div style={{ color: '#475569', fontSize: '0.78rem', fontStyle: 'italic', marginTop: '2px' }}>
+                          Done in {locationEn}, Date: {formData.signedDate}
+                        </div>
+                      )}
+                      {showZh && (
+                        <div style={{ color: '#64748b', fontSize: '0.78rem', marginTop: '2px' }}>
+                          于{locationZh}签订，日期：{parts.year && parts.month && parts.day ? `${parts.year}年${parts.month}月${parts.day}日` : formData.signedDate}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
@@ -2225,11 +2527,66 @@ export default function IsoProbationContractModal({
                 </table>
 
                 {/* ISO 9001:2015 Approval Matrix Table - 3 Languages (Khmer first, English last) */}
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0369a1', margin: '16px 0 6px 0', fontFamily: "'Noto Sans Khmer', sans-serif" }}>
-                  {showKhmer && 'ការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015'}
-                  {showZh && ' / 文件审核批准矩阵'}
-                  {showEn && ' / ISO 9001:2015 Document Approval Matrix ៖'}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '16px 0 6px 0', flexWrap: 'wrap', gap: '6px' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0369a1', fontFamily: "'Noto Sans Khmer', sans-serif" }}>
+                    {showKhmer && 'ការត្រួតពិនិត្យ និងអនុម័តឯកសារប្រព័ន្ធ ISO 9001:2015'}
+                    {showZh && ' / 文件审核批准矩阵'}
+                    {showEn && ' / ISO 9001:2015 Document Approval Matrix ៖'}
+                  </div>
+                  <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>💡 ចុចលើ Date ដើម្បីកែប្រែ</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = formData.signedDate || '01/01/2026';
+                        setFormData({
+                          ...formData,
+                          approvalDatePrepared: d,
+                          approvalDateReviewed: d,
+                          approvalDateApproved: d,
+                        });
+                      }}
+                      title="ចម្លងថ្ងៃចុះកិច្ចសន្យាដាក់ទាំង ៣ ប្រអប់"
+                      style={{
+                        fontSize: '0.68rem',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        border: '1px solid #bfdbfe',
+                        background: '#eff6ff',
+                        color: '#1d4ed8',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                      }}
+                    >
+                      ⚡ ដាក់តាមថ្ងៃកិច្ចសន្យា ({formData.signedDate})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          approvalDatePrepared: '01/01/2026',
+                          approvalDateReviewed: '01/01/2026',
+                          approvalDateApproved: '01/01/2026',
+                        });
+                      }}
+                      title="កំណត់ឡើងវិញ 01/01/2026"
+                      style={{
+                        fontSize: '0.68rem',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        border: '1px solid #e2e8f0',
+                        background: '#f8fafc',
+                        color: '#64748b',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                    >
+                      🔄 01/01/2026
+                    </button>
+                  </div>
                 </div>
+
                 <table className="iso-table" style={{ fontSize: '0.78rem', margin: 0, borderCollapse: 'collapse', width: '100%' }}>
                   <thead>
                     <tr style={{ background: '#f8fafc' }}>
@@ -2269,7 +2626,16 @@ export default function IsoProbationContractModal({
                           {showZh && '人事经理 / '}{showEn && 'HR Manager'}
                         </div>
                         <div style={{ color: '#94a3b8', margin: '22px 0 4px 0', fontSize: '0.76rem' }}>Sign: ______________</div>
-                        <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Date: 01/01/2026</div>
+                        <div style={{ fontSize: '0.74rem', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                          <span style={{ color: '#64748b' }}>Date:</span>
+                          <input
+                            type="text"
+                            value={formData.approvalDatePrepared ?? '01/01/2026'}
+                            onChange={(e) => setFormData({ ...formData, approvalDatePrepared: e.target.value })}
+                            className="iso-inline-date-input"
+                            title="ចុចដើម្បីកែប្រែកាលបរិច្ឆេទ (DD/MM/YYYY)"
+                          />
+                        </div>
                       </td>
                       <td style={{ textAlign: 'center', padding: '10px 8px', verticalAlign: 'top', lineHeight: 1.7 }}>
                         <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>
@@ -2279,7 +2645,16 @@ export default function IsoProbationContractModal({
                           {showZh && '总监 / '}{showEn && 'Director'}
                         </div>
                         <div style={{ color: '#94a3b8', margin: '22px 0 4px 0', fontSize: '0.76rem' }}>Sign: ______________</div>
-                        <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Date: 01/01/2026</div>
+                        <div style={{ fontSize: '0.74rem', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                          <span style={{ color: '#64748b' }}>Date:</span>
+                          <input
+                            type="text"
+                            value={formData.approvalDateReviewed ?? '01/01/2026'}
+                            onChange={(e) => setFormData({ ...formData, approvalDateReviewed: e.target.value })}
+                            className="iso-inline-date-input"
+                            title="ចុចដើម្បីកែប្រែកាលបរិច្ឆេទ (DD/MM/YYYY)"
+                          />
+                        </div>
                       </td>
                       <td style={{ textAlign: 'center', padding: '10px 8px', verticalAlign: 'top', lineHeight: 1.7 }}>
                         <div style={{ fontFamily: "'Noto Sans Khmer', 'Khmer OS Battambang', sans-serif", fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>
@@ -2289,7 +2664,16 @@ export default function IsoProbationContractModal({
                           {showZh && '总经理 / '}{showEn && 'General Manager'}
                         </div>
                         <div style={{ color: '#94a3b8', margin: '22px 0 4px 0', fontSize: '0.76rem' }}>Sign: ______________</div>
-                        <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Date: 01/01/2026</div>
+                        <div style={{ fontSize: '0.74rem', color: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                          <span style={{ color: '#64748b' }}>Date:</span>
+                          <input
+                            type="text"
+                            value={formData.approvalDateApproved ?? '01/01/2026'}
+                            onChange={(e) => setFormData({ ...formData, approvalDateApproved: e.target.value })}
+                            className="iso-inline-date-input"
+                            title="ចុចដើម្បីកែប្រែកាលបរិច្ឆេទ (DD/MM/YYYY)"
+                          />
+                        </div>
                       </td>
                     </tr>
                   </tbody>

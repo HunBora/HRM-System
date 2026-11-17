@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import ExcelJS from 'exceljs';
+import { getNssfWageLimits, isPensionExempt } from '@/lib/nssf';
 
 function computeCambodianTaxOnSalary(taxBaseKhr: number, isResident: boolean = true): { taxKhr: number; ratePercent: number } {
   if (!isResident) {
@@ -137,9 +138,11 @@ export async function GET(request: Request) {
       const childrenReliefKhr = (emp.numberOfChildren || 0) * 150000;
       const totalReliefKhr = spouseReliefKhr + childrenReliefKhr;
 
-      // NSSF Pension Employee Deduction (2% of contributory wage - capped at 1,200,000)
-      const contributoryKhr = Math.min(1200000, Math.max(400000, grossWageKhr));
-      const pensionDeductKhr = Math.round(contributoryKhr * 0.02);
+      // NSSF Pension Employee Deduction (2% of contributory wage - dynamic cap based on month/year, 0 if age >= 60)
+      const limits = getNssfWageLimits(month, year, exchangeRate);
+      const contributoryKhr = Math.min(limits.maxWageKhr, Math.max(limits.minWageKhr, grossWageKhr));
+      const effectiveDate = new Date(year, month - 1, 1);
+      const pensionDeductKhr = isPensionExempt(emp.dob, effectiveDate) ? 0 : Math.round(contributoryKhr * 0.02);
 
       // Tax Base in KHR
       const taxBaseKhr = Math.max(0, grossWageKhr - totalReliefKhr - pensionDeductKhr);

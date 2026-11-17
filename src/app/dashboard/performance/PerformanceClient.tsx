@@ -369,33 +369,33 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Page Header */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '16px',
+        gap: '12px',
         background: '#ffffff',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-        border: '1px solid #f1f5f9'
+        padding: '12px 16px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+        border: '1px solid #e2e8f0'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '30px' }}>🎯</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '24px' }}>🎯</span>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: '#0f172a' }}>
               ការវាយតម្លៃការបំពេញការងារ
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.74rem' }}>
               Performance Appraisal & Employee 360 Review • 员工绩效考核与综合评估
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <a
             href="/dashboard/kpi"
             style={{
@@ -405,16 +405,16 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
               background: '#f8fafc',
               color: '#334155',
               border: '1px solid #cbd5e1',
-              borderRadius: '10px',
-              padding: '10px 14px',
+              borderRadius: '8px',
+              padding: '6px 12px',
               fontWeight: 700,
-              fontSize: '0.86rem',
+              fontSize: '0.78rem',
               textDecoration: 'none',
               transition: 'all 0.2s ease',
             }}
           >
             <span>📈</span>
-            <span>គោលដៅ KPI តាមផ្នែក (Department KPIs)</span>
+            <span>គោលដៅ KPI តាមផ្នែក</span>
           </a>
 
           {isHR && (
@@ -423,23 +423,20 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '8px',
+                padding: '6px 14px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.2)'
               }}
             >
               <span>➕</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                <div>វាយតម្លៃថ្មី</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>New Appraisal • 新增评估</div>
-              </div>
+              <span>វាយតម្លៃថ្មី (New)</span>
             </button>
           )}
 
@@ -448,23 +445,20 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '6px 14px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-              <div>ទាញយក Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
-            </div>
+            <span>ទាញយក Excel</span>
           </button>
         </div>
       </div>
@@ -472,138 +466,142 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
       {/* 3-Language Metrics Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '10px'
       }}>
         {/* Card 1: Total Appraisals */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
-          border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '8px',
             background: '#e0f2fe',
             color: '#0284c7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0,
           }}>
             📊
           </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ការវាយតម្លៃសរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Appraisals • 评估总数</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0284c7', marginTop: '4px' }}>
-              {stats.total}
-            </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>ការវាយតម្លៃសរុប</div>
+            <div style={{ fontSize: '0.66rem', color: '#64748b' }}>Total Appraisals • 评估总数</div>
+          </div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0284c7' }}>
+            {stats.total}
           </div>
         </div>
 
         {/* Card 2: Grade A */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
-          border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '8px',
             background: '#dcfce7',
             color: '#15803d',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0,
           }}>
             🌟
           </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>និទ្ទេស A (ឆ្នើម)</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Grade A Outstanding • 优秀</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#15803d', marginTop: '4px' }}>
-              {stats.gradeA}
-            </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>និទ្ទេស A (ឆ្នើម)</div>
+            <div style={{ fontSize: '0.66rem', color: '#64748b' }}>Grade A • 优秀</div>
+          </div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#15803d' }}>
+            {stats.gradeA}
           </div>
         </div>
 
         {/* Card 3: Grade B */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
-          border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '8px',
             background: '#e0f2fe',
             color: '#0369a1',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0,
           }}>
             🟢
           </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>និទ្ទេស B (ល្អ)</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Grade B Good • 良好</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0369a1', marginTop: '4px' }}>
-              {stats.gradeB}
-            </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>និទ្ទេស B (ល្អ)</div>
+            <div style={{ fontSize: '0.66rem', color: '#64748b' }}>Grade B • 良好</div>
+          </div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0369a1' }}>
+            {stats.gradeB}
           </div>
         </div>
 
         {/* Card 4: Needs Improvement */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
-          border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '8px',
             background: '#fee2e2',
             color: '#b91c1c',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0,
           }}>
             ⚠️
           </div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ត្រូវការកែលម្អ (C/D/F)</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Needs Improvement • 需改进</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#b91c1c', marginTop: '4px' }}>
-              {stats.needsImprovement}
-            </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#0f172a' }}>ត្រូវការកែលម្អ (C/D/F)</div>
+            <div style={{ fontSize: '0.66rem', color: '#64748b' }}>Needs Improve • 需改进</div>
+          </div>
+          <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#b91c1c' }}>
+            {stats.needsImprovement}
           </div>
         </div>
       </div>
@@ -612,15 +610,16 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px',
+        gap: '8px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '16px 20px',
-        borderRadius: '14px',
-        border: '1px solid #f1f5f9'
+        padding: '8px 12px',
+        borderRadius: '10px',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ ឬអត្តលេខ (Search Name or ID)..."
@@ -628,34 +627,34 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
             onChange={e => setSearch(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
-              borderRadius: '10px',
+              padding: '6px 10px 6px 30px',
+              borderRadius: '7px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '9px', top: '7px', color: '#94a3b8', fontSize: '0.8rem' }}>🔍</span>
         </div>
 
         {/* Period Filter */}
-        <div style={{ minWidth: '160px' }}>
+        <div style={{ minWidth: '135px' }}>
           <select
             value={periodFilter}
             onChange={e => setPeriodFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '7px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
             }}
           >
-            <option value="ALL">📅 គ្រប់ដំណាក់កាល (All Periods)</option>
+            <option value="ALL">📅 គ្រប់ដំណាក់កាល (All)</option>
             {PERIODS.map(p => (
               <option key={p} value={p}>{p}</option>
             ))}
@@ -663,22 +662,22 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '145px' }}>
           <select
             value={departmentFilter}
             onChange={e => setDepartmentFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '7px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
             }}
           >
-            <option value="ALL">🏢 គ្រប់ផ្នែកទាំងអស់ (All Depts)</option>
+            <option value="ALL">🏢 គ្រប់ផ្នែកទាំងអស់ (All)</option>
             {departments.map(dept => (
               <option key={dept} value={dept}>{dept}</option>
             ))}
@@ -686,22 +685,22 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
         </div>
 
         {/* Grade Filter */}
-        <div style={{ minWidth: '160px' }}>
+        <div style={{ minWidth: '135px' }}>
           <select
             value={gradeFilter}
             onChange={e => setGradeFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 10px',
+              borderRadius: '7px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
             }}
           >
-            <option value="ALL">🎖️ គ្រប់និទ្ទេស (All Grades)</option>
+            <option value="ALL">🎖️ គ្រប់និទ្ទេស (All)</option>
             {Object.entries(GRADE_CONFIG).map(([k, v]) => (
               <option key={k} value={k}>{v.icon} {v.labelKh} ({v.labelEn})</option>
             ))}
@@ -712,69 +711,61 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
       {/* Performance Appraisals Table (3-Languages on All TH) */}
       <div style={{
         background: '#ffffff',
-        borderRadius: '16px',
+        borderRadius: '10px',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
         overflow: 'hidden'
       }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '850px' }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+              <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
                 {/* 1: No */}
-                <th style={{ padding: '14px 16px', width: '60px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ល.រ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>No.</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>序号</div>
+                <th style={{ padding: '8px 10px', width: '42px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>ល.រ</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>No. • 序号</div>
                 </th>
 
                 {/* 2: Employee */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
+                <th style={{ padding: '8px 10px', minWidth: '170px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>ព័ត៌មានបុគ្គលិក</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID • 员工信息</div>
                 </th>
 
                 {/* 3: Period */}
-                <th style={{ padding: '14px 16px', minWidth: '120px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ដំណាក់កាល</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Period</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>考核周期</div>
+                <th style={{ padding: '8px 10px', width: '100px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>ដំណាក់កាល</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>Period • 考核周期</div>
                 </th>
 
                 {/* 4: Evaluation Breakdown (5 Pillars) */}
-                <th style={{ padding: '14px 16px', minWidth: '260px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>លទ្ធផល ៥ សសរស្តម្ភ (Pillars)</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Evaluation Pillars Breakdown</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>五个评估维度得分</div>
+                <th style={{ padding: '8px 10px', minWidth: '180px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>លទ្ធផល ៥ សសរស្តម្ភ</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>5 Pillars Breakdown • 维度得分</div>
                 </th>
 
                 {/* 5: Overall Score */}
-                <th style={{ padding: '14px 16px', minWidth: '110px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ពិន្ទុសរុប</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Overall Score</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>总分</div>
+                <th style={{ padding: '8px 10px', width: '75px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>ពិន្ទុ</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>Score • 总分</div>
                 </th>
 
                 {/* 6: Grade */}
-                <th style={{ padding: '14px 16px', minWidth: '110px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>និទ្ទេស</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Grade</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>等级</div>
+                <th style={{ padding: '8px 10px', width: '75px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>និទ្ទេស</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>Grade • 等级</div>
                 </th>
 
                 {/* 7: Recommendation */}
-                <th style={{ padding: '14px 16px', minWidth: '160px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>សំណើអនុវត្ត</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Recommendation</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>建议措施</div>
+                <th style={{ padding: '8px 10px', minWidth: '120px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>សំណើអនុវត្ត</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>Recommendation • 建议措施</div>
                 </th>
 
                 {/* 8: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '160px', textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
+                <th style={{ padding: '8px 10px', width: '105px', textAlign: 'right' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.78rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.64rem', color: '#64748b', fontWeight: 600 }}>Actions • 操作</div>
                 </th>
               </tr>
             </thead>
@@ -782,10 +773,10 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
             <tbody>
               {filteredAppraisals.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>🎯</div>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>មិនមានទិន្នន័យវាយតម្លៃត្រូវបង្ហាញទេ</div>
-                    <div style={{ fontSize: '0.85rem' }}>No performance appraisal records found</div>
+                  <td colSpan={8} style={{ padding: '36px 16px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ fontSize: '28px', marginBottom: '6px' }}>🎯</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#1e293b' }}>មិនមានទិន្នន័យវាយតម្លៃត្រូវបង្ហាញទេ</div>
+                    <div style={{ fontSize: '0.76rem', marginTop: '2px' }}>No performance appraisal records found</div>
                   </td>
                 </tr>
               ) : (
@@ -804,79 +795,75 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
                       }}
                     >
                       {/* Index */}
-                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, color: '#64748b', fontSize: '0.8rem', textAlign: 'center' }}>
                         {index + 1}
                       </td>
 
                       {/* Employee Info */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.84rem' }}>
                           {emp.lastNameKh || ''} {emp.firstNameKh || ''} {(!emp.lastNameKh && !emp.firstNameKh) && `${emp.firstNameEn} ${emp.lastNameEn}`}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.72rem', color: '#4f46e5', fontWeight: 600 }}>
                           {emp.employeeId} • {emp.position}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                           {emp.department}
                         </div>
                       </td>
 
                       {/* Period */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 10px',
-                          borderRadius: '8px',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
                           background: '#f1f5f9',
                           color: '#1e293b',
                           fontWeight: 700,
-                          fontSize: '0.82rem'
+                          fontSize: '0.75rem'
                         }}>
                           {app.period}
                         </span>
                       </td>
 
                       {/* 5 Pillars Breakdown Mini Badges */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.78rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                            <span>គុណភាព / Quality:</span>
-                            <strong>{app.workQualityScore}%</strong>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 8px', fontSize: '0.72rem' }}>
+                          <div style={{ color: '#475569' }}>
+                            គុណភាព: <strong style={{ color: '#0f172a' }}>{app.workQualityScore}%</strong>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                            <span>ទិន្នផល / Productivity:</span>
-                            <strong>{app.productivityScore}%</strong>
+                          <div style={{ color: '#475569' }}>
+                            ទិន្នផល: <strong style={{ color: '#0f172a' }}>{app.productivityScore}%</strong>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                            <span>ការសហការ / Teamwork:</span>
-                            <strong>{app.teamworkScore}%</strong>
+                          <div style={{ color: '#475569' }}>
+                            សហការ: <strong style={{ color: '#0f172a' }}>{app.teamworkScore}%</strong>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                            <span>វិន័យ / Discipline:</span>
-                            <strong>{app.disciplineScore}%</strong>
+                          <div style={{ color: '#475569' }}>
+                            វិន័យ: <strong style={{ color: '#0f172a' }}>{app.disciplineScore}%</strong>
                           </div>
                         </div>
                       </td>
 
                       {/* Overall Score */}
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a' }}>
                           {app.overallScore}%
                         </div>
                       </td>
 
                       {/* Grade Badge */}
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '4px',
-                          padding: '6px 12px',
-                          borderRadius: '8px',
+                          gap: '3px',
+                          padding: '3px 8px',
+                          borderRadius: '6px',
                           background: gradeConf.bg,
                           color: gradeConf.text,
                           fontWeight: 800,
-                          fontSize: '0.85rem'
+                          fontSize: '0.76rem'
                         }}>
                           <span>{gradeConf.icon}</span>
                           <span>{app.grade}</span>
@@ -884,18 +871,18 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
                       </td>
 
                       {/* Recommendation */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: recConf.color, fontSize: '0.85rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 700, color: recConf.color, fontSize: '0.78rem' }}>
                           {recConf.labelKh}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.66rem', color: '#64748b' }}>
                           {recConf.labelEn}
                         </div>
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end', alignItems: 'center' }}>
                           {/* Slip Preview / Print */}
                           <button
                             onClick={() => setSlipAppraisal(app)}
@@ -904,14 +891,14 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
                               background: '#eff6ff',
                               border: '1px solid #bfdbfe',
                               color: '#2563eb',
-                              padding: '6px 10px',
-                              borderRadius: '8px',
+                              padding: '4px 7px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 700,
-                              fontSize: '0.8rem'
+                              fontSize: '0.74rem'
                             }}
                           >
-                            📄 សន្លឹកវាយតម្លៃ
+                            📄 សន្លឹក
                           </button>
 
                           {isHR && (
@@ -923,10 +910,10 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
                                   background: '#f8fafc',
                                   border: '1px solid #cbd5e1',
                                   color: '#334155',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '4px 7px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: '0.85rem'
+                                  fontSize: '0.78rem'
                                 }}
                               >
                                 ✏️
@@ -937,11 +924,11 @@ export default function PerformanceClient({ initialAppraisals, employees, depart
                                 style={{
                                   background: '#fef2f2',
                                   border: '1px solid #fecaca',
-                                  color: '#dc2626',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  color: '#ef4444',
+                                  padding: '4px 7px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: '0.85rem'
+                                  fontSize: '0.78rem'
                                 }}
                               >
                                 🗑️

@@ -31,7 +31,9 @@ export const NSSF_CONFIG = {
     MIN_WAGE_KHR: 400_000,
     MAX_WAGE_KHR: 1_200_000,
     EMPLOYEE_RATE: 0.02,
-    EMPLOYER_RATE: 0.02,
+    EMPLOYER_PENSION_RATE: 0.02,
+    OCC_RISK_RATE: 0.008,
+    HEALTH_CARE_RATE: 0.026,
     LABEL: 'ច្បាប់ចាស់ (មុនខែវិច្ឆិកា ឆ្នាំ២០២៦)',
   },
   // ច្បាប់ថ្មី (ចាប់ពីខែវិច្ឆិកា ឆ្នាំ២០២៦ តទៅ)
@@ -39,7 +41,9 @@ export const NSSF_CONFIG = {
     MIN_WAGE_KHR: 600_000,
     MAX_WAGE_KHR: 1_500_000,
     EMPLOYEE_RATE: 0.02,
-    EMPLOYER_RATE: 0.02,
+    EMPLOYER_PENSION_RATE: 0.02,
+    OCC_RISK_RATE: 0.008,
+    HEALTH_CARE_RATE: 0.026,
     PRAKAS_NO: '២៣៤/២៦ ក.ប/ប្រ.ក.ប.ស.ស',
     NOTICE_NO: '៣១៣៤/២៦ ប.ស.ស.',
     EFFECTIVE_MONTH: 11,
@@ -47,6 +51,24 @@ export const NSSF_CONFIG = {
     LABEL: 'ច្បាប់ថ្មី (ចាប់ពីខែវិច្ឆិកា ឆ្នាំ២០២៦ តទៅ)',
   }
 } as const;
+
+/**
+ * ពិនិត្យមើលថាតើបុគ្គលិកត្រូវលើកលែងរបបសោធន (Pension) ឬអត់
+ * តាមច្បាប់ ប.ស.ស. កម្មករនិយោជិតដែលមានអាយុចាប់ពី ៦០ ឆ្នាំឡើងទៅ
+ * មិនតម្រូវឱ្យបង់ភាគទានរបបសោធន (Pension) ២% + ២% ទេ (គិតត្រឹម ០ រៀល)
+ * ប៉ុន្តែនៅតែបង់ហានិភ័យការងារ (0.8%) និងថែទាំសុខភាព (2.6%) ដដែល។
+ */
+export function isPensionExempt(dob: Date | string | null | undefined, effectiveDate: Date = new Date()): boolean {
+  if (!dob) return false;
+  const birth = new Date(dob);
+  if (isNaN(birth.getTime())) return false;
+  let age = effectiveDate.getFullYear() - birth.getFullYear();
+  const m = effectiveDate.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && effectiveDate.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age >= 60;
+}
 
 /**
  * ពិនិត្យមើលថាតើខែ និងឆ្នាំនៃប្រាក់ខែ ត្រូវអនុវត្តតាមច្បាប់ ប.ស.ស ថ្មី ឬចាស់
@@ -75,6 +97,10 @@ export function getNssfWageLimits(month: number, year: number, exchangeRate: num
     maxDeductionKhr: cfg.MAX_WAGE_KHR * cfg.EMPLOYEE_RATE,
     minDeductionUsd: (cfg.MIN_WAGE_KHR * cfg.EMPLOYEE_RATE) / rate,
     maxDeductionUsd: (cfg.MAX_WAGE_KHR * cfg.EMPLOYEE_RATE) / rate,
+    occRiskRate: cfg.OCC_RISK_RATE,
+    healthCareRate: cfg.HEALTH_CARE_RATE,
+    employerPensionRate: cfg.EMPLOYER_PENSION_RATE,
+    employeePensionRate: cfg.EMPLOYEE_RATE,
     label: cfg.LABEL,
     prakas: isNew ? NSSF_CONFIG.NEW_2026.PRAKAS_NO : 'ច្បាប់មុន',
   };
@@ -93,6 +119,73 @@ export interface NssfCalculationResult {
   minWageKhr: number;
   maxWageKhr: number;
   maxDeductionUsd: number;
+  isPensionExempt?: boolean;
+}
+
+export interface NssfFullContributionResult {
+  contributoryWageKhr: number;
+  contributoryWageUsd: number;
+  occRiskKhr: number;
+  healthCareKhr: number;
+  pensionOrgKhr: number;
+  pensionStaffKhr: number;
+  totalOrgKhr: number;
+  totalWorkerKhr: number;
+  totalKhr: number;
+  totalUsd: number;
+  isPensionExempt: boolean;
+}
+
+/**
+ * គណនាភាគទាន ប.ស.ស. ពេញលេញគ្រប់ចំណែក (0.8%, 2.6%, 2%, 2%) តាមច្បាប់ និងទម្រង់ស្តង់ដា ប.ស.ស.
+ */
+export function calculateNssfFullContribution(
+  actualGrossKhr: number,
+  dob: Date | string | null | undefined,
+  month: number,
+  year: number,
+  exchangeRate: number = 4000
+): NssfFullContributionResult {
+  const rate = exchangeRate > 0 ? exchangeRate : 4000;
+  const limits = getNssfWageLimits(month, year, rate);
+
+  // ប្រាក់ឈ្នួលជាប់ភាគទាន (Clamped between Min & Max Ceiling)
+  const contributoryWageKhr = Math.min(limits.maxWageKhr, Math.max(limits.minWageKhr, actualGrossKhr));
+  const contributoryWageUsd = contributoryWageKhr / rate;
+
+  const effectiveDate = new Date(year, month - 1, 1);
+  const exempt = isPensionExempt(dob, effectiveDate);
+
+  // 1. ហានិភ័យការងារ (Occupational Risk): 0.8% (និយោជក 100%)
+  const occRiskKhr = Math.round(contributoryWageKhr * limits.occRiskRate);
+
+  // 2. ថែទាំសុខភាព (Health Care): 2.6% (និយោជក 100%)
+  const healthCareKhr = Math.round(contributoryWageKhr * limits.healthCareRate);
+
+  // 3. របបសោធន និយោជក (Pension Employer): 2% (0 បើអាយុ >= 60)
+  const pensionOrgKhr = exempt ? 0 : Math.round(contributoryWageKhr * limits.employerPensionRate);
+
+  // 4. របបសោធន កម្មករ (Pension Worker): 2% (0 បើអាយុ >= 60)
+  const pensionStaffKhr = exempt ? 0 : Math.round(contributoryWageKhr * limits.employeePensionRate);
+
+  const totalOrgKhr = occRiskKhr + healthCareKhr + pensionOrgKhr;
+  const totalWorkerKhr = pensionStaffKhr;
+  const totalKhr = totalOrgKhr + totalWorkerKhr;
+  const totalUsd = Math.round((totalKhr / rate) * 100) / 100;
+
+  return {
+    contributoryWageKhr,
+    contributoryWageUsd,
+    occRiskKhr,
+    healthCareKhr,
+    pensionOrgKhr,
+    pensionStaffKhr,
+    totalOrgKhr,
+    totalWorkerKhr,
+    totalKhr,
+    totalUsd,
+    isPensionExempt: exempt,
+  };
 }
 
 /**
@@ -103,7 +196,8 @@ export function calculateNssfDetails(
   hasNssfNo: boolean,
   month: number,
   year: number,
-  exchangeRate: number = 4000
+  exchangeRate: number = 4000,
+  dob?: Date | string | null
 ): NssfCalculationResult {
   const rate = exchangeRate > 0 ? exchangeRate : 4000;
   const limits = getNssfWageLimits(month, year, rate);
@@ -122,15 +216,20 @@ export function calculateNssfDetails(
       minWageKhr: limits.minWageKhr,
       maxWageKhr: limits.maxWageKhr,
       maxDeductionUsd: limits.maxDeductionUsd,
+      isPensionExempt: false,
     };
   }
 
   const salaryKhr = Math.round(basicSalaryUsd * rate);
+  const effectiveDate = new Date(year, month - 1, 1);
+  const exempt = isPensionExempt(dob, effectiveDate);
+
   // Clamped between Min (Floor) and Max (Ceiling)
   const contributoryWageKhr = Math.min(Math.max(salaryKhr, limits.minWageKhr), limits.maxWageKhr);
   const contributoryWageUsd = contributoryWageKhr / rate;
 
-  const employeeRate = 0.02; // 2%
+  // កម្មករអាយុ >= 60 មិនកាត់សោធន ២% ទេ
+  const employeeRate = exempt ? 0 : 0.02; // 2%
   const nssfKhr = Math.round(contributoryWageKhr * employeeRate);
   const nssfUsd = Math.round((nssfKhr / rate) * 100) / 100;
 
@@ -147,6 +246,7 @@ export function calculateNssfDetails(
     minWageKhr: limits.minWageKhr,
     maxWageKhr: limits.maxWageKhr,
     maxDeductionUsd: limits.maxDeductionUsd,
+    isPensionExempt: exempt,
   };
 }
 
@@ -158,6 +258,7 @@ export function calculateNssfDetails(
  * @param month ខែបើកប្រាក់ខែ (1-12)
  * @param year ឆ្នាំបើកប្រាក់ខែ
  * @param exchangeRate អត្រាប្តូរប្រាក់ (លំនាំដើម 4,000៛)
+ * @param dob ថ្ងៃខែឆ្នាំកំណើត (បើអាយុ >= 60 លើកលែងសោធន ២%)
  * @returns ចំនួនទឹកប្រាក់កាត់ ប.ស.ស. ជាដុល្លារ (USD) ត្រឹមទសភាគ ២ ខ្ទង់
  */
 export function calculateNssf(
@@ -165,8 +266,9 @@ export function calculateNssf(
   hasNssfNo: boolean,
   month: number,
   year: number,
-  exchangeRate: number = 4000
+  exchangeRate: number = 4000,
+  dob?: Date | string | null
 ): number {
-  const result = calculateNssfDetails(basicSalaryUsd, hasNssfNo, month, year, exchangeRate);
+  const result = calculateNssfDetails(basicSalaryUsd, hasNssfNo, month, year, exchangeRate, dob);
   return result.nssfUsd;
 }

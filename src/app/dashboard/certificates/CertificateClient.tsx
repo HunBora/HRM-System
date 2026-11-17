@@ -334,54 +334,54 @@ export default function CertificateClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Page Header */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '16px',
+        gap: '12px',
         background: '#ffffff',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+        padding: '12px 16px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         border: '1px solid #f1f5f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '30px' }}>📜</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '24px' }}>📜</span>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: '#0f172a' }}>
               លិខិតបញ្ជាក់ការងារ និងប្រាក់ខែ
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.8rem' }}>
               Employment Verification & Salary Certificate Generator • 在职证明与薪资收入证明系统
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={handleOpenCreate}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '7px 14px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)'
+              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.2)'
             }}
           >
             <span>➕</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ស្នើសុំលិខិតថ្មី</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>New Certificate • 开具证明</div>
+              <div style={{ fontSize: '0.66rem', opacity: 0.85 }}>New Certificate • 开具证明</div>
             </div>
           </button>
 
@@ -390,22 +390,22 @@ export default function CertificateClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '7px 14px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ទាញយក Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
+              <div style={{ fontSize: '0.66rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
             </div>
           </button>
         </div>
@@ -414,37 +414,38 @@ export default function CertificateClient({
       {/* 3-Language Metrics Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '10px'
       }}>
         {/* Card 1: Total Requests */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#e0f2fe',
             color: '#0284c7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             📋
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សំណើសរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Requests • 申请总数</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0284c7', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>សំណើសរុប</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Total Requests • 申请总数</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0284c7', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.total}
             </div>
           </div>
@@ -453,31 +454,32 @@ export default function CertificateClient({
         {/* Card 2: Pending */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#fef3c7',
             color: '#b45309',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             ⏳
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>រង់ចាំពិនិត្យ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Pending Review • 待处理</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#b45309', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>រង់ចាំពិនិត្យ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Pending Review • 待处理</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#b45309', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.pending}
             </div>
           </div>
@@ -486,31 +488,32 @@ export default function CertificateClient({
         {/* Card 3: Issued Letters */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#dcfce7',
             color: '#15803d',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             ✅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បានចេញលិខិត</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Issued Letters • 已签发</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#15803d', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>បានចេញលិខិត</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Issued Letters • 已签发</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#15803d', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.issued}
             </div>
           </div>
@@ -519,31 +522,32 @@ export default function CertificateClient({
         {/* Card 4: Salary Certificates */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#f3e8ff',
             color: '#7e22ce',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             💵
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>លិខិតប្រាក់ខែ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Salary Certs • 收入证明</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#7e22ce', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>លិខិតប្រាក់ខែ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Salary Certs • 收入证明</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#7e22ce', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.salaryCerts}
             </div>
           </div>
@@ -554,15 +558,15 @@ export default function CertificateClient({
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px',
+        gap: '8px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '16px 20px',
-        borderRadius: '14px',
+        padding: '8px 12px',
+        borderRadius: '10px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមលេខយោង, ឈ្មោះ ឬគោលបំណង..."
@@ -570,28 +574,28 @@ export default function CertificateClient({
             onChange={e => setSearch(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
-              borderRadius: '10px',
+              padding: '6px 10px 6px 30px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '9px', top: '7px', color: '#94a3b8', fontSize: '0.8rem' }}>🔍</span>
         </div>
 
         {/* Certificate Type Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '160px' }}>
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -605,16 +609,16 @@ export default function CertificateClient({
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '160px' }}>
           <select
             value={departmentFilter}
             onChange={e => setDepartmentFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -628,16 +632,16 @@ export default function CertificateClient({
         </div>
 
         {/* Status Filter */}
-        <div style={{ minWidth: '160px' }}>
+        <div style={{ minWidth: '140px' }}>
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -654,9 +658,9 @@ export default function CertificateClient({
       {/* Table (3-Languages on All TH) */}
       <div style={{
         background: '#ffffff',
-        borderRadius: '16px',
+        borderRadius: '12px',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
         overflow: 'hidden'
       }}>
         <div style={{ overflowX: 'auto' }}>
@@ -664,52 +668,45 @@ export default function CertificateClient({
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 {/* 1: No */}
-                <th style={{ padding: '14px 16px', width: '60px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ល.រ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>No.</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>序号</div>
+                <th style={{ padding: '8px 10px', width: '42px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ល.រ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>No. • 序号</div>
                 </th>
 
                 {/* 2: Reference No */}
-                <th style={{ padding: '14px 16px', minWidth: '150px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>លេខយោង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Reference No.</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>公文编号</div>
+                <th style={{ padding: '8px 10px', width: '120px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>លេខយោង</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>REF NO. • 公文编号</div>
                 </th>
 
                 {/* 3: Employee */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
+                <th style={{ padding: '8px 10px', minWidth: '160px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ព័ត៌មានបុគ្គលិក</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>EMPLOYEE • 员工信息</div>
                 </th>
 
                 {/* 4: Certificate Type */}
-                <th style={{ padding: '14px 16px', minWidth: '180px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ប្រភេទលិខិត</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Certificate Type</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>证明类型</div>
+                <th style={{ padding: '8px 10px', minWidth: '130px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ប្រភេទលិខិត</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>TYPE • 证明类型</div>
                 </th>
 
                 {/* 5: Purpose */}
-                <th style={{ padding: '14px 16px', minWidth: '200px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>គោលបំណង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Purpose / Addressee</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>用途与送达单位</div>
+                <th style={{ padding: '8px 10px', minWidth: '160px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>គោលបំណង</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>PURPOSE • 用途</div>
                 </th>
 
                 {/* 6: Status */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ស្ថានភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>状态</div>
+                <th style={{ padding: '8px 10px', width: '85px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ស្ថានភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>STATUS • 状态</div>
                 </th>
 
                 {/* 7: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '180px', textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
+                <th style={{ padding: '8px 10px', width: '125px', textAlign: 'right' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>ACTIONS • 操作</div>
                 </th>
               </tr>
             </thead>
@@ -717,10 +714,10 @@ export default function CertificateClient({
             <tbody>
               {filteredCertificates.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>📜</div>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>មិនមានសំណើលិខិតត្រូវបង្ហាញទេ</div>
-                    <div style={{ fontSize: '0.85rem' }}>No certificate records found</div>
+                  <td colSpan={7} style={{ padding: '30px 16px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ fontSize: '28px', marginBottom: '4px' }}>📜</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>មិនមានសំណើលិខិតត្រូវបង្ហាញទេ</div>
+                    <div style={{ fontSize: '0.75rem' }}>No certificate records found</div>
                   </td>
                 </tr>
               ) : (
@@ -739,45 +736,45 @@ export default function CertificateClient({
                       }}
                     >
                       {/* Index */}
-                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, color: '#64748b', fontSize: '0.82rem' }}>
                         {index + 1}
                       </td>
 
                       {/* Reference No */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem', fontFamily: 'monospace' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', fontFamily: 'monospace' }}>
                           {cert.referenceNo}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                           {new Date(cert.requestDate).toISOString().split('T')[0]}
                         </div>
                       </td>
 
                       {/* Employee Info */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.84rem' }}>
                           {emp.lastNameKh || ''} {emp.firstNameKh || ''} {(!emp.lastNameKh && !emp.firstNameKh) && `${emp.firstNameEn} ${emp.lastNameEn}`}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.72rem', color: '#4f46e5', fontWeight: 600 }}>
                           {emp.employeeId} • {emp.position}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                           {emp.department}
                         </div>
                       </td>
 
                       {/* Type Badge */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 10px',
-                          borderRadius: '8px',
+                          gap: '4px',
+                          padding: '4px 7px',
+                          borderRadius: '6px',
                           background: typeConf.bg,
                           color: typeConf.text,
                           fontWeight: 700,
-                          fontSize: '0.8rem'
+                          fontSize: '0.74rem'
                         }}>
                           <span>{typeConf.icon}</span>
                           <span>{typeConf.labelKh}</span>
@@ -785,35 +782,35 @@ export default function CertificateClient({
                       </td>
 
                       {/* Purpose */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.88rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.82rem' }}>
                           {cert.purpose}
                         </div>
                         {cert.addressee && (
-                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '1px' }}>
                             ជូន: {cert.addressee}
                           </div>
                         )}
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 10px',
-                          borderRadius: '6px',
+                          padding: '3px 6px',
+                          borderRadius: '5px',
                           background: statusConf.bg,
                           color: statusConf.text,
                           fontWeight: 700,
-                          fontSize: '0.78rem'
+                          fontSize: '0.72rem'
                         }}>
                           {statusConf.labelKh}
                         </span>
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                           {/* Print / View Letter */}
                           <button
                             onClick={() => setPrintCert(cert)}
@@ -822,14 +819,14 @@ export default function CertificateClient({
                               background: '#eff6ff',
                               border: '1px solid #bfdbfe',
                               color: '#2563eb',
-                              padding: '6px 10px',
-                              borderRadius: '8px',
+                              padding: '4px 7px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 700,
-                              fontSize: '0.8rem'
+                              fontSize: '0.74rem'
                             }}
                           >
-                            🖨️ បោះពុម្ពលិខិត
+                            🖨️ បោះពុម្ព
                           </button>
 
                           {/* Quick Issue */}
@@ -841,14 +838,14 @@ export default function CertificateClient({
                                 background: '#dcfce7',
                                 border: '1px solid #86efac',
                                 color: '#15803d',
-                                padding: '6px 10px',
-                                borderRadius: '8px',
+                                padding: '4px 7px',
+                                borderRadius: '6px',
                                 cursor: 'pointer',
                                 fontWeight: 700,
-                                fontSize: '0.8rem'
+                                fontSize: '0.74rem'
                               }}
                             >
-                              ✓ ចេញលិខិត
+                              ✓ ចេញ
                             </button>
                           )}
 
@@ -860,10 +857,10 @@ export default function CertificateClient({
                                 background: '#f8fafc',
                                 border: '1px solid #cbd5e1',
                                 color: '#64748b',
-                                padding: '6px 8px',
-                                borderRadius: '8px',
+                                padding: '4px 6px',
+                                borderRadius: '6px',
                                 cursor: 'pointer',
-                                fontSize: '0.78rem'
+                                fontSize: '0.74rem'
                               }}
                             >
                               🗑️

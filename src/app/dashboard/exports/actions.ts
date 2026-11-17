@@ -1,6 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma';
+import { calculateNssfFullContribution, getNssfWageLimits, isPensionExempt } from '@/lib/nssf';
 
 export async function fetchEmployeeReport() {
   const employees = await prisma.employee.findMany({
@@ -216,18 +217,25 @@ export async function fetchNssfReport(month: number, year: number) {
   const rows = payrolls.map((p, idx) => {
     const emp = p.employee;
     const actualGrossUsd = p.totalSalary || p.basicSalary || 0;
-    const actualGrossKhr = actualGrossUsd * exchangeRate;
-    const contributoryWageKhr = Math.min(1200000, Math.max(400000, actualGrossKhr));
+    const actualGrossKhr = Math.round(actualGrossUsd * exchangeRate);
 
-    const occRisk = Math.round(contributoryWageKhr * 0.008);
-    const healthCare = Math.round(contributoryWageKhr * 0.026);
-    const pensionOrg = Math.round(contributoryWageKhr * 0.02);
-    const pensionStaff = Math.round(contributoryWageKhr * 0.02);
-    const rowTotalKhr = occRisk + healthCare + pensionOrg + pensionStaff;
-    const rowTotalUsd = Math.round((rowTotalKhr / exchangeRate) * 100) / 100;
+    const contrib = calculateNssfFullContribution(
+      actualGrossKhr,
+      emp.dob,
+      month,
+      year,
+      exchangeRate
+    );
+
+    const occRisk = contrib.occRiskKhr;
+    const healthCare = contrib.healthCareKhr;
+    const pensionOrg = contrib.pensionOrgKhr;
+    const pensionStaff = contrib.pensionStaffKhr;
+    const rowTotalKhr = contrib.totalKhr;
+    const rowTotalUsd = contrib.totalUsd;
 
     sumGrossUsd += actualGrossUsd;
-    sumContribKhr += contributoryWageKhr;
+    sumContribKhr += contrib.contributoryWageKhr;
     sumOccRisk += occRisk;
     sumHealthCare += healthCare;
     sumPensionOrg += pensionOrg;
@@ -240,13 +248,13 @@ export async function fetchNssfReport(month: number, year: number) {
       empId: emp.employeeId,
       nssfNo: emp.nssfNo || '-',
       nationalId: emp.nationalId || '-',
-      nameKh: `${emp.firstNameKh || ''} ${emp.lastNameKh || ''}`.trim() || emp.firstNameEn,
+      nameKh: `${emp.lastNameKh || ''} ${emp.firstNameKh || ''}`.trim() || emp.firstNameEn,
       nameEn: `${emp.firstNameEn || ''} ${emp.lastNameEn || ''}`.trim(),
       gender: emp.gender === 'MALE' || emp.gender === 'ប្រុស' ? 'ប្រុស (M)' : 'ស្រី (F)',
       dob: emp.dob ? new Date(emp.dob).toLocaleDateString('en-GB') : '-',
       dept: `${emp.department} • ${emp.position}`,
       actualWage: `$${actualGrossUsd.toFixed(2)}`,
-      contributoryWage: `${contributoryWageKhr.toLocaleString()} ៛`,
+      contributoryWage: `${contrib.contributoryWageKhr.toLocaleString()} ៛`,
       occRisk: `${occRisk.toLocaleString()} ៛`,
       healthCare: `${healthCare.toLocaleString()} ៛`,
       pensionEmp: `${pensionOrg.toLocaleString()} ៛`,
@@ -317,8 +325,10 @@ export async function fetchGdtTaxReport(month: number, year: number) {
     const childrenReliefKhr = (emp.numberOfChildren || 0) * 150000;
     const totalReliefKhr = spouseReliefKhr + childrenReliefKhr;
 
-    const contributoryKhr = Math.min(1200000, Math.max(400000, grossWageKhr));
-    const pensionDeductKhr = Math.round(contributoryKhr * 0.02);
+    const limits = getNssfWageLimits(month, year, exchangeRate);
+    const contributoryKhr = Math.min(limits.maxWageKhr, Math.max(limits.minWageKhr, grossWageKhr));
+    const effectiveDate = new Date(year, month - 1, 1);
+    const pensionDeductKhr = isPensionExempt(emp.dob, effectiveDate) ? 0 : Math.round(contributoryKhr * 0.02);
     const taxBaseKhr = Math.max(0, grossWageKhr - totalReliefKhr - pensionDeductKhr);
 
     const { taxKhr, ratePercent } = computeTOST(taxBaseKhr, true);

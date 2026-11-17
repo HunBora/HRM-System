@@ -194,7 +194,7 @@ export default function AuditClient({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Header Banner */}
       <div
         style={{
@@ -202,64 +202,65 @@ export default function AuditClient({
           flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '16px',
+          gap: '12px',
           background: '#ffffff',
-          padding: '24px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
           border: '1px solid #f1f5f9',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '14px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '28px',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+              fontSize: '20px',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.15)',
+              flexShrink: 0,
             }}
           >
             🛡️
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: '#0f172a' }}>
               ប្រព័ន្ធកត់ត្រាសវនកម្ម និងប្រវត្តិសកម្មភាពប្រតិបត្តិការក្នុងប្រព័ន្ធ
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.86rem', fontWeight: 500 }}>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.8rem', fontWeight: 500 }}>
               Enterprise System Audit Trail & Security Activity Log • 系统安全审计与操作日志管理系统
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {isAdmin && (
             <button
               onClick={() => setIsPurgeModalOpen(true)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '8px',
+                padding: '7px 14px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.82rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)',
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.2)',
               }}
             >
               <span>🧹</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+              <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div>សម្អាតកំណត់ត្រាចាស់ៗ</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Purge Logs • 清理历史日志</div>
+                <div style={{ fontSize: '0.66rem', opacity: 0.85 }}>Purge Logs • 清理历史日志</div>
               </div>
             </button>
           )}
@@ -269,22 +270,22 @@ export default function AuditClient({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '7px 14px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)',
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ទាញយកជា Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
+              <div style={{ fontSize: '0.66rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
             </div>
           </button>
         </div>
@@ -294,43 +295,44 @@ export default function AuditClient({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '10px',
         }}
       >
         {/* Metric 1 */}
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '10px 14px',
             border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
               background: '#eff6ff',
               color: '#2563eb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
+              flexShrink: 0,
             }}
           >
             📜
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>សរុបកំណត់ត្រាសវនកម្ម</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Audit Trails • 审计日志总数</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2563eb', marginTop: '2px' }}>
-              {metrics.total} <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>សកម្មភាព</span>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>សរុបកំណត់ត្រាសវនកម្ម</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Total Audit Trails • 审计日志总数</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#2563eb', marginTop: '2px', lineHeight: 1.1 }}>
+              {metrics.total} <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>សកម្មភាព</span>
             </div>
           </div>
         </div>
@@ -339,36 +341,37 @@ export default function AuditClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '10px 14px',
             border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
               background: '#f0fdf4',
               color: '#16a34a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
+              flexShrink: 0,
             }}
           >
             ✅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ប្រតិបត្តិការជោគជ័យ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Successful Actions • 成功操作记录</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>ប្រតិបត្តិការជោគជ័យ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Successful Actions • 成功操作记录</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#16a34a', marginTop: '2px', lineHeight: 1.1 }}>
               {metrics.successCount}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
             </div>
           </div>
         </div>
@@ -377,36 +380,37 @@ export default function AuditClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '10px 14px',
             border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
               background: '#f5f3ff',
               color: '#7c3aed',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
+              flexShrink: 0,
             }}
           >
             🔄
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ការកែប្រែទិន្នន័យ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Data Modifications • 数据修改与操作</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#7c3aed', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>ការកែប្រែទិន្នន័យ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Data Modifications • 数据修改与操作</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#7c3aed', marginTop: '2px', lineHeight: 1.1 }}>
               {metrics.modCount}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>ដង</span>
             </div>
           </div>
         </div>
@@ -415,36 +419,37 @@ export default function AuditClient({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '12px',
+            padding: '10px 14px',
             border: '1px solid #f1f5f9',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
             display: 'flex',
             alignItems: 'center',
-            gap: '16px',
+            gap: '12px',
           }}
         >
           <div
             style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '12px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '10px',
               background: '#fffbeb',
               color: '#d97706',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
+              flexShrink: 0,
             }}
           >
             ⚠️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ការព្រមាន ឬបរាជ័យ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Warnings / Failures • 风险警报与失败</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>ការព្រមាន ឬបរាជ័យ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Warnings / Failures • 风险警报与失败</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#d97706', marginTop: '2px', lineHeight: 1.1 }}>
               {metrics.warningCount}{' '}
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748b' }}>ករណី</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>ករណី</span>
             </div>
           </div>
         </div>
@@ -455,16 +460,16 @@ export default function AuditClient({
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '14px',
+          gap: '8px',
           alignItems: 'center',
           background: '#ffffff',
-          padding: '16px 20px',
-          borderRadius: '14px',
+          padding: '8px 12px',
+          borderRadius: '10px',
           border: '1px solid #f1f5f9',
         }}
       >
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះអ្នកប្រើប្រាស់, គោលដៅ, IP... (Search)..."
@@ -472,29 +477,29 @@ export default function AuditClient({
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
-              borderRadius: '10px',
+              padding: '6px 10px 6px 30px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               outline: 'none',
               boxSizing: 'border-box',
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '9px', top: '7px', color: '#94a3b8', fontSize: '0.8rem' }}>🔍</span>
         </div>
 
         {/* Date Filter */}
-        <div style={{ minWidth: '150px' }}>
+        <div style={{ width: '135px' }}>
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               outline: 'none',
               boxSizing: 'border-box',
             }}
@@ -502,16 +507,16 @@ export default function AuditClient({
         </div>
 
         {/* Module Filter */}
-        <div style={{ minWidth: '170px' }}>
+        <div style={{ minWidth: '150px' }}>
           <select
             value={moduleFilter}
             onChange={(e) => setModuleFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
@@ -527,16 +532,16 @@ export default function AuditClient({
         </div>
 
         {/* Action Filter */}
-        <div style={{ minWidth: '170px' }}>
+        <div style={{ minWidth: '150px' }}>
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
@@ -552,16 +557,16 @@ export default function AuditClient({
         </div>
 
         {/* Status Filter */}
-        <div style={{ minWidth: '150px' }}>
+        <div style={{ minWidth: '130px' }}>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600,
@@ -579,9 +584,9 @@ export default function AuditClient({
       <div
         style={{
           background: '#ffffff',
-          borderRadius: '16px',
+          borderRadius: '12px',
           border: '1px solid #e2e8f0',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
           overflow: 'hidden',
         }}
       >
@@ -590,68 +595,60 @@ export default function AuditClient({
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 {/* 1: Timestamp */}
-                <th style={{ padding: '14px 16px', minWidth: '150px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>កាលបរិច្ឆេទ & ម៉ោង</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Timestamp</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作时间</div>
+                <th style={{ padding: '8px 10px', width: '100px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>កាលបរិច្ឆេទ & ម៉ោង</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>TIME • 操作时间</div>
                 </th>
 
                 {/* 2: Operator / User */}
-                <th style={{ padding: '14px 16px', minWidth: '170px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>អ្នកប្រតិបត្តិ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>User / Operator</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作人员</div>
+                <th style={{ padding: '8px 10px', width: '130px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>អ្នកប្រតិបត្តិ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>OPERATOR • 操作人员</div>
                 </th>
 
                 {/* 3: Module */}
-                <th style={{ padding: '14px 16px', minWidth: '140px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ផ្នែក / ម៉ូឌុល</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Module</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>系统模块</div>
+                <th style={{ padding: '8px 10px', width: '120px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ផ្នែក / ម៉ូឌុល</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>MODULE • 系统模块</div>
                 </th>
 
                 {/* 4: Action */}
-                <th style={{ padding: '14px 16px', minWidth: '140px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Action</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作动作</div>
+                <th style={{ padding: '8px 10px', width: '110px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>ACTION • 操作动作</div>
                 </th>
 
                 {/* 5: Target Record */}
-                <th style={{ padding: '14px 16px', minWidth: '180px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ទិន្នន័យគោលដៅ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Target Record</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>受影响记录</div>
+                <th style={{ padding: '8px 10px', minWidth: '140px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ទិន្នន័យគោលដៅ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>TARGET • 受影响记录</div>
                 </th>
 
                 {/* 6: IP & Details */}
-                <th style={{ padding: '14px 16px', minWidth: '180px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ព័ត៌មាន & IP</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Details & IP</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>详情与网络</div>
+                <th style={{ padding: '8px 10px', minWidth: '150px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ព័ត៌មាន & IP</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>DETAILS & IP • 详情</div>
                 </th>
 
                 {/* 7: Status */}
-                <th style={{ padding: '14px 16px', minWidth: '100px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>ស្ថានភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>执行状态</div>
+                <th style={{ padding: '8px 10px', width: '85px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ស្ថានភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>STATUS • 状态</div>
                 </th>
 
                 {/* 8: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '80px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
+                <th style={{ padding: '8px 10px', width: '65px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>ACTIONS • 操作</div>
                 </th>
               </tr>
             </thead>
             <tbody>
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                    <div style={{ fontSize: '40px', marginBottom: '8px' }}>📂</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#475569' }}>
+                  <td colSpan={8} style={{ padding: '30px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '28px', marginBottom: '4px' }}>📂</div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#475569' }}>
                       មិនមានកំណត់ត្រាសវនកម្មទេ (No Audit Records)
                     </div>
                   </td>
@@ -686,16 +683,16 @@ export default function AuditClient({
                       }}
                     >
                       {/* Timestamp */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem', fontFamily: 'monospace' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', fontFamily: 'monospace' }}>
                           {timeStr}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>📅 {dateStr}</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>📅 {dateStr}</div>
                       </td>
 
                       {/* User / Operator */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.85rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem' }}>
                           {log.userName || 'System User'}
                         </div>
                         <span
@@ -703,11 +700,11 @@ export default function AuditClient({
                             display: 'inline-block',
                             background: '#eff6ff',
                             color: '#1d4ed8',
-                            padding: '2px 6px',
+                            padding: '1px 5px',
                             borderRadius: '4px',
-                            fontSize: '0.7rem',
+                            fontSize: '0.68rem',
                             fontWeight: 700,
-                            marginTop: '2px',
+                            marginTop: '1px',
                           }}
                         >
                           {log.userRole || 'USER'}
@@ -715,18 +712,18 @@ export default function AuditClient({
                       </td>
 
                       {/* Module */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '5px',
+                            gap: '4px',
                             background: modConf.bg,
                             color: modConf.text,
-                            padding: '4px 8px',
-                            borderRadius: '6px',
+                            padding: '3px 6px',
+                            borderRadius: '5px',
                             fontWeight: 700,
-                            fontSize: '0.78rem',
+                            fontSize: '0.74rem',
                           }}
                         >
                           <span>{modConf.icon}</span>
@@ -735,18 +732,18 @@ export default function AuditClient({
                       </td>
 
                       {/* Action */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '5px',
+                            gap: '4px',
                             background: actConf.bg,
                             color: actConf.text,
-                            padding: '4px 8px',
-                            borderRadius: '6px',
+                            padding: '3px 6px',
+                            borderRadius: '5px',
                             fontWeight: 700,
-                            fontSize: '0.78rem',
+                            fontSize: '0.74rem',
                           }}
                         >
                           <span>{actConf.icon}</span>
@@ -755,17 +752,17 @@ export default function AuditClient({
                       </td>
 
                       {/* Target Record */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.82rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.8rem' }}>
                           {log.targetName || log.targetId || '-'}
                         </div>
                       </td>
 
                       {/* Details & IP */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <div
                           style={{
-                            fontSize: '0.78rem',
+                            fontSize: '0.74rem',
                             color: '#334155',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
@@ -775,22 +772,22 @@ export default function AuditClient({
                         >
                           {log.details || '-'}
                         </div>
-                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontFamily: 'monospace' }}>
                           🌐 {log.ipAddress || '127.0.0.1'}
                         </div>
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span
                           style={{
                             background:
                               log.status === 'SUCCESS' ? '#dcfce7' : log.status === 'WARNING' ? '#fef3c7' : '#fee2e2',
                             color:
                               log.status === 'SUCCESS' ? '#15803d' : log.status === 'WARNING' ? '#b45309' : '#b91c1c',
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.72rem',
+                            padding: '2px 6px',
+                            borderRadius: '5px',
+                            fontSize: '0.7rem',
                             fontWeight: 700,
                           }}
                         >
@@ -799,7 +796,7 @@ export default function AuditClient({
                       </td>
 
                       {/* View Action */}
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                         <button
                           title="មើលព័ត៌មានលម្អិត (View Details)"
                           onClick={() => {
@@ -810,10 +807,10 @@ export default function AuditClient({
                             background: '#eff6ff',
                             border: '1px solid #bfdbfe',
                             color: '#1d4ed8',
-                            padding: '6px 10px',
-                            borderRadius: '8px',
+                            padding: '4px 7px',
+                            borderRadius: '6px',
                             cursor: 'pointer',
-                            fontSize: '0.85rem',
+                            fontSize: '0.78rem',
                           }}
                         >
                           🔍

@@ -368,55 +368,55 @@ export default function DisciplinaryClient({ initialActions, employees, departme
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Page Header */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '16px',
+        gap: '12px',
         background: '#ffffff',
-        padding: '24px',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+        padding: '12px 16px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         border: '1px solid #f1f5f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '30px' }}>⚖️</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '24px' }}>⚖️</span>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
+            <h1 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 800, color: '#0f172a' }}>
               វិធានការវិន័យ និងលិខិតព្រមាន
             </h1>
-            <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+            <p style={{ margin: '2px 0 0 0', color: '#64748b', fontSize: '0.8rem' }}>
               Disciplinary Actions & Warning Letters • 纪律处分与警告信管理
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {isHR && (
             <button
               onClick={handleOpenCreate}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '10px',
-                padding: '10px 18px',
+                borderRadius: '8px',
+                padding: '7px 14px',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: '0.82rem',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)'
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.2)'
               }}
             >
               <span>➕</span>
-              <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+              <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
                 <div>កត់ត្រាវិន័យថ្មី</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>New Disciplinary • 新增处分</div>
+                <div style={{ fontSize: '0.66rem', opacity: 0.85 }}>New Disciplinary • 新增处分</div>
               </div>
             </button>
           )}
@@ -426,22 +426,22 @@ export default function DisciplinaryClient({ initialActions, employees, departme
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '10px 18px',
+              borderRadius: '8px',
+              padding: '7px 14px',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.82rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
             }}
           >
             <span>📥</span>
-            <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
               <div>ទាញយក Excel</div>
-              <div style={{ fontSize: '0.7rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
+              <div style={{ fontSize: '0.66rem', opacity: 0.85 }}>Export Excel • 导出表格</div>
             </div>
           </button>
         </div>
@@ -450,37 +450,38 @@ export default function DisciplinaryClient({ initialActions, employees, departme
       {/* 3-Language Metrics Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '10px'
       }}>
         {/* Card 1: Total Cases */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#e0f2fe',
             color: '#0284c7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             📋
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ករណីសរុប</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Total Cases • 总案件数</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0284c7', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>ករណីសរុប</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Total Cases • 总案件数</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0284c7', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.total}
             </div>
           </div>
@@ -489,31 +490,32 @@ export default function DisciplinaryClient({ initialActions, employees, departme
         {/* Card 2: Written Warnings */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#fee2e2',
             color: '#dc2626',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             ⚠️
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>លិខិតព្រមាន</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Written Warnings • 书面警告</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#dc2626', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>លិខិតព្រមាន</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Written Warnings • 书面警告</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#dc2626', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.written}
             </div>
           </div>
@@ -522,31 +524,32 @@ export default function DisciplinaryClient({ initialActions, employees, departme
         {/* Card 3: Suspensions */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#f3e8ff',
             color: '#7e22ce',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             🛑
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>ព្យួរការងារ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Suspensions • 停职处分</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#7e22ce', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>ព្យួរការងារ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Suspensions • 停职处分</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#7e22ce', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.suspension}
             </div>
           </div>
@@ -555,31 +558,32 @@ export default function DisciplinaryClient({ initialActions, employees, departme
         {/* Card 4: Resolved */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '10px 14px',
           border: '1px solid #f1f5f9',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px'
+          gap: '12px'
         }}>
           <div style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
             background: '#dcfce7',
             color: '#16a34a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px'
+            fontSize: '18px',
+            flexShrink: 0
           }}>
             ✅
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>បានដោះស្រាយ</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Resolved • 已解决</div>
-            <div style={{ fontSize: '1.7rem', fontWeight: 900, color: '#16a34a', marginTop: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0f172a' }}>បានដោះស្រាយ</div>
+            <div style={{ fontSize: '0.68rem', color: '#64748b' }}>Resolved • 已解决</div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#16a34a', marginTop: '2px', lineHeight: 1.1 }}>
               {stats.resolved}
             </div>
           </div>
@@ -590,15 +594,15 @@ export default function DisciplinaryClient({ initialActions, employees, departme
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '16px',
+        gap: '8px',
         alignItems: 'center',
         background: '#ffffff',
-        padding: '16px 20px',
-        borderRadius: '14px',
+        padding: '8px 12px',
+        borderRadius: '10px',
         border: '1px solid #f1f5f9'
       }}>
         {/* Search */}
-        <div style={{ flex: '1 1 240px', position: 'relative' }}>
+        <div style={{ flex: '1 1 200px', position: 'relative' }}>
           <input
             type="text"
             placeholder="ស្វែងរកតាមឈ្មោះ, អត្តលេខ ឬកម្មវត្ថុ (Search)..."
@@ -606,28 +610,28 @@ export default function DisciplinaryClient({ initialActions, employees, departme
             onChange={e => setSearch(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px 10px 38px',
-              borderRadius: '10px',
+              padding: '6px 10px 6px 30px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
-          <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '9px', top: '7px', color: '#94a3b8', fontSize: '0.8rem' }}>🔍</span>
         </div>
 
         {/* Action Type Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '160px' }}>
           <select
             value={actionTypeFilter}
             onChange={e => setActionTypeFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -641,16 +645,16 @@ export default function DisciplinaryClient({ initialActions, employees, departme
         </div>
 
         {/* Department Filter */}
-        <div style={{ minWidth: '180px' }}>
+        <div style={{ minWidth: '160px' }}>
           <select
             value={departmentFilter}
             onChange={e => setDepartmentFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -664,16 +668,16 @@ export default function DisciplinaryClient({ initialActions, employees, departme
         </div>
 
         {/* Status Filter */}
-        <div style={{ minWidth: '160px' }}>
+        <div style={{ minWidth: '140px' }}>
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
             style={{
               width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '6px 8px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '0.88rem',
+              fontSize: '0.8rem',
               background: '#ffffff',
               outline: 'none',
               fontWeight: 600
@@ -690,9 +694,9 @@ export default function DisciplinaryClient({ initialActions, employees, departme
       {/* Disciplinary Table (3-Languages on All TH) */}
       <div style={{
         background: '#ffffff',
-        borderRadius: '16px',
+        borderRadius: '12px',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
         overflow: 'hidden'
       }}>
         <div style={{ overflowX: 'auto' }}>
@@ -700,59 +704,51 @@ export default function DisciplinaryClient({ initialActions, employees, departme
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 {/* 1: No */}
-                <th style={{ padding: '14px 16px', width: '60px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ល.រ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>No.</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>序号</div>
+                <th style={{ padding: '8px 10px', width: '42px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ល.រ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>No. • 序号</div>
                 </th>
 
                 {/* 2: Employee */}
-                <th style={{ padding: '14px 16px', minWidth: '220px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ព័ត៌មានបុគ្គលិក</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Employee Name & ID</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>员工信息</div>
+                <th style={{ padding: '8px 10px', minWidth: '160px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ព័ត៌មានបុគ្គលិក</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>EMPLOYEE • 员工信息</div>
                 </th>
 
                 {/* 3: Incident Date */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>កាលបរិច្ឆេទ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Incident Date</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>违纪日期</div>
+                <th style={{ padding: '8px 10px', width: '95px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>កាលបរិច្ឆេទ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>DATE • 违纪日期</div>
                 </th>
 
                 {/* 4: Action Type */}
-                <th style={{ padding: '14px 16px', minWidth: '180px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ប្រភេទវិធានការ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Action Type</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>处分类型</div>
+                <th style={{ padding: '8px 10px', minWidth: '130px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ប្រភេទវិធានការ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>TYPE • 处分类型</div>
                 </th>
 
                 {/* 5: Subject & Reason */}
-                <th style={{ padding: '14px 16px', minWidth: '240px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>កម្មវត្ថុ និងមូលហេតុ</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Subject & Violation</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>处分主题与原因</div>
+                <th style={{ padding: '8px 10px', minWidth: '180px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>កម្មវត្ថុ និងមូលហេតុ</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>SUBJECT • 处分主题</div>
                 </th>
 
                 {/* 6: Warning Level */}
-                <th style={{ padding: '14px 16px', minWidth: '100px', textAlign: 'center' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>លើកទី</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Level</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>警告次数</div>
+                <th style={{ padding: '8px 10px', width: '70px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>លើកទី</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>LEVEL • 警告次数</div>
                 </th>
 
                 {/* 7: Status */}
-                <th style={{ padding: '14px 16px', minWidth: '130px' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>ស្ថានភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Status</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>状态</div>
+                <th style={{ padding: '8px 10px', width: '85px' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>ស្ថានភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>STATUS • 状态</div>
                 </th>
 
                 {/* 8: Actions */}
-                <th style={{ padding: '14px 16px', minWidth: '160px', textAlign: 'right' }}>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>សកម្មភាព</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>Actions</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>操作</div>
+                <th style={{ padding: '8px 10px', width: '105px', textAlign: 'right' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>សកម្មភាព</div>
+                  <div style={{ fontSize: '0.65rem', color: '#64748b' }}>ACTIONS • 操作</div>
                 </th>
               </tr>
             </thead>
@@ -760,10 +756,10 @@ export default function DisciplinaryClient({ initialActions, employees, departme
             <tbody>
               {filteredActions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '8px' }}>🛡️</div>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>មិនមានកំណត់ត្រាវិន័យត្រូវបង្ហាញទេ</div>
-                    <div style={{ fontSize: '0.85rem' }}>No disciplinary records found</div>
+                  <td colSpan={8} style={{ padding: '30px 16px', textAlign: 'center', color: '#64748b' }}>
+                    <div style={{ fontSize: '28px', marginBottom: '4px' }}>🛡️</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>មិនមានកំណត់ត្រាវិន័យត្រូវបង្ហាញទេ</div>
+                    <div style={{ fontSize: '0.75rem' }}>No disciplinary records found</div>
                   </td>
                 </tr>
               ) : (
@@ -783,40 +779,40 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                       }}
                     >
                       {/* Index */}
-                      <td style={{ padding: '14px 16px', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, color: '#64748b', fontSize: '0.82rem' }}>
                         {index + 1}
                       </td>
 
                       {/* Employee Info */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.84rem' }}>
                           {emp.lastNameKh || ''} {emp.firstNameKh || ''} {(!emp.lastNameKh && !emp.firstNameKh) && `${emp.firstNameEn} ${emp.lastNameEn}`}
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#4f46e5', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.72rem', color: '#4f46e5', fontWeight: 600 }}>
                           {emp.employeeId} • {emp.position}
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                           {emp.department}
                         </div>
                       </td>
 
                       {/* Incident Date */}
-                      <td style={{ padding: '14px 16px', fontSize: '0.88rem', fontWeight: 600, color: '#334155' }}>
+                      <td style={{ padding: '8px 10px', fontSize: '0.78rem', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>
                         {new Date(act.incidentDate).toISOString().split('T')[0]}
                       </td>
 
                       {/* Action Type Badge */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 10px',
-                          borderRadius: '8px',
+                          gap: '4px',
+                          padding: '4px 7px',
+                          borderRadius: '6px',
                           background: typeConf.bg,
                           color: typeConf.text,
                           fontWeight: 700,
-                          fontSize: '0.8rem',
+                          fontSize: '0.74rem',
                           border: `1px solid ${typeConf.text}33`
                         }}>
                           <span>{typeConf.icon}</span>
@@ -825,30 +821,30 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                       </td>
 
                       {/* Subject & Reason */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>
+                      <td style={{ padding: '8px 10px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem' }}>
                           {act.subject}
                         </div>
-                        <div style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.7rem', color: '#b45309', fontWeight: 600 }}>
                           {reasonConf.labelKh} ({reasonConf.labelEn})
                         </div>
                         {act.description && (
-                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '1px', maxWidth: '240px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {act.description}
                           </div>
                         )}
                       </td>
 
                       {/* Warning Level */}
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          padding: '2px 6px',
+                          borderRadius: '5px',
                           background: '#f8fafc',
                           border: '1px solid #cbd5e1',
                           fontWeight: 800,
-                          fontSize: '0.82rem',
+                          fontSize: '0.76rem',
                           color: '#1e293b'
                         }}>
                           លើកទី {act.warningCount}
@@ -856,23 +852,23 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                       </td>
 
                       {/* Status */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '8px 10px' }}>
                         <span style={{
                           display: 'inline-block',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          padding: '3px 6px',
+                          borderRadius: '5px',
                           background: statusConf.bg,
                           color: statusConf.text,
                           fontWeight: 700,
-                          fontSize: '0.78rem'
+                          fontSize: '0.72rem'
                         }}>
                           {statusConf.labelKh}
                         </span>
                       </td>
 
                       {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                      <td style={{ padding: '8px 10px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                           {/* Print / Preview Warning Letter */}
                           <button
                             onClick={() => setLetterAction(act)}
@@ -881,11 +877,11 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                               background: '#f0fdf4',
                               border: '1px solid #bbf7d0',
                               color: '#16a34a',
-                              padding: '6px 10px',
-                              borderRadius: '8px',
+                              padding: '4px 7px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 700,
-                              fontSize: '0.8rem'
+                              fontSize: '0.74rem'
                             }}
                           >
                             📄 លិខិត
@@ -900,10 +896,10 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                                   background: '#f8fafc',
                                   border: '1px solid #cbd5e1',
                                   color: '#334155',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '4px 7px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: '0.85rem'
+                                  fontSize: '0.78rem'
                                 }}
                               >
                                 ✏️
@@ -915,10 +911,10 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                                   background: '#fef2f2',
                                   border: '1px solid #fecaca',
                                   color: '#dc2626',
-                                  padding: '6px 10px',
-                                  borderRadius: '8px',
+                                  padding: '4px 7px',
+                                  borderRadius: '6px',
                                   cursor: 'pointer',
-                                  fontSize: '0.85rem'
+                                  fontSize: '0.78rem'
                                 }}
                               >
                                 🗑️

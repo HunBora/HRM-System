@@ -303,8 +303,8 @@ export async function generatePayroll(month: number, year: number) {
 
         const exchangeRate = defaultExchangeRate;
 
-        // NSSF Contribution: 2% of contributory wage based on Cambodian Law (only if employee has earnings)
-        const nssf = totalSalary > 0 ? calculateNssf(basicSalary, !!emp.nssfNo, month, year, exchangeRate) : 0;
+        // NSSF Contribution: 2% of contributory wage based on Cambodian Law (only if employee has earnings, 0 if age >= 60)
+        const nssf = totalSalary > 0 ? calculateNssf(basicSalary, !!emp.nssfNo, month, year, exchangeRate, emp.dob) : 0;
         const taxPayment = 0; 
         
         // Union Contribution Deduction based on Company Policy & Worker's Voluntary Consent (Article 48)
@@ -530,8 +530,8 @@ export async function recalculateDraftsWithNewAllowances(month?: number, year?: 
 
       const severancePay = r2(totalSalary * 0.05);
 
-      // Re-calculate NSSF according to statutory floor & ceiling for this month/year
-      const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate);
+      // Re-calculate NSSF according to statutory floor & ceiling for this month/year (0 if age >= 60)
+      const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate, emp.dob);
 
       // Re-calculate union deduction based on company policy & employee voluntary status
       let unionDeduction = 0;
@@ -616,7 +616,7 @@ export async function recalculateNssfOnDrafts(month?: number, year?: number) {
 
     for (const p of draftPayrolls) {
       const emp = p.employee;
-      const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate);
+      const nssf = calculateNssf(p.basicSalary, !!emp.nssfNo, p.month, p.year, exchangeRate, emp.dob);
 
       const totalSalary = p.totalSalary;
       const severancePay = p.severancePay;

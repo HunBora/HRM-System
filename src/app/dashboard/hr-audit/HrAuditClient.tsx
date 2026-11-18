@@ -362,6 +362,8 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
 
   // Template Preview & Print/Export State
   const [previewModalTemplate, setPreviewModalTemplate] = useState<string | null>(null);
+  const [showChecklistReportModal, setShowChecklistReportModal] = useState<boolean>(false);
+  const [showCapReportModal, setShowCapReportModal] = useState<boolean>(false);
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
 
   // Print Template Handler
@@ -474,6 +476,83 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
       Swal.fire('Error', 'បរាជ័យក្នុងការទាញយក PDF: ' + err.message, 'error');
     } finally {
       setIsExportingPdf(false);
+    }
+  };
+
+  // Export Checklists to Excel
+  const handleExportChecklistsExcel = async () => {
+    try {
+      const XLSX = await import('xlsx');
+      const exportData = checklists.map((item, idx) => ({
+        'ល.រ (No)': idx + 1,
+        'ផ្នែក (Category)': item.categoryKh,
+        'ចំណុចត្រួតពិនិត្យ (Audit Item)': item.titleKh,
+        'ភាសាអង់គ្លេស (Title EN)': item.titleEn,
+        'កម្រិតហានិភ័យ (Risk)': item.risk,
+        'ស្ថានភាព (Status)':
+          item.status === 'COMPLIANT'
+            ? 'Compliant (អនុលោម)'
+            : item.status === 'PARTIAL'
+            ? 'Partial (ដោយផ្នែក)'
+            : item.status === 'NON_COMPLIANT'
+            ? 'Non-Compliant (មិនអនុលោម)'
+            : 'N/A',
+        'ភស្តុតាងដែលត្រូវពិនិត្យ (Evidence)': item.evidenceKh,
+        'កំណត់ត្រាការរកឃើញ (Findings)': item.findings || 'គ្មាន',
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Audit Checklists');
+      XLSX.writeFile(wb, `HR_Audit_Checklists_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'នាំចេញ Excel ជោគជ័យ!',
+        text: 'ឯកសារ HR_Audit_Checklists_Report.xlsx ត្រូវបានទាញយករួចរាល់។',
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire('Error', 'បរាជ័យក្នុងការនាំចេញ Excel: ' + err.message, 'error');
+    }
+  };
+
+  // Export CAPs to Excel
+  const handleExportCapsExcel = async () => {
+    try {
+      const XLSX = await import('xlsx');
+      const exportData = caps.map((c, idx) => ({
+        'ល.រ (No)': idx + 1,
+        'កូដសកម្មភាព (Code)': c.code,
+        'ផ្នែក (Category)': c.category,
+        'បញ្ហាដែលបានរកឃើញ (Finding / Gap)': c.finding,
+        'កម្រិតហានិភ័យ (Risk)': c.risk,
+        'វិធានការកែលម្អ (Action Plan)': c.action,
+        'អ្នកទទួលខុសត្រូវ (PIC)': c.pic,
+        'កាលបរិច្ឆេទ (Deadline)': c.deadline,
+        'ស្ថានភាព (Status)':
+          c.status === 'CLOSED'
+            ? 'Closed (រួចរាល់)'
+            : c.status === 'IN_PROGRESS'
+            ? 'In Progress (កំពុងធ្វើ)'
+            : 'Open (រង់ចាំ)',
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'CAP Action Plan');
+      XLSX.writeFile(wb, `HR_Corrective_Action_Plan_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'នាំចេញ Excel ជោគជ័យ!',
+        text: 'ឯកសារ HR_Corrective_Action_Plan.xlsx ត្រូវបានទាញយករួចរាល់។',
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire('Error', 'បរាជ័យក្នុងការនាំចេញ Excel: ' + err.message, 'error');
     }
   };
 
@@ -783,7 +862,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             {isScanning ? '⏳ កំពុងស្កេន...' : '⚡ ស្កេនទិន្នន័យផ្ទាល់ (Auto-Audit)'}
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={() => setShowChecklistReportModal(true)}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -798,7 +877,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               fontSize: '0.85rem',
             }}
           >
-            🖨️ បោះពុម្ព (Print)
+            📄 មើល & បោះពុម្ពរបាយការណ៍ (Audit Report)
           </button>
         </div>
       </div>
@@ -1466,8 +1545,68 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               />
             </div>
 
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-              បង្ហាញ <strong>{filteredChecklists.length}</strong> នៃ <strong>{checklists.length}</strong> ចំណុចត្រួតពិនិត្យ
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setShowChecklistReportModal(true)}
+                style={{
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                }}
+              >
+                👁️ មើល & បោះពុម្ព (Preview Report)
+              </button>
+              <button
+                onClick={() => {
+                  setShowChecklistReportModal(true);
+                  setTimeout(() => handleExportPdf('checklistReportPrintArea', 'HR_Audit_Comprehensive_Report'), 250);
+                }}
+                style={{
+                  background: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+              >
+                📥 ទាញយក PDF
+              </button>
+              <button
+                onClick={handleExportChecklistsExcel}
+                style={{
+                  background: '#047857',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+              >
+                📊 នាំចេញ Excel
+              </button>
+              <span style={{ fontSize: '0.82rem', color: '#64748b', marginLeft: '6px' }}>
+                ({filteredChecklists.length} / {checklists.length} ចំណុច)
+              </span>
             </div>
           </div>
 
@@ -1624,25 +1763,84 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               </p>
             </div>
 
-            <button
-              onClick={handleAddNewCap}
-              style={{
-                background: '#2563eb',
-                color: '#ffffff',
-                border: 'none',
-                padding: '9px 16px',
-                borderRadius: '8px',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
-              }}
-            >
-              ➕ បន្ថែមសកម្មភាពថ្មី (Add Action Item)
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                onClick={() => setShowCapReportModal(true)}
+                style={{
+                  background: '#1e40af',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '9px 14px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+              >
+                👁️ មើល & បោះពុម្ព (Preview CAP)
+              </button>
+              <button
+                onClick={() => {
+                  setShowCapReportModal(true);
+                  setTimeout(() => handleExportPdf('capReportPrintArea', 'HR_Corrective_Action_Plan_Log'), 250);
+                }}
+                style={{
+                  background: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '9px 12px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+              >
+                📥 ទាញយក PDF
+              </button>
+              <button
+                onClick={handleExportCapsExcel}
+                style={{
+                  background: '#047857',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '9px 12px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+              >
+                📊 នាំចេញ Excel
+              </button>
+              <button
+                onClick={handleAddNewCap}
+                style={{
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                }}
+              >
+                ➕ បន្ថែមសកម្មភាពថ្មី (Add Action Item)
+              </button>
+            </div>
           </div>
 
           <div
@@ -2553,6 +2751,547 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FULL AUDIT CHECKLIST ASSESSMENT REPORT MODAL */}
+      {showChecklistReportModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '960px',
+              maxHeight: '94vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Top Bar */}
+            <div
+              style={{
+                padding: '16px 24px',
+                background: '#0f172a',
+                color: '#ffffff',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1rem' }}>
+                  📄 របាយការណ៍សវនកម្មធនធានមនុស្ស & ច្បាប់ការងារពេញលេញ
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  Comprehensive HR Audit & Labor Compliance Evaluation Report (A4)
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button
+                  onClick={() => handlePrintTemplate('checklistReportPrintArea')}
+                  style={{
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  🖨️ បោះពុម្ព (Print A4)
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleExportPdf(
+                      'checklistReportPrintArea',
+                      `HR_Audit_Assessment_Report_${new Date().toISOString().split('T')[0]}`
+                    )
+                  }
+                  disabled={isExportingPdf}
+                  style={{
+                    background: isExportingPdf ? '#64748b' : '#10b981',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: isExportingPdf ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  {isExportingPdf ? '⏳ កំពុងទាញយក...' : '📥 ទាញយកជា PDF'}
+                </button>
+
+                <button
+                  onClick={handleExportChecklistsExcel}
+                  style={{
+                    background: '#047857',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  📊 នាំចេញ Excel
+                </button>
+
+                <button
+                  onClick={() => setShowChecklistReportModal(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                  }}
+                >
+                  ✕ បិទ
+                </button>
+              </div>
+            </div>
+
+            {/* Document Content */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '28px 36px',
+                background: '#f1f5f9',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                id="checklistReportPrintArea"
+                style={{
+                  background: '#ffffff',
+                  width: '100%',
+                  maxWidth: '850px',
+                  minHeight: '1100px',
+                  padding: '40px',
+                  borderRadius: '4px',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+                  color: '#0f172a',
+                  fontFamily: "'Kantumruy Pro', 'Inter', sans-serif",
+                  lineHeight: 1.5,
+                  fontSize: '0.86rem',
+                }}
+              >
+                {/* Header */}
+                <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>ព្រះរាជាណាចក្រកម្ពុជា • ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a', margin: '8px 0 2px' }}>
+                    របាយការណ៍វាយតម្លៃសវនកម្មធនធានមនុស្ស & អនុលោមភាពច្បាប់ការងារ
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                    COMPREHENSIVE HR AUDIT & LABOR COMPLIANCE ASSESSMENT REPORT
+                  </div>
+                </div>
+
+                {/* Audit Meta */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>កាលបរិច្ឆេទសវនកម្ម៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>{new Date().toLocaleDateString()}</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>លេខយោងរបាយការណ៍៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>REP-AUD-2026-V1</td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>វិសាលភាពសវនកម្ម៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>គ្រប់ ៩ ជំពូកធំៗនៃធនធានមនុស្ស</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ក្របខ័ណ្ឌវាយតម្លៃ៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>ច្បាប់ការងារកម្ពុជា (MLVT/NSSF)</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Executive Score Summary */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', margin: '14px 0 18px', textAlign: 'center' }}>
+                  <div style={{ border: '1px solid #cbd5e1', padding: '10px', borderRadius: '6px', background: '#f8fafc' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>ពិន្ទុអនុលោមភាពសរុប</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: stats.score >= 80 ? '#16a34a' : '#dc2626' }}>{stats.score}%</div>
+                  </div>
+                  <div style={{ border: '1px solid #cbd5e1', padding: '10px', borderRadius: '6px', background: '#f0fdf4' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#166534' }}>អនុលោមពេញលេញ</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#16a34a' }}>{stats.compliant}</div>
+                  </div>
+                  <div style={{ border: '1px solid #cbd5e1', padding: '10px', borderRadius: '6px', background: '#fefce8' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#854d0e' }}>អនុលោមដោយផ្នែក</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#d97706' }}>{stats.partial}</div>
+                  </div>
+                  <div style={{ border: '1px solid #cbd5e1', padding: '10px', borderRadius: '6px', background: '#fef2f2' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#991b1b' }}>ហានិភ័យច្បាប់ខ្ពស់</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#dc2626' }}>{stats.highRiskIssues}</div>
+                  </div>
+                </div>
+
+                {/* Itemized Table */}
+                <div style={{ fontWeight: 800, margin: '14px 0 6px', color: '#0f172a' }}>
+                  លទ្ធផលត្រួតពិនិត្យលម្អិតតាមផ្នែកនីមួយៗ (Itemized Audit Findings):
+                </div>
+
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', fontSize: '0.8rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '6%' }}>ល.រ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '22%' }}>ផ្នែក & ចំណុចត្រួតពិនិត្យ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '10%' }}>ហានិភ័យ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '14%' }}>ស្ថានភាព</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '24%' }}>ភស្តុតាងដែលបានពិនិត្យ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '24%' }}>កំណត់ត្រាការរកឃើញ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {checklists.map((c, idx) => (
+                      <tr key={c.id}>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>{idx + 1}</td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{c.titleKh}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{c.titleEn}</div>
+                        </td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center', fontWeight: 800, color: c.risk === 'HIGH' ? '#dc2626' : c.risk === 'MEDIUM' ? '#d97706' : '#16a34a' }}>
+                          {c.risk}
+                        </td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center', fontWeight: 700 }}>
+                          {c.status === 'COMPLIANT' && '🟢 អនុលោម'}
+                          {c.status === 'PARTIAL' && '🟡 ដោយផ្នែក'}
+                          {c.status === 'NON_COMPLIANT' && '🔴 មិនអនុលោម'}
+                          {c.status === 'NA' && '⚪ N/A'}
+                        </td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', fontSize: '0.75rem', color: '#334155' }}>{c.evidenceKh}</td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', fontSize: '0.75rem' }}>{c.findings || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Signatures */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '40px', textAlign: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>សវនករដឹកនាំ (Lead Auditor)</div>
+                    <div style={{ height: '65px' }}></div>
+                    <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ ..... / ..... / 2026</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>ប្រធានផ្នែកធនធានមនុស្ស (HR Director)</div>
+                    <div style={{ height: '65px' }}></div>
+                    <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ ..... / ..... / 2026</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>អគ្គនាយក (Managing Director)</div>
+                    <div style={{ height: '65px' }}></div>
+                    <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ត្រាស្ថាប័ន</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ ..... / ..... / 2026</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FULL CAP TRACKER REPORT MODAL */}
+      {showCapReportModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '960px',
+              maxHeight: '94vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Top Bar */}
+            <div
+              style={{
+                padding: '16px 24px',
+                background: '#0f172a',
+                color: '#ffffff',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1rem' }}>
+                  🎯 របាយការណ៍តាមដានផែនការកែលម្អសវនកម្ម (CAP Log Report)
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                  Corrective Action Plan (CAP) Tracking & Implementation Summary
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button
+                  onClick={() => handlePrintTemplate('capReportPrintArea')}
+                  style={{
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  🖨️ បោះពុម្ព (Print A4)
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleExportPdf(
+                      'capReportPrintArea',
+                      `HR_Corrective_Action_Plan_Log_${new Date().toISOString().split('T')[0]}`
+                    )
+                  }
+                  disabled={isExportingPdf}
+                  style={{
+                    background: isExportingPdf ? '#64748b' : '#10b981',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: isExportingPdf ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  {isExportingPdf ? '⏳ កំពុងទាញយក...' : '📥 ទាញយកជា PDF'}
+                </button>
+
+                <button
+                  onClick={handleExportCapsExcel}
+                  style={{
+                    background: '#047857',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  📊 នាំចេញ Excel
+                </button>
+
+                <button
+                  onClick={() => setShowCapReportModal(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                  }}
+                >
+                  ✕ បិទ
+                </button>
+              </div>
+            </div>
+
+            {/* Document Content */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '28px 36px',
+                background: '#f1f5f9',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                id="capReportPrintArea"
+                style={{
+                  background: '#ffffff',
+                  width: '100%',
+                  maxWidth: '850px',
+                  minHeight: '1050px',
+                  padding: '40px',
+                  borderRadius: '4px',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+                  color: '#0f172a',
+                  fontFamily: "'Kantumruy Pro', 'Inter', sans-serif",
+                  lineHeight: 1.5,
+                  fontSize: '0.86rem',
+                }}
+              >
+                {/* Header */}
+                <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>ព្រះរាជាណាចក្រកម្ពុជា • ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a', margin: '8px 0 2px' }}>
+                    របាយការណ៍តាមដាន និងអនុវត្តផែនការកែលម្អសវនកម្ម (CAP Register)
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                    CORRECTIVE ACTION PLAN (CAP) IMPLEMENTATION & PROGRESS REGISTER
+                  </div>
+                </div>
+
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>កាលបរិច្ឆេទរបាយការណ៍៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>{new Date().toLocaleDateString()}</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>លេខយោងឯកសារ៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>CAP-REG-2026</td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ស្ថានភាពសរុប៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>{caps.length} សកម្មភាពកែលម្អ</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ការបញ្ចប់រួចរាល់៖</td>
+                      <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', color: '#16a34a', fontWeight: 700 }}>
+                        {caps.filter((c) => c.status === 'CLOSED').length} រួចរាល់ ({caps.length > 0 ? Math.round((caps.filter((c) => c.status === 'CLOSED').length / caps.length) * 100) : 0}%)
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* CAP Table */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
+                      <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '10%' }}>កូដ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '26%' }}>ចំណុចខ្វះខាត / បញ្ហា (Finding)</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '8%' }}>ហានិភ័យ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '26%' }}>វិធានការកែលម្អ (Action Plan)</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '14%' }}>អ្នកទទួលខុសត្រូវ</th>
+                      <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '16%' }}>កាលបរិច្ឆេទ & ស្ថានភាព</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {caps.map((c) => (
+                      <tr key={c.id}>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 700 }}>
+                          {c.code}
+                          <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{c.category}</div>
+                        </td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{c.finding}</td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 800, color: c.risk === 'HIGH' ? '#dc2626' : c.risk === 'MEDIUM' ? '#d97706' : '#16a34a' }}>
+                          {c.risk}
+                        </td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', fontWeight: 600 }}>{c.action}</td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{c.pic}</td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>
+                          <div>{c.deadline}</div>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              marginTop: '3px',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              background: c.status === 'CLOSED' ? '#dcfce7' : c.status === 'IN_PROGRESS' ? '#dbeafe' : '#fee2e2',
+                              color: c.status === 'CLOSED' ? '#166534' : c.status === 'IN_PROGRESS' ? '#1e40af' : '#991b1b',
+                            }}
+                          >
+                            {c.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Signatures */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '40px', textAlign: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>មន្ត្រីទទួលបន្ទុក (PIC / Officer)</div>
+                    <div style={{ height: '65px' }}></div>
+                    <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>សវនករផ្ទៃក្នុង (Auditor)</div>
+                    <div style={{ height: '65px' }}></div>
+                    <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800 }}>នាយកប្រតិបត្តិ (CEO / GM)</div>
+                    <div style={{ height: '65px' }}></div>
+                    <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ត្រាស្ថាប័ន</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

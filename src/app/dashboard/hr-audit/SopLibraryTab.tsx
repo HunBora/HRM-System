@@ -5,11 +5,17 @@ import Swal from 'sweetalert2';
 
 export interface FactorySop {
   id: string;
-  code: string;
+  code: string; // Document No: e.g. 'EGS/SCP-054'
+  edition: string; // Edition: e.g. '02'
+  pageInfo: string; // Page count e.g. 'Page 1 of 10'
+  initialIssuedDate: string; // Initial Issued Date: e.g. '10-11-2023'
+  amendDate: string; // Amend Date: e.g. '10-10-2025'
+  effectiveDate: string; // Effective Date: e.g. '11-11-2024'
   category: string;
   categoryKh: string;
   titleKh: string;
   titleEn: string;
+  titleCn?: string; // Chinese title e.g. '风险评估政策'
   companyName: string;
   productType: string;
   preparedBy: string;
@@ -32,6 +38,12 @@ export interface FactorySop {
 const DEFAULT_SOPS: FactorySop[] = [
   {
     id: 'sop-01',
+    edition: '02',
+    pageInfo: 'Page 1 of 10',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '预防儿童进入厂区政策',
     code: 'SOP-SEC-001',
     category: 'CHILD_PROTECTION',
     categoryKh: 'ការពារកុមារ & សន្តិសុខ',
@@ -89,6 +101,12 @@ Designated senior staff from HR & Compliance Dept are assigned to communicate, d
   },
   {
     id: 'sop-02',
+    edition: '02',
+    pageInfo: 'Page 1 of 8',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '禁止使用童工政策',
     code: 'SOP-HR-002',
     category: 'CHILD_LABOR',
     categoryKh: 'ពលកម្មកុមារ & ជួញដូរ',
@@ -141,6 +159,12 @@ In case of suspicion, report directly to:
   },
   {
     id: 'sop-03',
+    edition: '02',
+    pageInfo: 'Page 1 of 6',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '员工入职培训政策',
     code: 'SOP-LND-003',
     category: 'TRAINING',
     categoryKh: 'បណ្តុះបណ្តាល & ហ្វឹកហ្វឺន',
@@ -184,6 +208,12 @@ Applies to all employees working within the company facilities.
   },
   {
     id: 'sop-04',
+    edition: '02',
+    pageInfo: 'Page 1 of 8',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '教育与培训政策',
     code: 'SOP-OSH-004',
     category: 'SAFETY',
     categoryKh: 'សុវត្ថិភាពការងារ & C-TPAT',
@@ -227,6 +257,12 @@ Key training curriculum covers:
   },
   {
     id: 'sop-05',
+    edition: '02',
+    pageInfo: 'Page 1 of 6',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '工伤与事故调查程序',
     code: 'SOP-EHS-005',
     category: 'SAFETY',
     categoryKh: 'គ្រោះថ្នាក់ការងារ & EHS',
@@ -278,6 +314,12 @@ To establish a structured investigation approach in order to:
   },
   {
     id: 'sop-06',
+    edition: '02',
+    pageInfo: 'Page 1 of 8',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '员工请假制度',
     code: 'SOP-HR-006',
     category: 'LEAVE',
     categoryKh: 'ច្បាប់ឈប់សម្រាក',
@@ -315,6 +357,12 @@ To provide structured guidelines for requesting and approving employee leaves.
   },
   {
     id: 'sop-07',
+    edition: '02',
+    pageInfo: 'Page 1 of 10',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '客户合规基本政策',
     code: 'SOP-QA-007',
     category: 'INTEGRITY',
     categoryKh: 'គុណភាព & អតិថិជន',
@@ -349,6 +397,12 @@ To maintain client confidence and ensure adherence to international social compl
   },
   {
     id: 'sop-08',
+    edition: '02',
+    pageInfo: 'Page 1 of 6',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '外籍员工管理政策',
     code: 'SOP-MIG-008',
     category: 'FOREIGN_WORKER',
     categoryKh: 'ពលករបរទេស',
@@ -386,6 +440,12 @@ To govern foreign worker employment with transparency, fairness, and strict comp
   },
   {
     id: 'sop-09',
+    edition: '02',
+    pageInfo: 'Page 1 of 6',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '廉洁与诚信政策',
     code: 'SOP-ETH-009',
     category: 'INTEGRITY',
     categoryKh: 'សុចរិតភាព & ប្រឆាំងពុករលួយ',
@@ -421,6 +481,12 @@ To promote corporate integrity, prevent all forms of bribery and corruption, and
   },
   {
     id: 'sop-10',
+    edition: '02',
+    pageInfo: 'Page 1 of 8',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '机械设备控制与维护政策',
     code: 'SOP-MCH-010',
     category: 'MACHINERY',
     categoryKh: 'គ្រឿងចក្រ & ផលិតកម្ម',
@@ -456,6 +522,12 @@ To ensure factory machinery functions safely, accurately, and reliably to meet p
   },
   {
     id: 'sop-11',
+    edition: '02',
+    pageInfo: 'Page 1 of 7',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '分包商与外包管理程序',
     code: 'SOP-OUT-011',
     category: 'OUTSOURCE',
     categoryKh: 'អ្នកម៉ៅការ & Subcontractor',
@@ -489,6 +561,12 @@ To ensure all outsourced and subcontracted operations adhere strictly to company
   },
   {
     id: 'sop-12',
+    edition: '02',
+    pageInfo: 'Page 1 of 6',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '罢工与劳资纠纷解决政策',
     code: 'SOP-GRV-012',
     category: 'GRIEVANCE',
     categoryKh: 'វិវាទការងារ & កូដកម្ម',
@@ -536,6 +614,12 @@ Step 5: Submission to the Arbitration Council for binding/non-binding award.
   },
   {
     id: 'sop-13',
+    edition: '02',
+    pageInfo: 'Page 1 of 8',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '工业废水与化学品处理政策',
     code: 'SOP-ENV-013',
     category: 'ENVIRONMENT',
     categoryKh: 'បរិស្ថាន & កាកសំណល់ទឹក',
@@ -573,6 +657,12 @@ To protect human health and natural ecosystems through systematic wastewater tre
   },
   {
     id: 'sop-14',
+    edition: '02',
+    pageInfo: 'Page 1 of 6',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '流动工人与劳工权益政策',
     code: 'SOP-MIG-014',
     category: 'FOREIGN_WORKER',
     categoryKh: 'ពលករចំណាកស្រុក',
@@ -608,6 +698,12 @@ To safeguard migrant employees' rights, ensure fair recruitment, and provide equ
   },
   {
     id: 'sop-15',
+    edition: '02',
+    pageInfo: 'Page 1 of 10',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    titleCn: '国际人权政策',
     code: 'SOP-HRT-015',
     category: 'HUMAN_RIGHTS',
     categoryKh: 'សិទ្ធិមនុស្សអន្តរជាតិ',
@@ -650,6 +746,74 @@ To uphold human dignity, equality, and fundamental workplace human rights withou
       { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលនយោបាយសិទ្ធិមនុស្សអន្តរជាតិ', authorizedBy: 'General Manager' },
     ],
   },
+  {
+    id: 'sop-16',
+    code: 'EGS/SCP-054',
+    edition: '02',
+    pageInfo: 'Page 1 of 10',
+    initialIssuedDate: '10-11-2023',
+    amendDate: '10-10-2025',
+    effectiveDate: '11-11-2024',
+    category: 'SAFETY',
+    categoryKh: 'សុវត្ថិភាពការងារ & EHS',
+    titleKh: 'គោលការណ៍វាយតម្លៃហានិភ័យ',
+    titleEn: 'RISK ASSESSMENT POLICY',
+    titleCn: '风险评估政策',
+    companyName: 'EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD',
+    productType: 'Sporting Goods & Outdoor Equipment',
+    preparedBy: 'Mr. CHAN PHEARUM',
+    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
+    preparedDate: '01-11-2024',
+    approvedBy: 'Mr. CHEN LANMAO',
+    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
+    approvedDate: '11-11-2024',
+    contentKh: `១. គោលបំណង PURPOSE
+ដើម្បីកំណត់ វិភាគ និងវាយតម្លៃហានិភ័យដែលអាចកើតមានចំពោះសុខភាព សុវត្ថិភាពបុគ្គលិក បរិស្ថាន និងប្រតិបត្តិការក្នុងរោងចក្រ ព្រមទាំងដាក់ចេញនូវវិធានការបង្ការ និងកាត់បន្ថយហានិភ័យឱ្យនៅកម្រិតទាបបំផុតដែលអាចទទួលយកបាន (ALARP)។
+
+២. ដែនកំណត់ SCOPE
+គោលនយោបាយនេះអនុវត្តចំពោះគ្រប់ផ្នែកផលិតកម្ម ឃ្លាំងទំនិញ បន្ទប់គីមី បន្ទប់ម៉ាស៊ីន និងអ្នកម៉ៅការបន្ត ព្រមទាំងភ្ញៀវទាំងអស់ដែលចូលក្នុងបរិវេណរោងចក្រ។
+
+៣. និយមន័យ DEFINITIONS
+- គ្រោះថ្នាក់ (Hazard): ប្រភព ឬស្ថានភាពដែលអាចបណ្តាលឱ្យមានរបួស ជំងឺ ការខូចខាតទ្រព្យសម្បត្តិ ឬប៉ះពាល់បរិស្ថាន។
+- ហានិភ័យ (Risk): បន្សំរវាងលទ្ធភាពដែលអាចកើតឡើង (Likelihood) និងកម្រិតធ្ងន់ធ្ងរនៃផលវិបាក (Severity)។
+- ការវាយតម្លៃហានិភ័យ (Risk Assessment): ដំណើរការនៃការវាយតម្លៃហានិភ័យដើម្បីកំណត់កម្រិតអាទិភាពនៃវិធានការគ្រប់គ្រង។
+
+៤. នីតិវិធីនៃការវាយតម្លៃ PROCEDURE
+- ជំហានទី១: កំណត់អត្តសញ្ញាណគ្រោះថ្នាក់ (Hazard Identification) តាមរយៈការដើរត្រួតពិនិត្យប្រចាំថ្ងៃ និងរបាយការណ៍ស្ទើរតែកើតហេតុ (Near-Miss)។
+- ជំហានទី២: វាយតម្លៃអ្នកដែលអាចរងផលប៉ះពាល់ (Who might be harmed) រួមមានកម្មករ ប្រតិបត្តិករម៉ាស៊ីន បុគ្គលិកអនាម័យ និងភ្ញៀវ។
+- ជំហានទី៣: វាយតម្លៃកម្រិតហានិភ័យដោយប្រើតារាង 5x5 Matrix (Likelihood x Severity)។
+- ជំហានទី៤: អនុវត្តតាមឋានានុក្រមគ្រប់គ្រងហានិភ័យ (Hierarchy of Controls): Elimination -> Substitution -> Engineering Controls -> Administrative Controls -> PPE។
+- ជំហានទី៥: កត់ត្រាលទ្ធផល និងត្រួតពិនិត្យឡើងវិញជារៀងរាល់ឆ្នាំ ឬនៅពេលមានការផ្លាស់ប្តូរម៉ាស៊ីន ដំណើរការ ឬសារធាតុគីមីថ្មី។
+
+៥. សិទ្ធិអំណាច និងការទទួលខុសត្រូវ AUTHORITY & RESPONSIBILITY
+- គណៈកម្មាធិការសុខភាព និងសុវត្ថិភាពការងារ (HS Committee) និង EHS Supervisor ទទួលបន្ទុកធ្វើបច្ចុប្បន្នភាពតារាងវាយតម្លៃហានិភ័យ (Risk Register) រៀងរាល់ត្រីមាស។
+- ប្រធានគ្រប់ផ្នែកទាំងអស់ត្រូវទទួលខុសត្រូវធានាថាបុគ្គលិកក្រោមឱវាទអនុវត្តតាមវិធានការសុវត្ថិភាព និងពាក់ PPE គ្រប់ពេលវេលា។`,
+    contentEn: `1. PURPOSE
+To systematically identify, analyze, and evaluate occupational health, safety, environmental, and operational risks across factory premises, implementing preventive controls to achieve ALARP (As Low As Reasonably Practicable) risk levels.
+
+2. SCOPE
+Applies to all manufacturing production floors, warehouses, chemical stores, utility rooms, subcontractors, and visitors within factory premises.
+
+3. DEFINITIONS
+- Hazard: Source, situation, or act with potential for harm in terms of human injury, ill health, or environmental damage.
+- Risk: Combination of the likelihood of an occurrence of a hazardous event and the severity of injury or damage.
+- Risk Assessment: Overall process of estimating the magnitude of risk and deciding whether the risk is acceptable.
+
+4. ASSESSMENT PROCEDURE
+- Step 1: Hazard Identification via regular workplace inspections, job safety analysis (JSA), and near-miss reports.
+- Step 2: Determine who might be harmed and how (operators, maintenance, cleaners, visitors).
+- Step 3: Evaluate risk score using 5x5 Matrix (Likelihood x Severity).
+- Step 4: Implement Hierarchy of Controls: Elimination, Substitution, Engineering controls, Administrative controls, and PPE.
+- Step 5: Record findings, monitor action plan implementation, and review annually or whenever new machinery/chemicals are introduced.
+
+5. AUTHORITY & RESPONSIBILITY
+- Health & Safety Committee and EHS Supervisor are responsible for updating the Factory Risk Assessment Register quarterly.
+- All Department Heads must ensure workers strictly comply with risk control measures and wear mandatory PPE at all times.`,
+    revisions: [
+      { rev: '01', date: '10-11-2023', paragraph: 'All', summary: 'បង្កើតគោលការណ៍វាយតម្លៃហានិភ័យដំបូង', authorizedBy: 'General Manager' },
+      { rev: '02', date: '11-11-2024', paragraph: 'Hierarchy of Controls', summary: 'ធ្វើបច្ចុប្បន្នភាពតាមស្តង់ដា ISO 45001 & Buyer Compliance', authorizedBy: 'General Manager' },
+    ],
+  },
 ];
 
 interface SopLibraryTabProps {
@@ -671,10 +835,30 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
     try {
       const saved = localStorage.getItem('hrm_factory_sops_data');
       if (saved) {
-        setSops(JSON.parse(saved));
+        const parsed: FactorySop[] = JSON.parse(saved);
+        // Merge with default values in case cached objects lack newly added header fields
+        const merged = parsed.map((item) => {
+          const def = DEFAULT_SOPS.find((d) => d.id === item.id);
+          return {
+            ...def,
+            ...item,
+            edition: item.edition || def?.edition || '02',
+            pageInfo: item.pageInfo || def?.pageInfo || 'Page 1 of 10',
+            initialIssuedDate: item.initialIssuedDate || def?.initialIssuedDate || '10-11-2023',
+            amendDate: item.amendDate || def?.amendDate || '10-10-2025',
+            effectiveDate: item.effectiveDate || def?.effectiveDate || '11-11-2024',
+            titleCn: item.titleCn || def?.titleCn || '',
+          };
+        });
+        const existingIds = new Set(parsed.map((p) => p.id));
+        const missing = DEFAULT_SOPS.filter((d) => !existingIds.has(d.id));
+        setSops([...merged, ...missing]);
+      } else {
+        setSops(DEFAULT_SOPS);
       }
     } catch (e) {
       console.error(e);
+      setSops(DEFAULT_SOPS);
     }
   }, []);
 
@@ -848,22 +1032,42 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
           >
             <div>
               {/* Header Badges */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span
-                  style={{
-                    background: '#dbeafe',
-                    color: '#1e40af',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                  }}
-                >
-                  {sop.code}
-                </span>
-                <span style={{ fontSize: '0.72rem', color: '#059669', background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                  🏭 {sop.productType}
-                </span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '4px' }}>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <span
+                    style={{
+                      background: '#dbeafe',
+                      color: '#1e40af',
+                      padding: '2px 7px',
+                      borderRadius: '4px',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                    }}
+                  >
+                    {sop.code}
+                  </span>
+                  <span
+                    style={{
+                      background: '#f1f5f9',
+                      color: '#475569',
+                      border: '1px solid #e2e8f0',
+                      padding: '1px 5px',
+                      borderRadius: '4px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    Rev: {sop.edition || '02'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#64748b', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
+                    📄 {sop.pageInfo || 'Page 1 of 10'}
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: '#059669', background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                    🏭 {sop.productType}
+                  </span>
+                </div>
               </div>
 
               {/* Title */}
@@ -871,28 +1075,30 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 {sop.titleKh}
               </div>
               <div style={{ fontSize: '0.72rem', color: '#64748b', marginBottom: '8px', fontStyle: 'italic' }}>
-                {sop.titleEn}
+                {sop.titleEn} {sop.titleCn ? `• ${sop.titleCn}` : ''}
               </div>
 
-              {/* Meta Info Box */}
+              {/* Meta Info Box (Detailed Header Attributes) */}
               <div
                 style={{
                   background: '#f8fafc',
-                  border: '1px solid #f1f5f9',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '6px',
                   padding: '6px 8px',
-                  fontSize: '0.74rem',
+                  fontSize: '0.72rem',
                   color: '#334155',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '2px',
+                  gap: '3px',
                   marginBottom: '10px',
                 }}
               >
                 <div>🏢 <strong>ក្រុមហ៊ុន៖</strong> {sop.companyName}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>✍️ រៀបចំ៖ {sop.preparedBy}</span>
-                  <span>✅ អនុម័ត៖ {sop.approvedBy}</span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px', color: '#475569', fontSize: '0.68rem', background: '#ffffff', padding: '4px 6px', borderRadius: '4px', border: '1px solid #f1f5f9' }}>
+                  <div>📅 <strong>ចេញដំបូង (Issued):</strong> {sop.initialIssuedDate || '10-11-2023'}</div>
+                  <div>⚡ <strong>ប្រសិទ្ធភាព (Effective):</strong> {sop.effectiveDate || '11-11-2024'}</div>
+                  <div>🔄 <strong>ពិនិត្យឡើងវិញ (Amend):</strong> {sop.amendDate || '10-10-2025'}</div>
+                  <div>✍️ <strong>រៀបចំ/អនុម័ត:</strong> {sop.preparedBy} / {sop.approvedBy}</div>
                 </div>
               </div>
             </div>
@@ -1084,31 +1290,138 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 </div>
               </div>
 
-              {/* Form Metadata Fields */}
+              {/* Form Metadata Fields - Section 1: Official Header Attributes */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#1e3a8a', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📋 ព័ត៌មានក្បាលទម្រង់ផ្លូវការ (Official Document Header Attributes):</span>
+                </div>
+                
+                {/* Row A: Doc No, Edition, Page Info */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>លេខកូដឯកសារ (Document No):</label>
+                    <input
+                      type="text"
+                      value={editingSop.code}
+                      onChange={(e) => setEditingSop({ ...editingSop, code: e.target.value })}
+                      placeholder="e.g. EGS/SCP-054"
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>បោះពុម្ពលើកទី (Edition / Rev):</label>
+                    <input
+                      type="text"
+                      value={editingSop.edition || '02'}
+                      onChange={(e) => setEditingSop({ ...editingSop, edition: e.target.value })}
+                      placeholder="e.g. 02"
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>ចំនួនទំព័រ (Page Info):</label>
+                    <input
+                      type="text"
+                      value={editingSop.pageInfo || 'Page 1 of 10'}
+                      onChange={(e) => setEditingSop({ ...editingSop, pageInfo: e.target.value })}
+                      placeholder="e.g. Page 1 of 10"
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Row B: Initial Issued Date, Amend Date, Effective Date */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>កាលបរិច្ឆេទចេញដំបូង (Initial Issued Date):</label>
+                    <input
+                      type="text"
+                      value={editingSop.initialIssuedDate || '10-11-2023'}
+                      onChange={(e) => setEditingSop({ ...editingSop, initialIssuedDate: e.target.value })}
+                      placeholder="e.g. 10-11-2023"
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>កាលបរិច្ឆេទត្រូវពិនិត្យឡើងវិញ (Amend Date):</label>
+                    <input
+                      type="text"
+                      value={editingSop.amendDate || '10-10-2025'}
+                      onChange={(e) => setEditingSop({ ...editingSop, amendDate: e.target.value })}
+                      placeholder="e.g. 10-10-2025"
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>កាលបរិច្ឆេទមានប្រសិទ្ធភាព (Effective Date):</label>
+                    <input
+                      type="text"
+                      value={editingSop.effectiveDate || '11-11-2024'}
+                      onChange={(e) => setEditingSop({ ...editingSop, effectiveDate: e.target.value })}
+                      placeholder="e.g. 11-11-2024"
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Metadata Fields - Section 2: Company & Titles */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>ឈ្មោះក្រុមហ៊ុន / រោងចក្រ (Company):</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>ឈ្មោះក្រុមហ៊ុន / រោងចក្រ (Company):</label>
                   <input
                     type="text"
                     value={editingSop.companyName}
                     onChange={(e) => setEditingSop({ ...editingSop, companyName: e.target.value })}
-                    style={{ width: '100%', padding: '6px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.8rem', marginTop: '2px' }}
+                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>ប្រភេទផលិតផលផលិត (Product Manufactured):</label>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>ប្រភេទផលិតផលផលិត (Product Manufactured):</label>
                   <input
                     type="text"
                     value={editingSop.productType}
                     onChange={(e) => setEditingSop({ ...editingSop, productType: e.target.value })}
-                    style={{ width: '100%', padding: '6px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.8rem', marginTop: '2px' }}
+                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
                   />
                 </div>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 0.8fr', gap: '8px' }}>
+                <div>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#dc2626' }}>ចំណងជើងខ្មែរ (Title Khmer):</label>
+                  <input
+                    type="text"
+                    value={editingSop.titleKh}
+                    onChange={(e) => setEditingSop({ ...editingSop, titleKh: e.target.value })}
+                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0f172a' }}>ចំណងជើងអង់គ្លេស (Title English):</label>
+                  <input
+                    type="text"
+                    value={editingSop.titleEn}
+                    onChange={(e) => setEditingSop({ ...editingSop, titleEn: e.target.value })}
+                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#475569' }}>ចំណងជើងចិន (Title Chinese - Optional):</label>
+                  <input
+                    type="text"
+                    value={editingSop.titleCn || ''}
+                    onChange={(e) => setEditingSop({ ...editingSop, titleCn: e.target.value })}
+                    placeholder="e.g. 风险评估政策"
+                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Form Metadata Fields - Section 3: Approvals */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700 }}>រៀបចំដោយ (Prepared By):</label>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>រៀបចំដោយ (Prepared By):</label>
                   <input
                     type="text"
                     value={editingSop.preparedBy}
@@ -1117,7 +1430,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700 }}>កាលបរិច្ឆេទរៀបចំ (Date):</label>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>កាលបរិច្ឆេទរៀបចំ (Date):</label>
                   <input
                     type="text"
                     value={editingSop.preparedDate}
@@ -1126,7 +1439,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700 }}>អនុម័តដោយ (Approved By):</label>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>អនុម័តដោយ (Approved By):</label>
                   <input
                     type="text"
                     value={editingSop.approvedBy}
@@ -1135,7 +1448,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 700 }}>កាលបរិច្ឆេទអនុម័ត (Date):</label>
+                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>កាលបរិច្ឆេទអនុម័ត (Date):</label>
                   <input
                     type="text"
                     value={editingSop.approvedDate}
@@ -1319,41 +1632,283 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   fontSize: '0.86rem',
                 }}
               >
-                {/* 1. Official Header Approval Block Table (Exact Format as requested) */}
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '18px' }}>
+                {/* 1. OFFICIAL FACTORY HEADER TABLE (Exact Match to Factory Image Standard) */}
+                <table
+                  style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    border: '1.5px solid #1e293b',
+                    fontSize: '0.8rem',
+                    marginBottom: '16px',
+                  }}
+                >
                   <tbody>
+                    {/* ROW 1: LOGO/SMALL NAME | COMPANY NAME CENTER | PAGE INFO */}
                     <tr>
-                      <td style={{ border: '1px solid #334155', padding: '8px 12px', width: '50%', background: '#f8fafc', verticalAlign: 'top' }}>
-                        <div style={{ fontWeight: 800, fontSize: '0.84rem' }}>រៀបចំ​ដោយ៖ Prepared By</div>
-                        <div style={{ fontSize: '0.8rem', color: '#475569', margin: '2px 0' }}>{previewSop.preparedRole}</div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', margin: '4px 0' }}>{previewSop.preparedBy}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ {previewSop.preparedDate} Date:</div>
+                      {/* Col 1: Logo & Small name */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '6px 8px',
+                          width: '28%',
+                          verticalAlign: 'middle',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '6px',
+                              background: '#e6f4ea',
+                              border: '1px solid #81c784',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#2e7d32">
+                              <path d="M12 2L6 10h3v4H6l6 8 6-8h-3v-4h3L12 2z" />
+                            </svg>
+                          </div>
+                          <div style={{ fontSize: '0.64rem', lineHeight: '1.25', color: '#1e293b' }}>
+                            <div style={{ fontWeight: 700, color: '#15803d' }}>{previewSop.companyName}</div>
+                            {previewSop.titleCn && (
+                              <div style={{ color: '#64748b', fontSize: '0.6rem' }}>长青户外用品(柬埔寨)有限公司</div>
+                            )}
+                            <div style={{ fontSize: '0.56rem', color: '#475569', fontWeight: 600 }}>
+                              {previewSop.companyName.toUpperCase()}
+                            </div>
+                          </div>
+                        </div>
                       </td>
-                      <td style={{ border: '1px solid #334155', padding: '8px 12px', width: '50%', background: '#f8fafc', verticalAlign: 'top' }}>
-                        <div style={{ fontWeight: 800, fontSize: '0.84rem' }}>អនុម័តដោយ៖ Approved By</div>
-                        <div style={{ fontSize: '0.8rem', color: '#475569', margin: '2px 0' }}>{previewSop.approvedRole}</div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', margin: '4px 0' }}>{previewSop.approvedBy}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ {previewSop.approvedDate} Date:</div>
+
+                      {/* Col 2: Center Big Company Title */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '8px 10px',
+                          width: '52%',
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.3 }}>
+                          {previewSop.companyName}
+                        </div>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', letterSpacing: '0.5px' }}>
+                          {previewSop.companyName.toUpperCase()}
+                        </div>
+                      </td>
+
+                      {/* Col 3: Page Number */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '8px 10px',
+                          width: '20%',
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          fontWeight: 700,
+                          color: '#1e293b',
+                          fontSize: '0.84rem',
+                          background: '#ffffff',
+                        }}
+                      >
+                        {previewSop.pageInfo || 'Page 1 of 10'}
+                      </td>
+                    </tr>
+
+                    {/* ROW 2: INITIAL ISSUED DATE | POLICY TITLE | EDITION */}
+                    <tr>
+                      {/* Col 1: Initial Issued Date */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '6px 8px',
+                          verticalAlign: 'top',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទចេញដំបូង៖</div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Initial Issued Date</div>
+                        <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px', fontSize: '0.8rem' }}>
+                          {previewSop.initialIssuedDate || '10-11-2023'}
+                        </div>
+                      </td>
+
+                      {/* Col 2: Policy Titles (Red Khmer, Bold English, Optional Chinese) */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '8px 12px',
+                          textAlign: 'center',
+                          verticalAlign: 'middle',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#dc2626', lineHeight: 1.3 }}>
+                          {previewSop.titleKh}
+                        </div>
+                        <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', letterSpacing: '0.4px' }}>
+                          {previewSop.titleEn.toUpperCase()}
+                        </div>
+                        {previewSop.titleCn && (
+                          <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
+                            {previewSop.titleCn}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Col 3: Edition / Rev */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '6px 8px',
+                          verticalAlign: 'top',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
+                          បោះពុម្ពលើកទី៖ {previewSop.edition || '02'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Edition:</div>
+                      </td>
+                    </tr>
+
+                    {/* ROW 3: AMEND DATE | EFFECTIVE DATE | DOCUMENT NO */}
+                    <tr>
+                      {/* Col 1: Amend Date */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '6px 8px',
+                          verticalAlign: 'top',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទត្រូវពិនិត្យឡើងវិញ៖</div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Amend Date</div>
+                        <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px', fontSize: '0.8rem' }}>
+                          {previewSop.amendDate || '10-10-2025'}
+                        </div>
+                      </td>
+
+                      {/* Col 2: Effective Date */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '6px 10px',
+                          textAlign: 'left',
+                          verticalAlign: 'top',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
+                          កាលបរិច្ឆេទមានប្រសិទ្ធភាព៖
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                          Effective Date:
+                        </div>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', marginTop: '2px' }}>
+                          {previewSop.effectiveDate || '11-11-2024'}
+                        </div>
+                      </td>
+
+                      {/* Col 3: Document No */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '6px 8px',
+                          verticalAlign: 'middle',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.76rem' }}>
+                          Document No: <strong style={{ color: '#0f172a', fontSize: '0.84rem' }}>{previewSop.code}</strong>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* ROW 4: PREPARED BY | STAMP/SIGNATURE | APPROVED BY (Exact from Factory Image) */}
+                    <tr>
+                      {/* Col 1: Prepared By */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '8px 10px',
+                          verticalAlign: 'top',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
+                          រៀបចំដោយ៖ Prepared By
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px', lineHeight: 1.3 }}>
+                          {previewSop.preparedRole}
+                        </div>
+                        <div style={{ minHeight: '34px' }}></div>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>
+                          {previewSop.preparedBy}
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                          កាលបរិច្ឆេទ៖ {previewSop.preparedDate} Date:
+                        </div>
+                      </td>
+
+                      {/* Col 2: Stamp / Signature Box */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '8px 10px',
+                          verticalAlign: 'middle',
+                          textAlign: 'center',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div
+                          style={{
+                            border: '1px dashed #cbd5e1',
+                            borderRadius: '6px',
+                            padding: '12px 8px',
+                            color: '#94a3b8',
+                            fontSize: '0.7rem',
+                          }}
+                        >
+                          <div>កន្លែងបោះត្រាក្រុមហ៊ុន</div>
+                          <div style={{ fontSize: '0.62rem', marginTop: '2px' }}>Company Official Stamp</div>
+                        </div>
+                      </td>
+
+                      {/* Col 3: Approved By */}
+                      <td
+                        style={{
+                          border: '1px solid #1e293b',
+                          padding: '8px 10px',
+                          verticalAlign: 'top',
+                          background: '#ffffff',
+                        }}
+                      >
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
+                          អនុម័តដោយ៖ Approved By
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px', lineHeight: 1.3 }}>
+                          {previewSop.approvedRole}
+                        </div>
+                        <div style={{ minHeight: '34px' }}></div>
+                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>
+                          {previewSop.approvedBy}
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                          កាលបរិច្ឆេទ៖ {previewSop.approvedDate} Date:
+                        </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
-
-                {/* Company Name & Document Title */}
-                <div style={{ textAlign: 'center', margin: '14px 0 20px', paddingBottom: '12px', borderBottom: '1.5px solid #cbd5e1' }}>
-                  <div style={{ fontSize: '1rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
-                    {previewSop.companyName}
-                  </div>
-                  <div style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700, margin: '2px 0 6px' }}>
-                    ខ្សែសង្វាក់ផលិតកម្ម៖ {previewSop.productType} • លេខកូដឯកសារ៖ {previewSop.code}
-                  </div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#1e3a8a', lineHeight: 1.4 }}>
-                    {previewSop.titleKh}
-                  </div>
-                  <div style={{ fontSize: '0.82rem', color: '#64748b', fontStyle: 'italic', fontWeight: 600 }}>
-                    {previewSop.titleEn}
-                  </div>
-                </div>
 
                 {/* Body Content Khmer */}
                 <div style={{ whiteSpace: 'pre-line', marginBottom: '20px', color: '#0f172a', textAlign: 'justify' }}>
@@ -1365,36 +1920,53 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   {previewSop.contentEn}
                 </div>
 
-                {/* 2. Official Revision History Table (Exact Format as requested) */}
-                <div style={{ fontWeight: 800, fontSize: '0.84rem', margin: '16px 0 6px' }}>
+                {/* 2. Official Revision History Table (Exact Format from Image 3) */}
+                <div style={{ fontWeight: 800, fontSize: '0.84rem', margin: '20px 0 6px', color: '#0f172a' }}>
                   ប្រវត្តិនៃការត្រួតពិនិត្យឡើងវិញ (Document Revision History):
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', border: '1.5px solid #1e293b' }}>
                   <thead>
-                    <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
-                      <th style={{ border: '1px solid #334155', padding: '6px', width: '16%' }}>ការពិនិត្យឡើងវិញ Revision</th>
-                      <th style={{ border: '1px solid #334155', padding: '6px', width: '16%' }}>កាលបរិច្ឆេទ Date</th>
-                      <th style={{ border: '1px solid #334155', padding: '6px', width: '16%' }}>ឃ្លា Paragraph</th>
-                      <th style={{ border: '1px solid #334155', padding: '6px', width: '34%' }}>សង្ខេបនៃការកែសម្រួល Summary of change</th>
-                      <th style={{ border: '1px solid #334155', padding: '6px', width: '18%' }}>អនុម័តដោយ Authorized By</th>
+                    <tr style={{ background: '#f8fafc', textAlign: 'center' }}>
+                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '15%' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ការពិនិត្យឡើងវិញ</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>REVISION</div>
+                      </th>
+                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '16%' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>កាលបរិច្ឆេទ</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>DATE</div>
+                      </th>
+                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '15%' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ឃ្លា</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>PARAGRAPH</div>
+                      </th>
+                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '36%' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>សង្ខេបនៃការកែសម្រួល</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>SUMMARY OF CHANGE</div>
+                      </th>
+                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '18%' }}>
+                        <div style={{ fontWeight: 800, color: '#0f172a' }}>អនុម័តដោយ</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>AUTHORIZED BY</div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {previewSop.revisions.map((rev, idx) => (
                       <tr key={idx}>
-                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center', fontWeight: 700 }}>{rev.rev}</td>
-                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>{rev.date}</td>
-                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>{rev.paragraph}</td>
-                        <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}>{rev.summary}</td>
-                        <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>{rev.authorizedBy}</td>
+                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center', fontWeight: 800 }}>{rev.rev}</td>
+                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.date}</td>
+                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.paragraph}</td>
+                        <td style={{ border: '1px solid #1e293b', padding: '6px 8px' }}>{rev.summary}</td>
+                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.authorizedBy}</td>
                       </tr>
                     ))}
                     <tr>
-                      <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>02</td>
-                      <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>—</td>
-                      <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>—</td>
-                      <td style={{ border: '1px solid #cbd5e1', padding: '6px', color: '#94a3b8' }}>ការកែសម្រួលតាមតម្រូវការអតិថិជន និងផលិតផលថ្មី</td>
-                      <td style={{ border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center' }}>—</td>
+                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center', fontWeight: 800 }}>02</td>
+                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
+                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
+                      <td style={{ border: '1px solid #1e293b', padding: '6px 8px', color: '#64748b' }}>
+                        ការកែសម្រួលតាមតម្រូវការអតិថិជន និងផលិតផលថ្មី
+                      </td>
+                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
                     </tr>
                   </tbody>
                 </table>

@@ -1003,7 +1003,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
           { key: 'handbook', labelKh: '📖 សៀវភៅណែនាំ (Handbook)', count: null },
           { key: 'checklists', labelKh: '📋 តារាងត្រួតពិនិត្យ (Checklists)', count: checklists.length },
           { key: 'cap', labelKh: '🎯 ផែនការកែលម្អ (CAP Tracker)', count: caps.length },
-          { key: 'sop', labelKh: '📑 នីតិវិធី SOP & JD', count: 15 },
+          { key: 'sop', labelKh: '📑 នីតិវិធី SOP & JD', count: 16 },
           { key: 'law', labelKh: '📚 ច្បាប់ការងារ (Labor Law)', count: LABOR_LAW_ARTICLES.length },
           { key: 'templates', labelKh: '📁 ទម្រង់គំរូ (Templates)', count: 5 },
         ].map((tab) => (

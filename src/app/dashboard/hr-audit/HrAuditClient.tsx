@@ -798,36 +798,36 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
   }, [lawSearchQuery]);
 
   return (
-    <div style={{ padding: '24px 20px', minHeight: '100vh', background: '#f8fafc', color: '#0f172a' }}>
+    <div style={{ padding: '12px 16px', minHeight: '100vh', background: '#f8fafc', color: '#0f172a' }}>
       {/* Top Banner & Header */}
       <div
         style={{
           background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)',
-          borderRadius: '16px',
-          padding: '24px 28px',
+          borderRadius: '12px',
+          padding: '12px 20px',
           color: '#ffffff',
-          boxShadow: '0 10px 25px -5px rgba(30, 58, 138, 0.25)',
-          marginBottom: '24px',
+          boxShadow: '0 4px 12px rgba(30, 58, 138, 0.2)',
+          marginBottom: '12px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '16px',
+          gap: '10px',
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '1.8rem' }}>📋</span>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+            <span style={{ fontSize: '1.3rem' }}>📋</span>
+            <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.01em' }}>
               សវនកម្មធនធានមនុស្ស & ច្បាប់ការងារ (HR Audit & Labor Compliance)
             </h1>
             <span
               style={{
                 background: 'rgba(56, 189, 248, 0.2)',
                 color: '#38bdf8',
-                padding: '4px 10px',
-                borderRadius: '20px',
-                fontSize: '0.75rem',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '0.7rem',
                 fontWeight: 700,
                 border: '1px solid rgba(56, 189, 248, 0.4)',
               }}
@@ -835,28 +835,28 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               Enterprise v2.5
             </span>
           </div>
-          <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.9rem', maxWidth: '800px' }}>
+          <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.8rem', maxWidth: '800px' }}>
             ប្រព័ន្ធស្កេនទិន្នន័យស្វ័យប្រវត្ត (Auto-Audit Scan), សៀវភៅណែនាំសវនកម្ម, បណ្ណាល័យច្បាប់ការងារ និងការគ្រប់គ្រងផែនការកែលម្អ (CAP)
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={handleRunAutoAudit}
             disabled={isScanning}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '9px 16px',
-              borderRadius: '8px',
+              gap: '5px',
+              padding: '7px 13px',
+              borderRadius: '6px',
               background: isScanning ? '#64748b' : '#38bdf8',
               color: '#0f172a',
               border: 'none',
               cursor: isScanning ? 'not-allowed' : 'pointer',
               fontWeight: 800,
-              fontSize: '0.85rem',
-              boxShadow: '0 2px 8px rgba(56, 189, 248, 0.3)',
+              fontSize: '0.8rem',
+              boxShadow: '0 2px 6px rgba(56, 189, 248, 0.25)',
             }}
           >
             {isScanning ? '⏳ កំពុងស្កេន...' : '⚡ ស្កេនទិន្នន័យផ្ទាល់ (Auto-Audit)'}
@@ -866,15 +866,15 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '9px 16px',
-              borderRadius: '8px',
+              gap: '5px',
+              padding: '7px 13px',
+              borderRadius: '6px',
               background: 'rgba(255, 255, 255, 0.12)',
               color: '#ffffff',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               cursor: 'pointer',
               fontWeight: 600,
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
             }}
           >
             📄 មើល & បោះពុម្ពរបាយការណ៍ (Audit Report)
@@ -886,33 +886,33 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px',
-          marginBottom: '24px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '10px',
+          marginBottom: '12px',
         }}
       >
         <div
           style={{
             background: '#ffffff',
-            padding: '18px',
-            borderRadius: '12px',
+            padding: '10px 14px',
+            borderRadius: '10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}
         >
-          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ពិន្ទុអនុលោមភាពទូទៅ (Compliance Score)</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
+          <div style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: 600 }}>ពិន្ទុអនុលោមភាពទូទៅ (Compliance Score)</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
             <span
               style={{
-                fontSize: '2rem',
+                fontSize: '1.4rem',
                 fontWeight: 900,
                 color: stats.score >= 80 ? '#16a34a' : stats.score >= 60 ? '#d97706' : '#dc2626',
               }}
             >
               {stats.score}%
             </span>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-              {stats.score >= 80 ? '🟢 ល្អប្រសើរ (High)' : stats.score >= 60 ? '🟡 ត្រូវការកែលម្អ' : '🔴 ហានិភ័យខ្ពស់'}
+            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+              {stats.score >= 80 ? '🟢 ល្អប្រសើរ' : stats.score >= 60 ? '🟡 ត្រូវការកែលម្អ' : '🔴 ហានិភ័យខ្ពស់'}
             </span>
           </div>
         </div>
@@ -920,24 +920,24 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         <div
           style={{
             background: '#ffffff',
-            padding: '18px',
-            borderRadius: '12px',
+            padding: '10px 14px',
+            borderRadius: '10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}
         >
-          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>លទ្ធផល Auto-Audit ស្កេនទិន្នន័យ</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
+          <div style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: 600 }}>លទ្ធផល Auto-Audit ស្កេនទិន្នន័យ</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
             <span
               style={{
-                fontSize: '2rem',
+                fontSize: '1.4rem',
                 fontWeight: 900,
                 color: autoReport ? (autoReport.healthScore >= 80 ? '#16a34a' : '#dc2626') : '#64748b',
               }}
             >
               {autoReport ? `${autoReport.healthScore}%` : 'មិនទាន់ស្កេន'}
             </span>
-            <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
+            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
               {autoReport ? `រកឃើញ ${autoReport.issues.length} បញ្ហា` : 'ចុចប៊ូតុងស្កេនខាងលើ'}
             </span>
           </div>
@@ -946,17 +946,17 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         <div
           style={{
             background: '#ffffff',
-            padding: '18px',
-            borderRadius: '12px',
+            padding: '10px 14px',
+            borderRadius: '10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}
         >
-          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ហានិភ័យច្បាប់ខ្ពស់ (High Risk Gaps)</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
+          <div style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: 600 }}>ហានិភ័យច្បាប់ខ្ពស់ (High Risk Gaps)</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '2px' }}>
             <span
               style={{
-                fontSize: '2rem',
+                fontSize: '1.4rem',
                 fontWeight: 900,
                 color:
                   (autoReport ? autoReport.highRiskCount : stats.highRiskIssues) > 0 ? '#dc2626' : '#16a34a',
@@ -964,21 +964,21 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             >
               {autoReport ? autoReport.highRiskCount : stats.highRiskIssues}
             </span>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>ចំណុចប្រឈមច្បាប់ការងារ</span>
+            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>ចំណុចប្រឈមច្បាប់ការងារ</span>
           </div>
         </div>
 
         <div
           style={{
             background: '#ffffff',
-            padding: '18px',
-            borderRadius: '12px',
+            padding: '10px 14px',
+            borderRadius: '10px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}
         >
-          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ផែនការកែលម្អ (CAP Action Items)</div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '10px', fontSize: '0.85rem' }}>
+          <div style={{ color: '#64748b', fontSize: '0.78rem', fontWeight: 600 }}>ផែនការកែលម្អ (CAP Action Items)</div>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '4px', fontSize: '0.78rem' }}>
             <span style={{ color: '#dc2626', fontWeight: 700 }}>⏳ {stats.openCaps} រង់ចាំ</span>
             <span style={{ color: '#2563eb', fontWeight: 700 }}>🔄 {stats.inProgressCaps} កំពុងធ្វើ</span>
             <span style={{ color: '#16a34a', fontWeight: 700 }}>✅ {stats.closedCaps} រួចរាល់</span>
@@ -986,41 +986,42 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
+      {/* Navigation Tabs (Compact & Responsive) */}
       <div
         style={{
           display: 'flex',
           borderBottom: '2px solid #e2e8f0',
-          gap: '8px',
-          marginBottom: '20px',
+          gap: '4px',
+          marginBottom: '10px',
           overflowX: 'auto',
+          flexWrap: 'nowrap',
         }}
       >
         {[
-          { key: 'scan', labelKh: '⚡ ម៉ាស៊ីនស្កេនទិន្នន័យ (Auto-Audit Scan)', count: autoReport ? autoReport.issues.length : null },
-          { key: 'handbook', labelKh: '📖 សៀវភៅណែនាំសវនកម្ម (Handbook)', count: null },
-          { key: 'checklists', labelKh: '📋 តារាងត្រួតពិនិត្យ ៩ ផ្នែក (Checklists)', count: checklists.length },
+          { key: 'scan', labelKh: '⚡ ស្កេនទិន្នន័យ (Auto-Audit)', count: autoReport ? autoReport.issues.length : null },
+          { key: 'handbook', labelKh: '📖 សៀវភៅណែនាំ (Handbook)', count: null },
+          { key: 'checklists', labelKh: '📋 តារាងត្រួតពិនិត្យ (Checklists)', count: checklists.length },
           { key: 'cap', labelKh: '🎯 ផែនការកែលម្អ (CAP Tracker)', count: caps.length },
-          { key: 'law', labelKh: '📚 បណ្ណាល័យច្បាប់ការងារ (Labor Law Library)', count: LABOR_LAW_ARTICLES.length },
-          { key: 'templates', labelKh: '📁 ទម្រង់គំរូទាញយក (Templates)', count: 5 },
+          { key: 'law', labelKh: '📚 ច្បាប់ការងារ (Labor Law)', count: LABOR_LAW_ARTICLES.length },
+          { key: 'templates', labelKh: '📁 ទម្រង់គំរូ (Templates)', count: 5 },
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key as any)}
             style={{
-              padding: '12px 18px',
+              padding: '7px 12px',
               border: 'none',
               background: 'none',
               fontWeight: activeTab === tab.key ? 800 : 600,
-              fontSize: '0.9rem',
+              fontSize: '0.82rem',
               color: activeTab === tab.key ? '#1e40af' : '#64748b',
-              borderBottom: activeTab === tab.key ? '3px solid #1e40af' : '3px solid transparent',
+              borderBottom: activeTab === tab.key ? '2.5px solid #1e40af' : '2.5px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               whiteSpace: 'nowrap',
-              transition: 'all 0.2s ease',
+              transition: 'all 0.15s ease',
             }}
           >
             {tab.labelKh}
@@ -1029,9 +1030,9 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                 style={{
                   background: activeTab === tab.key ? '#dbeafe' : '#f1f5f9',
                   color: activeTab === tab.key ? '#1e40af' : '#475569',
-                  borderRadius: '12px',
-                  padding: '2px 8px',
-                  fontSize: '0.75rem',
+                  borderRadius: '10px',
+                  padding: '1px 6px',
+                  fontSize: '0.7rem',
                   fontWeight: 700,
                 }}
               >
@@ -1489,31 +1490,31 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
 
       {/* TAB: CHECKLIST MATRIX */}
       {activeTab === 'checklists' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div
             style={{
               background: '#ffffff',
-              padding: '16px 20px',
-              borderRadius: '12px',
+              padding: '8px 14px',
+              borderRadius: '10px',
               border: '1px solid #e2e8f0',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               flexWrap: 'wrap',
-              gap: '12px',
+              gap: '8px',
             }}
           >
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#475569' }}>ចម្រោះតាមផ្នែក៖</span>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 700, fontSize: '0.8rem', color: '#475569' }}>ផ្នែក៖</span>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 style={{
-                  padding: '8px 14px',
-                  borderRadius: '8px',
+                  padding: '5px 10px',
+                  borderRadius: '6px',
                   border: '1px solid #cbd5e1',
                   background: '#ffffff',
-                  fontSize: '0.85rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   outline: 'none',
                 }}
@@ -1536,34 +1537,34 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="ស្វែងរកតាមពាក្យគន្លឹះ..."
                 style={{
-                  padding: '8px 14px',
-                  borderRadius: '8px',
+                  padding: '5px 10px',
+                  borderRadius: '6px',
                   border: '1px solid #cbd5e1',
-                  fontSize: '0.85rem',
-                  minWidth: '220px',
+                  fontSize: '0.8rem',
+                  minWidth: '180px',
                 }}
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 onClick={() => setShowChecklistReportModal(true)}
                 style={{
                   background: '#2563eb',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '8px 14px',
-                  borderRadius: '8px',
+                  padding: '6px 11px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                  gap: '5px',
+                  boxShadow: '0 1px 3px rgba(37, 99, 235, 0.2)',
                 }}
               >
-                👁️ មើល & បោះពុម្ព (Preview Report)
+                👁️ មើល & បោះពុម្ព
               </button>
               <button
                 onClick={() => {
@@ -1574,17 +1575,17 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                   background: '#10b981',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '4px',
                 }}
               >
-                📥 ទាញយក PDF
+                📥 PDF
               </button>
               <button
                 onClick={handleExportChecklistsExcel}
@@ -1592,20 +1593,20 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                   background: '#047857',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '8px 12px',
-                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '4px',
                 }}
               >
-                📊 នាំចេញ Excel
+                📊 Excel
               </button>
-              <span style={{ fontSize: '0.82rem', color: '#64748b', marginLeft: '6px' }}>
-                ({filteredChecklists.length} / {checklists.length} ចំណុច)
+              <span style={{ fontSize: '0.78rem', color: '#64748b', marginLeft: '4px' }}>
+                ({filteredChecklists.length} / {checklists.length})
               </span>
             </div>
           </div>
@@ -1613,21 +1614,21 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
           <div
             style={{
               background: '#ffffff',
-              borderRadius: '12px',
+              borderRadius: '10px',
               border: '1px solid #e2e8f0',
               overflow: 'hidden',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
             }}
           >
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8rem' }}>
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-                    <th style={{ padding: '14px 16px', width: '25%' }}>សំណួរផ្ទៀងផ្ទាត់ (Audit Item)</th>
-                    <th style={{ padding: '14px 16px', width: '25%' }}>ភស្តុតាងដែលត្រូវពិនិត្យ (Evidence)</th>
-                    <th style={{ padding: '14px 16px', width: '10%', textAlign: 'center' }}>ហានិភ័យ</th>
-                    <th style={{ padding: '14px 16px', width: '18%', textAlign: 'center' }}>ស្ថានភាព (Status)</th>
-                    <th style={{ padding: '14px 16px', width: '22%' }}>កំណត់ត្រាការរកឃើញ (Findings)</th>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', color: '#475569' }}>
+                    <th style={{ padding: '7px 10px', width: '25%' }}>សំណួរផ្ទៀងផ្ទាត់ (Audit Item)</th>
+                    <th style={{ padding: '7px 10px', width: '25%' }}>ភស្តុតាងដែលត្រូវពិនិត្យ (Evidence)</th>
+                    <th style={{ padding: '7px 10px', width: '10%', textAlign: 'center' }}>ហានិភ័យ</th>
+                    <th style={{ padding: '7px 10px', width: '18%', textAlign: 'center' }}>ស្ថានភាព (Status)</th>
+                    <th style={{ padding: '7px 10px', width: '22%' }}>កំណត់ត្រាការរកឃើញ (Findings)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1639,27 +1640,27 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                         background: item.status === 'NON_COMPLIANT' ? 'rgba(254, 242, 242, 0.4)' : '#ffffff',
                       }}
                     >
-                      <td style={{ padding: '14px 16px', verticalAlign: 'top' }}>
-                        <div style={{ fontSize: '0.75rem', color: '#3b82f6', fontWeight: 700, marginBottom: '2px' }}>
+                      <td style={{ padding: '6px 10px', verticalAlign: 'top' }}>
+                        <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 700, marginBottom: '1px' }}>
                           {item.categoryKh}
                         </div>
-                        <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '3px' }}>{item.titleKh}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{item.titleEn}</div>
+                        <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem', marginBottom: '1px' }}>{item.titleKh}</div>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.titleEn}</div>
                       </td>
 
-                      <td style={{ padding: '14px 16px', verticalAlign: 'top', color: '#334155' }}>
-                        <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.8rem' }}>
+                      <td style={{ padding: '6px 10px', verticalAlign: 'top', color: '#334155' }}>
+                        <div style={{ background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '0.75rem', lineHeight: '1.3' }}>
                           📑 {item.evidenceKh}
                         </div>
                       </td>
 
-                      <td style={{ padding: '14px 16px', verticalAlign: 'top', textAlign: 'center' }}>
+                      <td style={{ padding: '6px 10px', verticalAlign: 'top', textAlign: 'center' }}>
                         <span
                           style={{
                             display: 'inline-block',
-                            padding: '3px 8px',
-                            borderRadius: '12px',
-                            fontSize: '0.72rem',
+                            padding: '2px 6px',
+                            borderRadius: '10px',
+                            fontSize: '0.68rem',
                             fontWeight: 800,
                             background:
                               item.risk === 'HIGH' ? '#fee2e2' : item.risk === 'MEDIUM' ? '#fef3c7' : '#dcfce7',
@@ -1670,14 +1671,14 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                         </span>
                       </td>
 
-                      <td style={{ padding: '14px 16px', verticalAlign: 'top', textAlign: 'center' }}>
+                      <td style={{ padding: '6px 10px', verticalAlign: 'top', textAlign: 'center' }}>
                         <select
                           value={item.status}
                           onChange={(e) => handleStatusChange(item.id, e.target.value as any)}
                           style={{
-                            padding: '6px 10px',
-                            borderRadius: '8px',
-                            fontSize: '0.8rem',
+                            padding: '4px 6px',
+                            borderRadius: '6px',
+                            fontSize: '0.74rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             outline: 'none',
@@ -1715,7 +1716,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                         </select>
                       </td>
 
-                      <td style={{ padding: '14px 16px', verticalAlign: 'top' }}>
+                      <td style={{ padding: '6px 10px', verticalAlign: 'top' }}>
                         <input
                           type="text"
                           value={item.findings}
@@ -1723,10 +1724,10 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                           placeholder="កត់ត្រាលទ្ធផលជាក់ស្តែង..."
                           style={{
                             width: '100%',
-                            padding: '6px 10px',
-                            borderRadius: '6px',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
                             border: '1px solid #cbd5e1',
-                            fontSize: '0.8rem',
+                            fontSize: '0.76rem',
                             background: '#ffffff',
                           }}
                         />
@@ -1742,45 +1743,45 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
 
       {/* TAB: CAP */}
       {activeTab === 'cap' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div
             style={{
               background: '#ffffff',
-              padding: '16px 20px',
-              borderRadius: '12px',
+              padding: '8px 14px',
+              borderRadius: '10px',
               border: '1px solid #e2e8f0',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               flexWrap: 'wrap',
-              gap: '12px',
+              gap: '8px',
             }}
           >
             <div>
-              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>ផែនការសកម្មភាពកែលម្អ (CAP Implementation Log)</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
+              <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800 }}>ផែនការសកម្មភាពកែលម្អ (CAP Implementation Log)</h3>
+              <p style={{ margin: '1px 0 0', fontSize: '0.76rem', color: '#64748b' }}>
                 តាមដាន និងដោះស្រាយចំណុចខ្វះខាតដែលបានរកឃើញពីសវនកម្ម ឱ្យបានទាន់ពេលវេលា
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
               <button
                 onClick={() => setShowCapReportModal(true)}
                 style={{
                   background: '#1e40af',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '9px 14px',
-                  borderRadius: '8px',
+                  padding: '6px 11px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '4px',
                 }}
               >
-                👁️ មើល & បោះពុម្ព (Preview CAP)
+                👁️ មើល & បោះពុម្ព
               </button>
               <button
                 onClick={() => {
@@ -1791,17 +1792,17 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                   background: '#10b981',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '9px 12px',
-                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '4px',
                 }}
               >
-                📥 ទាញយក PDF
+                📥 PDF
               </button>
               <button
                 onClick={handleExportCapsExcel}
@@ -1809,17 +1810,17 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                   background: '#047857',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '9px 12px',
-                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '4px',
                 }}
               >
-                📊 នាំចេញ Excel
+                📊 Excel
               </button>
               <button
                 onClick={handleAddNewCap}
@@ -1827,18 +1828,18 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                   background: '#2563eb',
                   color: '#ffffff',
                   border: 'none',
-                  padding: '9px 16px',
-                  borderRadius: '8px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
+                  fontSize: '0.76rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
+                  gap: '5px',
+                  boxShadow: '0 1px 3px rgba(37, 99, 235, 0.2)',
                 }}
               >
-                ➕ បន្ថែមសកម្មភាពថ្មី (Add Action Item)
+                ➕ បន្ថែម (Add Item)
               </button>
             </div>
           </div>
@@ -1846,42 +1847,42 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
           <div
             style={{
               background: '#ffffff',
-              borderRadius: '12px',
+              borderRadius: '10px',
               border: '1px solid #e2e8f0',
               overflow: 'hidden',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
             }}
           >
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.8rem' }}>
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#475569' }}>
-                    <th style={{ padding: '12px 14px', width: '10%' }}>កូដ (Code)</th>
-                    <th style={{ padding: '12px 14px', width: '22%' }}>បញ្ហាដែលបានរកឃើញ (Finding)</th>
-                    <th style={{ padding: '12px 14px', width: '8%', textAlign: 'center' }}>ហានិភ័យ</th>
-                    <th style={{ padding: '12px 14px', width: '24%' }}>វិធានការកែលម្អ (Action Plan)</th>
-                    <th style={{ padding: '12px 14px', width: '14%' }}>អ្នកទទួលខុសត្រូវ (PIC)</th>
-                    <th style={{ padding: '12px 14px', width: '10%' }}>កាលបរិច្ឆេទ</th>
-                    <th style={{ padding: '12px 14px', width: '12%', textAlign: 'center' }}>ស្ថានភាព</th>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', color: '#475569' }}>
+                    <th style={{ padding: '7px 10px', width: '10%' }}>កូដ (Code)</th>
+                    <th style={{ padding: '7px 10px', width: '22%' }}>បញ្ហាដែលបានរកឃើញ (Finding)</th>
+                    <th style={{ padding: '7px 10px', width: '8%', textAlign: 'center' }}>ហានិភ័យ</th>
+                    <th style={{ padding: '7px 10px', width: '24%' }}>វិធានការកែលម្អ (Action Plan)</th>
+                    <th style={{ padding: '7px 10px', width: '14%' }}>អ្នកទទួលខុសត្រូវ (PIC)</th>
+                    <th style={{ padding: '7px 10px', width: '10%' }}>កាលបរិច្ឆេទ</th>
+                    <th style={{ padding: '7px 10px', width: '12%', textAlign: 'center' }}>ស្ថានភាព</th>
                   </tr>
                 </thead>
                 <tbody>
                   {caps.map((cap) => (
                     <tr key={cap.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px 14px', fontWeight: 800, color: '#1e40af' }}>
+                      <td style={{ padding: '6px 10px', fontWeight: 800, color: '#1e40af' }}>
                         {cap.code}
-                        <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 'normal' }}>{cap.category}</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 'normal' }}>{cap.category}</div>
                       </td>
 
-                      <td style={{ padding: '12px 14px', color: '#0f172a', lineHeight: '1.4' }}>{cap.finding}</td>
+                      <td style={{ padding: '6px 10px', color: '#0f172a', lineHeight: '1.3' }}>{cap.finding}</td>
 
-                      <td style={{ padding: '12px 14px', textAlign: 'center' }}>
+                      <td style={{ padding: '6px 10px', textAlign: 'center' }}>
                         <span
                           style={{
                             display: 'inline-block',
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '0.72rem',
+                            padding: '2px 6px',
+                            borderRadius: '10px',
+                            fontSize: '0.68rem',
                             fontWeight: 800,
                             background:
                               cap.risk === 'HIGH' ? '#fee2e2' : cap.risk === 'MEDIUM' ? '#fef3c7' : '#dcfce7',
@@ -1892,21 +1893,21 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                         </span>
                       </td>
 
-                      <td style={{ padding: '12px 14px', color: '#334155', fontWeight: 600 }}>{cap.action}</td>
+                      <td style={{ padding: '6px 10px', color: '#334155', fontWeight: 600, lineHeight: '1.3' }}>{cap.action}</td>
 
-                      <td style={{ padding: '12px 14px', color: '#475569', fontSize: '0.8rem' }}>👤 {cap.pic}</td>
+                      <td style={{ padding: '6px 10px', color: '#475569', fontSize: '0.76rem' }}>👤 {cap.pic}</td>
 
-                      <td style={{ padding: '12px 14px', color: '#64748b', fontSize: '0.8rem' }}>📅 {cap.deadline}</td>
+                      <td style={{ padding: '6px 10px', color: '#64748b', fontSize: '0.76rem' }}>📅 {cap.deadline}</td>
 
-                      <td style={{ padding: '12px 14px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <td style={{ padding: '6px 10px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                           <select
                             value={cap.status}
                             onChange={(e) => handleCapStatusChange(cap.id, e.target.value as any)}
                             style={{
-                              padding: '5px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.78rem',
+                              padding: '3px 6px',
+                              borderRadius: '4px',
+                              fontSize: '0.74rem',
                               fontWeight: 700,
                               outline: 'none',
                               border: '1px solid #cbd5e1',
@@ -1936,7 +1937,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                               border: 'none',
                               color: '#94a3b8',
                               cursor: 'pointer',
-                              fontSize: '0.9rem',
+                              fontSize: '0.82rem',
                             }}
                           >
                             🗑️

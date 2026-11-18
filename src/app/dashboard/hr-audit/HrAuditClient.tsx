@@ -360,6 +360,123 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [autoReport, setAutoReport] = useState<AutoAuditReport | null>(null);
 
+  // Template Preview & Print/Export State
+  const [previewModalTemplate, setPreviewModalTemplate] = useState<string | null>(null);
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+
+  // Print Template Handler
+  const handlePrintTemplate = (elementId: string) => {
+    const printContent = document.getElementById(elementId);
+    if (!printContent) {
+      window.print();
+      return;
+    }
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>បោះពុម្ពទម្រង់ស្តង់ដា - HRM System</title>
+          <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <style>
+            body {
+              font-family: 'Kantumruy Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+              margin: 0;
+              padding: 24px;
+              color: #0f172a;
+              background: #ffffff;
+            }
+            @page {
+              size: A4;
+              margin: 12mm 15mm;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 12px 0;
+            }
+            th, td {
+              border: 1px solid #334155;
+              padding: 8px 10px;
+              font-size: 10.5pt;
+              line-height: 1.4;
+            }
+            th {
+              background-color: #f1f5f9;
+              font-weight: bold;
+              text-align: left;
+            }
+            .checkbox-box {
+              display: inline-block;
+              width: 14px;
+              height: 14px;
+              border: 1.5px solid #000;
+              margin-right: 6px;
+              vertical-align: middle;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+          <script>
+            window.onload = function() {
+              window.print();
+              window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  // Export PDF Handler
+  const handleExportPdf = async (elementId: string, filename: string) => {
+    try {
+      setIsExportingPdf(true);
+      const element = document.getElementById(elementId);
+      if (!element) {
+        window.print();
+        return;
+      }
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).default;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = 210;
+      const margin = 10;
+      const imgWidth = pdfWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
+      pdf.save(`${filename}.pdf`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ទាញយក PDF ជោគជ័យ!',
+        text: `ឯកសារ ${filename}.pdf ត្រូវបានទាញយករួចរាល់។`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire('Error', 'បរាជ័យក្នុងការទាញយក PDF: ' + err.message, 'error');
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   // LocalStorage sync
   useEffect(() => {
     try {
@@ -1639,125 +1756,806 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
 
       {/* TAB: TEMPLATES */}
       {activeTab === 'templates' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-          {[
-            {
-              title: 'ទម្រង់ផែនការកែលម្អ (Corrective Action Plan Form)',
-              desc: 'ទម្រង់ស្តង់ដាសម្រាប់ចុះហត្ថលេខាអនុម័តដោយ HR Director និង CEO លើចំណុចដែលត្រូវកែលម្អ។',
-              icon: '🎯',
-              type: 'PDF / DOCX',
-              preview: `កាលបរិច្ឆេទសវនកម្ម៖ [DD/MM/YYYY]\nសវនករទទួលបន្ទុក៖ .............................\nផ្នែក៖ .............................\n• កូដបញ្ហា: CAP-001\n• ហានិភ័យ: High\n• វិធានការដោះស្រាយ: ..........................\n• អ្នកទទួលខុសត្រូវ (PIC): ....................\n• កាលបរិច្ឆេទសម្រេច: .........................`,
-            },
-            {
-              title: 'ទម្រង់សម្ភាសន៍បុគ្គលិកលាលែង (Exit Interview Form)',
-              desc: 'កម្រងសំណួរស្វែងយល់ពីមូលហេតុនៃការចាកចេញ និងការវាយតម្លៃបរិយាកាសការងារ និងប្រាក់បៀវត្សរ៍។',
-              icon: '📝',
-              type: 'Form Template',
-              preview: `១. តើអ្វីជាមូលហេតុចម្បងដែលលោក/លោកស្រីសម្រេចចិត្តលាលែង?\n[ ] ឱកាសការងារថ្មី  [ ] បៀវត្សរ៍មិនសមរម្យ  [ ] បញ្ហាគ្រួសារ\n២. តើលោក/លោកស្រីពេញចិត្តនឹងការគ្រប់គ្រងរបស់ប្រធានផ្នែកកម្រិតណា? (១ ដល់ ៥)\n៣. តើក្រុមហ៊ុនគួរកែលម្អអ្វីខ្លះដើម្បីរក្សាបុគ្គលិកឱ្យនៅយូរអង្វែង?`,
-            },
-            {
-              title: 'តារាងត្រួតពិនិត្យសុវត្ថិភាពការងារ (Safety & EHS Checklist)',
-              desc: 'តារាងចុះពិនិត្យប្រចាំខែលើបំពង់ពន្លត់អគ្គិភ័យ ច្រកទ្វារអាសន្ន និងឧបករណ៍ការពារសុវត្ថិភាព (PPE)។',
-              icon: '🏥',
-              type: 'Checklist Template',
-              preview: `[ ] បំពង់ពន្លត់អគ្គិភ័យមានកម្រិតសម្ពាធត្រឹមត្រូវ (កុងទ័រនៅកម្រិតបៃតង)\n[ ] ច្រកទ្វារអាសន្នមិនមានទំនិញរាំងស្ទះ និងមានភ្លើងសញ្ញាច្បាស់លាស់\n[ ] គ្លីនិកមានថ្នាំសង្គ្រោះបឋម និងមានគិលានុបដ្ឋាយិកាប្រចាំការ\n[ ] បុគ្គលិកផ្នែកផលិតកម្មពាក់ឧបករណ៍ PPE គ្រប់គ្នា`,
-            },
-            {
-              title: 'ទម្រង់វាយតម្លៃពេលសាកល្បងការងារ (Probation Review Sheet)',
-              desc: 'ទម្រង់សម្រាប់ប្រធានផ្នែកវាយតម្លៃបុគ្គលិកថ្មីមុនពេលផ្តល់កិច្ចសន្យាការងារពេញសិទ្ធិ (FDC/UDC)។',
-              icon: '⭐',
-              type: 'Appraisal Sheet',
-              preview: `ឈ្មោះបុគ្គលិក៖ .................... មុខតំណែង៖ ....................\nរយៈពេលសាកល្បង៖ ៣ ខែ\n• ជំនាញការងារបច្ចេកទេស (Tech Skills): [ 1 - 5 ]\n• វិន័យ និងការគោរពម៉ោងការងារ: [ 1 - 5 ]\n• សីលធម៌ និងការសហការក្នុងក្រុម: [ 1 - 5 ]\nការសម្រេច៖ [ ] ជាប់ជាស្ថាពរ  [ ] ពន្យារពេលសាកល្បង  [ ] មិនជាប់`,
-            },
-            {
-              title: 'ទម្រង់របាយការណ៍បណ្តឹងតវ៉ា (Grievance Incident Form)',
-              desc: 'ទម្រង់សម្ងាត់សម្រាប់កត់ត្រាបណ្តឹងតវ៉ា ការរើសអើង ឬទំនាស់រវាងបុគ្គលិក និងបុគ្គលិក។',
-              icon: '⚖️',
-              type: 'Confidential Form',
-              preview: `លេខកូដបណ្តឹង៖ GR-2026-XXXX\nកាលបរិច្ឆេទកើតហេតុ៖ ....................\nកម្មវត្ថុបណ្តឹង៖ [ ] ការរើសអើង  [ ] ការបៀតបៀន  [ ] បៀវត្សរ៍/ម៉ោងធ្វើការ\nដំណើររឿងសង្ខេប៖ ................................................\nចំណាត់ការដោះស្រាយរបស់ HR៖ .....................................`,
-            },
-          ].map((tmpl, idx) => (
+        <div>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              padding: '16px 20px',
+              marginBottom: '20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+            }}
+          >
+            <div>
+              <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
+                📁 មជ្ឈមណ្ឌលទម្រង់គំរូផ្លូវការ (Official HR Templates & Forms)
+              </h2>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+                ទម្រង់គំរូទាំងអស់អាចធ្វើការ Preview មើលពេញអេក្រង់ បោះពុម្ព (Print A4) ឬទាញយកជា PDF ទៅប្រើប្រាស់បានភ្លាមៗ
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+            {[
+              {
+                key: 'cap',
+                filename: 'Corrective_Action_Plan_CAP',
+                title: 'ទម្រង់ផែនការកែលម្អ (Corrective Action Plan Form)',
+                desc: 'ទម្រង់ស្តង់ដាសម្រាប់ចុះហត្ថលេខាអនុម័តដោយ Lead Auditor, HR Director និង CEO លើចំណុចដែលត្រូវកែលម្អ។',
+                icon: '🎯',
+                type: 'PDF / Print Form',
+                preview: `កាលបរិច្ឆេទសវនកម្ម៖ [DD/MM/YYYY]\nសវនករទទួលបន្ទុក៖ .............................\nផ្នែក៖ .............................\n• កូដបញ្ហា: CAP-001\n• ហានិភ័យ: High\n• វិធានការដោះស្រាយ: ..........................\n• អ្នកទទួលខុសត្រូវ (PIC): ....................\n• កាលបរិច្ឆេទសម្រេច: .........................`,
+              },
+              {
+                key: 'exit',
+                filename: 'Employee_Exit_Interview_Form',
+                title: 'ទម្រង់សម្ភាសន៍បុគ្គលិកលាលែង (Exit Interview Form)',
+                desc: 'កម្រងសំណួរស្វែងយល់ពីមូលហេតុនៃការចាកចេញ និងការវាយតម្លៃបរិយាកាសការងារ និងប្រាក់បៀវត្សរ៍។',
+                icon: '📝',
+                type: 'PDF / Print Form',
+                preview: `១. តើអ្វីជាមូលហេតុចម្បងដែលលោក/លោកស្រីសម្រេចចិត្តលាលែង?\n[ ] ឱកាសការងារថ្មី  [ ] បៀវត្សរ៍មិនសមរម្យ  [ ] បញ្ហាគ្រួសារ\n២. តើលោក/លោកស្រីពេញចិត្តនឹងការគ្រប់គ្រងរបស់ប្រធានផ្នែកកម្រិតណា? (១ ដល់ ៥)\n៣. តើក្រុមហ៊ុនគួរកែលម្អអ្វីខ្លះដើម្បីរក្សាបុគ្គលិកឱ្យនៅយូរអង្វែង?`,
+              },
+              {
+                key: 'safety',
+                filename: 'Monthly_Safety_EHS_Checklist',
+                title: 'តារាងត្រួតពិនិត្យសុវត្ថិភាពការងារ (Safety & EHS Checklist)',
+                desc: 'តារាងចុះពិនិត្យប្រចាំខែលើបំពង់ពន្លត់អគ្គិភ័យ ច្រកទ្វារអាសន្ន និងឧបករណ៍ការពារសុវត្ថិភាព (PPE)។',
+                icon: '🏥',
+                type: 'PDF / Print Form',
+                preview: `[ ] បំពង់ពន្លត់អគ្គិភ័យមានកម្រិតសម្ពាធត្រឹមត្រូវ (កុងទ័រនៅកម្រិតបៃតង)\n[ ] ច្រកទ្វារអាសន្នមិនមានទំនិញរាំងស្ទះ និងមានភ្លើងសញ្ញាច្បាស់លាស់\n[ ] គ្លីនិកមានថ្នាំសង្គ្រោះបឋម និងមានគិលានុបដ្ឋាយិកាប្រចាំការ\n[ ] បុគ្គលិកផ្នែកផលិតកម្មពាក់ឧបករណ៍ PPE គ្រប់គ្នា`,
+              },
+              {
+                key: 'probation',
+                filename: 'Probationary_Performance_Review',
+                title: 'ទម្រង់វាយតម្លៃពេលសាកល្បងការងារ (Probation Review Sheet)',
+                desc: 'ទម្រង់សម្រាប់ប្រធានផ្នែកវាយតម្លៃបុគ្គលិកថ្មីមុនពេលផ្តល់កិច្ចសន្យាការងារពេញសិទ្ធិ (FDC/UDC)។',
+                icon: '⭐',
+                type: 'PDF / Print Form',
+                preview: `ឈ្មោះបុគ្គលិក៖ .................... មុខតំណែង៖ ....................\nរយៈពេលសាកល្បង៖ ៣ ខែ\n• ជំនាញការងារបច្ចេកទេស (Tech Skills): [ 1 - 5 ]\n• វិន័យ និងការគោរពម៉ោងការងារ: [ 1 - 5 ]\n• សីលធម៌ និងការសហការក្នុងក្រុម: [ 1 - 5 ]\nការសម្រេច៖ [ ] ជាប់ជាស្ថាពរ  [ ] ពន្យារពេលសាកល្បង  [ ] មិនជាប់`,
+              },
+              {
+                key: 'grievance',
+                filename: 'Employee_Grievance_Incident_Form',
+                title: 'ទម្រង់របាយការណ៍បណ្តឹងតវ៉ា (Grievance Incident Form)',
+                desc: 'ទម្រង់សម្ងាត់សម្រាប់កត់ត្រាបណ្តឹងតវ៉ា ការរើសអើង ឬទំនាស់រវាងបុគ្គលិក និងបុគ្គលិក។',
+                icon: '⚖️',
+                type: 'PDF / Print Form',
+                preview: `លេខកូដបណ្តឹង៖ GR-2026-XXXX\nកាលបរិច្ឆេទកើតហេតុ៖ ....................\nកម្មវត្ថុបណ្តឹង៖ [ ] ការរើសអើង  [ ] ការបៀតបៀន  [ ] បៀវត្សរ៍/ម៉ោងធ្វើការ\nដំណើររឿងសង្ខេប៖ ................................................\nចំណាត់ការដោះស្រាយរបស់ HR៖ .....................................`,
+              },
+            ].map((tmpl) => (
+              <div
+                key={tmpl.key}
+                style={{
+                  background: '#ffffff',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '1.4rem' }}>{tmpl.icon}</span>
+                    <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>{tmpl.title}</div>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 12px', lineHeight: '1.5' }}>
+                    {tmpl.desc}
+                  </p>
+
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'monospace',
+                      fontSize: '0.75rem',
+                      color: '#334155',
+                      whiteSpace: 'pre-wrap',
+                      maxHeight: '120px',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {tmpl.preview}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '16px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <button
+                    onClick={() => setPreviewModalTemplate(tmpl.key)}
+                    style={{
+                      background: '#2563eb',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '7px 14px',
+                      borderRadius: '6px',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    👁️ មើល & បោះពុម្ព (Preview)
+                  </button>
+
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      onClick={() => {
+                        setPreviewModalTemplate(tmpl.key);
+                        setTimeout(() => handlePrintTemplate('templatePrintArea'), 200);
+                      }}
+                      title="បោះពុម្ពភ្លាមៗ"
+                      style={{
+                        background: '#f1f5f9',
+                        color: '#0f172a',
+                        border: '1px solid #cbd5e1',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      🖨️ បោះពុម្ព
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(tmpl.preview);
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'បានចម្លង (Copied!)',
+                          text: 'ខ្លឹមសារគំរូត្រូវបានចម្លងទៅ Clipboard រួចរាល់។',
+                          timer: 1400,
+                          showConfirmButton: false,
+                        });
+                      }}
+                      title="ចម្លងអត្ថបទ"
+                      style={{
+                        background: '#f0fdf4',
+                        color: '#16a34a',
+                        border: '1px solid #bbf7d0',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      📋 ចម្លង
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* FULL PREVIEW & PRINT MODAL */}
+      {previewModalTemplate && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '920px',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Top Bar */}
             <div
-              key={idx}
               style={{
-                background: '#ffffff',
-                borderRadius: '12px',
-                border: '1px solid #e2e8f0',
-                padding: '20px',
+                padding: '16px 24px',
+                background: '#0f172a',
+                color: '#ffffff',
                 display: 'flex',
-                flexDirection: 'column',
                 justifyContent: 'space-between',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px',
               }}
             >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '1.4rem' }}>{tmpl.icon}</span>
-                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>{tmpl.title}</div>
-                </div>
-                <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 12px', lineHeight: '1.5' }}>
-                  {tmpl.desc}
-                </p>
-
-                <div
-                  style={{
-                    background: '#f8fafc',
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    fontFamily: 'monospace',
-                    fontSize: '0.75rem',
-                    color: '#334155',
-                    whiteSpace: 'pre-wrap',
-                    maxHeight: '120px',
-                    overflowY: 'auto',
-                  }}
-                >
-                  {tmpl.preview}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '1.3rem' }}>📄</span>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.98rem' }}>
+                    {previewModalTemplate === 'cap' && 'ទម្រង់ផែនការកែលម្អ (Corrective Action Plan Form)'}
+                    {previewModalTemplate === 'exit' && 'ទម្រង់សម្ភាសន៍បុគ្គលិកលាលែង (Exit Interview Form)'}
+                    {previewModalTemplate === 'safety' && 'តារាងត្រួតពិនិត្យសុវត្ថិភាពការងារ (Safety & EHS Checklist)'}
+                    {previewModalTemplate === 'probation' && 'ទម្រង់វាយតម្លៃពេលសាកល្បងការងារ (Probation Review Sheet)'}
+                    {previewModalTemplate === 'grievance' && 'ទម្រង់របាយការណ៍បណ្តឹងតវ៉ា (Grievance Incident Form)'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>ទម្រង់ស្តង់ដា A4 ត្រៀមរួចជាស្រេចសម្រាប់បោះពុម្ព ឬទាញយក</div>
                 </div>
               </div>
 
-              <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span
-                  style={{
-                    background: '#f1f5f9',
-                    color: '#475569',
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                  }}
-                >
-                  {tmpl.type}
-                </span>
-
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(tmpl.preview);
-                    Swal.fire({
-                      icon: 'success',
-                      title: 'បានចម្លង (Copied!)',
-                      text: 'ខ្លឹមសារគំរូត្រូវបានចម្លងទៅ Clipboard រួចរាល់។',
-                      timer: 1400,
-                      showConfirmButton: false,
-                    });
-                  }}
+                  onClick={() => handlePrintTemplate('templatePrintArea')}
                   style={{
-                    background: '#f0fdf4',
-                    color: '#16a34a',
-                    border: '1px solid #bbf7d0',
-                    padding: '6px 12px',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
                     borderRadius: '6px',
-                    fontSize: '0.78rem',
+                    fontSize: '0.82rem',
                     fontWeight: 700,
                     cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
                   }}
                 >
-                  📋 ចម្លងទម្រង់ (Copy Form)
+                  🖨️ បោះពុម្ព (Print A4)
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleExportPdf(
+                      'templatePrintArea',
+                      previewModalTemplate === 'cap'
+                        ? 'Corrective_Action_Plan_CAP'
+                        : previewModalTemplate === 'exit'
+                        ? 'Employee_Exit_Interview_Form'
+                        : previewModalTemplate === 'safety'
+                        ? 'Monthly_Safety_EHS_Checklist'
+                        : previewModalTemplate === 'probation'
+                        ? 'Probationary_Performance_Review'
+                        : 'Employee_Grievance_Incident_Form'
+                    )
+                  }
+                  disabled={isExportingPdf}
+                  style={{
+                    background: isExportingPdf ? '#64748b' : '#10b981',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: isExportingPdf ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  {isExportingPdf ? '⏳ កំពុងទាញយក...' : '📥 ទាញយក PDF (A4)'}
+                </button>
+
+                <button
+                  onClick={() => setPreviewModalTemplate(null)}
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                  }}
+                >
+                  ✕ បិទ (Close)
                 </button>
               </div>
             </div>
-          ))}
+
+            {/* Modal Body / Printable Document Area */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '28px 36px',
+                background: '#f1f5f9',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <div
+                id="templatePrintArea"
+                style={{
+                  background: '#ffffff',
+                  width: '100%',
+                  maxWidth: '800px',
+                  minHeight: '1050px',
+                  padding: '40px',
+                  borderRadius: '4px',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+                  color: '#0f172a',
+                  fontFamily: "'Kantumruy Pro', 'Inter', sans-serif",
+                  lineHeight: 1.5,
+                  fontSize: '0.88rem',
+                }}
+              >
+                {/* 1. CAP FORM */}
+                {previewModalTemplate === 'cap' && (
+                  <div>
+                    {/* Header */}
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>ព្រះរាជាណាចក្រកម្ពុជា • ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a', margin: '8px 0 2px' }}>
+                        ផែនការសកម្មភាពកែលម្អលទ្ធផលសវនកម្ម (CAP)
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                        HR AUDIT CORRECTIVE ACTION PLAN & FOLLOW-UP FORM
+                      </div>
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>កាលបរិច្ឆេទសវនកម្ម៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>{new Date().toLocaleDateString()}</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>លេខកូដឯកសារ៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>CAP-HR-2026-V2</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>សវនករដឹកនាំ (Auditor)៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>ក្រុមការងារសវនកម្មផ្ទៃក្នុង (HR Audit Team)</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ផ្នែកដែលត្រូវបានត្រួតពិនិត្យ៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>ធនធានមនុស្ស & រដ្ឋបាល (HR & Admin)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 6px', color: '#0f172a' }}>
+                      បញ្ជីចំណុចខ្វះខាត និងវិធានការកែលម្អ (Action Items & Root Cause Solutions):
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', fontSize: '0.82rem' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
+                          <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '8%' }}>កូដ</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '26%' }}>ចំណុចខ្វះខាត (Findings)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '10%' }}>ហានិភ័យ</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '26%' }}>វិធានការកែលម្អ (Action Plan)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '16%' }}>អ្នកទទួលខុសត្រូវ (PIC)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '8px', width: '14%' }}>កាលបរិច្ឆេទ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {caps.map((c) => (
+                          <tr key={c.id}>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 700 }}>{c.code}</td>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{c.finding}</td>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center', fontWeight: 700, color: c.risk === 'HIGH' ? '#dc2626' : '#d97706' }}>
+                              {c.risk}
+                            </td>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{c.action}</td>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px' }}>{c.pic}</td>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px', textAlign: 'center' }}>{c.deadline}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* Signatures */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '40px', textAlign: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>រៀបចំដោយ (Lead Auditor)</div>
+                        <div style={{ height: '70px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '6px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ ..... / ..... / 2026</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>ពិនិត្យដោយ (HR Director)</div>
+                        <div style={{ height: '70px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '6px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ ..... / ..... / 2026</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>អនុម័តដោយ (Managing Director)</div>
+                        <div style={{ height: '70px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '6px' }}>ហត្ថលេខា & ត្រាស្ថាប័ន</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>កាលបរិច្ឆេទ៖ ..... / ..... / 2026</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. EXIT INTERVIEW FORM */}
+                {previewModalTemplate === 'exit' && (
+                  <div>
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a' }}>
+                        កម្រងសំណួរសម្ភាសន៍បុគ្គលិកលាលែងពីការងារ
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                        CONFIDENTIAL EMPLOYEE EXIT INTERVIEW QUESTIONNAIRE
+                      </div>
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>ឈ្មោះបុគ្គលិក៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>................................................</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>អត្តលេខ (ID)៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>................................................</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>មុខតំណែង (Position)៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>................................................</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ផ្នែក/នាយកដ្ឋាន៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>................................................</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ថ្ងៃចូលបម្រើការងារ៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>..... / ..... / 20....</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ថ្ងៃចាកចេញចុងក្រោយ៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>..... / ..... / 2026</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 6px', color: '#0f172a' }}>
+                      ១. មូលហេតុចម្បងនៃការលាលែង (សូមគូសសញ្ញា ✓ ក្នុងប្រអប់ដែលត្រូវ):
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', margin: '8px 0 16px', fontSize: '0.84rem' }}>
+                      <div>[ ] ទទួលបានឱកាសការងារថ្មី (ប្រាក់បៀវត្សរ៍ខ្ពស់ជាង)</div>
+                      <div>[ ] បញ្ហាគ្រួសារ ឬការផ្លាស់ប្តូរទីលំនៅ</div>
+                      <div>[ ] ការបន្តការសិក្សា (Further Education)</div>
+                      <div>[ ] បញ្ហាសុខភាពផ្ទាល់ខ្លួន (Health Issues)</div>
+                      <div>[ ] មិនពេញចិត្តនឹងបរិយាកាសការងារ/ប្រធានផ្ទាល់</div>
+                      <div>[ ] ខ្វះឱកាសរីកចម្រើនក្នុងអាជីព (Career Growth)</div>
+                    </div>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 6px', color: '#0f172a' }}>
+                      ២. ការវាយតម្លៃលើបទពិសោធន៍ការងារ (ពិន្ទុពី ១ ដល់ ៥):
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px', fontSize: '0.82rem' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left', width: '55%' }}>លក្ខខណ្ឌវាយតម្លៃ</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '9%' }}>១ (ខ្សោយ)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '9%' }}>២ (មធ្យម)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '9%' }}>៣ (ល្អ)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '9%' }}>៤ (ល្អណាស់)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '9%' }}>៥ (ល្អប្រសើរ)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          'ទំនាក់ទំនង និងការគាំទ្រពីប្រធានផ្នែកផ្ទាល់',
+                          'កម្រិតប្រាក់បៀវត្សរ៍ និងអត្ថប្រយោជន៍នានា',
+                          'ឱកាសបណ្តុះបណ្តាល និងពង្រឹងសមត្ថភាព',
+                          'បរិយាកាស និងសុវត្ថិភាពនៅកន្លែងធ្វើការ',
+                          'ស្មារតីសាមគ្គីភាព និងការសហការក្នុងក្រុម',
+                        ].map((q, idx) => (
+                          <tr key={idx}>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>{q}</td>
+                            <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                            <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                            <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                            <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                            <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 4px', color: '#0f172a' }}>
+                      ៣. មតិយោបល់ និងអនុសាសន៍ដើម្បីជួយក្រុមហ៊ុនកែលម្អ៖
+                    </div>
+                    <div style={{ border: '1px solid #cbd5e1', padding: '10px', height: '60px', borderRadius: '4px', background: '#fafafa' }}>
+                      .......................................................................................................................................................................................................
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginTop: '30px', textAlign: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>ហត្ថលេខាបុគ្គលិកលាលែង</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ឈ្មោះ៖ .............................................</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>អ្នកសម្ភាសន៍ (HR Representative)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ឈ្មោះ៖ .............................................</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. SAFETY & EHS CHECKLIST */}
+                {previewModalTemplate === 'safety' && (
+                  <div>
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#166534' }}>
+                        តារាងត្រួតពិនិត្យសុវត្ថិភាព និងបរិស្ថានការងារប្រចាំខែ (EHS)
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                        MONTHLY WORKPLACE HEALTH, SAFETY & ENVIRONMENT INSPECTION
+                      </div>
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '25%' }}>ទីតាំងចុះពិនិត្យ (Area)៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '25%' }}>រោងចក្រ / អគារផលិតកម្ម</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '25%' }}>កាលបរិច្ឆេទចុះពិនិត្យ៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '25%' }}>{new Date().toLocaleDateString()}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>អធិការកិច្ចចុះពិនិត្យ (Inspector)៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>EHS Committee Team</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>តំណាងកម្មករនិយោជិត៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>Worker Representative</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', fontSize: '0.82rem' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left', width: '60%' }}>ចំណុចត្រួតពិនិត្យសុវត្ថិភាព (Inspection Criteria)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '12%' }}>ជាប់ (Pass)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '12%' }}>ធ្លាក់ (Fail)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '16%' }}>ចំណាំ (Remarks)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style={{ background: '#f8fafc', fontWeight: 700 }}>
+                          <td colSpan={4} style={{ border: '1px solid #cbd5e1', padding: '6px 10px', color: '#1e3a8a' }}>១. បង្ការ និងពន្លត់អគ្គិភ័យ (Fire Safety)</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>បំពង់ពន្លត់អគ្គិភ័យមានសម្ពាធត្រឹមត្រូវ (កុងទ័រនៅកម្រិតបៃតង) និងមានកាតត្រួតពិនិត្យ</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ✓ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '4px' }}></td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>ច្រកទ្វារអាសន្នបើកចំហរងាយស្រួល គ្មានទំនិញរាំងស្ទះ និងមានភ្លើងសញ្ញា Exit</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ✓ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '4px' }}></td>
+                        </tr>
+
+                        <tr style={{ background: '#f8fafc', fontWeight: 700 }}>
+                          <td colSpan={4} style={{ border: '1px solid #cbd5e1', padding: '6px 10px', color: '#1e3a8a' }}>២. ឧបករណ៍ការពារសុវត្ថិភាព (PPE)</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>បុគ្គលិកពាក់ម៉ាស មួក ឬស្បែកជើងសុវត្ថិភាពស្របតាមតំបន់គ្រោះថ្នាក់គ្រប់គ្រាន់</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ✓ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '4px' }}></td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>កន្លែងលាងភ្នែកបន្ទាន់ (Eye Wash Station) ដំណើរការល្អ និងមានទឹកស្អាត</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ✓ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '4px' }}></td>
+                        </tr>
+
+                        <tr style={{ background: '#f8fafc', fontWeight: 700 }}>
+                          <td colSpan={4} style={{ border: '1px solid #cbd5e1', padding: '6px 10px', color: '#1e3a8a' }}>៣. អនាម័យ និងគ្លីនិក (Hygiene & Health Clinic)</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>គ្លីនិករោងចក្រមានគិលានុបដ្ឋាយិកាប្រចាំការ និងប្រអប់ថ្នាំសង្គ្រោះបឋមពេញលេញ</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ✓ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '4px' }}></td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>បន្ទប់ទឹកស្អាត បែងចែកប្រុស-ស្រីត្រឹមត្រូវ និងមានសាប៊ូលាងដៃ</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ✓ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', textAlign: 'center' }}>[ ]</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '4px' }}></td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '30px', textAlign: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>មន្ត្រីសុវត្ថិភាព (EHS Officer)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>ប្រធានរោងចក្រ (Factory Manager)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>តំណាងបុគ្គលិក (Worker Rep)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. PROBATION REVIEW SHEET */}
+                {previewModalTemplate === 'probation' && (
+                  <div>
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a' }}>
+                        ទម្រង់វាយតម្លៃការបំពេញការងារពេលសាកល្បង
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                        PROBATIONARY PERFORMANCE APPRAISAL FORM
+                      </div>
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>ឈ្មោះបុគ្គលិក៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>................................................</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>អត្តលេខ (ID)៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>................................................</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>មុខតំណែង៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>................................................</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ផ្នែក/នាយកដ្ឋាន៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>................................................</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px', fontSize: '0.82rem' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', textAlign: 'center' }}>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', textAlign: 'left', width: '60%' }}>លក្ខខណ្ឌវាយតម្លៃ (Evaluation Criteria)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '20%' }}>ពិន្ទុ (១ ដល់ ៥)</th>
+                          <th style={{ border: '1px solid #94a3b8', padding: '6px', width: '20%' }}>ចំណាំ (Comments)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          '១. ចំណេះដឹង និងគុណភាពការងារបច្ចេកទេស (Job Knowledge)',
+                          '២. ផលិតភាព និងល្បឿននៃការបំពេញការងារ (Productivity & Timeliness)',
+                          '៣. វិន័យ និងការគោរពម៉ោងការងារ (Discipline & Punctuality)',
+                          '៤. ទំនាក់ទំនង និងការធ្វើការជាក្រុម (Communication & Teamwork)',
+                          '៥. គំនិតផ្តួចផ្តើម និងការរៀនសូត្ររហ័ស (Initiative & Adaptability)',
+                        ].map((item, idx) => (
+                          <tr key={idx}>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '8px 10px' }}>{item}</td>
+                            <td style={{ border: '1px solid #cbd5e1', textAlign: 'center', fontWeight: 700 }}>[ ..... / 5 ]</td>
+                            <td style={{ border: '1px solid #cbd5e1', padding: '6px' }}></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 6px', color: '#0f172a' }}>
+                      ការសម្រេចរបស់គណៈគ្រប់គ្រង (Final Management Decision):
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '8px 0 20px', fontSize: '0.86rem' }}>
+                      <div>[ ] <strong>ជាប់ជាស្ថាពរ (Pass Probation)</strong> $\rightarrow$ ផ្តល់កិច្ចសន្យាការងារពេញសិទ្ធិ (FDC/UDC)</div>
+                      <div>[ ] <strong>ពន្យារពេលសាកល្បង (Extend Probation)</strong> $\rightarrow$ រយៈពេលពន្យារបន្ថែម៖ .......... ខែ</div>
+                      <div>[ ] <strong>មិនជាប់សាកល្បង (Fail Probation)</strong> $\rightarrow$ បញ្ចប់កិច្ចសន្យាសាកល្បងការងារត្រឹមថ្ងៃកំណត់</div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '30px', textAlign: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>ប្រធានផ្នែកផ្ទាល់ (Supervisor)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>ប្រធានផ្នែក HR (HR Manager)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>សាមីខ្លួនបុគ្គលិក (Employee)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>បានឃើញ និងឯកភាព</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. GRIEVANCE REPORT FORM */}
+                {previewModalTemplate === 'grievance' && (
+                  <div>
+                    <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '18px' }}>
+                      <div style={{ fontSize: '0.8rem', color: '#dc2626', fontWeight: 800, letterSpacing: '1px' }}>ឯកសារសម្ងាត់ • STRICTLY CONFIDENTIAL</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e3a8a', margin: '4px 0' }}>
+                        ទម្រង់ពាក្យបណ្តឹងតវ៉ា និងការដោះស្រាយវិវាទការងារ
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>
+                        EMPLOYEE GRIEVANCE & WORKPLACE DISPUTE REPORT FORM
+                      </div>
+                    </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px' }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>លេខកូដបណ្តឹង៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>GR-2026-008</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700, width: '22%' }}>កាលបរិច្ឆេទទទួល៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', width: '28%' }}>{new Date().toLocaleDateString()}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ឈ្មោះដើមបណ្តឹង៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>[ ] បញ្ចេញឈ្មោះ  [ ] រក្សាការសម្ងាត់ (Anonymous)</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px', background: '#f8fafc', fontWeight: 700 }}>ផ្នែកពាក់ព័ន្ធ៖</td>
+                          <td style={{ border: '1px solid #cbd5e1', padding: '6px 10px' }}>................................................</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 6px', color: '#0f172a' }}>
+                      ប្រភេទនៃបណ្តឹងតវ៉ា (Nature of Grievance):
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', margin: '8px 0 16px', fontSize: '0.84rem' }}>
+                      <div>[ ] ការរើសអើង ឬការបៀតបៀន (Harassment/Discrimination)</div>
+                      <div>[ ] ទំនាស់ផលប្រយោជន៍ ឬអាកប្បកិរិយាមិនសមរម្យពីប្រធាន</div>
+                      <div>[ ] បញ្ហាប្រាក់ឈ្នួល ការកាត់ប្រាក់ ឬម៉ោងថែម OT</div>
+                      <div>[ ] លក្ខខណ្ឌការងារ និងបញ្ហាសុខភាពសុវត្ថិភាព</div>
+                    </div>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 4px', color: '#0f172a' }}>
+                      ដំណើររឿងសង្ខេបនៃបណ្តឹង (Statement of Events):
+                    </div>
+                    <div style={{ border: '1px solid #cbd5e1', padding: '10px', height: '70px', borderRadius: '4px', background: '#fafafa', marginBottom: '14px' }}>
+                      .......................................................................................................................................................................................................
+                    </div>
+
+                    <div style={{ fontWeight: 800, margin: '14px 0 4px', color: '#0f172a' }}>
+                      ចំណាត់ការស៊ើបអង្កេត និងដំណោះស្រាយរបស់ HR (Investigation Findings & Action):
+                    </div>
+                    <div style={{ border: '1px solid #cbd5e1', padding: '10px', height: '70px', borderRadius: '4px', background: '#fafafa', marginBottom: '20px' }}>
+                      .......................................................................................................................................................................................................
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '30px', textAlign: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>អ្នកដាក់ពាក្យបណ្តឹង</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា / ស្នាមមេដៃ</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>មន្ត្រីទទួលបន្ទុកដោះស្រាយ (HR)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>ហត្ថលេខា & ឈ្មោះ</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800 }}>អគ្គនាយក (General Manager)</div>
+                        <div style={{ height: '60px' }}></div>
+                        <div style={{ borderTop: '1px dashed #475569', paddingTop: '4px' }}>បានឃើញ និងឯកភាព</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

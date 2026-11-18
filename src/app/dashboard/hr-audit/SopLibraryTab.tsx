@@ -821,6 +821,76 @@ interface SopLibraryTabProps {
   handleExportPdf: (elementId: string, filename: string) => void;
 }
 
+interface BilingualClause {
+  khmerTitle: string;
+  khmerBody: string;
+  englishTitle: string;
+  englishBody: string;
+}
+
+function parseBilingualClauses(contentKh: string, contentEn: string): BilingualClause[] {
+  const splitSections = (text: string) => {
+    const lines = text.trim().split('\n');
+    const sections: { title: string; body: string }[] = [];
+    let currentTitle = '';
+    let currentBody: string[] = [];
+    // Match line starting with number (Khmer or Latin digits: ១-៩ or 1-9) followed by . ) : -
+    const secRegex = /^[១-៩1-9]\s*[\.\、\)\:\-]\s*(.*)$/;
+
+    for (const raw of lines) {
+      const line = raw.trim();
+      const match = line.match(secRegex);
+      if (match) {
+        if (currentTitle || currentBody.length > 0) {
+          sections.push({
+            title: currentTitle,
+            body: currentBody.join('\n').trim(),
+          });
+          currentBody = [];
+        }
+        currentTitle = line;
+      } else {
+        currentBody.push(raw);
+      }
+    }
+    if (currentTitle || currentBody.length > 0) {
+      sections.push({
+        title: currentTitle,
+        body: currentBody.join('\n').trim(),
+      });
+    }
+    return sections;
+  };
+
+  const khSections = splitSections(contentKh);
+  const enSections = splitSections(contentEn);
+
+  if (khSections.length === 0 && enSections.length === 0) {
+    return [{
+      khmerTitle: '',
+      khmerBody: contentKh,
+      englishTitle: '',
+      englishBody: contentEn,
+    }];
+  }
+
+  const maxLen = Math.max(khSections.length, enSections.length);
+  const clauses: BilingualClause[] = [];
+
+  for (let i = 0; i < maxLen; i++) {
+    const kh = khSections[i] || { title: '', body: '' };
+    const en = enSections[i] || { title: '', body: '' };
+    clauses.push({
+      khmerTitle: kh.title,
+      khmerBody: kh.body,
+      englishTitle: en.title,
+      englishBody: en.body,
+    });
+  }
+
+  return clauses;
+}
+
 export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: SopLibraryTabProps) {
   const [sops, setSops] = useState<FactorySop[]>(DEFAULT_SOPS);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -829,6 +899,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   // Modals state
   const [editingSop, setEditingSop] = useState<FactorySop | null>(null);
   const [previewSop, setPreviewSop] = useState<FactorySop | null>(null);
+  const [previewLayoutMode, setPreviewLayoutMode] = useState<'1row' | 'paragraph'>('1row');
 
   // Sync with LocalStorage
   useEffect(() => {
@@ -1550,7 +1621,43 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                {/* 1-Row Bilingual Toggle Button */}
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '2px', marginRight: '4px' }}>
+                  <button
+                    onClick={() => setPreviewLayoutMode('1row')}
+                    style={{
+                      background: previewLayoutMode === '1row' ? '#ffffff' : 'transparent',
+                      color: previewLayoutMode === '1row' ? '#0f172a' : '#cbd5e1',
+                      border: 'none',
+                      padding: '4px 9px',
+                      borderRadius: '4px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                    title="ទម្រង់តារាង 1-Row ២ភាសា (ខ្មែរលើគេ)"
+                  >
+                    📑 1-Row ២ភាសា (ខ្មែរលើគេ)
+                  </button>
+                  <button
+                    onClick={() => setPreviewLayoutMode('paragraph')}
+                    style={{
+                      background: previewLayoutMode === 'paragraph' ? '#ffffff' : 'transparent',
+                      color: previewLayoutMode === 'paragraph' ? '#0f172a' : '#cbd5e1',
+                      border: 'none',
+                      padding: '4px 9px',
+                      borderRadius: '4px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                    title="ទម្រង់កថាខណ្ឌបន្តបន្ទាប់"
+                  >
+                    📄 កថាខណ្ឌធម្មតា
+                  </button>
+                </div>
+
                 <button
                   onClick={() => handlePrintTemplate('sopOriginalPrintArea')}
                   style={{
@@ -1910,15 +2017,120 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   </tbody>
                 </table>
 
-                {/* Body Content Khmer */}
-                <div style={{ whiteSpace: 'pre-line', marginBottom: '20px', color: '#0f172a', textAlign: 'justify' }}>
-                  {previewSop.contentKh}
-                </div>
+                {/* 2. OFFICIAL FACTORY CONTENT: 1 ROW PER CLAUSE, 2 LANGUAGES, KHMER ON TOP */}
+                {previewLayoutMode === '1row' ? (
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      border: '1.5px solid #1e293b',
+                      marginBottom: '18px',
+                      fontSize: '0.84rem',
+                    }}
+                  >
+                    <tbody>
+                      {parseBilingualClauses(previewSop.contentKh, previewSop.contentEn).map((clause, idx) => (
+                        <tr key={idx} style={{ pageBreakInside: 'avoid' }}>
+                          <td
+                            style={{
+                              border: '1px solid #1e293b',
+                              padding: '10px 14px',
+                              verticalAlign: 'top',
+                              background: '#ffffff',
+                            }}
+                          >
+                            {/* Khmer on Top (ភាសាខ្មែរលើគេ) */}
+                            {clause.khmerTitle && (
+                              <div
+                                style={{
+                                  fontWeight: 800,
+                                  color: '#1e3a8a',
+                                  fontSize: '0.92rem',
+                                  marginBottom: '4px',
+                                  lineHeight: 1.4,
+                                }}
+                              >
+                                {clause.khmerTitle}
+                              </div>
+                            )}
+                            <div
+                              style={{
+                                color: '#0f172a',
+                                lineHeight: 1.6,
+                                whiteSpace: 'pre-line',
+                                marginBottom: '8px',
+                                fontSize: '0.85rem',
+                                textAlign: 'justify',
+                              }}
+                            >
+                              {clause.khmerBody}
+                            </div>
 
-                {/* Body Content English */}
-                <div style={{ whiteSpace: 'pre-line', marginBottom: '24px', color: '#334155', textAlign: 'justify', fontStyle: 'italic', background: '#fafafa', padding: '12px 16px', borderRadius: '6px', borderLeft: '3px solid #3b82f6' }}>
-                  {previewSop.contentEn}
-                </div>
+                            {/* English directly underneath (ភាសាអង់គ្លេសខាងក្រោម) */}
+                            <div
+                              style={{
+                                borderTop: '1px dashed #cbd5e1',
+                                paddingTop: '6px',
+                                marginTop: '4px',
+                              }}
+                            >
+                              {clause.englishTitle && (
+                                <div
+                                  style={{
+                                    fontWeight: 800,
+                                    color: '#475569',
+                                    fontSize: '0.82rem',
+                                    marginBottom: '2px',
+                                    fontStyle: 'italic',
+                                    lineHeight: 1.3,
+                                  }}
+                                >
+                                  {clause.englishTitle}
+                                </div>
+                              )}
+                              <div
+                                style={{
+                                  color: '#475569',
+                                  fontStyle: 'italic',
+                                  lineHeight: 1.5,
+                                  whiteSpace: 'pre-line',
+                                  fontSize: '0.81rem',
+                                  textAlign: 'justify',
+                                }}
+                              >
+                                {clause.englishBody}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <>
+                    {/* Paragraph View: Body Content Khmer */}
+                    <div style={{ whiteSpace: 'pre-line', marginBottom: '20px', color: '#0f172a', textAlign: 'justify' }}>
+                      {previewSop.contentKh}
+                    </div>
+
+                    {/* Paragraph View: Body Content English */}
+                    <div
+                      style={{
+                        whiteSpace: 'pre-line',
+                        marginBottom: '24px',
+                        color: '#334155',
+                        textAlign: 'justify',
+                        fontStyle: 'italic',
+                        background: '#fafafa',
+                        padding: '12px 16px',
+                        borderRadius: '6px',
+                        borderLeft: '3px solid #3b82f6',
+                      }}
+                    >
+                      {previewSop.contentEn}
+                    </div>
+                  </>
+                )}
 
                 {/* 2. Official Revision History Table (Exact Format from Image 3) */}
                 <div style={{ fontWeight: 800, fontSize: '0.84rem', margin: '20px 0 6px', color: '#0f172a' }}>

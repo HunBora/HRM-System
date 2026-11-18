@@ -334,23 +334,71 @@ To establish a structured investigation approach in order to:
     approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
     approvedDate: '11-11-2024',
     contentKh: `១. គោលបំណង Purpose
-ផ្តល់ភាពងាយស្រួល និងកំណត់នីតិវិធីច្បាស់លាស់ក្នុងការស្នើសុំការអនុញ្ញាតច្បាប់ឈប់សម្រាក។
+គោលការណ៍នេះត្រូវបានធ្វើឡើងដើម្បីផ្តល់ភាពងាយស្រួលនិងតម្រូវឱ្យមានភាពត្រឹមត្រូវក្នុងការស្នើសុំការអនុញ្ញាតច្បាប់ឈប់សម្រាក។ ក្រៅពីក្រុមហ៊ុនបានរៀបចំថ្ងៃធ្វើការនិងការឈប់សម្រាកប្រចាំឆ្នាំសម្រាប់ឆ្នាំក្រោយខាងមុខនេះដើម្បីប្រកាសជាមុនដល់និយោជិកកម្មករទាំងអស់ ហើយរាល់ថ្ងៃធ្វើការតម្រូវឱ្យអនុវត្តតាមមុខងារ និងបទបញ្ជាផ្ទៃក្នុង។
 
-២. ប្រភេទនៃការឈប់សម្រាក Type of Leave
-១. ការឈប់សម្រាកផ្ទាល់ខ្លួន (Personal Leave): ត្រូវសុំការអនុញ្ញាតពីប្រធានក្រុម/Supervisor យ៉ាងតិច ១ ថ្ងៃមុន។
-២. ការឈប់សម្រាកឈឺ (Sick Leave): មានវេជ្ជបញ្ជាពេទ្យត្រឹមត្រូវ។ ក្រោម ៨ ថ្ងៃបើកដោយរោងចក្រ លើស ៨ ថ្ងៃបើកដោយ ប.ស.ស.។
-៣. ការឈប់សម្រាកលំហែមាតុភាព (Maternity Leave): ឈប់សម្រាក ៩០ ថ្ងៃ ដោយទទួលបានប្រាក់ឈ្នួល ៥០% សម្រាប់អ្នកធ្វើការចាប់ពី ១ ឆ្នាំឡើង។
-៤. ការឈប់សម្រាកពិសេស (Special Leave): ទទួលបាន ៧ ថ្ងៃក្នុងមួយឆ្នាំសម្រាប់អាពាហ៍ពិពាហ៍ ឬមរណភាពសមាជិកគ្រួសារ។
-៥. ការឈប់សម្រាកប្រចាំឆ្នាំ (Annual Leave): បម្រើការងារ ១ ឆ្នាំ ទទួលបាន ១៨ ថ្ងៃក្នុងមួយឆ្នាំ។`,
+២. វិសាលភាពនៃការងារ Scope of Work
+គោលការណ៍នេះគ្របដណ្តប់ទៅលើកម្មករនិយោជិតទាំងអស់ដែលកំពុងបំពេញការងារនៅក្នុងបរិវេណក្រុមហ៊ុនទាំងមូល ដោយមិនរើសអើងឋានៈ ឬផ្នែកណាមួយឡើយ។
+
+៣. ប្រភេទនៃការឈប់សម្រាក (ភាគ១) Types of Leave (Part 1)
+ដើម្បីអនុវត្តគោលនយោបាយឱ្យបានល្អ កម្មករនិយោជិកដែលកំពុងធ្វើការនៅក្នុងក្រុមហ៊ុនត្រូវអនុវត្តតាមប្រភេទដូចខាងក្រោមៈ
+- ការឈប់សម្រាកផ្ទាល់ខ្លួន (Personal Leave)៖ និយោជិកកម្មករអាចឈប់សម្រាកផ្ទាល់ខ្លួនក្នុងករណីចាំបាច់ តែត្រូវសុំការអនុញ្ញាតពីប្រធានក្រុម ឬស៊ុបភើវ៉ាយសឺ (Supervisor) យ៉ាងតិច ០១ ថ្ងៃមុន។ ក្នុងករណីបន្ទាន់ អាចផ្ញើកាតសុំច្បាប់តាមរយៈមិត្តរួមក្រុម ឬទូរស័ព្ទជូនដំណឹងផ្ទាល់។
+- ការឈប់សម្រាកឈឺ (Sick Leave)៖ ក្រុមហ៊ុនផ្តល់ការឈប់សម្រាកឈឺស្របតាមច្បាប់ការងារ និងមានវេជ្ជបញ្ជាពេទ្យត្រឹមត្រូវ។ សម្រាកព្យាបាលក្រោម ០៨ ថ្ងៃ ប្រាក់ឈ្នួលបើកដោយរោងចក្រ តែលើសពី ០៨ ថ្ងៃឡើងទៅគឺជាបន្ទុកសំណងរបស់ ប.ស.ស (NSSF)។
+- ការឈប់សម្រាកលំហែមាតុភាព (Maternity Leave)៖ កម្មការិនីមុន និងក្រោយពេលសម្រាលកូន ទទួលបានថ្ងៃឈប់សម្រាកចំនួន ៩០ ថ្ងៃ ដោយទទួលបានប្រាក់ឈ្នួល ៥០% រយៈពេល ០៣ ខែ ចំពោះអ្នកធ្វើការចាប់ពី ០១ ឆ្នាំឡើងទៅ ព្រមទាំងប្រាក់ឧបត្ថម្ភពីរាជរដ្ឋាភិបាលតាមរយៈ ប.ស.ស។
+
+៤. ប្រភេទនៃការឈប់សម្រាក (ភាគ២) Types of Leave (Part 2)
+- ការឈប់សម្រាកពិសេស (Special Leave)៖ កម្មករនិយោជិតទទួលបានការឈប់សម្រាកចំនួន ០៧ ថ្ងៃក្នុងមួយឆ្នាំ ក្នុងករណីអាពាហ៍ពិពាហ៍សាមីខ្លួន ការសម្រាលកូនរបស់ភរិយា ឬមរណភាពឪពុកម្តាយ ប្តីប្រពន្ធ និងកូនបង្កើត។
+- ការឈប់សម្រាកប្រចាំឆ្នាំ (Annual Leave)៖ កម្មករនិយោជិតធ្វើការពេញ ១ ឆ្នាំ (១២ ខែ) ទទួលបានការឈប់សម្រាកប្រចាំឆ្នាំចំនួន ១៨ ថ្ងៃធ្វើការ។ រៀងរាល់អតីតភាពការងារ ០៣ ឆ្នាំបន្ថែម ទទួលបានការឈប់សម្រាកប្រចាំឆ្នាំបន្ថែម ០១ ថ្ងៃទៀតស្របតាមមាត្រា ១៦៦ នៃច្បាប់ការងារ។
+- ការឈប់សម្រាកដោយគ្រោះថ្នាក់ការងារ (Work Injury Leave)៖ រាល់ការព្យាបាល និងប្រាក់ឧបត្ថម្ភពេលរងគ្រោះថ្នាក់ក្នុងពេលបំពេញការងារ ឬពេលធ្វើដំណើរ ត្រូវបានធានារ៉ាប់រងដោយ ប.ស.ស និងក្រុមហ៊ុនតាមច្បាប់ជាធរមាន។
+
+៥. នីតិវិធីនៃការស្នើសុំច្បាប់ Leave Application Procedure
+- បុគ្គលិកត្រូវបំពេញទម្រង់ពាក្យសុំច្បាប់ (Leave Request Form) ឱ្យបានច្បាស់លាស់ ដោយបញ្ជាក់មូលហេតុ និងកាលបរិច្ឆេទចាប់ផ្តើមរហូតដល់ថ្ងៃចូលធ្វើការវិញ។
+- ត្រូវឆ្លងកាត់ការពិនិត្យ និងចុះហត្ថលេខាយល់ព្រមពីប្រធានផ្នែកផ្ទាល់ (Line Leader / Supervisor)។
+- ត្រូវយកពាក្យសុំច្បាប់ដែលបានអនុម័តរួច មកប្រគល់ជូនការិយាល័យរដ្ឋបាល/ធនធានមនុស្ស (HR Dept) ដើម្បីកត់ត្រាក្នុងបញ្ជីវត្តមាន និងប្រព័ន្ធបើកប្រាក់បៀវត្សរ៍។
+
+៦. ឯកសារតម្រូវ Required Supporting Documents
+- ករណីឈប់សម្រាកឈឺ៖ ត្រូវភ្ជាប់មកជាមួយនូវលិខិតបញ្ជាក់វេជ្ជសាស្ត្រ ឬវេជ្ជបញ្ជាពីមន្ទីរពេទ្យរដ្ឋ គ្លីនិក ឬមន្ទីរពេទ្យដៃគូរបស់ ប.ស.ស។
+- ករណីលំហែមាតុភាព៖ សៀវភៅតាមដានផ្ទៃពោះ សំបុត្របញ្ជាក់កំណើតកូន ឬលិខិតសម្រាលចេញដោយមន្ទីរពេទ្យ។
+- ករណីពិសេស៖ សំបុត្រអាពាហ៍ពិពាហ៍ ឬលិខិតមរណភាពចេញដោយអាជ្ញាធរមានសមត្ថកិច្ច។
+
+៧. ការបណ្តុះបណ្តាល និងទំនួលខុសត្រូវ Training & Responsibility
+- ការបណ្តុះបណ្តាល៖ ផ្នែករដ្ឋបាល និងអនុលោមភាពច្បាប់ត្រូវរៀបចំការបណ្តុះបណ្តាលផ្សព្វផ្សាយជាប្រចាំដល់កម្មករនិយោជិតទាំងចាស់ និងថ្មី អំពីសិទ្ធិ នីតិវិធីនៃការសុំច្បាប់ និងអត្ថប្រយោជន៍ ប.ស.ស។
+- ទំនួលខុសត្រូវ៖ ផ្នែករដ្ឋបាលទទួលបន្ទុកសម្របសម្រួល រក្សាទុកឯកសារច្បាប់ និងទិន្នន័យច្បាស់លាស់។ ប្រធានផ្នែក និង Supervisor មានកាតព្វកិច្ចវាយតម្លៃ និងអនុម័តច្បាប់ដោយយុត្តិធម៌ ផ្អែកលើស្ថានភាពជាក់ស្តែង។
+
+៨. ការត្រួតពិនិត្យ និងវាយតម្លៃ Monitoring and Evaluation
+ក្រុមហ៊ុនប្រគល់សិទ្ធិជូនផ្នែករដ្ឋបាល និងធនធានមនុស្ស ក្នុងការចុះត្រួតពិនិត្យ និងវាយតម្លៃលើដំណើរការអនុវត្តជាក់ស្តែង ដើម្បីធានាតម្លាភាព និងទប់ស្កាត់ការឈប់សម្រាកអនាធិបតេយ្យ។ គោលការណ៍នេះមានប្រសិទ្ធភាពចាប់ពីថ្ងៃចុះហត្ថលេខានេះតទៅ។`,
     contentEn: `1. PURPOSE
-To provide structured guidelines for requesting and approving employee leaves.
+This policy is conducted in order to make it easy and required to have proper provision in asking for permission. Beside company has designed the working day and annual leave for the next upcoming year to announce in advance to all workers employees, ensuring proper operational continuity and compliance.
 
-2. TYPES OF LEAVE
-1. Personal Leave: Request supervisor permission at least 1 day in advance.
-2. Sick Leave: Supported by medical certificate. Under 8 days paid by factory; exceeding 8 days covered by NSSF.
-3. Maternity Leave: 90 days total leave with 50% wages for staff with 1+ years seniority.
-4. Special Leave: 7 days per year for wedding or bereavement of immediate family.
-5. Annual Leave: 18 working days per year for employees completing 1 year service.`,
+2. SCOPE OF WORK
+This policy is designed for all workers and employees who are working in the territory and premises of the company across all departments and shifts without discrimination.
+
+3. TYPES OF LEAVE (PART 1)
+To implement this policy smoothly, employees working in the company must comply with the following leave categories:
+- Personal Leave: Workers can take personal leave in necessary circumstances by requesting prior approval from group leader or supervisor at least 1 day in advance. In emergencies, notify via teammate or direct call.
+- Sick Leave: Company provides sick leave in accordance with labor law supported by medical certificate. Hospitalization under 8 days paid by factory; leave exceeding 8 days covered by NSSF.
+- Maternity Leave: Female employees receive 90 days maternity leave paid at 50% wages for 3 months for employees with 1+ year service, plus government maternity allowances via NSSF.
+
+4. TYPES OF LEAVE (PART 2)
+- Special Leave: 7 days per year for immediate family emergencies, personal marriage, wife delivery, or direct family bereavement.
+- Annual Leave: 18 working days per year for employees completing 12 months continuous service; increases by 1 day for every 3 years of continuous service according to Article 166 of Cambodia Labor Law.
+- Work-related Injury Leave: Medical treatment and wage compensations covered according to NSSF and national labor regulations for on-the-job accidents and commuting hazards.
+
+5. LEAVE APPLICATION PROCEDURE
+- Employee must complete the official Leave Request Form clearly indicating reason, duration, and return date.
+- Submit form to immediate Line Leader or Supervisor for verification and endorsement signature.
+- Deliver approved leave form to HR & Admin Office to record into biometric attendance software and payroll computation.
+
+6. REQUIRED SUPPORTING DOCUMENTS
+- Sick leave: Medical certificate or prescription from Ministry of Health or NSSF accredited hospital/clinic.
+- Maternity leave: Hospital birth certificate or pregnancy health examination booklet.
+- Special leave: Marriage certificate or official family bereavement confirmation letter.
+
+7. TRAINING & RESPONSIBILITY
+- Training: Admin and Compliance departments must conduct orientation training for both new and existing workers regarding legal leave entitlements, procedures, and NSSF benefits.
+- Responsibility: Admin is responsible for data tracking, archiving leave records, and NSSF claims. Supervisors must evaluate leave requests objectively and fairly without favoritism.
+
+8. MONITORING AND EVALUATION
+Company authorizes Admin department to monitor and evaluate leave application procedures transparently and effectively, implementing corrective improvements. This policy takes effect immediately from the date of authorized signature onward.`,
     revisions: [
       { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលការណ៍ច្បាប់ឈប់សម្រាកស្របច្បាប់ការងារ', authorizedBy: 'General Manager' },
     ],
@@ -828,6 +876,39 @@ interface BilingualClause {
   englishBody: string;
 }
 
+function extractTotalPages(pageInfo: string | undefined): number {
+  if (!pageInfo) return 1;
+  const match = pageInfo.match(/of\s*(\d+)/i) || pageInfo.match(/\/\s*(\d+)/i);
+  if (match) {
+    const num = parseInt(match[1], 10);
+    return isNaN(num) || num < 1 ? 1 : num;
+  }
+  return 1;
+}
+
+function distributeClausesToPages(clauses: BilingualClause[], totalPages: number): BilingualClause[][] {
+  if (totalPages <= 1 || clauses.length === 0) {
+    return [clauses];
+  }
+  
+  const pages: BilingualClause[][] = Array.from({ length: totalPages }, () => []);
+  
+  if (clauses.length <= totalPages) {
+    for (let i = 0; i < clauses.length; i++) {
+      pages[i].push(clauses[i]);
+    }
+  } else {
+    const itemsPerPage = Math.ceil(clauses.length / totalPages);
+    for (let p = 0; p < totalPages; p++) {
+      const start = p * itemsPerPage;
+      const end = Math.min(start + itemsPerPage, clauses.length);
+      pages[p] = clauses.slice(start, end);
+    }
+  }
+  
+  return pages;
+}
+
 function parseBilingualClauses(contentKh: string, contentEn: string): BilingualClause[] {
   const splitSections = (text: string) => {
     const lines = text.trim().split('\n');
@@ -900,6 +981,8 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   const [editingSop, setEditingSop] = useState<FactorySop | null>(null);
   const [previewSop, setPreviewSop] = useState<FactorySop | null>(null);
   const [previewLayoutMode, setPreviewLayoutMode] = useState<'1row' | 'paragraph'>('1row');
+  const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
+  const [previewMultiPageMode, setPreviewMultiPageMode] = useState<'all' | 'single'>('all');
 
   // Sync with LocalStorage
   useEffect(() => {
@@ -910,11 +993,15 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
         // Merge with default values in case cached objects lack newly added header fields
         const merged = parsed.map((item) => {
           const def = DEFAULT_SOPS.find((d) => d.id === item.id);
+          // If sop-06 has older truncated content, enrich with full 8 sections
+          const isOlderLeaveSop = item.id === 'sop-06' && item.contentKh.length < 1000;
           return {
             ...def,
             ...item,
+            contentKh: isOlderLeaveSop ? (def?.contentKh || item.contentKh) : item.contentKh,
+            contentEn: isOlderLeaveSop ? (def?.contentEn || item.contentEn) : item.contentEn,
             edition: item.edition || def?.edition || '02',
-            pageInfo: item.pageInfo || def?.pageInfo || 'Page 1 of 10',
+            pageInfo: item.pageInfo || def?.pageInfo || 'Page 1 of 8',
             initialIssuedDate: item.initialIssuedDate || def?.initialIssuedDate || '10-11-2023',
             amendDate: item.amendDate || def?.amendDate || '10-10-2025',
             effectiveDate: item.effectiveDate || def?.effectiveDate || '11-11-2024',
@@ -1621,24 +1708,112 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* Multi-Page Navigation Controls */}
+                {(() => {
+                  const totalP = extractTotalPages(previewSop.pageInfo);
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '3px 8px' }}>
+                      <button
+                        onClick={() => setPreviewMultiPageMode(previewMultiPageMode === 'all' ? 'single' : 'all')}
+                        style={{
+                          background: previewMultiPageMode === 'all' ? '#2563eb' : '#475569',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                        title="ប្តូររវាងមើលគ្រប់ទំព័រ ឬមើលម្តង ១ទំព័រ"
+                      >
+                        {previewMultiPageMode === 'all' ? `📜 មើលគ្រប់ ${totalP} ទំព័រ` : '📄 មើលម្តង ១ទំព័រ'}
+                      </button>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <button
+                          disabled={currentPageIndex === 0}
+                          onClick={() => setCurrentPageIndex((prev) => Math.max(0, prev - 1))}
+                          style={{
+                            background: currentPageIndex === 0 ? 'rgba(255,255,255,0.1)' : '#ffffff',
+                            color: currentPageIndex === 0 ? '#94a3b8' : '#0f172a',
+                            border: 'none',
+                            padding: '3px 7px',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            cursor: currentPageIndex === 0 ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          ◀
+                        </button>
+                        <select
+                          value={currentPageIndex}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            setCurrentPageIndex(val);
+                            if (previewMultiPageMode === 'all') {
+                              const el = document.getElementById(`sopSheetPage_${val}`);
+                              if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }}
+                          style={{
+                            background: '#ffffff',
+                            color: '#0f172a',
+                            border: 'none',
+                            padding: '3px 6px',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            outline: 'none',
+                          }}
+                        >
+                          {Array.from({ length: totalP }, (_, i) => (
+                            <option key={i} value={i}>
+                              ទំព័រ {i + 1} / {totalP}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          disabled={currentPageIndex >= totalP - 1}
+                          onClick={() => setCurrentPageIndex((prev) => Math.min(totalP - 1, prev + 1))}
+                          style={{
+                            background: currentPageIndex >= totalP - 1 ? 'rgba(255,255,255,0.1)' : '#ffffff',
+                            color: currentPageIndex >= totalP - 1 ? '#94a3b8' : '#0f172a',
+                            border: 'none',
+                            padding: '3px 7px',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            cursor: currentPageIndex >= totalP - 1 ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          ▶
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* 1-Row Bilingual Toggle Button */}
-                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '2px', marginRight: '4px' }}>
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '2px' }}>
                   <button
                     onClick={() => setPreviewLayoutMode('1row')}
                     style={{
                       background: previewLayoutMode === '1row' ? '#ffffff' : 'transparent',
                       color: previewLayoutMode === '1row' ? '#0f172a' : '#cbd5e1',
                       border: 'none',
-                      padding: '4px 9px',
+                      padding: '4px 8px',
                       borderRadius: '4px',
-                      fontSize: '0.74rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700,
                       cursor: 'pointer',
                     }}
                     title="ទម្រង់តារាង 1-Row ២ភាសា (ខ្មែរលើគេ)"
                   >
-                    📑 1-Row ២ភាសា (ខ្មែរលើគេ)
+                    📑 1-Row ២ភាសា
                   </button>
                   <button
                     onClick={() => setPreviewLayoutMode('paragraph')}
@@ -1646,15 +1821,15 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                       background: previewLayoutMode === 'paragraph' ? '#ffffff' : 'transparent',
                       color: previewLayoutMode === 'paragraph' ? '#0f172a' : '#cbd5e1',
                       border: 'none',
-                      padding: '4px 9px',
+                      padding: '4px 8px',
                       borderRadius: '4px',
-                      fontSize: '0.74rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700,
                       cursor: 'pointer',
                     }}
                     title="ទម្រង់កថាខណ្ឌបន្តបន្ទាប់"
                   >
-                    📄 កថាខណ្ឌធម្មតា
+                    📄 កថាខណ្ឌ
                   </button>
                 </div>
 
@@ -1712,477 +1887,569 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
               </div>
             </div>
 
-            {/* Document Content (Exact Factory A4 Form) */}
+            {/* Document Content (Exact Factory A4 Form - Multi-Page Sheets Engine) */}
             <div
               style={{
                 flex: 1,
                 overflowY: 'auto',
                 padding: '24px 32px',
-                background: '#f1f5f9',
+                background: '#e2e8f0',
                 display: 'flex',
-                justifyContent: 'center',
+                flexDirection: 'column',
+                alignItems: 'center',
               }}
             >
-              <div
-                id="sopOriginalPrintArea"
-                style={{
-                  background: '#ffffff',
-                  width: '100%',
-                  maxWidth: '820px',
-                  minHeight: '1100px',
-                  padding: '36px',
-                  borderRadius: '3px',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.06)',
-                  color: '#0f172a',
-                  fontFamily: "'Kantumruy Pro', 'Inter', sans-serif",
-                  lineHeight: 1.6,
-                  fontSize: '0.86rem',
-                }}
-              >
-                {/* 1. OFFICIAL FACTORY HEADER TABLE (Exact Match to Factory Image Standard) */}
-                <table
-                  style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    border: '1.5px solid #1e293b',
-                    fontSize: '0.8rem',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <tbody>
-                    {/* ROW 1: LOGO/SMALL NAME | COMPANY NAME CENTER | PAGE INFO */}
-                    <tr>
-                      {/* Col 1: Logo & Small name */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '6px 8px',
-                          width: '28%',
-                          verticalAlign: 'middle',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              borderRadius: '6px',
-                              background: '#e6f4ea',
-                              border: '1px solid #81c784',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flexShrink: 0,
-                            }}
-                          >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#2e7d32">
-                              <path d="M12 2L6 10h3v4H6l6 8 6-8h-3v-4h3L12 2z" />
-                            </svg>
-                          </div>
-                          <div style={{ fontSize: '0.64rem', lineHeight: '1.25', color: '#1e293b' }}>
-                            <div style={{ fontWeight: 700, color: '#15803d' }}>{previewSop.companyName}</div>
-                            {previewSop.titleCn && (
-                              <div style={{ color: '#64748b', fontSize: '0.6rem' }}>长青户外用品(柬埔寨)有限公司</div>
-                            )}
-                            <div style={{ fontSize: '0.56rem', color: '#475569', fontWeight: 600 }}>
-                              {previewSop.companyName.toUpperCase()}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
+              {(() => {
+                const totalPages = extractTotalPages(previewSop.pageInfo);
+                const clauses = parseBilingualClauses(previewSop.contentKh, previewSop.contentEn);
+                const distributedPages = distributeClausesToPages(clauses, totalPages);
 
-                      {/* Col 2: Center Big Company Title */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '8px 10px',
-                          width: '52%',
-                          textAlign: 'center',
-                          verticalAlign: 'middle',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.3 }}>
-                          {previewSop.companyName}
-                        </div>
-                        <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', letterSpacing: '0.5px' }}>
-                          {previewSop.companyName.toUpperCase()}
-                        </div>
-                      </td>
-
-                      {/* Col 3: Page Number */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '8px 10px',
-                          width: '20%',
-                          textAlign: 'center',
-                          verticalAlign: 'middle',
-                          fontWeight: 700,
-                          color: '#1e293b',
-                          fontSize: '0.84rem',
-                          background: '#ffffff',
-                        }}
-                      >
-                        {previewSop.pageInfo || 'Page 1 of 10'}
-                      </td>
-                    </tr>
-
-                    {/* ROW 2: INITIAL ISSUED DATE | POLICY TITLE | EDITION */}
-                    <tr>
-                      {/* Col 1: Initial Issued Date */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '6px 8px',
-                          verticalAlign: 'top',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទចេញដំបូង៖</div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Initial Issued Date</div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px', fontSize: '0.8rem' }}>
-                          {previewSop.initialIssuedDate || '10-11-2023'}
-                        </div>
-                      </td>
-
-                      {/* Col 2: Policy Titles (Red Khmer, Bold English, Optional Chinese) */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '8px 12px',
-                          textAlign: 'center',
-                          verticalAlign: 'middle',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#dc2626', lineHeight: 1.3 }}>
-                          {previewSop.titleKh}
-                        </div>
-                        <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', letterSpacing: '0.4px' }}>
-                          {previewSop.titleEn.toUpperCase()}
-                        </div>
-                        {previewSop.titleCn && (
-                          <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
-                            {previewSop.titleCn}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Col 3: Edition / Rev */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '6px 8px',
-                          verticalAlign: 'top',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
-                          បោះពុម្ពលើកទី៖ {previewSop.edition || '02'}
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Edition:</div>
-                      </td>
-                    </tr>
-
-                    {/* ROW 3: AMEND DATE | EFFECTIVE DATE | DOCUMENT NO */}
-                    <tr>
-                      {/* Col 1: Amend Date */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '6px 8px',
-                          verticalAlign: 'top',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទត្រូវពិនិត្យឡើងវិញ៖</div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Amend Date</div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px', fontSize: '0.8rem' }}>
-                          {previewSop.amendDate || '10-10-2025'}
-                        </div>
-                      </td>
-
-                      {/* Col 2: Effective Date */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '6px 10px',
-                          textAlign: 'left',
-                          verticalAlign: 'top',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
-                          កាលបរិច្ឆេទមានប្រសិទ្ធភាព៖
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                          Effective Date:
-                        </div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', marginTop: '2px' }}>
-                          {previewSop.effectiveDate || '11-11-2024'}
-                        </div>
-                      </td>
-
-                      {/* Col 3: Document No */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '6px 8px',
-                          verticalAlign: 'middle',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.76rem' }}>
-                          Document No: <strong style={{ color: '#0f172a', fontSize: '0.84rem' }}>{previewSop.code}</strong>
-                        </div>
-                      </td>
-                    </tr>
-
-                    {/* ROW 4: PREPARED BY | STAMP/SIGNATURE | APPROVED BY (Exact from Factory Image) */}
-                    <tr>
-                      {/* Col 1: Prepared By */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '8px 10px',
-                          verticalAlign: 'top',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
-                          រៀបចំដោយ៖ Prepared By
-                        </div>
-                        <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px', lineHeight: 1.3 }}>
-                          {previewSop.preparedRole}
-                        </div>
-                        <div style={{ minHeight: '34px' }}></div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>
-                          {previewSop.preparedBy}
-                        </div>
-                        <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
-                          កាលបរិច្ឆេទ៖ {previewSop.preparedDate} Date:
-                        </div>
-                      </td>
-
-                      {/* Col 2: Stamp / Signature Box */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '8px 10px',
-                          verticalAlign: 'middle',
-                          textAlign: 'center',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div
-                          style={{
-                            border: '1px dashed #cbd5e1',
-                            borderRadius: '6px',
-                            padding: '12px 8px',
-                            color: '#94a3b8',
-                            fontSize: '0.7rem',
-                          }}
-                        >
-                          <div>កន្លែងបោះត្រាក្រុមហ៊ុន</div>
-                          <div style={{ fontSize: '0.62rem', marginTop: '2px' }}>Company Official Stamp</div>
-                        </div>
-                      </td>
-
-                      {/* Col 3: Approved By */}
-                      <td
-                        style={{
-                          border: '1px solid #1e293b',
-                          padding: '8px 10px',
-                          verticalAlign: 'top',
-                          background: '#ffffff',
-                        }}
-                      >
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
-                          អនុម័តដោយ៖ Approved By
-                        </div>
-                        <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px', lineHeight: 1.3 }}>
-                          {previewSop.approvedRole}
-                        </div>
-                        <div style={{ minHeight: '34px' }}></div>
-                        <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>
-                          {previewSop.approvedBy}
-                        </div>
-                        <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
-                          កាលបរិច្ឆេទ៖ {previewSop.approvedDate} Date:
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                {/* 2. OFFICIAL FACTORY CONTENT: 1 ROW PER CLAUSE, 2 LANGUAGES, KHMER ON TOP */}
-                {previewLayoutMode === '1row' ? (
-                  <table
+                return (
+                  <div
+                    id="sopOriginalPrintArea"
                     style={{
                       width: '100%',
-                      borderCollapse: 'collapse',
-                      border: '1.5px solid #1e293b',
-                      marginBottom: '18px',
-                      fontSize: '0.84rem',
+                      maxWidth: '820px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
                     }}
                   >
-                    <tbody>
-                      {parseBilingualClauses(previewSop.contentKh, previewSop.contentEn).map((clause, idx) => (
-                        <tr key={idx} style={{ pageBreakInside: 'avoid' }}>
-                          <td
+                    <style>{`
+                      @media print {
+                        .sop-page-sheet-wrapper {
+                          display: flex !important;
+                          page-break-after: always !important;
+                          break-after: page !important;
+                          margin-bottom: 0 !important;
+                        }
+                        .sop-page-sheet-wrapper:last-child {
+                          page-break-after: auto !important;
+                          break-after: auto !important;
+                        }
+                        .sop-sheet-divider {
+                          display: none !important;
+                        }
+                        .sop-a4-sheet {
+                          box-shadow: none !important;
+                          padding: 12mm 15mm !important;
+                          margin: 0 !important;
+                          min-height: auto !important;
+                          border: none !important;
+                        }
+                      }
+                    `}</style>
+                    {distributedPages.map((pageClauses, pIdx) => {
+                      const pageNum = pIdx + 1;
+                      const isVisible = previewMultiPageMode === 'all' || currentPageIndex === pIdx;
+
+                      return (
+                        <div
+                          key={pIdx}
+                          id={`sopSheetPage_${pIdx}`}
+                          className="sop-page-sheet-wrapper"
+                          style={{
+                            width: '100%',
+                            display: isVisible ? 'flex' : 'none',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            marginBottom: pIdx < totalPages - 1 ? '32px' : '0',
+                          }}
+                        >
+                          {/* Visual Sheet Divider Indicator */}
+                          {previewMultiPageMode === 'all' && (
+                            <div
+                              className="sop-sheet-divider"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginBottom: '10px',
+                                color: '#475569',
+                                fontSize: '0.78rem',
+                                fontWeight: 800,
+                              }}
+                            >
+                              <span>
+                                ────── 📄 ទំព័រទី ${pageNum} នៃ ${totalPages} (Page ${pageNum} of ${totalPages}) ──────
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Individual A4 Page Container */}
+                          <div
+                            className="sop-a4-sheet"
                             style={{
-                              border: '1px solid #1e293b',
-                              padding: '10px 14px',
-                              verticalAlign: 'top',
                               background: '#ffffff',
+                              width: '100%',
+                              maxWidth: '820px',
+                              minHeight: '1080px',
+                              padding: '36px',
+                              borderRadius: '3px',
+                              boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+                              color: '#0f172a',
+                              fontFamily: "'Kantumruy Pro', 'Inter', sans-serif",
+                              lineHeight: 1.6,
+                              fontSize: '0.86rem',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              boxSizing: 'border-box',
                             }}
                           >
-                            {/* Khmer on Top (ភាសាខ្មែរលើគេ) */}
-                            {clause.khmerTitle && (
-                              <div
+                            <div>
+                              {/* 1. Official Header Table with accurate Page Number for this page! */}
+                              <table
                                 style={{
-                                  fontWeight: 800,
-                                  color: '#1e3a8a',
-                                  fontSize: '0.92rem',
-                                  marginBottom: '4px',
-                                  lineHeight: 1.4,
+                                  width: '100%',
+                                  borderCollapse: 'collapse',
+                                  border: '1.5px solid #1e293b',
+                                  fontSize: '0.8rem',
+                                  marginBottom: '16px',
                                 }}
                               >
-                                {clause.khmerTitle}
-                              </div>
-                            )}
-                            <div
-                              style={{
-                                color: '#0f172a',
-                                lineHeight: 1.6,
-                                whiteSpace: 'pre-line',
-                                marginBottom: '8px',
-                                fontSize: '0.85rem',
-                                textAlign: 'justify',
-                              }}
-                            >
-                              {clause.khmerBody}
-                            </div>
+                                <tbody>
+                                  {/* ROW 1: LOGO | COMPANY | PAGE NUMBER */}
+                                  <tr>
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '6px 8px',
+                                        width: '28%',
+                                        verticalAlign: 'middle',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <div
+                                          style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            borderRadius: '6px',
+                                            background: '#e6f4ea',
+                                            border: '1px solid #81c784',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            flexShrink: 0,
+                                          }}
+                                        >
+                                          <svg width="24" height="24" viewBox="0 0 24 24" fill="#2e7d32">
+                                            <path d="M12 2L6 10h3v4H6l6 8 6-8h-3v-4h3L12 2z" />
+                                          </svg>
+                                        </div>
+                                        <div style={{ fontSize: '0.64rem', lineHeight: '1.25', color: '#1e293b' }}>
+                                          <div style={{ fontWeight: 700, color: '#15803d' }}>{previewSop.companyName}</div>
+                                          {previewSop.titleCn && (
+                                            <div style={{ color: '#64748b', fontSize: '0.6rem' }}>长青户外用品(柬埔寨)有限公司</div>
+                                          )}
+                                          <div style={{ fontSize: '0.56rem', color: '#475569', fontWeight: 600 }}>
+                                            {previewSop.companyName.toUpperCase()}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
 
-                            {/* English directly underneath (ភាសាអង់គ្លេសខាងក្រោម) */}
-                            <div
-                              style={{
-                                borderTop: '1px dashed #cbd5e1',
-                                paddingTop: '6px',
-                                marginTop: '4px',
-                              }}
-                            >
-                              {clause.englishTitle && (
-                                <div
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '8px 10px',
+                                        width: '52%',
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.3 }}>
+                                        {previewSop.companyName}
+                                      </div>
+                                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', letterSpacing: '0.5px' }}>
+                                        {previewSop.companyName.toUpperCase()}
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '8px 10px',
+                                        width: '20%',
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle',
+                                        fontWeight: 800,
+                                        color: '#1e293b',
+                                        fontSize: '0.86rem',
+                                        background: '#f8fafc',
+                                      }}
+                                    >
+                                      Page {pageNum} of {totalPages}
+                                    </td>
+                                  </tr>
+
+                                  {/* ROW 2: INITIAL ISSUED DATE | POLICY TITLE | EDITION */}
+                                  <tr>
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '6px 8px',
+                                        verticalAlign: 'top',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទចេញដំបូង៖</div>
+                                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Initial Issued Date</div>
+                                      <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px', fontSize: '0.8rem' }}>
+                                        {previewSop.initialIssuedDate || '10-11-2023'}
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '8px 12px',
+                                        textAlign: 'center',
+                                        verticalAlign: 'middle',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#dc2626', lineHeight: 1.3 }}>
+                                        {previewSop.titleKh}
+                                      </div>
+                                      <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', letterSpacing: '0.4px' }}>
+                                        {previewSop.titleEn.toUpperCase()}
+                                      </div>
+                                      {previewSop.titleCn && (
+                                        <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
+                                          {previewSop.titleCn}
+                                        </div>
+                                      )}
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '6px 8px',
+                                        verticalAlign: 'top',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
+                                        បោះពុម្ពលើកទី៖ {previewSop.edition || '02'}
+                                      </div>
+                                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Edition:</div>
+                                    </td>
+                                  </tr>
+
+                                  {/* ROW 3: AMEND DATE | EFFECTIVE DATE | DOCUMENT NO */}
+                                  <tr>
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '6px 8px',
+                                        verticalAlign: 'top',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទត្រូវពិនិត្យឡើងវិញ៖</div>
+                                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Amend Date</div>
+                                      <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px', fontSize: '0.8rem' }}>
+                                        {previewSop.amendDate || '10-10-2025'}
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '6px 10px',
+                                        textAlign: 'left',
+                                        verticalAlign: 'top',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
+                                        កាលបរិច្ឆេទមានប្រសិទ្ធភាព៖
+                                      </div>
+                                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Effective Date:</div>
+                                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem', marginTop: '2px' }}>
+                                        {previewSop.effectiveDate || '11-11-2024'}
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '6px 8px',
+                                        verticalAlign: 'middle',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.76rem' }}>
+                                        Document No: <strong style={{ color: '#0f172a', fontSize: '0.84rem' }}>{previewSop.code}</strong>
+                                      </div>
+                                    </td>
+                                  </tr>
+
+                                  {/* ROW 4: PREPARED BY | STAMP | APPROVED BY */}
+                                  <tr>
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '8px 10px',
+                                        verticalAlign: 'top',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
+                                        រៀបចំដោយ៖ Prepared By
+                                      </div>
+                                      <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px', lineHeight: 1.3 }}>
+                                        {previewSop.preparedRole}
+                                      </div>
+                                      <div style={{ minHeight: '34px' }}></div>
+                                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>
+                                        {previewSop.preparedBy}
+                                      </div>
+                                      <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                                        កាលបរិច្ឆេទ៖ {previewSop.preparedDate} Date:
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '8px 10px',
+                                        verticalAlign: 'middle',
+                                        textAlign: 'center',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          border: '1px dashed #cbd5e1',
+                                          borderRadius: '6px',
+                                          padding: '12px 8px',
+                                          color: '#94a3b8',
+                                          fontSize: '0.7rem',
+                                        }}
+                                      >
+                                        <div>កន្លែងបោះត្រាក្រុមហ៊ុន</div>
+                                        <div style={{ fontSize: '0.62rem', marginTop: '2px' }}>Company Official Stamp</div>
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      style={{
+                                        border: '1px solid #1e293b',
+                                        padding: '8px 10px',
+                                        verticalAlign: 'top',
+                                        background: '#ffffff',
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
+                                        អនុម័តដោយ៖ Approved By
+                                      </div>
+                                      <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px', lineHeight: 1.3 }}>
+                                        {previewSop.approvedRole}
+                                      </div>
+                                      <div style={{ minHeight: '34px' }}></div>
+                                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.82rem' }}>
+                                        {previewSop.approvedBy}
+                                      </div>
+                                      <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                                        កាលបរិច្ឆេទ៖ {previewSop.approvedDate} Date:
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+
+                              {/* 2. Page Clauses: 1 Row per clause, 2 languages, Khmer on top */}
+                              {previewLayoutMode === '1row' ? (
+                                <table
                                   style={{
-                                    fontWeight: 800,
-                                    color: '#475569',
-                                    fontSize: '0.82rem',
-                                    marginBottom: '2px',
-                                    fontStyle: 'italic',
-                                    lineHeight: 1.3,
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    border: '1.5px solid #1e293b',
+                                    marginBottom: '18px',
+                                    fontSize: '0.84rem',
                                   }}
                                 >
-                                  {clause.englishTitle}
+                                  <tbody>
+                                    {pageClauses.map((clause, cIdx) => (
+                                      <tr key={cIdx} style={{ pageBreakInside: 'avoid' }}>
+                                        <td
+                                          style={{
+                                            border: '1px solid #1e293b',
+                                            padding: '10px 14px',
+                                            verticalAlign: 'top',
+                                            background: '#ffffff',
+                                          }}
+                                        >
+                                          {/* Khmer on Top */}
+                                          {clause.khmerTitle && (
+                                            <div
+                                              style={{
+                                                fontWeight: 800,
+                                                color: '#1e3a8a',
+                                                fontSize: '0.92rem',
+                                                marginBottom: '4px',
+                                                lineHeight: 1.4,
+                                              }}
+                                            >
+                                              {clause.khmerTitle}
+                                            </div>
+                                          )}
+                                          <div
+                                            style={{
+                                              color: '#0f172a',
+                                              lineHeight: 1.6,
+                                              whiteSpace: 'pre-line',
+                                              marginBottom: '8px',
+                                              fontSize: '0.85rem',
+                                              textAlign: 'justify',
+                                            }}
+                                          >
+                                            {clause.khmerBody}
+                                          </div>
+
+                                          {/* English directly underneath */}
+                                          <div
+                                            style={{
+                                              borderTop: '1px dashed #cbd5e1',
+                                              paddingTop: '6px',
+                                              marginTop: '4px',
+                                            }}
+                                          >
+                                            {clause.englishTitle && (
+                                              <div
+                                                style={{
+                                                  fontWeight: 800,
+                                                  color: '#475569',
+                                                  fontSize: '0.82rem',
+                                                  marginBottom: '2px',
+                                                  fontStyle: 'italic',
+                                                  lineHeight: 1.3,
+                                                }}
+                                              >
+                                                {clause.englishTitle}
+                                              </div>
+                                            )}
+                                            <div
+                                              style={{
+                                                color: '#475569',
+                                                fontStyle: 'italic',
+                                                lineHeight: 1.5,
+                                                whiteSpace: 'pre-line',
+                                                fontSize: '0.81rem',
+                                                textAlign: 'justify',
+                                              }}
+                                            >
+                                              {clause.englishBody}
+                                            </div>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              ) : (
+                                <div>
+                                  {pageClauses.map((clause, cIdx) => (
+                                    <div key={cIdx} style={{ marginBottom: '16px' }}>
+                                      {clause.khmerTitle && (
+                                        <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.92rem', marginBottom: '2px' }}>
+                                          {clause.khmerTitle}
+                                        </div>
+                                      )}
+                                      <div style={{ color: '#0f172a', lineHeight: 1.6, whiteSpace: 'pre-line', marginBottom: '6px' }}>
+                                        {clause.khmerBody}
+                                      </div>
+                                      {clause.englishTitle && (
+                                        <div style={{ fontWeight: 700, color: '#475569', fontSize: '0.82rem', fontStyle: 'italic', marginBottom: '2px' }}>
+                                          {clause.englishTitle}
+                                        </div>
+                                      )}
+                                      <div style={{ color: '#475569', fontStyle: 'italic', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                                        {clause.englishBody}
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
                               )}
-                              <div
-                                style={{
-                                  color: '#475569',
-                                  fontStyle: 'italic',
-                                  lineHeight: 1.5,
-                                  whiteSpace: 'pre-line',
-                                  fontSize: '0.81rem',
-                                  textAlign: 'justify',
-                                }}
-                              >
-                                {clause.englishBody}
-                              </div>
+                              {pageClauses.length === 0 && (
+                                <div style={{ padding: '40px 20px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', border: '1px dashed #cbd5e1', borderRadius: '6px', margin: '20px 0' }}>
+                                  ទំព័រនេះសម្រាប់ខ្លឹមសារ ឬឧបសម្ព័ន្ធបន្ថែម (Appendix / Annex Page)
+                                </div>
+                              )}
                             </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <>
-                    {/* Paragraph View: Body Content Khmer */}
-                    <div style={{ whiteSpace: 'pre-line', marginBottom: '20px', color: '#0f172a', textAlign: 'justify' }}>
-                      {previewSop.contentKh}
-                    </div>
 
-                    {/* Paragraph View: Body Content English */}
-                    <div
-                      style={{
-                        whiteSpace: 'pre-line',
-                        marginBottom: '24px',
-                        color: '#334155',
-                        textAlign: 'justify',
-                        fontStyle: 'italic',
-                        background: '#fafafa',
-                        padding: '12px 16px',
-                        borderRadius: '6px',
-                        borderLeft: '3px solid #3b82f6',
-                      }}
-                    >
-                      {previewSop.contentEn}
-                    </div>
-                  </>
-                )}
-
-                {/* 2. Official Revision History Table (Exact Format from Image 3) */}
-                <div style={{ fontWeight: 800, fontSize: '0.84rem', margin: '20px 0 6px', color: '#0f172a' }}>
-                  ប្រវត្តិនៃការត្រួតពិនិត្យឡើងវិញ (Document Revision History):
-                </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', border: '1.5px solid #1e293b' }}>
-                  <thead>
-                    <tr style={{ background: '#f8fafc', textAlign: 'center' }}>
-                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '15%' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ការពិនិត្យឡើងវិញ</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>REVISION</div>
-                      </th>
-                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '16%' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>កាលបរិច្ឆេទ</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>DATE</div>
-                      </th>
-                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '15%' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ឃ្លា</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>PARAGRAPH</div>
-                      </th>
-                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '36%' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>សង្ខេបនៃការកែសម្រួល</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>SUMMARY OF CHANGE</div>
-                      </th>
-                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '18%' }}>
-                        <div style={{ fontWeight: 800, color: '#0f172a' }}>អនុម័តដោយ</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>AUTHORIZED BY</div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previewSop.revisions.map((rev, idx) => (
-                      <tr key={idx}>
-                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center', fontWeight: 800 }}>{rev.rev}</td>
-                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.date}</td>
-                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.paragraph}</td>
-                        <td style={{ border: '1px solid #1e293b', padding: '6px 8px' }}>{rev.summary}</td>
-                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.authorizedBy}</td>
-                      </tr>
-                    ))}
-                    <tr>
-                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center', fontWeight: 800 }}>02</td>
-                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
-                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
-                      <td style={{ border: '1px solid #1e293b', padding: '6px 8px', color: '#64748b' }}>
-                        ការកែសម្រួលតាមតម្រូវការអតិថិជន និងផលិតផលថ្មី
-                      </td>
-                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                            {/* 3. Official Revision History Table on the LAST PAGE! */}
+                            {pageNum === totalPages && (
+                              <div style={{ marginTop: '20px' }}>
+                                <div style={{ fontWeight: 800, fontSize: '0.84rem', margin: '14px 0 6px', color: '#0f172a' }}>
+                                  ប្រវត្តិនៃការត្រួតពិនិត្យឡើងវិញ (Document Revision History):
+                                </div>
+                                <table
+                                  style={{
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    fontSize: '0.78rem',
+                                    border: '1.5px solid #1e293b',
+                                  }}
+                                >
+                                  <thead>
+                                    <tr style={{ background: '#f8fafc', textAlign: 'center' }}>
+                                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '15%' }}>
+                                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ការពិនិត្យឡើងវិញ</div>
+                                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>REVISION</div>
+                                      </th>
+                                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '16%' }}>
+                                        <div style={{ fontWeight: 800, color: '#0f172a' }}>កាលបរិច្ឆេទ</div>
+                                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>DATE</div>
+                                      </th>
+                                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '15%' }}>
+                                        <div style={{ fontWeight: 800, color: '#0f172a' }}>ឃ្លា</div>
+                                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>PARAGRAPH</div>
+                                      </th>
+                                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '36%' }}>
+                                        <div style={{ fontWeight: 800, color: '#0f172a' }}>សង្ខេបនៃការកែសម្រួល</div>
+                                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>SUMMARY OF CHANGE</div>
+                                      </th>
+                                      <th style={{ border: '1px solid #1e293b', padding: '6px 8px', width: '18%' }}>
+                                        <div style={{ fontWeight: 800, color: '#0f172a' }}>អនុម័តដោយ</div>
+                                        <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>AUTHORIZED BY</div>
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {previewSop.revisions.map((rev, idx) => (
+                                      <tr key={idx}>
+                                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center', fontWeight: 800 }}>{rev.rev}</td>
+                                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.date}</td>
+                                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.paragraph}</td>
+                                        <td style={{ border: '1px solid #1e293b', padding: '6px 8px' }}>{rev.summary}</td>
+                                        <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>{rev.authorizedBy}</td>
+                                      </tr>
+                                    ))}
+                                    <tr>
+                                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center', fontWeight: 800 }}>02</td>
+                                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
+                                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
+                                      <td style={{ border: '1px solid #1e293b', padding: '6px 8px', color: '#64748b' }}>
+                                        ការកែសម្រួលតាមតម្រូវការអតិថិជន និងផលិតផលថ្មី
+                                      </td>
+                                      <td style={{ border: '1px solid #1e293b', padding: '6px', textAlign: 'center' }}>—</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

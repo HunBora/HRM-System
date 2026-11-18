@@ -85,6 +85,7 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
   const [previewJd, setPreviewJd] = useState<FactoryJd | null>(null);
   const [editingJd, setEditingJd] = useState<FactoryJd | null>(null);
   const [editingHeaderJd, setEditingHeaderJd] = useState<FactoryJd | null>(null);
+  const [isCreatingJd, setIsCreatingJd] = useState<boolean>(false);
   const [applyHeaderToAll, setApplyHeaderToAll] = useState<boolean>(false);
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
 
@@ -148,19 +149,121 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
     });
   }, [jds, selectedDept, searchQuery]);
 
+  const handleOpenCreateJdModal = () => {
+    const today = new Date();
+    const formattedDate = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+    const newCodeNum = String(jds.length + 1).padStart(3, '0');
+
+    const emptyJd: FactoryJd = {
+      id: `jd-custom-${Date.now()}`,
+      code: `JD-NEW-${newCodeNum}`,
+      edition: '01',
+      pageInfo: 'Page 1 of 2',
+      initialIssuedDate: formattedDate,
+      effectiveDate: formattedDate,
+      amendDate: '10-10-2026',
+      department: 'HUMAN_RESOURCES',
+      departmentKh: 'រដ្ឋបាល និងធនធានមនុស្ស',
+      jobTitleKh: 'មុខតំណែងថ្មី (New Job Title)',
+      jobTitleEn: 'New Position Title',
+      jobTitleCn: '',
+      gradeLevel: 'Supervisor / S1',
+      reportsToKh: 'ប្រធានផ្នែក (Department Manager)',
+      reportsToEn: 'Department Manager',
+      supervisesKh: 'បុគ្គលិកក្រោមឱវាទ (Direct Subordinates)',
+      supervisesEn: 'Direct Subordinates',
+      companyName: jds[0]?.companyName || 'G.S.textileGarment(Cambodia) co.,Ltd',
+      preparedBy: jds[0]?.preparedBy || 'Mr. CHAN PHEARUM',
+      preparedRole: jds[0]?.preparedRole || 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
+      verifiedBy: jds[0]?.verifiedBy || 'Mr. LEANG SOPHEA',
+      verifiedRole: jds[0]?.verifiedRole || 'ប្រធានផ្នែកសវនកម្ម Compliance Manager',
+      approvedBy: jds[0]?.approvedBy || 'Mr. CHEN LANMAO',
+      approvedRole: jds[0]?.approvedRole || 'នាយកក្រុមហ៊ុន General Manager',
+      jobSummaryKh: 'ទទួលខុសត្រូវលើការដឹកនាំ និងប្រតិបត្តិការការងារប្រចាំថ្ងៃឱ្យសម្រេចបានតាមគោលដៅ និងស្តង់ដារបស់រោងចក្រ។',
+      jobSummaryEn: 'Responsible for leading and executing daily operational tasks to achieve target output and factory standards.',
+      dutiesKh: `១. ការគ្រប់គ្រង និងដឹកនាំការងារប្រតិបត្តិការ
+- ដឹកនាំ និងបែងចែកការងារដល់បុគ្គលិកប្រចាំថ្ងៃឱ្យបានទាន់ពេលវេលា និងប្រកបដោយប្រសិទ្ធភាពខ្ពស់។
+- ត្រួតពិនិត្យការអនុវត្តការងារ និងដោះស្រាយបញ្ហាចំពោះមុខដែលកើតមានក្នុងផ្នែក។
+
+២. ការអនុលោមតាមបទបញ្ជាផ្ទៃក្នុង និងសុវត្ថិភាព
+- ធានាឱ្យបុគ្គលិកគោរពតាមបទបញ្ជាផ្ទៃក្នុង ស្តង់ដាសុវត្ថិភាព EHS និងការអនុលោមភាពសង្គម។
+- ចូលរួមវគ្គបណ្តុះបណ្តាល និងផ្ទេរចំណេះដឹងដល់សមាជិកក្រុម។`,
+      dutiesEn: `1. OPERATIONAL SUPERVISION & WORKFLOW
+- Direct and allocate daily workload to team members ensuring high efficiency and timely completion.
+- Monitor task execution and proactively resolve daily operational bottlenecks.
+
+2. COMPLIANCE, SAFETY & INTERNAL REGULATIONS
+- Ensure all team members strictly adhere to factory internal regulations, EHS safety rules, and social compliance.
+- Attend and deliver training sessions to build team competencies.`,
+      authoritiesKh: 'មានសិទ្ធិចាត់ចែងការងារក្នុងក្រុម ផ្ទៀងផ្ទាត់របាយការណ៍ប្រចាំថ្ងៃ និងស្នើសុំការលើកទឹកចិត្ត ឬវិធានការវិន័យ។',
+      authoritiesEn: 'Authority to allocate daily tasks, verify daily reports, and recommend performance incentives or disciplinary actions.',
+      qualificationsKh: 'សញ្ញាបត្រមធ្យមសិក្សា ឬបរិញ្ញាបត្រពាក់ព័ន្ធ។ មានបទពិសោធន៍ការងារយ៉ាងតិច ២ ឆ្នាំក្នុងវិស័យរោងចក្រកាត់ដេរ។ ភាពជាអ្នកដឹកនាំល្អ និងទំនាក់ទំនងល្អ។',
+      qualificationsEn: 'High school diploma or relevant Bachelor degree. Minimum 2 years experience in garment manufacturing. Strong leadership and communication skills.',
+      workingConditionsKh: 'បរិយាកាសការងារក្នុងរោងចក្រកាត់ដេរ (Garment manufacturing workshop environment).',
+      workingConditionsEn: 'Standard apparel manufacturing production floor environment.',
+      kpisKh: 'សម្រេចបានគោលដៅផលិតភាព >= 95%, កាត់បន្ថយកំហុសការងារ < 2%, គ្មានគ្រោះថ្នាក់ការងារ (Zero Accidents)។',
+      kpisEn: 'Output achievement >= 95%, Work error rate < 2%, Zero workplace safety incidents.',
+      revisions: [
+        {
+          rev: '01',
+          date: formattedDate,
+          summary: 'Initial Job Description Release',
+          authorizedBy: jds[0]?.approvedBy || 'Mr. CHEN LANMAO',
+        },
+      ],
+    };
+
+    setIsCreatingJd(true);
+    setEditingJd(emptyJd);
+  };
+
+  const handleDeleteJd = (id: string, title: string) => {
+    Swal.fire({
+      title: 'តើអ្នកប្រាកដទេ?',
+      text: `តើអ្នកពិតជាចង់លុបមុខតំណែង "${title}" នេះមែនទេ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'បាទ/ចាស លុបចេញ',
+      cancelButtonText: 'បោះបង់',
+      confirmButtonColor: '#dc2626',
+    }).then((res) => {
+      if (res.isConfirmed) {
+        const updated = jds.filter((j) => j.id !== id);
+        saveJdsToStorage(updated);
+        if (previewJd && previewJd.id === id) {
+          setPreviewJd(null);
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'បានលុបជោគជ័យ!',
+          text: `មុខតំណែង "${title}" ត្រូវបានដកចេញពីប្រព័ន្ធ។`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    });
+  };
+
   const handleSaveEdit = () => {
     if (!editingJd) return;
-    const updated = jds.map(j => (j.id === editingJd.id ? editingJd : j));
+    const exists = jds.some((j) => j.id === editingJd.id);
+    const updated = exists
+      ? jds.map((j) => (j.id === editingJd.id ? editingJd : j))
+      : [editingJd, ...jds];
+
     saveJdsToStorage(updated);
     if (previewJd && previewJd.id === editingJd.id) {
       setPreviewJd(editingJd);
     }
     setEditingJd(null);
+    setIsCreatingJd(false);
     Swal.fire({
       icon: 'success',
-      title: 'បានរក្សាទុក!',
-      text: 'សេចក្តីពិពណ៌នាមុខតំណែង (JD) ត្រូវបានកែប្រែ និងរក្សាទុកដោយជោគជ័យ។',
-      timer: 1500,
+      title: exists ? 'បានរក្សាទុក!' : 'បានបង្កើត JD ថ្មីជោគជ័យ!',
+      text: exists
+        ? 'សេចក្តីពិពណ៌នាមុខតំណែង (JD) ត្រូវបានកែប្រែ និងរក្សាទុកដោយជោគជ័យ។'
+        : `មុខតំណែងថ្មី "${editingJd.jobTitleKh}" ត្រូវបានបញ្ចូលក្នុងបណ្ណាល័យ។`,
+      timer: 1600,
       showConfirmButton: false,
     });
   };
@@ -302,10 +405,29 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
             បង្ហាញ: <strong style={{ color: '#0f172a' }}>{filteredJds.length}</strong> / {jds.length} មុខតំណែង
           </span>
+          <button
+            onClick={handleOpenCreateJdModal}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#1e40af',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '0.84rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 4px rgba(30,64,175,0.2)',
+            }}
+          >
+            ➕ បង្កើត JD ថ្មី (Add JD)
+          </button>
         </div>
       </div>
 
@@ -507,7 +629,10 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                 👁️ មើល & បោះពុម្ព
               </button>
               <button
-                onClick={() => setEditingJd({ ...jd })}
+                onClick={() => {
+                  setIsCreatingJd(false);
+                  setEditingJd({ ...jd });
+                }}
                 style={{
                   padding: '7px 12px',
                   background: '#f8fafc',
@@ -520,6 +645,22 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                 }}
               >
                 ✏️ កែប្រែ
+              </button>
+              <button
+                onClick={() => handleDeleteJd(jd.id, jd.jobTitleKh)}
+                style={{
+                  padding: '7px 10px',
+                  background: '#fff1f2',
+                  color: '#e11d48',
+                  border: '1px solid #fecdd3',
+                  borderRadius: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+                title="លុបមុខតំណែងនេះចេញពីបញ្ជី"
+              >
+                🗑️
               </button>
             </div>
           </div>
@@ -1389,8 +1530,10 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                 background: '#f8fafc',
               }}
             >
-              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>
-                កែប្រែសេចក្តីពិពណ៌នាមុខតំណែង: {editingJd.code} - {editingJd.jobTitleKh}
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                {isCreatingJd
+                  ? '✨ បង្កើតសេចក្តីពិពណ៌នាមុខតំណែង (JD) ថ្មី'
+                  : `កែប្រែសេចក្តីពិពណ៌នាមុខតំណែង: ${editingJd.code} - ${editingJd.jobTitleKh}`}
               </h3>
               <button
                 onClick={() => setEditingJd(null)}
@@ -1600,6 +1743,33 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
                 <div>
                   <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                    ផ្នែក / ដេប៉ាតឺម៉ង់ (Department Khmer):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingJd.departmentKh}
+                    onChange={(e) => setEditingJd({ ...editingJd, departmentKh: e.target.value })}
+                    placeholder="e.g. រដ្ឋបាល និងធនធានមនុស្ស"
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                    Department (English):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingJd.department || ''}
+                    onChange={(e) => setEditingJd({ ...editingJd, department: e.target.value })}
+                    placeholder="e.g. HR & Administration"
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
                     ឈ្មោះមុខតំណែង (ខ្មែរ)
                   </label>
                   <input
@@ -1778,9 +1948,12 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                   borderRadius: '6px',
                   fontWeight: 700,
                   cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}
               >
-                💾 រក្សាទុកការកែប្រែទាំងអស់
+                {isCreatingJd ? '💾 បង្កើត JD ថ្មី (Create JD)' : '💾 រក្សាទុកការកែប្រែទាំងអស់'}
               </button>
             </div>
           </div>

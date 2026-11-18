@@ -221,6 +221,8 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   const [previewSop, setPreviewSop] = useState<FactorySop | null>(null);
   const [editingHeaderSop, setEditingHeaderSop] = useState<FactorySop | null>(null);
   const [applySopHeaderToAll, setApplySopHeaderToAll] = useState<boolean>(false);
+  const [isCreatingSop, setIsCreatingSop] = useState<boolean>(false);
+  const [dynamicJdCount, setDynamicJdCount] = useState<number>(15);
   const [previewLayoutMode, setPreviewLayoutMode] = useState<'1row' | 'paragraph'>('1row');
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [previewMultiPageMode, setPreviewMultiPageMode] = useState<'all' | 'single'>('all');
@@ -464,6 +466,17 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   // Sync with LocalStorage
   useEffect(() => {
     try {
+      const savedJds = localStorage.getItem('hrm_factory_jds_data');
+      if (savedJds) {
+        const parsedJds = JSON.parse(savedJds);
+        if (Array.isArray(parsedJds)) {
+          setDynamicJdCount(parsedJds.length);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    try {
       const saved = localStorage.getItem('hrm_factory_sops_data');
       if (saved) {
         const parsed: FactorySop[] = JSON.parse(saved);
@@ -519,15 +532,115 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
     });
   };
 
+  const handleOpenCreateSopModal = () => {
+    const today = new Date();
+    const formattedDate = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+    const newCodeNum = String(sops.length + 1).padStart(3, '0');
+
+    const emptySop: FactorySop = {
+      id: `sop-custom-${Date.now()}`,
+      code: `SOP-NEW-${newCodeNum}`,
+      edition: '01',
+      pageInfo: 'Page 1 of 1',
+      initialIssuedDate: formattedDate,
+      effectiveDate: formattedDate,
+      amendDate: '10-10-2026',
+      category: 'GENERAL_COMPLIANCE',
+      categoryKh: 'ទូទៅ & អនុលោមភាព',
+      titleKh: 'គោលនយោបាយ និងនីតិវិធីថ្មី (New Procedure)',
+      titleEn: 'New Standard Operating Procedure',
+      titleCn: '',
+      companyName: sops[0]?.companyName || 'G.S.textileGarment(Cambodia) co.,Ltd',
+      productType: sops[0]?.productType || 'Garment & Textile Products',
+      preparedBy: sops[0]?.preparedBy || 'Mr. CHAN PHEARUM',
+      preparedRole: sops[0]?.preparedRole || 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
+      preparedDate: formattedDate,
+      approvedBy: sops[0]?.approvedBy || 'Mr. CHEN LANMAO',
+      approvedRole: sops[0]?.approvedRole || 'នាយកក្រុមហ៊ុន General Manager',
+      approvedDate: formattedDate,
+      contentKh: `១. គោលបំណង: PURPOSE
+គោលបំណងនៃនីតិវិធីនេះគឺដើម្បីកំណត់ស្តង់ដាប្រតិបត្តិការច្បាស់លាស់ និងធានានូវការអនុលោមតាមច្បាប់ការងារ និងស្តង់ដាអន្តរជាតិ។
+
+២. ដែនកំណត់: SCOPE
+អនុវត្តចំពោះបុគ្គលិក កម្មករនិយោជិត និងផ្នែកទាំងអស់នៅក្នុងរោងចក្រ។
+
+៣. ការទទួលខុសត្រូវ: RESPONSIBILITY
+ប្រធានផ្នែក និងបុគ្គលិកពាក់ព័ន្ធទាំងអស់ត្រូវទទួលខុសត្រូវក្នុងការអនុវត្តតាមនីតិវិធីនេះឱ្យបានត្រឹមត្រូវ។
+
+៤. នីតិវិធីប្រតិបត្តិការ: PROCEDURE
+រាល់បុគ្គលិកពាក់ព័ន្ធត្រូវគោរពតាមការណែនាំ និងអនុវត្តឱ្យបានខ្ជាប់ខ្ជួនស្របតាមបទបញ្ជាផ្ទៃក្នុង។`,
+      contentEn: `1. PURPOSE
+The purpose of this procedure is to establish clear operational standards ensuring compliance with labor laws and international standards.
+
+2. SCOPE
+Applicable to all employees, workers, and departments within the factory premise.
+
+3. RESPONSIBILITY
+Department managers and all relevant personnel are responsible for strict implementation of this procedure.
+
+4. PROCEDURE
+All concerned personnel must strictly adhere to the operational guidelines in accordance with internal regulations.`,
+      revisions: [
+        {
+          rev: '01',
+          date: formattedDate,
+          paragraph: 'All',
+          summary: 'Initial Document Release',
+          authorizedBy: sops[0]?.approvedBy || 'Mr. CHEN LANMAO',
+        },
+      ],
+    };
+
+    setIsCreatingSop(true);
+    handleOpenEditModal(emptySop);
+  };
+
+  const handleDeleteSop = (id: string, title: string) => {
+    Swal.fire({
+      title: 'តើអ្នកប្រាកដទេ?',
+      text: `តើអ្នកពិតជាចង់លុបនីតិវិធី "${title}" នេះមែនទេ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'បាទ/ចាស លុបចេញ',
+      cancelButtonText: 'បោះបង់',
+      confirmButtonColor: '#dc2626',
+    }).then((res) => {
+      if (res.isConfirmed) {
+        const updated = sops.filter((s) => s.id !== id);
+        saveSops(updated);
+        if (previewSop && previewSop.id === id) {
+          setPreviewSop(null);
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'បានលុបជោគជ័យ!',
+          text: `នីតិវិធី "${title}" ត្រូវបានដកចេញពីប្រព័ន្ធ។`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    });
+  };
+
   const handleSaveEditSop = () => {
     if (!editingSop) return;
-    const updated = sops.map((s) => (s.id === editingSop.id ? editingSop : s));
+    const exists = sops.some((s) => s.id === editingSop.id);
+    const updated = exists
+      ? sops.map((s) => (s.id === editingSop.id ? editingSop : s))
+      : [editingSop, ...sops];
+
     saveSops(updated);
+    if (previewSop && previewSop.id === editingSop.id) {
+      setPreviewSop(editingSop);
+    }
     setEditingSop(null);
+    setIsCreatingSop(false);
     Swal.fire({
       icon: 'success',
-      title: 'បានរក្សាទុកជោគជ័យ!',
-      text: `នីតិវិធី ${editingSop.code} ត្រូវបានធ្វើបច្ចុប្បន្នភាព។`,
+      title: exists ? 'បានរក្សាទុកជោគជ័យ!' : 'បានបង្កើត SOP ថ្មីដោយជោគជ័យ!',
+      text: exists
+        ? `នីតិវិធី ${editingSop.code} ត្រូវបានធ្វើបច្ចុប្បន្នភាព។`
+        : `នីតិវិធីថ្មី ${editingSop.code} ត្រូវបានបញ្ចូលក្នុងបណ្ណាល័យ។`,
       timer: 1600,
       showConfirmButton: false,
     });
@@ -614,18 +727,28 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {/* Top Segmented Switcher between SOPs and JDs */}
+      {/* Top Segmented Switcher between SOPs and JDs & ADD ACTION BUTTON */}
       <div
         style={{
           display: 'flex',
-          background: '#f1f5f9',
-          padding: '4px',
-          borderRadius: '12px',
-          gap: '4px',
-          width: 'fit-content',
-          border: '1px solid #e2e8f0',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+          gap: '12px',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            background: '#f1f5f9',
+            padding: '4px',
+            borderRadius: '12px',
+            gap: '4px',
+            width: 'fit-content',
+            border: '1px solid #e2e8f0',
+          }}
+        >
         <button
           onClick={() => setMainSection('sops')}
           style={{
@@ -688,10 +811,33 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
               fontWeight: 700,
             }}
           >
-            15
+            {dynamicJdCount}
           </span>
         </button>
       </div>
+
+      {mainSection === 'sops' && (
+        <button
+          onClick={handleOpenCreateSopModal}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            background: '#047857',
+            color: '#ffffff',
+            fontWeight: 700,
+            fontSize: '0.84rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            boxShadow: '0 2px 4px rgba(4,120,87,0.2)',
+          }}
+        >
+          ➕ បង្កើត SOP ថ្មី (Add SOP)
+        </button>
+      )}
+    </div>
 
       {mainSection === 'jds' ? (
         <JdLibraryView
@@ -926,7 +1072,10 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   ✍️ កែប្រែឈ្មោះ
                 </button>
                 <button
-                  onClick={() => handleOpenEditModal(sop)}
+                  onClick={() => {
+                    setIsCreatingSop(false);
+                    handleOpenEditModal(sop);
+                  }}
                   style={{
                     background: '#fef3c7',
                     color: '#92400e',
@@ -939,6 +1088,22 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   }}
                 >
                   ✏️ កែប្រែ (Edit)
+                </button>
+                <button
+                  onClick={() => handleDeleteSop(sop.id, sop.titleKh)}
+                  style={{
+                    background: '#fff1f2',
+                    color: '#e11d48',
+                    border: '1px solid #fecdd3',
+                    padding: '5px 8px',
+                    borderRadius: '5px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                  title="លុបនីតិវិធីនេះចេញពីបញ្ជី"
+                >
+                  🗑️
                 </button>
                 <button
                   onClick={() => {
@@ -1016,7 +1181,9 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
             >
               <div>
                 <div style={{ fontWeight: 800, fontSize: '0.96rem' }}>
-                  ✏️ កែប្រែទម្រង់នីតិវិធី៖ {editingSop.code} - {editingSop.titleKh}
+                  {isCreatingSop
+                    ? '✨ បង្កើតទម្រង់នីតិវិធី (SOP) ថ្មី'
+                    : `✏️ កែប្រែទម្រង់នីតិវិធី៖ ${editingSop.code} - ${editingSop.titleKh}`}
                 </div>
                 <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
                   អ្នកអាចប្តូរឈ្មោះក្រុមហ៊ុន ផលិតផល រៀបចំដោយ និងអនុម័តដោយ តាមតម្រូវការជាក់ស្តែង
@@ -1657,9 +1824,21 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
               </button>
               <button
                 onClick={handleSaveEditSop}
-                style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '7px 18px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
+                style={{
+                  background: isCreatingSop ? '#047857' : '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '7px 18px',
+                  borderRadius: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
               >
-                💾 រក្សាទុកការកែប្រែ (Save SOP)
+                {isCreatingSop ? '💾 បង្កើត SOP ថ្មី (Create SOP)' : '💾 រក្សាទុកការកែប្រែ (Save SOP)'}
               </button>
             </div>
           </div>

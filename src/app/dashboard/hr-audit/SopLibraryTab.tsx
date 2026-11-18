@@ -121,38 +121,57 @@ Designated senior staff from HR & Compliance Dept are assigned to communicate, d
     approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
     approvedDate: '11-11-2024',
     contentKh: `១. គោលបំណង Purpose
-ក្រុមហ៊ុនបានបង្កើតនីតិវិធីនេះឡើងគឺដើម្បី អនុលោមទៅតាម បទបញ្ញត្តិ ច្បាប់ជាតិ និងអន្តរជាតិស្តីពី ការចៀសវាងធ្វើអាជីវកម្មលើពលកម្មកុមារ។
+ក្រុមហ៊ុនបានបង្កើតនីតិវិធីនេះឡើងគឺដើម្បី អនុលោមទៅតាម បទបញ្ញត្តិ ច្បាប់ជាតិ និងអន្តរជាតិស្តីពី ការចៀសវាងធ្វើអាជីវកម្មលើពលកម្មកុមារ។ នីតិវិធីនេះត្រូវបានដាក់បង្ហាញទៅតាមសកម្មភាពដូចខាងក្រោមៈ
+- បិទប្រកាសជាសាធារណៈចំពោះសកម្មភាព នៃការធ្វើអាជីវកម្មលើពលកម្មកុមារ ព្រមទាំងគោលនយោបាយផ្សេងៗទៀត នៅលើក្តារប្រកាស។
+- រាល់នីតិវិធីទាំងអស់ ត្រូវបានទទួលដឹងឮដោយថ្នាក់ដឹកនាំរបស់ក្រុមហ៊ុន និងបុគ្គលិកដែលពាក់ព័ន្ធ ដើម្បីឱ្យស្របទៅតាមច្បាប់ និងគោលការណ៍របស់អតិថិជន។
+- រួមបញ្ចូលទាំងការទទួលខុសត្រូវ និងនីតិវិធីសម្រាប់កម្មករ និយោជិត ឬអ្នកទទួលការងារបន្តដែលមិនបានអនុវត្តទៅតាមកម្រិតស្តង់ដាររបស់ក្រុមហ៊ុន ដោយសំដៅទៅលើទាសភាព ការជួញដូរ និងការធ្វើអាជីវកម្មលើពលកម្មកុមារ។
+- ផ្តល់ជូនការបណ្តុះបណ្តាលទៅឱ្យកម្មករ និយោជិត និងថ្នាក់គ្រប់គ្រងរបស់ក្រុមហ៊ុន ដែលមានភារកិច្ចទទួលខុសត្រូវ សម្រាប់ការគ្រប់គ្រងខ្សែសង្វាក់ផលិតកម្ម ចំពោះការធ្វើអាជីវកម្មលើពលកម្មកុមារ ជាពិសេសជាចំណែកមួយក្នុងការកាត់បន្ថយហានិភ័យចំពោះការផលិត និងការផ្គត់ផ្គង់ផលិតផលផងដែរ។
 
-២. ការធ្វើអាជីវកម្មលើពលកម្មកុមារ និងទាសភាព
-ក. ការធ្វើអាជីវកម្មលើពលកម្មកុមារ៖ ការប្រើកម្លាំងពលកម្មដោយបង្ខំ រាល់ទម្រង់នៃការងារឬសេវាកម្មដែលដកចេញពីអ្នកណាម្នាក់ដោយការគំរាមកំហែង។ ការកាត់ទុកឬមិនទូទាត់ប្រាក់ឈ្នួល ការយកទៅរក្សាទុកនូវប័ណ្ណសម្គាល់ខ្លួន ឬលិខិតឆ្លងដែន ដើម្បីរឹតបន្តឹងការធ្វើដំណើរ។
-ខ. ការគំរាមកំហែងចំពោះការដាក់ពិន័យ៖ តាមរយៈស្មារតី រាងកាយ ការបង្ខាំង និងការពិន័យហិរញ្ញវត្ថុ។
-គ. ជាប់បំណុល (Indebtedness): ស្ថានភាពដែលបង្ខំឱ្យធ្វើការងារដើម្បីសងបំណុលមិនសមហេតុផល។
+២. ការធ្វើអាជីវកម្មលើពលកម្មកុមារ ដែលបានសន្មតទុក Supposed Child Exploitation
+ក. ការធ្វើអាជីវកម្មលើពលកម្មកុមារៈ
+- ទាសភាព និងការធ្វើអាជីវកម្មលើពលកម្មកុមារ ត្រូវបានកំណត់ដូចជាៈ ការប្រើកម្លាំងពលកម្មដោយបង្ខំ រាល់ទម្រង់នៃការងារឬសេវាកម្មដែលដកចេញពីអ្នកណាម្នាក់ដោយការគំរាមកំហែងចំពោះការដាក់ពិន័យ និងសម្រាប់អ្នកដែលមិនបានប្រគល់ដោយមានការស្ម័គ្រចិត្ត។
+- ការធ្វើការងារដោយមិនស្ម័គ្រចិត្ត រួមបញ្ចូលទាំងការដាក់ទណ្ឌកម្ម មិនបើកប្រាក់ឈ្នួល ឬការកាត់ទុកនូវប័ណ្ណសម្គាល់ខ្លួន ឬលិខិតឆ្លងដែន ដើម្បីរឹតបន្តឹងលើការធ្វើដំណើររបស់កម្មករ និយោជិត។
+ខ. ការគំរាមកំហែងចំពោះការដាក់ពិន័យៈ
+- តាមរយៈស្មារតី រាងកាយ ឬការបង្ខាំងក្នុងកន្លែងធ្វើការ ព្រមទាំងការពិន័យជាប្រាក់កាស ដែលជាការដាក់សម្ពាធមិនសមហេតុផល។
+គ. ជាប់បំណុល (Indebtedness)ៈ
+- ស្ថានភាពដែលបង្ខំឱ្យកម្មករ និយោជិតធ្វើការងារដើម្បីសងបំណុល ក្រោមការគាបសង្កត់ ឬកិច្ចសន្យាមិនស្របច្បាប់។
 
-៣. ការទទួលខុសត្រូវ
-- ថ្នាក់ដឹកនាំ និងបុគ្គលិកធនធានមនុស្ស ត្រូវឃ្លាំមើលការជ្រើសរើសបុគ្គលិកថ្មី និងធ្វើការស៊ើបអង្កេត ត្រួតពិនិត្យយ៉ាងយកចិត្តទុកដាក់ដើម្បីបញ្ចៀសការធ្វើអាជីវកម្មលើពលកម្មកុមារ។
-- ផ្នែកធនធានមនុស្សត្រូវសម្ភាសន៍ និងពិនិត្យឯកសារអាយុឱ្យបានហ្មត់ចត់បំផុត។
+៣. ការទទួលខុសត្រូវ ចំពោះការធ្វើអាជីវកម្មពលកម្មកុមារ The Responsibility to Child Exploitation
+- ថ្នាក់ដឹកនាំ និងបុគ្គលិកធនធានមនុស្ស ឬផ្នែកពាក់ព័ន្ធផ្សេងទៀត មានភារកិច្ចទទួលខុសត្រូវទាំងខ្លឹមសារ គោលបំណង និងសកម្មភាពនៃនីតិវិធីប្រឆាំងការជួញដូរមនុស្សនេះ។
+- ចូលរួមឃ្លាំមើលការជ្រើសរើស និងការអនុវត្តការងាររបស់កម្មករ និយោជិតចាស់ ថ្មី ដែលកំពុងបម្រើការងារនៅតាមផ្នែកនីមួយៗ និងធ្វើការស៊ើបអង្កេត វាយតម្លៃ តាមដាន សម្ភាសន៍ និងត្រួតពិនិត្យយ៉ាងយកចិត្តទុកដាក់ដើម្បីបញ្ចៀសការធ្វើអាជីវកម្មលើពលកម្មកុមារ។
+- ផ្នែកធនធានមនុស្ស ត្រូវមានការសម្ភាសន៍កម្មករ និយោជិត និងពិនិត្យសួរនាំកម្មករមិនទាន់គ្រប់អាយុ (ប្រសិនបើមានបំណងប្រើប្រាស់កម្មករវ័យក្មេងដែលស្របច្បាប់ឱ្យបានហ្មត់ចត់) ចៀសវាងក្រែងមានការធ្វើអាជីវកម្មលើកម្លាំងពលកម្ម។
 
-៤. ឆានែលរាយការណ៍ (Reporting Channels)
-ប្រសិនបើមានការសង្ស័យ អាចរាយការណ៍មកកាន់៖
+៤. អ្នកដែលពាក់ព័ន្ធ និងរាយការណ៍ករណីសង្ស័យ The People Concerned and Reporting Channels
+កម្មករនិយោជិតទាំងអស់ ដោយរាប់តាំងពីថ្នាក់គ្រប់គ្រងរហូតដល់កម្មករ ប្រសិនបើឃើញ ឬមានការសង្ស័យ (គិតថាកម្មករនិយោជិតមានអាយុក្រោម ១៨ ឆ្នាំ ឬមើលទៅនៅក្មេង) អាចរាយការណ៍មកកាន់៖
 - ផ្នែកធនធានមនុស្សរបស់ក្រុមហ៊ុន
 - អង្គការពលកម្មអន្តរជាតិ (ILO / Better Factories Cambodia)
-- អង្គការសិទ្ធិមនុស្ស និងស្ថាប័នមានសមត្ថកិច្ច។`,
+- អង្គការសិទ្ធិមនុស្ស និងស្ថាប័នមានសមត្ថកិច្ចពាក់ព័ន្ធ។`,
     contentEn: `1. PURPOSE
-Company has established this policy in accordance with national and international labor provisions to strictly avoid child exploitation and human trafficking.
+Company has conducted this policy in accordance with provision, local and international law in order to avoid child exploitation. This policy has been displayed following to below activities:
+- Officially post the activities of child exploitation as well as other policies on public notice boards.
+- All procedures will be acknowledged by management and relevant staff to comply with law and buyer requirements.
+- Including responsibility and procedures for workers, employees, or subcontractors that have not performed referring to standard of our company toward slavery, trafficking and exploitation on children.
+- Conduct training for workers, employees and management responsible for production management on child exploitation, contributing to risk reduction in production and supply chain.
 
-2. SUPPOSED CHILD EXPLOITATION & SLAVERY
-A. Child Exploitation: Forced labor, involuntary servitude, withholding wages or retention of identity documents/passports to restrict movement.
-B. Threatening through Punishment: Physical, mental, financial confinement or duress.
-C. Indebtedness: Debt bondage or forced labor to repay inflated debt obligations.
+2. SUPPOSED CHILD EXPLOITATION & FORCED LABOR
+A. Child Exploitation:
+- Slavery and child exploitation defined as forced labor: all forms of work or service exacted from any person under menace of any penalty and for which the person has not offered voluntarily.
+- Involuntary labor including corporal punishment, withholding wages or retention of identity documents/passports to restrict worker mobility.
+B. Threatening through Punishment:
+- Mental, physical, or confinement in workplace premises as well as unreasonable financial deductions.
+C. Indebtedness & Debt Bondage:
+- Conditions where workers are forced to work to pay inflated or coercive debts under duress.
 
-3. RESPONSIBILITY
-Management and HR team must thoroughly verify age during recruitment and conduct regular floor monitoring to ensure zero tolerance for underage labor.
+3. RESPONSIBILITY TO PREVENT CHILD EXPLOITATION
+- Management, HR staff and concerned departments are obligated to understand meaning, objective and activities of anti-human trafficking procedures.
+- Monitor recruitment and daily practices of existing and newly hired workers across all departments through observation, evaluation, and strict age verification audits.
+- HR department must conduct thorough interviews and verify documents for young workers to comply strictly with legal requirements.
 
-4. REPORTING CHANNELS
-In case of suspicion, report directly to:
-- Company HR Department
-- International Labor Organization (ILO / BFC)
-- Human Rights Organizations & Labor Inspectorate.`,
+4. CONCERNED PARTIES & REPORTING CHANNELS
+All workers and employees, from top management to shopfloor operators, who observe or suspect underage labor (under 18 years of age or looking underage) may report immediately to:
+- Company Human Resources Department
+- International Labor Organization (ILO / Better Factories Cambodia)
+- Human Rights Organizations and Labor Inspectorate authorities.`,
     revisions: [
       { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលនយោបាយប្រឆាំងពលកម្មកុមារពេញលេញ', authorizedBy: 'General Manager' },
     ],
@@ -886,27 +905,50 @@ function extractTotalPages(pageInfo: string | undefined): number {
   return 1;
 }
 
-function distributeClausesToPages(clauses: BilingualClause[], totalPages: number): BilingualClause[][] {
-  if (totalPages <= 1 || clauses.length === 0) {
+function distributeClausesToFitPages(clauses: BilingualClause[]): BilingualClause[][] {
+  if (clauses.length === 0) return [[]];
+
+  // Estimate the render height of each clause in pixels (bilingual 1-row table)
+  const getClauseHeight = (c: BilingualClause) => {
+    const khLines = Math.max(1, Math.ceil((c.khmerBody?.length || 1) / 52));
+    const enLines = Math.max(1, Math.ceil((c.englishBody?.length || 1) / 60));
+    return 60 + khLines * 21 + enLines * 19;
+  };
+
+  const totalClausesHeight = clauses.reduce((sum, c) => sum + getClauseHeight(c), 0);
+
+  // If all clauses + revision table easily fit onto 1 single A4 page (~620px usable with header & revision)
+  if (totalClausesHeight <= 620) {
     return [clauses];
   }
-  
-  const pages: BilingualClause[][] = Array.from({ length: totalPages }, () => []);
-  
-  if (clauses.length <= totalPages) {
-    for (let i = 0; i < clauses.length; i++) {
-      pages[i].push(clauses[i]);
-    }
-  } else {
-    const itemsPerPage = Math.ceil(clauses.length / totalPages);
-    for (let p = 0; p < totalPages; p++) {
-      const start = p * itemsPerPage;
-      const end = Math.min(start + itemsPerPage, clauses.length);
-      pages[p] = clauses.slice(start, end);
+
+  // Otherwise, pack clauses naturally so each page is nicely filled without excessive blank space
+  const pages: BilingualClause[][] = [];
+  let currentPage: BilingualClause[] = [];
+  let currentHeight = 0;
+
+  for (let i = 0; i < clauses.length; i++) {
+    const clause = clauses[i];
+    const cH = getClauseHeight(clause);
+    const isLastClause = i === clauses.length - 1;
+    // On the last page, we also need space for the revision table (~160px)
+    const pageCapacity = isLastClause ? 580 : 720;
+
+    if (currentPage.length > 0 && currentHeight + cH > pageCapacity) {
+      pages.push(currentPage);
+      currentPage = [clause];
+      currentHeight = cH;
+    } else {
+      currentPage.push(clause);
+      currentHeight += cH;
     }
   }
-  
-  return pages;
+
+  if (currentPage.length > 0) {
+    pages.push(currentPage);
+  }
+
+  return pages.length > 0 ? pages : [clauses];
 }
 
 function parseBilingualClauses(contentKh: string, contentEn: string): BilingualClause[] {
@@ -993,15 +1035,15 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
         // Merge with default values in case cached objects lack newly added header fields
         const merged = parsed.map((item) => {
           const def = DEFAULT_SOPS.find((d) => d.id === item.id);
-          // If sop-06 has older truncated content, enrich with full 8 sections
-          const isOlderLeaveSop = item.id === 'sop-06' && item.contentKh.length < 1000;
+          // Auto-sync upgraded content for sop-01, sop-02, sop-06 if cached version is older
+          const isOlderContent = def && (item.id === 'sop-01' || item.id === 'sop-02' || item.id === 'sop-06') && item.contentKh.length < (def.contentKh.length - 10);
           return {
             ...def,
             ...item,
-            contentKh: isOlderLeaveSop ? (def?.contentKh || item.contentKh) : item.contentKh,
-            contentEn: isOlderLeaveSop ? (def?.contentEn || item.contentEn) : item.contentEn,
+            contentKh: isOlderContent ? def.contentKh : item.contentKh,
+            contentEn: isOlderContent ? def.contentEn : item.contentEn,
             edition: item.edition || def?.edition || '02',
-            pageInfo: item.pageInfo || def?.pageInfo || 'Page 1 of 8',
+            pageInfo: item.pageInfo || def?.pageInfo || 'Page 1 of 1',
             initialIssuedDate: item.initialIssuedDate || def?.initialIssuedDate || '10-11-2023',
             amendDate: item.amendDate || def?.amendDate || '10-10-2025',
             effectiveDate: item.effectiveDate || def?.effectiveDate || '11-11-2024',
@@ -1219,9 +1261,15 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#64748b', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
-                    📄 {sop.pageInfo || 'Page 1 of 10'}
-                  </span>
+                  {(() => {
+                    const cl = parseBilingualClauses(sop.contentKh, sop.contentEn);
+                    const pCount = distributeClausesToFitPages(cl).length;
+                    return (
+                      <span style={{ fontSize: '0.68rem', color: '#334155', background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                        📄 {pCount} ទំព័រ (Page 1 of {pCount})
+                      </span>
+                    );
+                  })()}
                   <span style={{ fontSize: '0.7rem', color: '#059669', background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                     🏭 {sop.productType}
                   </span>
@@ -1480,9 +1528,9 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                     <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>ចំនួនទំព័រ (Page Info):</label>
                     <input
                       type="text"
-                      value={editingSop.pageInfo || 'Page 1 of 10'}
+                      value={editingSop.pageInfo || 'Page 1 of 1'}
                       onChange={(e) => setEditingSop({ ...editingSop, pageInfo: e.target.value })}
-                      placeholder="e.g. Page 1 of 10"
+                      placeholder="e.g. Page 1 of 1, Page 1 of 2"
                       style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
                     />
                   </div>
@@ -1709,9 +1757,32 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
               </div>
 
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {/* Multi-Page Navigation Controls */}
+                {/* Multi-Page Navigation Controls (Accurate to Real Content Pages) */}
                 {(() => {
-                  const totalP = extractTotalPages(previewSop.pageInfo);
+                  const clauses = parseBilingualClauses(previewSop.contentKh, previewSop.contentEn);
+                  const distributedPages = distributeClausesToFitPages(clauses);
+                  const totalP = distributedPages.length;
+
+                  if (totalP <= 1) {
+                    return (
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: 'rgba(255,255,255,0.15)',
+                          borderRadius: '6px',
+                          padding: '4px 10px',
+                          color: '#e2e8f0',
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                        }}
+                      >
+                        <span>📄 ទម្រង់ ១ ទំព័រ A4 (Fit Content)</span>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '3px 8px' }}>
                       <button
@@ -1900,9 +1971,9 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
               }}
             >
               {(() => {
-                const totalPages = extractTotalPages(previewSop.pageInfo);
                 const clauses = parseBilingualClauses(previewSop.contentKh, previewSop.contentEn);
-                const distributedPages = distributeClausesToPages(clauses, totalPages);
+                const distributedPages = distributeClausesToFitPages(clauses);
+                const totalPages = distributedPages.length;
 
                 return (
                   <div
@@ -1971,7 +2042,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                               }}
                             >
                               <span>
-                                ────── 📄 ទំព័រទី ${pageNum} នៃ ${totalPages} (Page ${pageNum} of ${totalPages}) ──────
+                                ────── 📄 ទំព័រទី {pageNum} នៃ {totalPages} (Page {pageNum} of {totalPages}) ──────
                               </span>
                             </div>
                           )}

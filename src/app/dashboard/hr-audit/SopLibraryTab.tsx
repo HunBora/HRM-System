@@ -1771,6 +1771,29 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
 
                 <button
                   onClick={() => {
+                    handleOpenEditModal(previewSop);
+                    setPreviewSop(null);
+                  }}
+                  style={{
+                    background: '#047857',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '5px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                  title="កែប្រែ Doc No, Edition, Issued Date, Effective Date, Amend Date"
+                >
+                  ✏️ កែប្រែ Doc No & កាលបរិច្ឆេទ
+                </button>
+
+                <button
+                  onClick={() => {
                     setPreviewMultiPageMode('all');
                     setTimeout(() => {
                       handlePrintTemplate('sopOriginalPrintArea');

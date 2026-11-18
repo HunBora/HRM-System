@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import { FactoryJd, ALL_JDS } from './jdData';
 
@@ -84,7 +84,35 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [previewJd, setPreviewJd] = useState<FactoryJd | null>(null);
   const [editingJd, setEditingJd] = useState<FactoryJd | null>(null);
+  const [editingHeaderJd, setEditingHeaderJd] = useState<FactoryJd | null>(null);
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+
+  // Load and sync with localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hrm_factory_jds_data');
+      if (saved) {
+        const parsed: FactoryJd[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map((p) => p.id));
+        const missing = ALL_JDS.filter((d) => !existingIds.has(d.id));
+        setJds([...parsed, ...missing]);
+      } else {
+        setJds(ALL_JDS);
+      }
+    } catch (e) {
+      console.error(e);
+      setJds(ALL_JDS);
+    }
+  }, []);
+
+  const saveJdsToStorage = (updatedList: FactoryJd[]) => {
+    setJds(updatedList);
+    try {
+      localStorage.setItem('hrm_factory_jds_data', JSON.stringify(updatedList));
+    } catch (err) {
+      console.error('Failed to save JDs to localStorage:', err);
+    }
+  };
 
   const departments = [
     { key: 'ALL', labelKh: 'ទាំងអស់ (All Roles)', count: jds.length },
@@ -118,7 +146,8 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
 
   const handleSaveEdit = () => {
     if (!editingJd) return;
-    setJds(prev => prev.map(j => (j.id === editingJd.id ? editingJd : j)));
+    const updated = jds.map(j => (j.id === editingJd.id ? editingJd : j));
+    saveJdsToStorage(updated);
     if (previewJd && previewJd.id === editingJd.id) {
       setPreviewJd(editingJd);
     }
@@ -126,7 +155,24 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
     Swal.fire({
       icon: 'success',
       title: 'បានរក្សាទុក!',
-      text: 'សេចក្តីពិពណ៌នាមុខតំណែង (JD) ត្រូវបានកែប្រែដោយជោគជ័យ។',
+      text: 'សេចក្តីពិពណ៌នាមុខតំណែង (JD) ត្រូវបានកែប្រែ និងរក្សាទុកដោយជោគជ័យ។',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+  const handleSaveQuickHeader = () => {
+    if (!editingHeaderJd) return;
+    const updated = jds.map(j => (j.id === editingHeaderJd.id ? editingHeaderJd : j));
+    saveJdsToStorage(updated);
+    if (previewJd && previewJd.id === editingHeaderJd.id) {
+      setPreviewJd(editingHeaderJd);
+    }
+    setEditingHeaderJd(null);
+    Swal.fire({
+      icon: 'success',
+      title: 'បានធ្វើបច្ចុប្បន្នភាពក្បាលឯកសារ!',
+      text: 'Doc No, Edition, និងកាលបរិច្ឆេទ ត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។',
       timer: 1500,
       showConfirmButton: false,
     });
@@ -376,6 +422,10 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                 <div>
                   <strong>គ្រប់គ្រងលើ:</strong> {jd.supervisesKh}
                 </div>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '2px', color: '#64748b', fontSize: '0.72rem' }}>
+                  <span>⚡ ធរមាន: <strong>{jd.effectiveDate}</strong></span>
+                  <span>🔄 វិសោធនកម្ម: <strong>{jd.amendDate}</strong></span>
+                </div>
               </div>
 
               <p
@@ -492,6 +542,25 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
 
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
+                  onClick={() => setEditingHeaderJd({ ...previewJd })}
+                  style={{
+                    padding: '6px 12px',
+                    background: '#047857',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                  title="កែប្រែ Doc No, Edition, Issued Date, Effective Date, Amend Date"
+                >
+                  ✏️ កែប្រែ Doc No & កាលបរិច្ឆេទ
+                </button>
+                <button
                   onClick={() => handleExportMultiPagePdf(previewJd)}
                   disabled={isExportingPdf}
                   style={{
@@ -594,7 +663,7 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                       </td>
                       <td
                         style={{
-                          width: '50%',
+                          width: '45%',
                           border: '1px solid #000000',
                           padding: '10px',
                           textAlign: 'center',
@@ -612,19 +681,37 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                         </div>
                       </td>
                       <td
+                        onClick={() => setEditingHeaderJd({ ...previewJd })}
+                        title="ចុចដើម្បីកែប្រែ Doc No, Edition, Issued, Effective, Amend, Page"
                         style={{
-                          width: '25%',
+                          width: '30%',
                           border: '1px solid #000000',
                           padding: '6px 8px',
-                          fontSize: '0.72rem',
+                          fontSize: '0.74rem',
                           verticalAlign: 'middle',
+                          cursor: 'pointer',
+                          background: '#fcfcfc',
+                          transition: 'background 0.2s',
                         }}
                       >
-                        <div><strong>Doc No:</strong> {previewJd.code}</div>
-                        <div><strong>Edition:</strong> {previewJd.edition}</div>
-                        <div><strong>Effective:</strong> {previewJd.effectiveDate}</div>
-                        <div><strong>Amend:</strong> {previewJd.amendDate}</div>
-                        <div><strong>Page:</strong> {previewJd.pageInfo}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                          <strong>Doc No:</strong> <span>{previewJd.code}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                          <strong>Edition:</strong> <span>{previewJd.edition}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                          <strong>Issued:</strong> <span>{previewJd.initialIssuedDate || '10-11-2023'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                          <strong>Effective:</strong> <span>{previewJd.effectiveDate}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                          <strong>Amend:</strong> <span>{previewJd.amendDate}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <strong>Page:</strong> <span>{previewJd.pageInfo}</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -890,7 +977,178 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
         </div>
       )}
 
-      {/* Edit Modal */}
+      {/* QUICK EDIT HEADER MODAL (Doc No, Dates, Edition, Page) */}
+      {editingHeaderJd && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.75)',
+            zIndex: 10000,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '95%',
+              maxWidth: '560px',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                padding: '14px 20px',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: '#f8fafc',
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+                ✏️ កែប្រែក្បាលឯកសារ: {editingHeaderJd.jobTitleKh}
+              </h3>
+              <button
+                onClick={() => setEditingHeaderJd(null)}
+                style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', color: '#64748b' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    លេខកូដឯកសារ (Doc No):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHeaderJd.code}
+                    onChange={(e) => setEditingHeaderJd({ ...editingHeaderJd, code: e.target.value })}
+                    placeholder="e.g. JD-CMP-003"
+                    style={{ width: '100%', padding: '8px', border: '1.5px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    បោះពុម្ពលើកទី (Edition):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHeaderJd.edition}
+                    onChange={(e) => setEditingHeaderJd({ ...editingHeaderJd, edition: e.target.value })}
+                    placeholder="e.g. 02"
+                    style={{ width: '100%', padding: '8px', border: '1.5px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    កាលបរិច្ឆេទចេញដំបូង (Issued Date):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHeaderJd.initialIssuedDate || '10-11-2023'}
+                    onChange={(e) => setEditingHeaderJd({ ...editingHeaderJd, initialIssuedDate: e.target.value })}
+                    placeholder="e.g. 10-11-2023"
+                    style={{ width: '100%', padding: '8px', border: '1.5px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    ចំនួនទំព័រ (Page Info):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHeaderJd.pageInfo}
+                    onChange={(e) => setEditingHeaderJd({ ...editingHeaderJd, pageInfo: e.target.value })}
+                    placeholder="e.g. Page 1 of 2"
+                    style={{ width: '100%', padding: '8px', border: '1.5px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    កាលបរិច្ឆេទមានប្រសិទ្ធភាព (Effective Date):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHeaderJd.effectiveDate}
+                    onChange={(e) => setEditingHeaderJd({ ...editingHeaderJd, effectiveDate: e.target.value })}
+                    placeholder="e.g. 11-11-2024"
+                    style={{ width: '100%', padding: '8px', border: '1.5px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    កាលបរិច្ឆេទកែប្រែ/ពិនិត្យ (Amend Date):
+                  </label>
+                  <input
+                    type="text"
+                    value={editingHeaderJd.amendDate}
+                    onChange={(e) => setEditingHeaderJd({ ...editingHeaderJd, amendDate: e.target.value })}
+                    placeholder="e.g. 10-10-2025"
+                    style={{ width: '100%', padding: '8px', border: '1.5px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                padding: '12px 20px',
+                borderTop: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+                background: '#f8fafc',
+              }}
+            >
+              <button
+                onClick={() => setEditingHeaderJd(null)}
+                style={{
+                  padding: '7px 14px',
+                  background: '#f1f5f9',
+                  color: '#475569',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                បោះបង់
+              </button>
+              <button
+                onClick={handleSaveQuickHeader}
+                style={{
+                  padding: '7px 18px',
+                  background: '#047857',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                💾 រក្សាទុកក្បាលឯកសារ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FULL EDIT MODAL */}
       {editingJd && (
         <div
           style={{
@@ -910,8 +1168,8 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
               background: '#ffffff',
               borderRadius: '16px',
               width: '95%',
-              maxWidth: '820px',
-              maxHeight: '90vh',
+              maxWidth: '860px',
+              maxHeight: '92vh',
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
@@ -929,7 +1187,7 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
               }}
             >
               <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>
-                កែប្រែសេចក្តីពិពណ៌នាមុខតំណែង: {editingJd.code}
+                កែប្រែសេចក្តីពិពណ៌នាមុខតំណែង: {editingJd.code} - {editingJd.jobTitleKh}
               </h3>
               <button
                 onClick={() => setEditingJd(null)}
@@ -946,6 +1204,94 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
             </div>
 
             <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
+              {/* SECTION 1: HEADER & METADATA (DOC NO, DATES, EDITION) */}
+              <div
+                style={{
+                  background: '#f8fafc',
+                  border: '1.5px solid #cbd5e1',
+                  borderRadius: '10px',
+                  padding: '14px',
+                  marginBottom: '18px',
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e40af', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  📋 ព័ត៌មានក្បាលឯកសារផ្លូវការ (Official Header Details & Dates)
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '10px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      លេខកូដឯកសារ (Doc No):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingJd.code}
+                      onChange={(e) => setEditingJd({ ...editingJd, code: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      បោះពុម្ពលើកទី (Edition):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingJd.edition}
+                      onChange={(e) => setEditingJd({ ...editingJd, edition: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      ចំនួនទំព័រ (Page Info):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingJd.pageInfo}
+                      onChange={(e) => setEditingJd({ ...editingJd, pageInfo: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      កាលបរិច្ឆេទចេញដំបូង (Issued Date):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingJd.initialIssuedDate || '10-11-2023'}
+                      onChange={(e) => setEditingJd({ ...editingJd, initialIssuedDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      កាលបរិច្ឆេទចូលជាធរមាន (Effective Date):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingJd.effectiveDate}
+                      onChange={(e) => setEditingJd({ ...editingJd, effectiveDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                      កាលបរិច្ឆេទកែប្រែ/ពិនិត្យ (Amend Date):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingJd.amendDate}
+                      onChange={(e) => setEditingJd({ ...editingJd, amendDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 2: TITLES & HIERARCHY */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
                 <div>
                   <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
@@ -967,6 +1313,42 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                     value={editingJd.jobTitleEn}
                     onChange={(e) => setEditingJd({ ...editingJd, jobTitleEn: e.target.value })}
                     style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    កម្រិតតួនាទី (Grade Level)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingJd.gradeLevel}
+                    onChange={(e) => setEditingJd({ ...editingJd, gradeLevel: e.target.value })}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    រាយការណ៍ជូន (Reports To)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingJd.reportsToKh}
+                    onChange={(e) => setEditingJd({ ...editingJd, reportsToKh: e.target.value })}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '3px' }}>
+                    គ្រប់គ្រងលើ (Supervises)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingJd.supervisesKh}
+                    onChange={(e) => setEditingJd({ ...editingJd, supervisesKh: e.target.value })}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
                   />
                 </div>
               </div>
@@ -997,7 +1379,7 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
 
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
-                  ភារកិច្ច និងការទទួលខុសត្រូវ (Duties Khmer)
+                  ភារកិច្ច និងការទទួលខុសត្រូវ (Duties Khmer - រៀបចំជាចំណុចលេខ ១. ២. ៣.)
                 </label>
                 <textarea
                   rows={6}
@@ -1009,13 +1391,50 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
 
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
-                  Duties & Responsibilities (English)
+                  Duties & Responsibilities (English - Format 1. 2. 3.)
                 </label>
                 <textarea
                   rows={6}
                   value={editingJd.dutiesEn}
                   onChange={(e) => setEditingJd({ ...editingJd, dutiesEn: e.target.value })}
                   style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                    សិទ្ធិអំណាច និងការសម្រេចចិត្ត (Authorities)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingJd.authoritiesKh}
+                    onChange={(e) => setEditingJd({ ...editingJd, authoritiesKh: e.target.value })}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                    លក្ខខណ្ឌតម្រូវការងារ (Qualifications)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingJd.qualificationsKh}
+                    onChange={(e) => setEditingJd({ ...editingJd, qualificationsKh: e.target.value })}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                  សូចនាករវាស់វែងសមិទ្ធកម្ម (KPIs)
+                </label>
+                <input
+                  type="text"
+                  value={editingJd.kpisKh}
+                  onChange={(e) => setEditingJd({ ...editingJd, kpisKh: e.target.value })}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
                 />
               </div>
             </div>
@@ -1056,7 +1475,7 @@ export default function JdLibraryView({ handlePrintTemplate, handleExportPdf }: 
                   cursor: 'pointer',
                 }}
               >
-                💾 រក្សាទុកការកែប្រែ
+                💾 រក្សាទុកការកែប្រែទាំងអស់
               </button>
             </div>
           </div>

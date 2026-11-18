@@ -7,6 +7,7 @@ export interface FactoryJd {
   code: string;
   edition: string;
   pageInfo: string;
+  initialIssuedDate?: string;
   effectiveDate: string;
   amendDate: string;
   department: string;

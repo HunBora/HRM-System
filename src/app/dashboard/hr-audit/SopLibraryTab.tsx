@@ -908,21 +908,24 @@ function extractTotalPages(pageInfo: string | undefined): number {
 function distributeClausesToFitPages(clauses: BilingualClause[]): BilingualClause[][] {
   if (clauses.length === 0) return [[]];
 
-  // Estimate the render height of each clause in pixels (bilingual 1-row table)
+  // Estimate render height of each clause in pixels (bilingual 1-row table)
   const getClauseHeight = (c: BilingualClause) => {
-    const khLines = Math.max(1, Math.ceil((c.khmerBody?.length || 1) / 52));
-    const enLines = Math.max(1, Math.ceil((c.englishBody?.length || 1) / 60));
-    return 60 + khLines * 21 + enLines * 19;
+    const khLines = Math.max(1, Math.ceil((c.khmerBody?.length || 1) / 55));
+    const enLines = Math.max(1, Math.ceil((c.englishBody?.length || 1) / 65));
+    return 45 + khLines * 19 + enLines * 17;
   };
 
   const totalClausesHeight = clauses.reduce((sum, c) => sum + getClauseHeight(c), 0);
 
-  // If all clauses + revision table easily fit onto 1 single A4 page (~620px usable with header & revision)
-  if (totalClausesHeight <= 620) {
+  // If all clauses + revision table (~150px) fit on 1 single A4 page with full header (~220px)
+  // Usable height on Page 1: ~1000px - 220px (header) - 150px (revision) = ~630px
+  if (totalClausesHeight <= 630) {
     return [clauses];
   }
 
-  // Otherwise, pack clauses naturally so each page is nicely filled without excessive blank space
+  // Otherwise, pack clauses naturally:
+  // Page 1 has big header (~220px), usable: ~760px.
+  // Page 2, 3... only have a slim running header (~35px), usable: ~880px (or ~750px on last page with revision table).
   const pages: BilingualClause[][] = [];
   let currentPage: BilingualClause[] = [];
   let currentHeight = 0;
@@ -930,9 +933,9 @@ function distributeClausesToFitPages(clauses: BilingualClause[]): BilingualClaus
   for (let i = 0; i < clauses.length; i++) {
     const clause = clauses[i];
     const cH = getClauseHeight(clause);
+    const isFirstPage = pages.length === 0;
     const isLastClause = i === clauses.length - 1;
-    // On the last page, we also need space for the revision table (~160px)
-    const pageCapacity = isLastClause ? 580 : 720;
+    const pageCapacity = isFirstPage ? 760 : (isLastClause ? 750 : 880);
 
     if (currentPage.length > 0 && currentHeight + cH > pageCapacity) {
       pages.push(currentPage);
@@ -1025,6 +1028,72 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   const [previewLayoutMode, setPreviewLayoutMode] = useState<'1row' | 'paragraph'>('1row');
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [previewMultiPageMode, setPreviewMultiPageMode] = useState<'all' | 'single'>('all');
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+
+  // Multi-Page PDF Exporter: Captures ALL pages into one cohesive PDF document
+  const handleExportAllPagesPdf = async () => {
+    if (!previewSop) return;
+    try {
+      setIsExportingPdf(true);
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).default;
+
+      const clauses = parseBilingualClauses(previewSop.contentKh, previewSop.contentEn);
+      const distributedPages = distributeClausesToFitPages(clauses);
+      const totalPages = distributedPages.length;
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+
+      for (let pIdx = 0; pIdx < totalPages; pIdx++) {
+        const pageWrapper = document.getElementById(`sopSheetPage_${pIdx}`);
+        if (!pageWrapper) continue;
+
+        const prevDisplay = pageWrapper.style.display;
+        pageWrapper.style.display = 'flex';
+
+        const divider = pageWrapper.querySelector('.sop-sheet-divider') as HTMLElement | null;
+        if (divider) divider.style.display = 'none';
+
+        const sheet = (pageWrapper.querySelector('.sop-a4-sheet') as HTMLElement) || pageWrapper;
+
+        const canvas = await html2canvas(sheet, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+        });
+
+        pageWrapper.style.display = prevDisplay;
+        if (divider && previewMultiPageMode === 'all') {
+          divider.style.display = 'flex';
+        }
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        if (pIdx > 0) {
+          pdf.addPage('a4', 'p');
+        }
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      }
+
+      const safeFilename = `${previewSop.code}_${previewSop.titleEn.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+      pdf.save(`${safeFilename}.pdf`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ទាញយក PDF ជោគជ័យ!',
+        text: `ឯកសារមានចំនួន ${totalPages} ទំព័រ ត្រូវបានទាញយកពេញលេញ។`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire('Error', 'បរាជ័យក្នុងការទាញយក PDF: ' + err.message, 'error');
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
 
   // Sync with LocalStorage
   useEffect(() => {
@@ -1905,7 +1974,12 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 </div>
 
                 <button
-                  onClick={() => handlePrintTemplate('sopOriginalPrintArea')}
+                  onClick={() => {
+                    setPreviewMultiPageMode('all');
+                    setTimeout(() => {
+                      handlePrintTemplate('sopOriginalPrintArea');
+                    }, 150);
+                  }}
                   style={{
                     background: '#2563eb',
                     color: '#ffffff',
@@ -1919,26 +1993,29 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                     alignItems: 'center',
                     gap: '4px',
                   }}
+                  title="បោះពុម្ពគ្រប់ទំព័រទាំងអស់ជាសន្លឹក A4"
                 >
                   🖨️ បោះពុម្ព A4
                 </button>
                 <button
-                  onClick={() => handleExportPdf('sopOriginalPrintArea', `${previewSop.code}_${previewSop.titleEn.replaceAll(' ', '_')}`)}
+                  disabled={isExportingPdf}
+                  onClick={handleExportAllPagesPdf}
                   style={{
-                    background: '#10b981',
+                    background: isExportingPdf ? '#6ee7b7' : '#10b981',
                     color: '#ffffff',
                     border: 'none',
                     padding: '6px 12px',
                     borderRadius: '5px',
                     fontSize: '0.78rem',
                     fontWeight: 700,
-                    cursor: 'pointer',
+                    cursor: isExportingPdf ? 'wait' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px',
                   }}
+                  title="ទាញយកជា PDF គ្រប់ទំព័រទាំងអស់"
                 >
-                  📥 ទាញយកជា PDF
+                  {isExportingPdf ? '⏳ កំពុងទាញយក...' : '📥 ទាញយកជា PDF'}
                 </button>
                 <button
                   onClick={() => setPreviewSop(null)}
@@ -2069,8 +2146,9 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                             }}
                           >
                             <div>
-                              {/* 1. Official Header Table with accurate Page Number for this page! */}
-                              <table
+                              {/* 1. Official Header Table: Render full table on Page 1 only; slim running header on Page 2+ */}
+                              {pageNum === 1 ? (
+                                <table
                                 style={{
                                   width: '100%',
                                   borderCollapse: 'collapse',
@@ -2332,6 +2410,41 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                   </tr>
                                 </tbody>
                               </table>
+                              ) : (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    borderBottom: '1.5px solid #1e293b',
+                                    paddingBottom: '8px',
+                                    marginBottom: '16px',
+                                    fontSize: '0.74rem',
+                                    color: '#475569',
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{ color: '#0f172a', fontWeight: 800 }}>{previewSop.companyName}</span>
+                                    <span>•</span>
+                                    <span style={{ color: '#2563eb' }}>{previewSop.code}</span>
+                                    <span>•</span>
+                                    <span>{previewSop.titleKh}</span>
+                                  </div>
+                                  <div
+                                    style={{
+                                      background: '#f1f5f9',
+                                      border: '1px solid #cbd5e1',
+                                      padding: '2px 8px',
+                                      borderRadius: '4px',
+                                      fontWeight: 800,
+                                      color: '#0f172a',
+                                    }}
+                                  >
+                                    Page {pageNum} of {totalPages}
+                                  </div>
+                                </div>
+                              )}
 
                               {/* 2. Page Clauses: 1 Row per clause, 2 languages, Khmer on top */}
                               {previewLayoutMode === '1row' ? (

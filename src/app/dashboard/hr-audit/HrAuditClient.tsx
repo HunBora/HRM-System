@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
 import { runAutomatedDataAudit, AutoAuditReport, AutoAuditIssue } from './actions';
+import SopLibraryTab from './SopLibraryTab';
 
 interface ChecklistItem {
   id: string;
@@ -349,7 +350,7 @@ const LABOR_LAW_ARTICLES = [
 ];
 
 export default function HrAuditClient({ userRole }: { userRole: string }) {
-  const [activeTab, setActiveTab] = useState<'scan' | 'handbook' | 'checklists' | 'cap' | 'law' | 'templates'>('scan');
+  const [activeTab, setActiveTab] = useState<'scan' | 'handbook' | 'checklists' | 'cap' | 'sop' | 'law' | 'templates'>('scan');
   const [checklists, setChecklists] = useState<ChecklistItem[]>(INITIAL_CHECKLISTS);
   const [caps, setCaps] = useState<CapItem[]>(INITIAL_CAPS);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -1002,6 +1003,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
           { key: 'handbook', labelKh: '📖 សៀវភៅណែនាំ (Handbook)', count: null },
           { key: 'checklists', labelKh: '📋 តារាងត្រួតពិនិត្យ (Checklists)', count: checklists.length },
           { key: 'cap', labelKh: '🎯 ផែនការកែលម្អ (CAP Tracker)', count: caps.length },
+          { key: 'sop', labelKh: '📑 នីតិវិធី SOP & JD', count: 15 },
           { key: 'law', labelKh: '📚 ច្បាប់ការងារ (Labor Law)', count: LABOR_LAW_ARTICLES.length },
           { key: 'templates', labelKh: '📁 ទម្រង់គំរូ (Templates)', count: 5 },
         ].map((tab) => (
@@ -1951,6 +1953,14 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* TAB: FACTORY SOP & JD LIBRARY */}
+      {activeTab === 'sop' && (
+        <SopLibraryTab
+          handlePrintTemplate={handlePrintTemplate}
+          handleExportPdf={handleExportPdf}
+        />
       )}
 
       {/* TAB: TEMPLATES */}

@@ -1017,6 +1017,42 @@ function parseBilingualClauses(contentKh: string, contentEn: string): BilingualC
   return clauses;
 }
 
+async function callTranslateApi(text: string, fromLang: 'km' | 'en'): Promise<string> {
+  if (!text || !text.trim()) return '';
+  try {
+    const res = await fetch('/api/contracts/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text.trim(),
+        sourceLang: fromLang,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const result = fromLang === 'km' ? data.en : data.km;
+      if (result) return result;
+    }
+  } catch (err) {
+    console.error('API translate error, trying fallback:', err);
+  }
+
+  // Fallback direct endpoint
+  try {
+    const tl = fromLang === 'km' ? 'en' : 'km';
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromLang}&tl=${tl}&dt=t&q=${encodeURIComponent(text.trim())}`;
+    const fRes = await fetch(url);
+    const fData = await fRes.json();
+    if (Array.isArray(fData) && Array.isArray(fData[0])) {
+      return fData[0].map((item: any) => item[0]).join('');
+    }
+  } catch (fErr) {
+    console.error('Fallback translate error:', fErr);
+  }
+
+  return '';
+}
+
 export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: SopLibraryTabProps) {
   const [sops, setSops] = useState<FactorySop[]>(DEFAULT_SOPS);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -1029,6 +1065,176 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [previewMultiPageMode, setPreviewMultiPageMode] = useState<'all' | 'single'>('all');
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+
+  // Bilingual Interactive 1-Row Editor States
+  const [editingClauses, setEditingClauses] = useState<BilingualClause[]>([]);
+  const [editEditorMode, setEditEditorMode] = useState<'table' | 'raw'>('table');
+  const [translatingRowIndex, setTranslatingRowIndex] = useState<number | null>(null);
+  const [isTranslatingAll, setIsTranslatingAll] = useState<boolean>(false);
+  const [autoTranslateOnBlur, setAutoTranslateOnBlur] = useState<boolean>(true);
+
+  // Open edit modal and parse clauses
+  const handleOpenEditModal = (sop: FactorySop) => {
+    setEditingSop({ ...sop });
+    const parsed = parseBilingualClauses(sop.contentKh, sop.contentEn);
+    setEditingClauses(parsed);
+    setEditEditorMode('table');
+  };
+
+  // Sync editingClauses back to editingSop
+  const syncClausesToEditingSop = (clauses: BilingualClause[]) => {
+    if (!editingSop) return;
+    const khmerText = clauses
+      .map((c) => {
+        const title = c.khmerTitle.trim();
+        const body = c.khmerBody.trim();
+        return title ? (body ? `${title}\n${body}` : title) : body;
+      })
+      .filter(Boolean)
+      .join('\n\n');
+
+    const englishText = clauses
+      .map((c) => {
+        const title = c.englishTitle.trim();
+        const body = c.englishBody.trim();
+        return title ? (body ? `${title}\n${body}` : title) : body;
+      })
+      .filter(Boolean)
+      .join('\n\n');
+
+    setEditingSop((prev) => (prev ? { ...prev, contentKh: khmerText, contentEn: englishText } : null));
+  };
+
+  // Update a field inside a specific clause
+  const handleUpdateClause = (idx: number, field: keyof BilingualClause, value: string) => {
+    const updated = [...editingClauses];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setEditingClauses(updated);
+    syncClausesToEditingSop(updated);
+  };
+
+  // Add a new clause row
+  const handleAddNewClause = () => {
+    const nextNum = editingClauses.length + 1;
+    const khmerDigits = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+    const khNum = String(nextNum).split('').map((d) => khmerDigits[parseInt(d, 10)] || d).join('');
+    const newClause: BilingualClause = {
+      khmerTitle: `${khNum}. ចំណុចថ្មី New Section`,
+      khmerBody: '',
+      englishTitle: `${nextNum}. NEW SECTION`,
+      englishBody: '',
+    };
+    const updated = [...editingClauses, newClause];
+    setEditingClauses(updated);
+    syncClausesToEditingSop(updated);
+  };
+
+  // Delete a clause row
+  const handleDeleteClause = (idx: number) => {
+    if (editingClauses.length <= 1) return;
+    const updated = editingClauses.filter((_, i) => i !== idx);
+    setEditingClauses(updated);
+    syncClausesToEditingSop(updated);
+  };
+
+  // Translate a single clause row
+  const handleTranslateRow = async (idx: number, fromLang: 'km' | 'en') => {
+    const clause = editingClauses[idx];
+    if (!clause) return;
+    setTranslatingRowIndex(idx);
+    try {
+      if (fromLang === 'km') {
+        const [transTitle, transBody] = await Promise.all([
+          callTranslateApi(clause.khmerTitle, 'km'),
+          callTranslateApi(clause.khmerBody, 'km'),
+        ]);
+        const updated = [...editingClauses];
+        updated[idx] = {
+          ...updated[idx],
+          englishTitle: transTitle || updated[idx].englishTitle,
+          englishBody: transBody || updated[idx].englishBody,
+        };
+        setEditingClauses(updated);
+        syncClausesToEditingSop(updated);
+      } else {
+        const [transTitle, transBody] = await Promise.all([
+          callTranslateApi(clause.englishTitle, 'en'),
+          callTranslateApi(clause.englishBody, 'en'),
+        ]);
+        const updated = [...editingClauses];
+        updated[idx] = {
+          ...updated[idx],
+          khmerTitle: transTitle || updated[idx].khmerTitle,
+          khmerBody: transBody || updated[idx].khmerBody,
+        };
+        setEditingClauses(updated);
+        syncClausesToEditingSop(updated);
+      }
+    } catch (err) {
+      console.error('Row translate error:', err);
+    } finally {
+      setTranslatingRowIndex(null);
+    }
+  };
+
+  // Translate all clauses
+  const handleTranslateAll = async (fromLang: 'km' | 'en') => {
+    if (editingClauses.length === 0) return;
+    setIsTranslatingAll(true);
+    try {
+      const updated = [...editingClauses];
+      for (let i = 0; i < updated.length; i++) {
+        const c = updated[i];
+        if (fromLang === 'km' && (c.khmerTitle || c.khmerBody)) {
+          const [transTitle, transBody] = await Promise.all([
+            callTranslateApi(c.khmerTitle, 'km'),
+            callTranslateApi(c.khmerBody, 'km'),
+          ]);
+          updated[i] = {
+            ...updated[i],
+            englishTitle: transTitle || updated[i].englishTitle,
+            englishBody: transBody || updated[i].englishBody,
+          };
+        } else if (fromLang === 'en' && (c.englishTitle || c.englishBody)) {
+          const [transTitle, transBody] = await Promise.all([
+            callTranslateApi(c.englishTitle, 'en'),
+            callTranslateApi(c.englishBody, 'en'),
+          ]);
+          updated[i] = {
+            ...updated[i],
+            khmerTitle: transTitle || updated[i].khmerTitle,
+            khmerBody: transBody || updated[i].khmerBody,
+          };
+        }
+      }
+      setEditingClauses(updated);
+      syncClausesToEditingSop(updated);
+      Swal.fire({
+        icon: 'success',
+        title: 'បកប្រែជោគជ័យ!',
+        text: `បានបកប្រែគ្រប់ ${updated.length} ផ្នែកដោយជោគជ័យ។`,
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    } catch (err: any) {
+      Swal.fire('Error', 'បរាជ័យក្នុងការបកប្រែ: ' + err.message, 'error');
+    } finally {
+      setIsTranslatingAll(false);
+    }
+  };
+
+  // Handle onBlur auto-translation
+  const handleClauseBlur = async (idx: number, source: 'kh' | 'en') => {
+    if (!autoTranslateOnBlur) return;
+    const clause = editingClauses[idx];
+    if (!clause) return;
+
+    if (source === 'kh' && clause.khmerBody.trim() && !clause.englishBody.trim()) {
+      handleTranslateRow(idx, 'km');
+    } else if (source === 'en' && clause.englishBody.trim() && !clause.khmerBody.trim()) {
+      handleTranslateRow(idx, 'en');
+    }
+  };
 
   // Multi-Page PDF Exporter: Captures ALL pages into one cohesive PDF document
   const handleExportAllPagesPdf = async () => {
@@ -1401,7 +1607,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
 
               <div style={{ display: 'flex', gap: '4px' }}>
                 <button
-                  onClick={() => setEditingSop({ ...sop })}
+                  onClick={() => handleOpenEditModal(sop)}
                   style={{
                     background: '#fef3c7',
                     color: '#92400e',
@@ -1733,23 +1939,362 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 </div>
               </div>
 
-              {/* Bilingual Content Textareas */}
-              <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e40af' }}>ខ្លឹមសារភាសាខ្មែរ (Khmer Policy Content):</label>
-                <textarea
-                  value={editingSop.contentKh}
-                  onChange={(e) => setEditingSop({ ...editingSop, contentKh: e.target.value })}
-                  style={{ width: '100%', height: '140px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.8rem', marginTop: '2px', fontFamily: 'inherit' }}
-                />
-              </div>
+              {/* BILINGUAL 1-ROW INTERACTIVE CLAUSES EDITOR */}
+              <div style={{ marginTop: '10px' }}>
+                {/* Editor Control Toolbar */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    background: '#f8fafc',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a' }}>
+                      📑 កែសម្រួលតាមតារាង 1-Row ២ភាសា (Bilingual Rows):
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: '#1e40af', background: '#dbeafe', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                      {editingClauses.length} ផ្នែក / ឃ្លា
+                    </span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: '#475569', cursor: 'pointer', marginLeft: '6px' }}>
+                      <input
+                        type="checkbox"
+                        checked={autoTranslateOnBlur}
+                        onChange={(e) => setAutoTranslateOnBlur(e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      ⚡ Auto-Translate
+                    </label>
+                  </div>
 
-              <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#047857' }}>ខ្លឹមសារភាសាអង់គ្លេស (English Policy Content):</label>
-                <textarea
-                  value={editingSop.contentEn}
-                  onChange={(e) => setEditingSop({ ...editingSop, contentEn: e.target.value })}
-                  style={{ width: '100%', height: '140px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.8rem', marginTop: '2px', fontFamily: 'inherit' }}
-                />
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      disabled={isTranslatingAll}
+                      onClick={() => handleTranslateAll('km')}
+                      style={{
+                        background: '#2563eb',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 10px',
+                        borderRadius: '5px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        cursor: isTranslatingAll ? 'wait' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                      title="បកប្រែខ្លឹមសារខ្មែរទាំងអស់ទៅជាភាសាអង់គ្លេសស្វ័យប្រវត្តិ"
+                    >
+                      {isTranslatingAll ? '⏳ កំពុងបកប្រែ...' : '🌐 ខ្មែរ ➔ EN ទាំងអស់'}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isTranslatingAll}
+                      onClick={() => handleTranslateAll('en')}
+                      style={{
+                        background: '#059669',
+                        color: '#ffffff',
+                        border: 'none',
+                        padding: '4px 10px',
+                        borderRadius: '5px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        cursor: isTranslatingAll ? 'wait' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                      title="បកប្រែខ្លឹមសារអង់គ្លេសទាំងអស់ទៅជាភាសាខ្មែរស្វ័យប្រវត្តិ"
+                    >
+                      {isTranslatingAll ? '⏳ កំពុងបកប្រែ...' : '🌐 EN ➔ ខ្មែរ ទាំងអស់'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (editEditorMode === 'table') {
+                          setEditEditorMode('raw');
+                        } else {
+                          const parsed = parseBilingualClauses(editingSop.contentKh, editingSop.contentEn);
+                          setEditingClauses(parsed);
+                          setEditEditorMode('table');
+                        }
+                      }}
+                      style={{
+                        background: '#ffffff',
+                        color: '#334155',
+                        border: '1px solid #cbd5e1',
+                        padding: '4px 9px',
+                        borderRadius: '5px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {editEditorMode === 'table' ? '📝 កែប្រែជា Text ធម្មតា' : '📑 កែប្រែតាម 1-Row ២ភាសា'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Mode A: 1-Row Bilingual Interactive Editor */}
+                {editEditorMode === 'table' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '52vh', overflowY: 'auto', paddingRight: '4px' }}>
+                    {editingClauses.map((clause, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          border: '1.5px solid #cbd5e1',
+                          borderRadius: '8px',
+                          background: '#ffffff',
+                          overflow: 'hidden',
+                          boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
+                        }}
+                      >
+                        {/* Clause Header Bar */}
+                        <div
+                          style={{
+                            background: '#f1f5f9',
+                            borderBottom: '1px solid #e2e8f0',
+                            padding: '6px 12px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e3a8a' }}>
+                              📌 ផ្នែកទី {idx + 1}
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                              (1 Row ២ភាសា: ខ្មែរខាងលើ • English ខាងក្រោម)
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                            <button
+                              type="button"
+                              disabled={translatingRowIndex === idx}
+                              onClick={() => handleTranslateRow(idx, 'km')}
+                              style={{
+                                background: '#eff6ff',
+                                color: '#2563eb',
+                                border: '1px solid #bfdbfe',
+                                padding: '3px 8px',
+                                borderRadius: '4px',
+                                fontSize: '0.68rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                              title="បកប្រែចំណុចនេះពីខ្មែរទៅជាអង់គ្លេសស្វ័យប្រវត្តិ"
+                            >
+                              {translatingRowIndex === idx ? '⏳...' : '🌐 KM ➔ EN'}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={translatingRowIndex === idx}
+                              onClick={() => handleTranslateRow(idx, 'en')}
+                              style={{
+                                background: '#ecfdf5',
+                                color: '#059669',
+                                border: '1px solid #a7f3d0',
+                                padding: '3px 8px',
+                                borderRadius: '4px',
+                                fontSize: '0.68rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                              }}
+                              title="បកប្រែចំណុចនេះពីអង់គ្លេសមកខ្មែរស្វ័យប្រវត្តិ"
+                            >
+                              {translatingRowIndex === idx ? '⏳...' : '🌐 EN ➔ KM'}
+                            </button>
+
+                            {editingClauses.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteClause(idx)}
+                                style={{
+                                  background: '#fef2f2',
+                                  color: '#dc2626',
+                                  border: '1px solid #fecaca',
+                                  padding: '3px 7px',
+                                  borderRadius: '4px',
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                }}
+                                title="លុបផ្នែកនេះចេញ"
+                              >
+                                🗑️ លុប
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Clause Body (Khmer on top, Divider, English below) */}
+                        <div style={{ padding: '10px 12px' }}>
+                          {/* Khmer Section */}
+                          <div style={{ marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+                              <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1e3a8a' }}>
+                                🇰🇭 ចំណងជើង និងខ្លឹមសារភាសាខ្មែរ (Khmer Title & Content):
+                              </label>
+                            </div>
+                            <input
+                              type="text"
+                              value={clause.khmerTitle}
+                              onChange={(e) => handleUpdateClause(idx, 'khmerTitle', e.target.value)}
+                              placeholder="ឧ. ១. គោលបំណង Purpose"
+                              style={{
+                                width: '100%',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.8rem',
+                                fontWeight: 700,
+                                marginBottom: '4px',
+                                color: '#0f172a',
+                              }}
+                            />
+                            <textarea
+                              value={clause.khmerBody}
+                              onChange={(e) => handleUpdateClause(idx, 'khmerBody', e.target.value)}
+                              onBlur={() => handleClauseBlur(idx, 'kh')}
+                              placeholder="សរសេរខ្លឹមសារគោលការណ៍ជាភាសាខ្មែរ..."
+                              rows={3}
+                              style={{
+                                width: '100%',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.8rem',
+                                lineHeight: 1.5,
+                                fontFamily: 'inherit',
+                                color: '#0f172a',
+                              }}
+                            />
+                          </div>
+
+                          {/* Dashed Divider Line */}
+                          <div
+                            style={{
+                              borderTop: '1px dashed #cbd5e1',
+                              margin: '8px 0',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <span style={{ background: '#ffffff', padding: '0 8px', fontSize: '0.64rem', color: '#94a3b8', fontWeight: 700 }}>
+                              ↓ ENGLISH TRANSLATION (ភាសាអង់គ្លេសខាងក្រោម) ↓
+                            </span>
+                          </div>
+
+                          {/* English Section */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2px' }}>
+                              <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', fontStyle: 'italic' }}>
+                                🇬🇧 English Title & Content (ខ្លឹមសារភាសាអង់គ្លេស):
+                              </label>
+                            </div>
+                            <input
+                              type="text"
+                              value={clause.englishTitle}
+                              onChange={(e) => handleUpdateClause(idx, 'englishTitle', e.target.value)}
+                              placeholder="e.g. 1. PURPOSE"
+                              style={{
+                                width: '100%',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.8rem',
+                                fontWeight: 700,
+                                fontStyle: 'italic',
+                                marginBottom: '4px',
+                                color: '#334155',
+                              }}
+                            />
+                            <textarea
+                              value={clause.englishBody}
+                              onChange={(e) => handleUpdateClause(idx, 'englishBody', e.target.value)}
+                              onBlur={() => handleClauseBlur(idx, 'en')}
+                              placeholder="Write English policy content..."
+                              rows={3}
+                              style={{
+                                width: '100%',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '0.8rem',
+                                lineHeight: 1.5,
+                                fontFamily: 'inherit',
+                                color: '#334155',
+                                fontStyle: 'italic',
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Button to add new clause */}
+                    <button
+                      type="button"
+                      onClick={handleAddNewClause}
+                      style={{
+                        background: '#f8fafc',
+                        border: '1.5px dashed #3b82f6',
+                        color: '#2563eb',
+                        padding: '8px 14px',
+                        borderRadius: '6px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      ➕ បន្ថែមផ្នែក/ប្រយោគថ្មី (Add New Bilingual Clause)
+                    </button>
+                  </div>
+                ) : (
+                  /* Mode B: Raw Plain Textareas */
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div>
+                      <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1e40af' }}>ខ្លឹមសារភាសាខ្មែរ (Khmer Policy Content):</label>
+                      <textarea
+                        value={editingSop.contentKh}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingSop({ ...editingSop, contentKh: val });
+                        }}
+                        style={{ width: '100%', height: '220px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.8rem', marginTop: '2px', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#047857' }}>ខ្លឹមសារភាសាអង់គ្លេស (English Policy Content):</label>
+                      <textarea
+                        value={editingSop.contentEn}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingSop({ ...editingSop, contentEn: val });
+                        }}
+                        style={{ width: '100%', height: '220px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.8rem', marginTop: '2px', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

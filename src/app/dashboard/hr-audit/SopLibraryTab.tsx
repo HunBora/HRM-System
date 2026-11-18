@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
+import JdLibraryView from './JdLibraryView';
+import { ALL_SOPS } from './sopData';
+
 
 export interface FactorySop {
   id: string;
@@ -35,853 +38,7 @@ export interface FactorySop {
   }[];
 }
 
-const DEFAULT_SOPS: FactorySop[] = [
-  {
-    id: 'sop-01',
-    edition: '02',
-    pageInfo: 'Page 1 of 10',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '预防儿童进入厂区政策',
-    code: 'SOP-SEC-001',
-    category: 'CHILD_PROTECTION',
-    categoryKh: 'ការពារកុមារ & សន្តិសុខ',
-    titleKh: 'គោលនយោបាយ និងនីតិវិធីការបង្ការការពារកុមារ ឬកូនក្មេងចូលក្នុងបរិវេណរោងចក្រ',
-    titleEn: 'Prevention of Young/Child Entry Factory Premise Policy and Procedure',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Textile Products',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលនយោបាយ: POLICY
-ក្រុមហ៊ុន មានការប្តេជ្ញាចិត្តនូវការផ្តល់ជូន នូវបរិស្ថានការងារមួយដែលមានសុវត្ថិភាពទៅដល់បុគ្គលិកកម្មករកម្មការិនីនិងអ្នករាល់គ្នាដែលពាក់ព័ន្ធនិងក្រុមហ៊ុនយើង។ ទោះជាយ៉ាងណាក៏ដោយ មានក្តីព្រួយបារម្ភជាច្រើន ទៅលើ គោលនយោបាយ នៃបរិស្ថាន សុខភាពនិងសុវត្ថិភាព ដែលបានចែងឡើងដោយច្បាប់ ដែលត្រូវធ្វើការកែតម្រូវ នៅពេលដែលនិយាយដល់ កុមារឬកូនក្មេងដែលស្ថិតនៅក្នុងបរិវេណរោងចក្រ។ មានគ្រោះថ្នាក់ជាច្រើនដែលអាចនឹងកើតមានឡើង ទៅលើ កុមារឬកូនក្មេង ហើយសក្តានុពលហានិភ័យដ៏ធំដែលអាចបណ្តាលឱ្យកុមារឬកូនក្មេង ធ្វើឱ្យកើតជាគ្រោះថ្នាក់លើខ្លួនពួកគាត់ ឬធ្វើឱ្យកើតលើអ្នកដទៃទៀតផង។ មានតែកុមារត្រូវជាកូនរបស់និយោជិតដែលបានចុះឈ្មោះនៅមណ្ឌលថែទាំកុមារប៉ុណ្ណោះ ដែលត្រូវបានអនុញ្ញាតឱ្យចូលក្នុងបរិវេណរោងចក្រ ជាមួយម្តាយពួកគេ ដើម្បីចូលទៅកាន់មណ្ឌលថែទាំកុមារ។
-
-២. ដែនកំណត់: SCOPE
-គោលនយោបាយនេះ ត្រូវដាក់ឱ្យ និយោជក និយោជិត អ្នកម៉ៅការ និងភ្ញៀវ ត្រូវអនុវត្តតាម។
-
-៣. អត្ថន័យ DEFINITIONS
-កុមារ៖ បុគ្គលទាំងឡាយណាដែលមានអាយុតិចជាង ១៥ ឆ្នាំ។
-ក្មេង៖ បុគ្គលទាំងឡាយណាដែលមានអាយុច្រើនជាង ១៥ ឆ្នាំ និងតិចជាង ១៨ ឆ្នាំ។
-ការឆ្លុះពិនិត្យ៖ គឺជាដំណើរការបឋម ដើម្បីកំណត់អត្តសញ្ញាណ អាយុនៃបុគ្គលណាមួយដែលមានបំណងចូលមកក្នុងបរិវេណរោងចក្រ។
-
-៤. នីតិវិធី PROCEDURE
-- សន្តិសុខ នៅខ្លោងទ្វារធំ ត្រូវតែឆែកឆេរយ៉ាងតឹងរ៉ឹង ដើម្បីឱ្យប្រាកដថា គ្មានមនុស្សណាម្នាក់ដែលមានអាយុក្រោម ១៨ ឆ្នាំ ទទួលបានការអនុញ្ញាតឱ្យចូលក្នុងបរិវេណរោងចក្រឡើយ។
-- សន្តិសុខ ត្រូវឆ្លុះពិនិត្យអ្នករាល់គ្នាដែលមានបំណងចូលរោងចក្រ ដោយស្នើសុំ ឯកសារបញ្ជាក់ពីអាយុ ដូចជា អត្តសញ្ញាណប័ណ្ណ ឬលិខិតឆ្លងដែន។
-- ក្នុងករណី មានបុគ្គលណាដែលមានអាយុតិចជាង ១៨ ឆ្នាំ ស្នើសុំជួបនិយោជិត សន្តិសុខត្រូវស្នើឱ្យគាត់ឈរនៅក្រៅបរិវេណរោងចក្រសិន រួចទាក់ទងមកផ្នែកធនធានមនុស្ស។
-- និយោជិតដែលមានបំណងយកកូនអាយុពី ១៨ ខែដល់ ៣៦ ខែមកមើលថែនៅមណ្ឌលថែទាំកុមារ ត្រូវចុះឈ្មោះជាមួយផ្នែកធនធានមនុស្សជាមុន។
-
-៥. សិទ្ធិអំណាច និងការទទួលខុសត្រូវ AUTHORITY & RESPONSIBILITY
-បុគ្គលិកចាត់តាំងជាន់ខ្ពស់ ពីផ្នែកធនធានមនុស្សនិងផ្នែកប្រតិបត្តិច្បាប់ ត្រូវបានរៀបចំឱ្យធ្វើការទំនាក់ទំនង រៀបចំ និងត្រួតពិនិត្យលើការអនុវត្តគោលនយោបាយនេះ។`,
-    contentEn: `1. POLICY
-Company is committed to providing a safe work environment for employees and all relevant people. However, there are healthy, safety, environmental, and regulatory concerns that must be addressed when considering the presence of young/child in the workplace. There are many imminent dangers for young/children and a great potential for accidents and incidents in which young/child either harm themselves or inadvertently create a hazard for others. Only employee's children, who are registered in day care center, are allowed entry the factory with his or her mother and go straight to day care center.
-
-2. SCOPE
-This policy applies to all employers, employees, contractors & visitors.
-
-3. DEFINITIONS
-Child: Any person is less than 15 years of age.
-Young: Any person over the age of 15 years and less than the age of 18 years.
-Screening: A preliminary process for identifying age of person who intend access in Factory Premise.
-
-4. PROCEDURE
-- Security guards at the main gate must check strictly to make sure persons below the age of 18 years are not allowed entry into the factory premise.
-- Security guards at the main gate must do screening by requesting age verification documents such as: ID card or Passport before allowing entry.
-- In case a person below the age of 18 years requests to meet an employee, security guards must ask him/her to wait outside the factory and contact HR dept.
-- Employees who want to place an 18 to 36 months child in the factory's day care center must register with HR dept in advance.
-
-5. AUTHORITY & RESPONSIBILITY
-Designated senior staff from HR & Compliance Dept are assigned to communicate, deploy and monitor the practice of Prevention of Young/Child Entry Policy.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'បង្កើតនីតិវិធីស្តង់ដាដំបូង (Initial Release)', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-02',
-    edition: '02',
-    pageInfo: 'Page 1 of 8',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '禁止使用童工政策',
-    code: 'SOP-HR-002',
-    category: 'CHILD_LABOR',
-    categoryKh: 'ពលកម្មកុមារ & ជួញដូរ',
-    titleKh: 'នីតិវិធីស្តីពីការចៀសវាងធ្វើអាជីវកម្មលើពលកម្មកុមារ និងការប្រឆាំងការជួញដូរមនុស្ស',
-    titleEn: 'Child Labor Exploitation Avoidance & Anti-Human Trafficking Procedure',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Apparel Manufacturing',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-ក្រុមហ៊ុនបានបង្កើតនីតិវិធីនេះឡើងគឺដើម្បី អនុលោមទៅតាម បទបញ្ញត្តិ ច្បាប់ជាតិ និងអន្តរជាតិស្តីពី ការចៀសវាងធ្វើអាជីវកម្មលើពលកម្មកុមារ។ នីតិវិធីនេះត្រូវបានដាក់បង្ហាញទៅតាមសកម្មភាពដូចខាងក្រោមៈ
-- បិទប្រកាសជាសាធារណៈចំពោះសកម្មភាព នៃការធ្វើអាជីវកម្មលើពលកម្មកុមារ ព្រមទាំងគោលនយោបាយផ្សេងៗទៀត នៅលើក្តារប្រកាស។
-- រាល់នីតិវិធីទាំងអស់ ត្រូវបានទទួលដឹងឮដោយថ្នាក់ដឹកនាំរបស់ក្រុមហ៊ុន និងបុគ្គលិកដែលពាក់ព័ន្ធ ដើម្បីឱ្យស្របទៅតាមច្បាប់ និងគោលការណ៍របស់អតិថិជន។
-- រួមបញ្ចូលទាំងការទទួលខុសត្រូវ និងនីតិវិធីសម្រាប់កម្មករ និយោជិត ឬអ្នកទទួលការងារបន្តដែលមិនបានអនុវត្តទៅតាមកម្រិតស្តង់ដាររបស់ក្រុមហ៊ុន ដោយសំដៅទៅលើទាសភាព ការជួញដូរ និងការធ្វើអាជីវកម្មលើពលកម្មកុមារ។
-- ផ្តល់ជូនការបណ្តុះបណ្តាលទៅឱ្យកម្មករ និយោជិត និងថ្នាក់គ្រប់គ្រងរបស់ក្រុមហ៊ុន ដែលមានភារកិច្ចទទួលខុសត្រូវ សម្រាប់ការគ្រប់គ្រងខ្សែសង្វាក់ផលិតកម្ម ចំពោះការធ្វើអាជីវកម្មលើពលកម្មកុមារ ជាពិសេសជាចំណែកមួយក្នុងការកាត់បន្ថយហានិភ័យចំពោះការផលិត និងការផ្គត់ផ្គង់ផលិតផលផងដែរ។
-
-២. ការធ្វើអាជីវកម្មលើពលកម្មកុមារ ដែលបានសន្មតទុក Supposed Child Exploitation
-ក. ការធ្វើអាជីវកម្មលើពលកម្មកុមារៈ
-- ទាសភាព និងការធ្វើអាជីវកម្មលើពលកម្មកុមារ ត្រូវបានកំណត់ដូចជាៈ ការប្រើកម្លាំងពលកម្មដោយបង្ខំ រាល់ទម្រង់នៃការងារឬសេវាកម្មដែលដកចេញពីអ្នកណាម្នាក់ដោយការគំរាមកំហែងចំពោះការដាក់ពិន័យ និងសម្រាប់អ្នកដែលមិនបានប្រគល់ដោយមានការស្ម័គ្រចិត្ត។
-- ការធ្វើការងារដោយមិនស្ម័គ្រចិត្ត រួមបញ្ចូលទាំងការដាក់ទណ្ឌកម្ម មិនបើកប្រាក់ឈ្នួល ឬការកាត់ទុកនូវប័ណ្ណសម្គាល់ខ្លួន ឬលិខិតឆ្លងដែន ដើម្បីរឹតបន្តឹងលើការធ្វើដំណើររបស់កម្មករ និយោជិត។
-ខ. ការគំរាមកំហែងចំពោះការដាក់ពិន័យៈ
-- តាមរយៈស្មារតី រាងកាយ ឬការបង្ខាំងក្នុងកន្លែងធ្វើការ ព្រមទាំងការពិន័យជាប្រាក់កាស ដែលជាការដាក់សម្ពាធមិនសមហេតុផល។
-គ. ជាប់បំណុល (Indebtedness)ៈ
-- ស្ថានភាពដែលបង្ខំឱ្យកម្មករ និយោជិតធ្វើការងារដើម្បីសងបំណុល ក្រោមការគាបសង្កត់ ឬកិច្ចសន្យាមិនស្របច្បាប់។
-
-៣. ការទទួលខុសត្រូវ ចំពោះការធ្វើអាជីវកម្មពលកម្មកុមារ The Responsibility to Child Exploitation
-- ថ្នាក់ដឹកនាំ និងបុគ្គលិកធនធានមនុស្ស ឬផ្នែកពាក់ព័ន្ធផ្សេងទៀត មានភារកិច្ចទទួលខុសត្រូវទាំងខ្លឹមសារ គោលបំណង និងសកម្មភាពនៃនីតិវិធីប្រឆាំងការជួញដូរមនុស្សនេះ។
-- ចូលរួមឃ្លាំមើលការជ្រើសរើស និងការអនុវត្តការងាររបស់កម្មករ និយោជិតចាស់ ថ្មី ដែលកំពុងបម្រើការងារនៅតាមផ្នែកនីមួយៗ និងធ្វើការស៊ើបអង្កេត វាយតម្លៃ តាមដាន សម្ភាសន៍ និងត្រួតពិនិត្យយ៉ាងយកចិត្តទុកដាក់ដើម្បីបញ្ចៀសការធ្វើអាជីវកម្មលើពលកម្មកុមារ។
-- ផ្នែកធនធានមនុស្ស ត្រូវមានការសម្ភាសន៍កម្មករ និយោជិត និងពិនិត្យសួរនាំកម្មករមិនទាន់គ្រប់អាយុ (ប្រសិនបើមានបំណងប្រើប្រាស់កម្មករវ័យក្មេងដែលស្របច្បាប់ឱ្យបានហ្មត់ចត់) ចៀសវាងក្រែងមានការធ្វើអាជីវកម្មលើកម្លាំងពលកម្ម។
-
-៤. អ្នកដែលពាក់ព័ន្ធ និងរាយការណ៍ករណីសង្ស័យ The People Concerned and Reporting Channels
-កម្មករនិយោជិតទាំងអស់ ដោយរាប់តាំងពីថ្នាក់គ្រប់គ្រងរហូតដល់កម្មករ ប្រសិនបើឃើញ ឬមានការសង្ស័យ (គិតថាកម្មករនិយោជិតមានអាយុក្រោម ១៨ ឆ្នាំ ឬមើលទៅនៅក្មេង) អាចរាយការណ៍មកកាន់៖
-- ផ្នែកធនធានមនុស្សរបស់ក្រុមហ៊ុន
-- អង្គការពលកម្មអន្តរជាតិ (ILO / Better Factories Cambodia)
-- អង្គការសិទ្ធិមនុស្ស និងស្ថាប័នមានសមត្ថកិច្ចពាក់ព័ន្ធ។`,
-    contentEn: `1. PURPOSE
-Company has conducted this policy in accordance with provision, local and international law in order to avoid child exploitation. This policy has been displayed following to below activities:
-- Officially post the activities of child exploitation as well as other policies on public notice boards.
-- All procedures will be acknowledged by management and relevant staff to comply with law and buyer requirements.
-- Including responsibility and procedures for workers, employees, or subcontractors that have not performed referring to standard of our company toward slavery, trafficking and exploitation on children.
-- Conduct training for workers, employees and management responsible for production management on child exploitation, contributing to risk reduction in production and supply chain.
-
-2. SUPPOSED CHILD EXPLOITATION & FORCED LABOR
-A. Child Exploitation:
-- Slavery and child exploitation defined as forced labor: all forms of work or service exacted from any person under menace of any penalty and for which the person has not offered voluntarily.
-- Involuntary labor including corporal punishment, withholding wages or retention of identity documents/passports to restrict worker mobility.
-B. Threatening through Punishment:
-- Mental, physical, or confinement in workplace premises as well as unreasonable financial deductions.
-C. Indebtedness & Debt Bondage:
-- Conditions where workers are forced to work to pay inflated or coercive debts under duress.
-
-3. RESPONSIBILITY TO PREVENT CHILD EXPLOITATION
-- Management, HR staff and concerned departments are obligated to understand meaning, objective and activities of anti-human trafficking procedures.
-- Monitor recruitment and daily practices of existing and newly hired workers across all departments through observation, evaluation, and strict age verification audits.
-- HR department must conduct thorough interviews and verify documents for young workers to comply strictly with legal requirements.
-
-4. CONCERNED PARTIES & REPORTING CHANNELS
-All workers and employees, from top management to shopfloor operators, who observe or suspect underage labor (under 18 years of age or looking underage) may report immediately to:
-- Company Human Resources Department
-- International Labor Organization (ILO / Better Factories Cambodia)
-- Human Rights Organizations and Labor Inspectorate authorities.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលនយោបាយប្រឆាំងពលកម្មកុមារពេញលេញ', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-03',
-    edition: '02',
-    pageInfo: 'Page 1 of 6',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '员工入职培训政策',
-    code: 'SOP-LND-003',
-    category: 'TRAINING',
-    categoryKh: 'បណ្តុះបណ្តាល & ហ្វឹកហ្វឺន',
-    titleKh: 'គោលការណ៍ស្តីពីការហ្វឹកហ្វឺន និងបណ្តុះបណ្តាលវិជ្ជាជីវៈកម្មករនិយោជិត',
-    titleEn: 'Vocational Training and Professional Skill Development Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Textile',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-បង្កើនទេពកោសល្យ ភាពប៉ិនប្រសប់ ជំនាញ បច្ចេកទេស និងបញ្ចៀសពីគ្រោះថ្នាក់ការងារ ព្រមទាំងបង្កើនប្រសិទ្ធភាពការងារស្របតាមតម្រូវការទីផ្សារ និងទិសដៅអនាគត។
-
-២. ដែនកំណត់ Scope of Work
-អនុវត្តចំពោះកម្មករនិយោជិតទាំងអស់ដែលកំពុងបម្រើការងារនៅក្នុងក្រុមហ៊ុន។
-
-៣. នីតិវិធីនៃការអនុវត្ត Procedure of Implementation
-- បែងចែកការបណ្តុះបណ្តាលជា ២ ប្រភេទ៖ ផ្ទៃក្នុង (Internal) និងខាងក្រៅ (External)។
-- រៀបចំផែនការបណ្តុះបណ្តាលប្រចាំឆ្នាំ ដោយកំណត់កញ្ចប់ថវិកាច្បាស់លាស់។
-- ក្រុមហ៊ុនជាអ្នកចេញថ្លៃចំណាយសម្រាប់ការសិក្សា ឯកសារ និងការធ្វើដំណើរទាំងអស់។
-- រាល់ការបញ្ជូនទៅរៀន ក្រុមហ៊ុននៅតែបើកប្រាក់ឈ្នួលធម្មតា។
-- ធានាថាបុគ្គលិកថ្មីទាំងអស់យល់ដឹងពីបទបញ្ជាផ្ទៃក្នុង សុវត្ថិភាពការងារ និងការប្រើប្រាស់ឧបករណ៍ការពារ PPE។`,
-    contentEn: `1. PURPOSE
-To develop talent, technical skillfulness, and avoid occupational health hazards, thereby boosting productivity and compliance.
-
-2. SCOPE
-Applies to all employees working within the company facilities.
-
-3. PROCEDURE OF IMPLEMENTATION
-- Training is categorized into internal and external courses.
-- Annual vocational training plan with dedicated budget allocation.
-- Company covers all tuition, transportation, and training material fees.
-- Employees attending training continue to receive their standard daily wages.
-- Ensure all staff are oriented on internal rules, OSH, and proper PPE usage.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'ផែនការបណ្តុះបណ្តាល និងអភិវឌ្ឍន៍ជំនាញ', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-04',
-    edition: '02',
-    pageInfo: 'Page 1 of 8',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '教育与培训政策',
-    code: 'SOP-OSH-004',
-    category: 'SAFETY',
-    categoryKh: 'សុវត្ថិភាពការងារ & C-TPAT',
-    titleKh: 'គោលការណ៍លើកកម្ពស់សិទ្ធិការងារ សុវត្ថិភាព សុខភាព និង C-TPAT',
-    titleEn: 'Labor Rights, Occupational Safety, Health & C-TPAT Training Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Bags Manufacturing',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង PURPOSE
-លើកកម្ពស់ចំណេះដឹងដល់កម្មករនិយោជិតអំពីសិទ្ធិការងារ សុវត្ថិភាព សុខភាពការងារ គុណភាពផលិតផល និងសុវត្ថិភាពសន្តិសុខខ្សែសង្វាក់ផ្គត់ផ្គង់ (C-TPAT) ក្នុងបរិវេណរោងចក្រ។
-
-២. វិសាលភាព SCOPE
-អនុវត្តចំពោះកម្មករនិយោជិតទាំងអស់នៅក្នុងរោងចក្រ។
-
-៣. ការប្រតិបត្តិ APPLICATION
-វគ្គបណ្តុះបណ្តាលរួមមាន៖
-- ច្បាប់ស្តីពីការងារ និងគោលការណ៍សុវត្ថិភាពការងារ
-- ការទប់ស្កាត់ការរើសអើង និងការបៀតបៀនគ្រប់ទម្រង់
-- សុវត្ថិភាពសារធាតុគីមី សុវត្ថិភាពអគ្គិភ័យ និងការសង្គ្រោះបឋម
-- ស្តង់ដាសន្តិសុខ C-TPAT និងសុវត្ថិភាពផលិតផលសម្រាប់អ្នកបញ្ជាទិញ។`,
-    contentEn: `1. PURPOSE
-To enhance employees' awareness regarding labor rights, occupational safety, health, product quality, and C-TPAT supply chain security.
-
-2. SCOPE
-Applies to all factory staff and production lines.
-
-3. APPLICATION
-Key training curriculum covers:
-- Labor Code & OSH fundamental standards
-- Anti-discrimination & anti-harassment policies
-- Chemical safety, fire safety drills, and first aid response
-- C-TPAT security criteria and product safety for international brands.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'ស្តង់ដាសុវត្ថិភាព និង C-TPAT', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-05',
-    edition: '02',
-    pageInfo: 'Page 1 of 6',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '工伤与事故调查程序',
-    code: 'SOP-EHS-005',
-    category: 'SAFETY',
-    categoryKh: 'គ្រោះថ្នាក់ការងារ & EHS',
-    titleKh: 'នីតិវិធីស៊ើបអង្កេតគ្រោះថ្នាក់ការងារ និងឧប្បត្តិហេតុ',
-    titleEn: 'Workplace Accident and Incident Investigation Procedure',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Sporting Goods & Garments',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង OBJECTIVE
-បង្កើតដំណើរការស៊ើបអង្កេតគ្រោះថ្នាក់ការងារប្រកបដោយរៀបរយ ដើម្បី៖
-១. កំណត់មូលហេតុឫសគល់ (Root Causes) និងការពារកុំឱ្យកើតឡើងម្តងទៀត។
-២. ពិនិត្យឡើងវិញនូវការវាយតម្លៃហានិភ័យ (Risk Assessment)។
-៣. ពង្រឹងប្រសិទ្ធភាពរបស់គណៈកម្មការសុខភាព និងសុវត្ថិភាពការងារ (OSH Committee)។
-
-២. ការទទួលខុសត្រូវ
-- ប្រធានផ្នែក/Supervisors ត្រូវរាយការណ៍ និងស៊ើបអង្កេតដំបូងក្នុងរយៈពេល ២៤ ម៉ោង។
-- មន្ត្រីសុវត្ថិភាព EHS ចងក្រងរបាយការណ៍ និងស្នើវិធានការកែតម្រូវជូន General Manager។
-- កម្មករនិយោជិតត្រូវជូនដំណឹងភ្លាមៗនៅពេលមានឧប្បត្តិហេតុ ឬលក្ខខណ្ឌការងារគ្មានសុវត្ថិភាព។
-
-៣. សំណួរស៊ើបអង្កេតគន្លឹះ
-- តើកើតឡើងនៅកន្លែងណា និងពេលណា? នរណាខ្លះរងគ្រោះ?
-- តើកើតឡើងដោយរបៀបណា? ឧបករណ៍អ្វីខ្លះពាក់ព័ន្ធ?
-- តើអ្វីជាមូលហេតុផ្ទាល់ និងមូលហេតុឫសគល់?
-- តើត្រូវចាត់វិធានការការពារអ្វីខ្លះទាំងរយៈពេលខ្លី និងវែង?`,
-    contentEn: `1. OBJECTIVE
-To establish a structured investigation approach in order to:
-1. Prevent recurrence of accidents and incidents.
-2. Review and update workplace risk assessments.
-3. Enhance the performance of the OSH Committee.
-
-2. ROLES & RESPONSIBILITIES
-- Supervisors must report and conduct initial investigation within 24 hours.
-- Safety Officers compile findings and recommend CAPs to General Management.
-- Employees must immediately report unsafe conditions or hazards.
-
-3. KEY INVESTIGATION QUESTIONS
-- Where, when, and who was involved?
-- How did the event occur and what machinery/equipment was involved?
-- What are the immediate and root causes?
-- What corrective control measures are required immediately and long-term?`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'នីតិវិធីស៊ើបអង្កេតគ្រោះថ្នាក់ការងារ EHS', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-06',
-    edition: '02',
-    pageInfo: 'Page 1 of 8',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '员工请假制度',
-    code: 'SOP-HR-006',
-    category: 'LEAVE',
-    categoryKh: 'ច្បាប់ឈប់សម្រាក',
-    titleKh: 'គោលការណ៍ និងនីតិវិធីនៃការស្នើសុំច្បាប់ឈប់សម្រាកគ្រប់ប្រភេទ',
-    titleEn: 'Employee Leave Policy and Approval Procedure',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Apparel',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-គោលការណ៍នេះត្រូវបានធ្វើឡើងដើម្បីផ្តល់ភាពងាយស្រួលនិងតម្រូវឱ្យមានភាពត្រឹមត្រូវក្នុងការស្នើសុំការអនុញ្ញាតច្បាប់ឈប់សម្រាក។ ក្រៅពីក្រុមហ៊ុនបានរៀបចំថ្ងៃធ្វើការនិងការឈប់សម្រាកប្រចាំឆ្នាំសម្រាប់ឆ្នាំក្រោយខាងមុខនេះដើម្បីប្រកាសជាមុនដល់និយោជិកកម្មករទាំងអស់ ហើយរាល់ថ្ងៃធ្វើការតម្រូវឱ្យអនុវត្តតាមមុខងារ និងបទបញ្ជាផ្ទៃក្នុង។
-
-២. វិសាលភាពនៃការងារ Scope of Work
-គោលការណ៍នេះគ្របដណ្តប់ទៅលើកម្មករនិយោជិតទាំងអស់ដែលកំពុងបំពេញការងារនៅក្នុងបរិវេណក្រុមហ៊ុនទាំងមូល ដោយមិនរើសអើងឋានៈ ឬផ្នែកណាមួយឡើយ។
-
-៣. ប្រភេទនៃការឈប់សម្រាក (ភាគ១) Types of Leave (Part 1)
-ដើម្បីអនុវត្តគោលនយោបាយឱ្យបានល្អ កម្មករនិយោជិកដែលកំពុងធ្វើការនៅក្នុងក្រុមហ៊ុនត្រូវអនុវត្តតាមប្រភេទដូចខាងក្រោមៈ
-- ការឈប់សម្រាកផ្ទាល់ខ្លួន (Personal Leave)៖ និយោជិកកម្មករអាចឈប់សម្រាកផ្ទាល់ខ្លួនក្នុងករណីចាំបាច់ តែត្រូវសុំការអនុញ្ញាតពីប្រធានក្រុម ឬស៊ុបភើវ៉ាយសឺ (Supervisor) យ៉ាងតិច ០១ ថ្ងៃមុន។ ក្នុងករណីបន្ទាន់ អាចផ្ញើកាតសុំច្បាប់តាមរយៈមិត្តរួមក្រុម ឬទូរស័ព្ទជូនដំណឹងផ្ទាល់។
-- ការឈប់សម្រាកឈឺ (Sick Leave)៖ ក្រុមហ៊ុនផ្តល់ការឈប់សម្រាកឈឺស្របតាមច្បាប់ការងារ និងមានវេជ្ជបញ្ជាពេទ្យត្រឹមត្រូវ។ សម្រាកព្យាបាលក្រោម ០៨ ថ្ងៃ ប្រាក់ឈ្នួលបើកដោយរោងចក្រ តែលើសពី ០៨ ថ្ងៃឡើងទៅគឺជាបន្ទុកសំណងរបស់ ប.ស.ស (NSSF)។
-- ការឈប់សម្រាកលំហែមាតុភាព (Maternity Leave)៖ កម្មការិនីមុន និងក្រោយពេលសម្រាលកូន ទទួលបានថ្ងៃឈប់សម្រាកចំនួន ៩០ ថ្ងៃ ដោយទទួលបានប្រាក់ឈ្នួល ៥០% រយៈពេល ០៣ ខែ ចំពោះអ្នកធ្វើការចាប់ពី ០១ ឆ្នាំឡើងទៅ ព្រមទាំងប្រាក់ឧបត្ថម្ភពីរាជរដ្ឋាភិបាលតាមរយៈ ប.ស.ស។
-
-៤. ប្រភេទនៃការឈប់សម្រាក (ភាគ២) Types of Leave (Part 2)
-- ការឈប់សម្រាកពិសេស (Special Leave)៖ កម្មករនិយោជិតទទួលបានការឈប់សម្រាកចំនួន ០៧ ថ្ងៃក្នុងមួយឆ្នាំ ក្នុងករណីអាពាហ៍ពិពាហ៍សាមីខ្លួន ការសម្រាលកូនរបស់ភរិយា ឬមរណភាពឪពុកម្តាយ ប្តីប្រពន្ធ និងកូនបង្កើត។
-- ការឈប់សម្រាកប្រចាំឆ្នាំ (Annual Leave)៖ កម្មករនិយោជិតធ្វើការពេញ ១ ឆ្នាំ (១២ ខែ) ទទួលបានការឈប់សម្រាកប្រចាំឆ្នាំចំនួន ១៨ ថ្ងៃធ្វើការ។ រៀងរាល់អតីតភាពការងារ ០៣ ឆ្នាំបន្ថែម ទទួលបានការឈប់សម្រាកប្រចាំឆ្នាំបន្ថែម ០១ ថ្ងៃទៀតស្របតាមមាត្រា ១៦៦ នៃច្បាប់ការងារ។
-- ការឈប់សម្រាកដោយគ្រោះថ្នាក់ការងារ (Work Injury Leave)៖ រាល់ការព្យាបាល និងប្រាក់ឧបត្ថម្ភពេលរងគ្រោះថ្នាក់ក្នុងពេលបំពេញការងារ ឬពេលធ្វើដំណើរ ត្រូវបានធានារ៉ាប់រងដោយ ប.ស.ស និងក្រុមហ៊ុនតាមច្បាប់ជាធរមាន។
-
-៥. នីតិវិធីនៃការស្នើសុំច្បាប់ Leave Application Procedure
-- បុគ្គលិកត្រូវបំពេញទម្រង់ពាក្យសុំច្បាប់ (Leave Request Form) ឱ្យបានច្បាស់លាស់ ដោយបញ្ជាក់មូលហេតុ និងកាលបរិច្ឆេទចាប់ផ្តើមរហូតដល់ថ្ងៃចូលធ្វើការវិញ។
-- ត្រូវឆ្លងកាត់ការពិនិត្យ និងចុះហត្ថលេខាយល់ព្រមពីប្រធានផ្នែកផ្ទាល់ (Line Leader / Supervisor)។
-- ត្រូវយកពាក្យសុំច្បាប់ដែលបានអនុម័តរួច មកប្រគល់ជូនការិយាល័យរដ្ឋបាល/ធនធានមនុស្ស (HR Dept) ដើម្បីកត់ត្រាក្នុងបញ្ជីវត្តមាន និងប្រព័ន្ធបើកប្រាក់បៀវត្សរ៍។
-
-៦. ឯកសារតម្រូវ Required Supporting Documents
-- ករណីឈប់សម្រាកឈឺ៖ ត្រូវភ្ជាប់មកជាមួយនូវលិខិតបញ្ជាក់វេជ្ជសាស្ត្រ ឬវេជ្ជបញ្ជាពីមន្ទីរពេទ្យរដ្ឋ គ្លីនិក ឬមន្ទីរពេទ្យដៃគូរបស់ ប.ស.ស។
-- ករណីលំហែមាតុភាព៖ សៀវភៅតាមដានផ្ទៃពោះ សំបុត្របញ្ជាក់កំណើតកូន ឬលិខិតសម្រាលចេញដោយមន្ទីរពេទ្យ។
-- ករណីពិសេស៖ សំបុត្រអាពាហ៍ពិពាហ៍ ឬលិខិតមរណភាពចេញដោយអាជ្ញាធរមានសមត្ថកិច្ច។
-
-៧. ការបណ្តុះបណ្តាល និងទំនួលខុសត្រូវ Training & Responsibility
-- ការបណ្តុះបណ្តាល៖ ផ្នែករដ្ឋបាល និងអនុលោមភាពច្បាប់ត្រូវរៀបចំការបណ្តុះបណ្តាលផ្សព្វផ្សាយជាប្រចាំដល់កម្មករនិយោជិតទាំងចាស់ និងថ្មី អំពីសិទ្ធិ នីតិវិធីនៃការសុំច្បាប់ និងអត្ថប្រយោជន៍ ប.ស.ស។
-- ទំនួលខុសត្រូវ៖ ផ្នែករដ្ឋបាលទទួលបន្ទុកសម្របសម្រួល រក្សាទុកឯកសារច្បាប់ និងទិន្នន័យច្បាស់លាស់។ ប្រធានផ្នែក និង Supervisor មានកាតព្វកិច្ចវាយតម្លៃ និងអនុម័តច្បាប់ដោយយុត្តិធម៌ ផ្អែកលើស្ថានភាពជាក់ស្តែង។
-
-៨. ការត្រួតពិនិត្យ និងវាយតម្លៃ Monitoring and Evaluation
-ក្រុមហ៊ុនប្រគល់សិទ្ធិជូនផ្នែករដ្ឋបាល និងធនធានមនុស្ស ក្នុងការចុះត្រួតពិនិត្យ និងវាយតម្លៃលើដំណើរការអនុវត្តជាក់ស្តែង ដើម្បីធានាតម្លាភាព និងទប់ស្កាត់ការឈប់សម្រាកអនាធិបតេយ្យ។ គោលការណ៍នេះមានប្រសិទ្ធភាពចាប់ពីថ្ងៃចុះហត្ថលេខានេះតទៅ។`,
-    contentEn: `1. PURPOSE
-This policy is conducted in order to make it easy and required to have proper provision in asking for permission. Beside company has designed the working day and annual leave for the next upcoming year to announce in advance to all workers employees, ensuring proper operational continuity and compliance.
-
-2. SCOPE OF WORK
-This policy is designed for all workers and employees who are working in the territory and premises of the company across all departments and shifts without discrimination.
-
-3. TYPES OF LEAVE (PART 1)
-To implement this policy smoothly, employees working in the company must comply with the following leave categories:
-- Personal Leave: Workers can take personal leave in necessary circumstances by requesting prior approval from group leader or supervisor at least 1 day in advance. In emergencies, notify via teammate or direct call.
-- Sick Leave: Company provides sick leave in accordance with labor law supported by medical certificate. Hospitalization under 8 days paid by factory; leave exceeding 8 days covered by NSSF.
-- Maternity Leave: Female employees receive 90 days maternity leave paid at 50% wages for 3 months for employees with 1+ year service, plus government maternity allowances via NSSF.
-
-4. TYPES OF LEAVE (PART 2)
-- Special Leave: 7 days per year for immediate family emergencies, personal marriage, wife delivery, or direct family bereavement.
-- Annual Leave: 18 working days per year for employees completing 12 months continuous service; increases by 1 day for every 3 years of continuous service according to Article 166 of Cambodia Labor Law.
-- Work-related Injury Leave: Medical treatment and wage compensations covered according to NSSF and national labor regulations for on-the-job accidents and commuting hazards.
-
-5. LEAVE APPLICATION PROCEDURE
-- Employee must complete the official Leave Request Form clearly indicating reason, duration, and return date.
-- Submit form to immediate Line Leader or Supervisor for verification and endorsement signature.
-- Deliver approved leave form to HR & Admin Office to record into biometric attendance software and payroll computation.
-
-6. REQUIRED SUPPORTING DOCUMENTS
-- Sick leave: Medical certificate or prescription from Ministry of Health or NSSF accredited hospital/clinic.
-- Maternity leave: Hospital birth certificate or pregnancy health examination booklet.
-- Special leave: Marriage certificate or official family bereavement confirmation letter.
-
-7. TRAINING & RESPONSIBILITY
-- Training: Admin and Compliance departments must conduct orientation training for both new and existing workers regarding legal leave entitlements, procedures, and NSSF benefits.
-- Responsibility: Admin is responsible for data tracking, archiving leave records, and NSSF claims. Supervisors must evaluate leave requests objectively and fairly without favoritism.
-
-8. MONITORING AND EVALUATION
-Company authorizes Admin department to monitor and evaluate leave application procedures transparently and effectively, implementing corrective improvements. This policy takes effect immediately from the date of authorized signature onward.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលការណ៍ច្បាប់ឈប់សម្រាកស្របច្បាប់ការងារ', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-07',
-    edition: '02',
-    pageInfo: 'Page 1 of 10',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '客户合规基本政策',
-    code: 'SOP-QA-007',
-    category: 'INTEGRITY',
-    categoryKh: 'គុណភាព & អតិថិជន',
-    titleKh: 'គោលការណ៍បង្កើនទំនុកចិត្តអតិថិជន និងការអនុលោមតាមបទដ្ឋាន',
-    titleEn: 'Buyer Confidence, Quality Assurance & Social Compliance Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Bags',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-បង្កើនការទុកចិត្តដល់អតិថិជន និងអនុវត្តឱ្យស្របតាមបទដ្ឋានសង្គម ច្បាប់ការងារ និងតម្រូវការរបស់អ្នកបញ្ជាទិញ។
-
-២. នីតិវិធី និងការអនុវត្ត
-- ធ្វើការវាយតម្លៃផ្នែកកម្លាំងពលកម្ម និងសុវត្ថិភាពការងារ ២ ដងក្នុងមួយឆ្នាំ។
-- វិភាគលទ្ធផលសវនកម្ម និងរៀបចំផែនការកែតម្រូវ (CAP) ភ្លាមៗ។
-- តាមដានការអនុវត្តជាប្រចាំ ដើម្បីធានាបានការបំពេញកាតព្វកិច្ចច្បាប់ជាតិ និងអន្តរជាតិ។
-- ចូលរួមការពារបរិស្ថាន និងសីលធម៌សង្គមនៅកន្លែងធ្វើការ។`,
-    contentEn: `1. PURPOSE
-To maintain client confidence and ensure adherence to international social compliance and brand codes of conduct.
-
-2. IMPLEMENTATION
-- Bi-annual comprehensive labor standards and safety audits.
-- Analysis of audit findings and timely execution of Corrective Action Plans (CAP).
-- Continuous monitoring to comply with national laws and buyer requirements.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'ស្តង់ដាអនុលោមភាពអតិថិជន', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-08',
-    edition: '02',
-    pageInfo: 'Page 1 of 6',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '外籍员工管理政策',
-    code: 'SOP-MIG-008',
-    category: 'FOREIGN_WORKER',
-    categoryKh: 'ពលករបរទេស',
-    titleKh: 'គោលនយោបាយគ្រប់គ្រង និងប្រើប្រាស់ហត្ថពលកម្មបរទេស',
-    titleEn: 'Foreign and Expatriate Worker Management Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Manufacturing Facility',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-គ្រប់គ្រងការងាររបស់ជនបរទេសឱ្យមានតម្លាភាព យុត្តិធម៌ និងស្របតាមច្បាប់ការងារនៃព្រះរាជាណាចក្រកម្ពុជា។
-
-២. លក្ខខណ្ឌ និងនីតិវិធី
-- ជនបរទេសត្រូវចូលមកកម្ពុជាដោយស្របច្បាប់ និងមានលិខិតឆ្លងដែនមានសុពលភាព។
-- ក្រុមហ៊ុនចុះកិច្ចសន្យាការងារជាលាយលក្ខណ៍អក្សរ។
-- បុគ្គលិកបរទេសមានសិទ្ធិកាន់កាប់ឯកសារច្បាប់ដើមផ្ទាល់ខ្លួន (ក្រុមហ៊ុនរក្សាទុកតែច្បាប់ចម្លង)។
-- ក្រុមហ៊ុនដំណើរការ និងរ៉ាប់រងថ្លៃប័ណ្ណការងារ (Work Permit) តាមប្រព័ន្ធ FWEMS របស់ក្រសួងការងារ។
-- រៀបចំឱ្យមានអ្នកបកប្រែភាសា និងធានាសិទ្ធិស្មើគ្នានឹងបុគ្គលិកក្នុងស្រុក។`,
-    contentEn: `1. PURPOSE
-To govern foreign worker employment with transparency, fairness, and strict compliance with Cambodian immigration and labor laws.
-
-2. PROCEDURES
-- Valid passport and legal entry visa required.
-- Written employment contract provided in an understandable language.
-- Foreign workers retain their original passports and documents at all times.
-- Company processes and pays for all official Foreign Work Permits via FWEMS.
-- Translation support provided for daily communications and safety trainings.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលនយោបាយគ្រប់គ្រងពលករបរទេស', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-09',
-    edition: '02',
-    pageInfo: 'Page 1 of 6',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '廉洁与诚信政策',
-    code: 'SOP-ETH-009',
-    category: 'INTEGRITY',
-    categoryKh: 'សុចរិតភាព & ប្រឆាំងពុករលួយ',
-    titleKh: 'គោលនយោបាយសុចរិតភាព និងការប្រឆាំងអំពើពុករលួយ',
-    titleEn: 'Business Integrity, Anti-Bribery & Anti-Corruption Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Factory Operations',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-លើកតម្កើងសុចរិតភាព ការពារ និងលុបបំបាត់អំពើពុករលួយ ការសូកប៉ាន់ និងបង្កើនទំនុកចិត្តក្នុងអាជីវកម្ម។
-
-២. នីតិវិធីនៃការអនុវត្ត
-- អនុវត្តការងារដោយស្មោះត្រង់ និងរាយការណ៍ព័ត៌មានពិតប្រាកដ។
-- ជៀសវាងរាល់ជម្លោះផលប្រយោជន៍ផ្ទាល់ខ្លួន (Conflict of Interest)។
-- ហាមឃាត់ដាច់ខាតនូវការផ្តល់ ឬទទួលអំណោយ សំណូក ឬការកម្សាន្តដែលមានឥទ្ធិពលលើការសម្រេចចិត្ត។
-- រាល់អំណោយជូនមន្ត្រីរាជការត្រូវមានការអនុញ្ញាតជាមុនពីនាយកក្រុមហ៊ុន។`,
-    contentEn: `1. PURPOSE
-To promote corporate integrity, prevent all forms of bribery and corruption, and maintain transparent business relationships.
-
-2. PROCEDURES
-- Perform tasks with honesty and accurate reporting.
-- Strict avoidance of personal conflicts of interest.
-- Zero tolerance for offering or receiving bribes, kickbacks, or illicit gifts.
-- Any official courtesy entertainment requires prior approval by General Management.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលនយោបាយប្រឆាំងអំពើពុករលួយ', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-10',
-    edition: '02',
-    pageInfo: 'Page 1 of 8',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '机械设备控制与维护政策',
-    code: 'SOP-MCH-010',
-    category: 'MACHINERY',
-    categoryKh: 'គ្រឿងចក្រ & ផលិតកម្ម',
-    titleKh: 'គោលការណ៍គ្រប់គ្រង ការថែទាំ និងសុវត្ថិភាពម៉ាស៊ីនផលិតកម្ម',
-    titleEn: 'Factory Machinery Maintenance, Operation & Safety Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment Machinery & Equipment',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង PURPOSE
-ធានាថាម៉ាស៊ីនទាំងអស់ក្នុងរោងចក្រដំណើរការល្អ សុវត្ថិភាព និងផលិតបានទំនិញស្របតាមគុណភាព និងបរិមាណដែលបានកំណត់។
-
-២. នីតិវិធី PROCEDURES
-- គ្រប់ម៉ាស៊ីនត្រូវឆ្លងកាត់ការអនុម័តពីប្រធានផលិតកម្មមុននឹងដាក់ឱ្យប្រើប្រាស់។
-- ក្រុមជាងម៉ាស៊ីនត្រូវត្រួតពិនិត្យឧបករណ៍ការពារសុវត្ថិភាព (Machine Guards) ឱ្យបានពេញលេញ។
-- ត្រួតពិនិត្យថែទាំម៉ាស៊ីនជារៀងរាល់ ២ សប្តាហ៍ម្តង និងកត់ត្រាលើប័ណ្ណថែទាំ។
-- រក្សាទុកគ្រឿងបន្លាស់ចាំបាច់ក្នុងស្តុកជានិច្ច ដើម្បីជួសជុលទាន់ពេលវេលា។`,
-    contentEn: `1. PURPOSE
-To ensure factory machinery functions safely, accurately, and reliably to meet production output and product specifications.
-
-2. PROCEDURES
-- Production Manager approval required before installing new machinery.
-- Mechanics ensure all machine safety guards and emergency stops are intact.
-- Routine bi-weekly preventive maintenance with logs kept on maintenance cards.
-- Adequate stock of critical spare parts maintained to minimize downtime.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'នីតិវិធីថែទាំម៉ាស៊ីនផលិតកម្ម', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-11',
-    edition: '02',
-    pageInfo: 'Page 1 of 7',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '分包商与外包管理程序',
-    code: 'SOP-OUT-011',
-    category: 'OUTSOURCE',
-    categoryKh: 'អ្នកម៉ៅការ & Subcontractor',
-    titleKh: 'គោលនយោបាយគ្រប់គ្រងកម្លាំងធនធានពលកម្មខាងក្រៅ (Subcontractor)',
-    titleEn: 'Outsource & Subcontractor Facility Management Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Textile Subcontracting',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលនយោបាយ Policy
-ធានាថាសកម្មភាពការងារនៃកម្លាំងធនធានពលកម្មខាងក្រៅ (Subcontractor) ត្រូវបានអនុវត្តស្របតាមច្បាប់ និងបទបញ្ញត្តិក្រុមហ៊ុន។
-
-២. នីតិវិធី Routine & Procedure
-- ហាមប្រើប្រាស់កម្លាំងពលកម្មខាងក្រៅដោយគ្មានការអនុញ្ញាតពីថ្នាក់ដឹកនាំ និងអតិថិជនជាមុនឡើយ។
-- ផ្នែកអនុលោមតាមច្បាប់ត្រូវចុះត្រួតពិនិត្យទីតាំងខាងក្រៅ (ដូចជា ផ្នែកបោះពុម្ព ប៉ាក់ បោកគក់ កាត់ ដេរ) លើទិដ្ឋភាពសុខភាព សុវត្ថិភាព និងច្បាប់ការងារ។
-- វាយតម្លៃសមត្ថភាព និងគុណភាពការងារជារៀងរាល់ឆ្នាំ។`,
-    contentEn: `1. POLICY
-To ensure all outsourced and subcontracted operations adhere strictly to company standards, customer codes of conduct, and statutory labor laws.
-
-2. PROCEDURES
-- No unauthorized subcontracting without explicit client and management consent.
-- Compliance team audits subcontractor premises (printing, embroidery, washing, cutting, sewing) for OSH and labor standards.
-- Annual evaluation of all business partners and subcontractors.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលការណ៍គ្រប់គ្រងអ្នកម៉ៅការបន្ត', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-12',
-    edition: '02',
-    pageInfo: 'Page 1 of 6',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '罢工与劳资纠纷解决政策',
-    code: 'SOP-GRV-012',
-    category: 'GRIEVANCE',
-    categoryKh: 'វិវាទការងារ & កូដកម្ម',
-    titleKh: 'គោលនយោបាយទប់ស្កាត់ ដោះស្រាយវិវាទការងារ បណ្តឹងសារទុក្ខ និងកូដកម្ម',
-    titleEn: 'Grievance Handling, Dispute Resolution and Strike Prevention Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Industrial Manufacturing',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង
-ទប់ស្កាត់ការកើតមានជម្លោះវិវាទ និងដោះស្រាយបណ្តឹងតវ៉ាឱ្យស្របតាមច្បាប់ស្តីពីការងារនៃព្រះរាជាណាចក្រកម្ពុជា។
-
-២. ដំណាក់កាលដោះស្រាយបណ្តឹងសារទុក្ខ ៥ ជំហាន (5-Step Grievance Solution)
-ជំហានទី១៖ សុំជួបប្រធានផ្នែក/ប្រធានក្រុម ដើម្បីដោះស្រាយក្នុងរយៈពេល ១ ថ្ងៃ។
-ជំហានទី២៖ ប្តឹងទៅអ្នកគ្រប់គ្រងផ្នែករដ្ឋបាល/ធនធានមនុស្ស ឆ្លើយតបជាលាយលក្ខណ៍អក្សរក្នុងរយៈពេល ៣ ថ្ងៃយ៉ាងយូរ។
-ជំហានទី៣៖ ប្តឹងទៅនាយកក្រុមហ៊ុន ឆ្លើយតបជាលាយលក្ខណ៍អក្សរក្នុងរយៈពេល ៣ ថ្ងៃ។
-ជំហានទី៤៖ ប្តឹងទៅក្រសួងការងារ និងបណ្តុះបណ្តាលវិជ្ជាជីវៈ (ការផ្សះផ្សាវិវាទ)។
-ជំហានទី៥៖ បញ្ជូនសំណុំរឿងទៅក្រុមប្រឹក្សាអាជ្ញាកណ្តាល (Arbitration Council)។
-
-៣. លក្ខខណ្ឌនៃការធ្វើកូដកម្មស្របច្បាប់
-- ត្រូវមានការបោះឆ្នោតជាសម្ងាត់ដោយសមាជិកសហជីព។
-- ត្រូវជូនដំណឹងជាមុនយ៉ាងតិច ៧ ថ្ងៃទៅនិយោជក និងក្រសួងការងារ។
-- កូដកម្មដោយប្រើអំពើហិង្សា ឬផ្ទុយពីច្បាប់ចាត់ទុកជាកំហុសធ្ងន់។`,
-    contentEn: `1. PURPOSE
-To maintain industrial harmony, resolve employee grievances peacefully, and adhere to Cambodian Labor Dispute laws.
-
-2. 5-STEP GRIEVANCE HANDLING WORKFLOW
-Step 1: Direct discussion with Supervisor/Line Leader within 1 day.
-Step 2: Escalation to Admin/HR Manager with written reply within 3 days.
-Step 3: Appeal to General Manager with written response within 3 days.
-Step 4: Conciliation at the Ministry of Labor and Vocational Training (MLVT).
-Step 5: Submission to the Arbitration Council for binding/non-binding award.
-
-3. LEGAL STRIKE PREREQUISITES
-- Secret ballot approval by union membership.
-- Mandatory 7-day prior written notice to employer and MLVT.
-- Zero tolerance for unlawful strikes, blockades, or violent misconduct.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'នីតិវិធីដោះស្រាយវិវាទ និងបណ្តឹងសារទុក្ខ', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-13',
-    edition: '02',
-    pageInfo: 'Page 1 of 8',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '工业废水与化学品处理政策',
-    code: 'SOP-ENV-013',
-    category: 'ENVIRONMENT',
-    categoryKh: 'បរិស្ថាន & កាកសំណល់ទឹក',
-    titleKh: 'នីតិវិធីនៃការគ្រប់គ្រងកាកសំណល់ទឹក និងបរិស្ថានស្របតាម ZDHC',
-    titleEn: 'Wastewater and Environmental Management Standard (ZDHC Aligned)',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment Wet Processing & Laundry',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង PURPOSE
-ការពារសុខភាពមនុស្ស និងបរិស្ថាន ដោយគ្រប់គ្រងកាកសំណល់ទឹកដែលបញ្ចេញពីរោងចក្រឱ្យបានត្រឹមត្រូវ។
-
-២. នីតិវិធី PROCEDURE
-- វាយតម្លៃឧបករណ៍បំពុល និងកាកសំណល់ទឹកមុនពេលបំពាក់។
-- ធ្វើការវិភាគសំណាកទឹកស្របតាមគោលការណ៍គ្មានសារធាតុគីមី ZDHC Wastewater Guideline។
-- ធ្វើតេស្តសំណល់ទឹកដោយមន្ទីរពិសោធន៍ទទួលស្គាល់យ៉ាងតិច ១ ឆ្នាំម្តង។
-- កន្លែងបង្ហូរទឹកចុងក្រោយត្រូវមានចម្ងាយយ៉ាងតិច ១០០ ម៉ែត្រពីអគារស្នាក់នៅ។
-- រក្សាទុកឯកសារវិភាគទឹក និងកាកសំណល់ភក់ (Sludge) យ៉ាងតិច ៥ ឆ្នាំ។`,
-    contentEn: `1. PURPOSE
-To protect human health and natural ecosystems through systematic wastewater treatment and discharge controls.
-
-2. PROCEDURES
-- Proper technical assessment before installation of treatment equipment.
-- Wastewater testing aligned with ZDHC (Zero Discharge of Hazardous Chemicals) guidelines.
-- Certified laboratory effluent analysis conducted at least annually.
-- Effluent discharge points located a minimum of 100 meters from dormitories.
-- Sludge disposal and laboratory test records retained for at least 5 years.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'ស្តង់ដាគ្រប់គ្រងកាកសំណល់ទឹក ZDHC', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-14',
-    edition: '02',
-    pageInfo: 'Page 1 of 6',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '流动工人与劳工权益政策',
-    code: 'SOP-MIG-014',
-    category: 'FOREIGN_WORKER',
-    categoryKh: 'ពលករចំណាកស្រុក',
-    titleKh: 'គោលនយោបាយគ្រប់គ្រង និងការពារពលករចំណាកស្រុក (Migrant Workers)',
-    titleEn: 'Migrant Employee Management and Fair Recruitment Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Footwear',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង PURPOSE
-ពង្រឹងការគ្រប់គ្រង និងផ្តល់នូវលក្ខខណ្ឌការងារប្រកបដោយសមធម៌ និងសុវត្ថិភាពដល់បុគ្គលិកចំណាកស្រុក។
-
-២. នីតិវិធី PROCEDURE
-- ផ្តល់នូវលក្ខខណ្ឌការងារ ប្រាក់បៀវត្ស និងការឈប់សម្រាកស្មើភាពគ្នានឹងបុគ្គលិកជាតិ។
-- ពន្យល់កិច្ចសន្យាការងារជាភាសាដែលបុគ្គលិកយល់បាន មុនពេលចាកចេញពីប្រទេសដើម។
-- ក្រុមហ៊ុនជាអ្នកទទួលខុសត្រូវលើថ្លៃសំបុត្រយន្តហោះ និងការធ្វើដំណើរចូលមកបំពេញការងារ និងវិលត្រឡប់ (Repatriation Costs)។
-- ហាមឃាត់ដាច់ខាតការរឹបអូសលិខិតឆ្លងដែន ឬប័ណ្ណសម្គាល់ខ្លួន។`,
-    contentEn: `1. PURPOSE
-To safeguard migrant employees' rights, ensure fair recruitment, and provide equal employment opportunities.
-
-2. PROCEDURES
-- Equal terms of employment, compensation, and leave conditions as national workers.
-- Full contract explanation provided in employee's native language before departure.
-- Factory covers inbound travel and repatriation transport tickets upon contract completion.
-- Prohibition of passport confiscation or retention of legal documentation.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលការណ៍ពលករចំណាកស្រុក', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-15',
-    edition: '02',
-    pageInfo: 'Page 1 of 10',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    titleCn: '国际人权政策',
-    code: 'SOP-HRT-015',
-    category: 'HUMAN_RIGHTS',
-    categoryKh: 'សិទ្ធិមនុស្សអន្តរជាតិ',
-    titleKh: 'គោលនយោបាយសិទ្ធិមនុស្សអន្តរជាតិ (UDHR, ICCPR, CEDAW, CRC)',
-    titleEn: 'International Human Rights and Workplace Dignity Policy',
-    companyName: 'G.S.textileGarment(Cambodia) co.,Ltd',
-    productType: 'Garment & Apparel Facility',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង Purpose
-ធានាការពារសេចក្តីថ្លៃថ្នូរ សមភាព និងសិទ្ធិជាមូលដ្ឋានរបស់មនុស្សគ្រប់រូប ដោយមិនរើសអើងពូជសាសន៍ ពណ៌សម្បុរ ភេទ សាសនា ឬឋានៈសង្គមឡើយ។
-
-២. ក្របខ័ណ្ឌអនុវត្តអន្តរជាតិ
-- សេចក្តីប្រកាសជាសកលស្តីពីសិទ្ធិមនុស្ស (UDHR 1948)
-- កតិកាសញ្ញាអន្តរជាតិស្តីពីសិទ្ធិពលរដ្ឋ និងសិទ្ធិនយោបាយ (ICCPR 1966)
-- កតិកាសញ្ញាស្តីពីសិទ្ធិសេដ្ឋកិច្ច សង្គម និងវប្បធម៌ (ICESCR 1966)
-- អនុសញ្ញាលុបបំបាត់ការរើសអើងលើស្ត្រី (CEDAW 1979) និងការពារសិទ្ធិកុមារ (CRC 1989)។
-
-៣. គោលការណ៍ស្នូលនៅកន្លែងធ្វើការ
-- សិទ្ធិស្មើគ្នានៅចំពោះមុខច្បាប់ និងការមិនរើសអើង
-- សេរីភាពពីការធ្វើទុក្ខបុកម្នេញ ការគំរាមកំហែង និងការបៀតបៀនគ្រប់ទម្រង់
-- លក្ខខណ្ឌការងារសមរម្យ ថ្លៃថ្នូរ និងការការពារសុខភាព។`,
-    contentEn: `1. PURPOSE
-To uphold human dignity, equality, and fundamental workplace human rights without discrimination of race, gender, religion, or nationality.
-
-2. INTERNATIONAL FRAMEWORKS
-- Universal Declaration of Human Rights (UDHR 1948)
-- International Covenants on Civil/Political and Economic/Social Rights (ICCPR & ICESCR 1966)
-- Elimination of Discrimination Against Women (CEDAW 1979) and Rights of the Child (CRC 1989).
-
-3. WORKPLACE CORE PRINCIPLES
-- Equal opportunity and non-discrimination.
-- Freedom from harassment, coercion, and corporal punishment.
-- Fair living wages, occupational health, and safe working environments.`,
-    revisions: [
-      { rev: '01', date: '01-11-2024', paragraph: 'All', summary: 'គោលនយោបាយសិទ្ធិមនុស្សអន្តរជាតិ', authorizedBy: 'General Manager' },
-    ],
-  },
-  {
-    id: 'sop-16',
-    code: 'EGS/SCP-054',
-    edition: '02',
-    pageInfo: 'Page 1 of 10',
-    initialIssuedDate: '10-11-2023',
-    amendDate: '10-10-2025',
-    effectiveDate: '11-11-2024',
-    category: 'SAFETY',
-    categoryKh: 'សុវត្ថិភាពការងារ & EHS',
-    titleKh: 'គោលការណ៍វាយតម្លៃហានិភ័យ',
-    titleEn: 'RISK ASSESSMENT POLICY',
-    titleCn: '风险评估政策',
-    companyName: 'EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD',
-    productType: 'Sporting Goods & Outdoor Equipment',
-    preparedBy: 'Mr. CHAN PHEARUM',
-    preparedRole: 'ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager',
-    preparedDate: '01-11-2024',
-    approvedBy: 'Mr. CHEN LANMAO',
-    approvedRole: 'នាយកក្រុមហ៊ុន General Manager',
-    approvedDate: '11-11-2024',
-    contentKh: `១. គោលបំណង PURPOSE
-ដើម្បីកំណត់ វិភាគ និងវាយតម្លៃហានិភ័យដែលអាចកើតមានចំពោះសុខភាព សុវត្ថិភាពបុគ្គលិក បរិស្ថាន និងប្រតិបត្តិការក្នុងរោងចក្រ ព្រមទាំងដាក់ចេញនូវវិធានការបង្ការ និងកាត់បន្ថយហានិភ័យឱ្យនៅកម្រិតទាបបំផុតដែលអាចទទួលយកបាន (ALARP)។
-
-២. ដែនកំណត់ SCOPE
-គោលនយោបាយនេះអនុវត្តចំពោះគ្រប់ផ្នែកផលិតកម្ម ឃ្លាំងទំនិញ បន្ទប់គីមី បន្ទប់ម៉ាស៊ីន និងអ្នកម៉ៅការបន្ត ព្រមទាំងភ្ញៀវទាំងអស់ដែលចូលក្នុងបរិវេណរោងចក្រ។
-
-៣. និយមន័យ DEFINITIONS
-- គ្រោះថ្នាក់ (Hazard): ប្រភព ឬស្ថានភាពដែលអាចបណ្តាលឱ្យមានរបួស ជំងឺ ការខូចខាតទ្រព្យសម្បត្តិ ឬប៉ះពាល់បរិស្ថាន។
-- ហានិភ័យ (Risk): បន្សំរវាងលទ្ធភាពដែលអាចកើតឡើង (Likelihood) និងកម្រិតធ្ងន់ធ្ងរនៃផលវិបាក (Severity)។
-- ការវាយតម្លៃហានិភ័យ (Risk Assessment): ដំណើរការនៃការវាយតម្លៃហានិភ័យដើម្បីកំណត់កម្រិតអាទិភាពនៃវិធានការគ្រប់គ្រង។
-
-៤. នីតិវិធីនៃការវាយតម្លៃ PROCEDURE
-- ជំហានទី១: កំណត់អត្តសញ្ញាណគ្រោះថ្នាក់ (Hazard Identification) តាមរយៈការដើរត្រួតពិនិត្យប្រចាំថ្ងៃ និងរបាយការណ៍ស្ទើរតែកើតហេតុ (Near-Miss)។
-- ជំហានទី២: វាយតម្លៃអ្នកដែលអាចរងផលប៉ះពាល់ (Who might be harmed) រួមមានកម្មករ ប្រតិបត្តិករម៉ាស៊ីន បុគ្គលិកអនាម័យ និងភ្ញៀវ។
-- ជំហានទី៣: វាយតម្លៃកម្រិតហានិភ័យដោយប្រើតារាង 5x5 Matrix (Likelihood x Severity)។
-- ជំហានទី៤: អនុវត្តតាមឋានានុក្រមគ្រប់គ្រងហានិភ័យ (Hierarchy of Controls): Elimination -> Substitution -> Engineering Controls -> Administrative Controls -> PPE។
-- ជំហានទី៥: កត់ត្រាលទ្ធផល និងត្រួតពិនិត្យឡើងវិញជារៀងរាល់ឆ្នាំ ឬនៅពេលមានការផ្លាស់ប្តូរម៉ាស៊ីន ដំណើរការ ឬសារធាតុគីមីថ្មី។
-
-៥. សិទ្ធិអំណាច និងការទទួលខុសត្រូវ AUTHORITY & RESPONSIBILITY
-- គណៈកម្មាធិការសុខភាព និងសុវត្ថិភាពការងារ (HS Committee) និង EHS Supervisor ទទួលបន្ទុកធ្វើបច្ចុប្បន្នភាពតារាងវាយតម្លៃហានិភ័យ (Risk Register) រៀងរាល់ត្រីមាស។
-- ប្រធានគ្រប់ផ្នែកទាំងអស់ត្រូវទទួលខុសត្រូវធានាថាបុគ្គលិកក្រោមឱវាទអនុវត្តតាមវិធានការសុវត្ថិភាព និងពាក់ PPE គ្រប់ពេលវេលា។`,
-    contentEn: `1. PURPOSE
-To systematically identify, analyze, and evaluate occupational health, safety, environmental, and operational risks across factory premises, implementing preventive controls to achieve ALARP (As Low As Reasonably Practicable) risk levels.
-
-2. SCOPE
-Applies to all manufacturing production floors, warehouses, chemical stores, utility rooms, subcontractors, and visitors within factory premises.
-
-3. DEFINITIONS
-- Hazard: Source, situation, or act with potential for harm in terms of human injury, ill health, or environmental damage.
-- Risk: Combination of the likelihood of an occurrence of a hazardous event and the severity of injury or damage.
-- Risk Assessment: Overall process of estimating the magnitude of risk and deciding whether the risk is acceptable.
-
-4. ASSESSMENT PROCEDURE
-- Step 1: Hazard Identification via regular workplace inspections, job safety analysis (JSA), and near-miss reports.
-- Step 2: Determine who might be harmed and how (operators, maintenance, cleaners, visitors).
-- Step 3: Evaluate risk score using 5x5 Matrix (Likelihood x Severity).
-- Step 4: Implement Hierarchy of Controls: Elimination, Substitution, Engineering controls, Administrative controls, and PPE.
-- Step 5: Record findings, monitor action plan implementation, and review annually or whenever new machinery/chemicals are introduced.
-
-5. AUTHORITY & RESPONSIBILITY
-- Health & Safety Committee and EHS Supervisor are responsible for updating the Factory Risk Assessment Register quarterly.
-- All Department Heads must ensure workers strictly comply with risk control measures and wear mandatory PPE at all times.`,
-    revisions: [
-      { rev: '01', date: '10-11-2023', paragraph: 'All', summary: 'បង្កើតគោលការណ៍វាយតម្លៃហានិភ័យដំបូង', authorizedBy: 'General Manager' },
-      { rev: '02', date: '11-11-2024', paragraph: 'Hierarchy of Controls', summary: 'ធ្វើបច្ចុប្បន្នភាពតាមស្តង់ដា ISO 45001 & Buyer Compliance', authorizedBy: 'General Manager' },
-    ],
-  },
-];
+const DEFAULT_SOPS: FactorySop[] = ALL_SOPS;
 
 interface SopLibraryTabProps {
   handlePrintTemplate: (elementId: string) => void;
@@ -1057,6 +214,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   const [sops, setSops] = useState<FactorySop[]>(DEFAULT_SOPS);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [mainSection, setMainSection] = useState<'sops' | 'jds'>('sops');
 
   // Modals state
   const [editingSop, setEditingSop] = useState<FactorySop | null>(null);
@@ -1326,7 +484,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
           };
         });
         const existingIds = new Set(parsed.map((p) => p.id));
-        const missing = DEFAULT_SOPS.filter((d) => !existingIds.has(d.id));
+        const missing = ALL_SOPS.filter((d) => !existingIds.has(d.id));
         setSops([...merged, ...missing]);
       } else {
         setSops(DEFAULT_SOPS);
@@ -1407,7 +565,93 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   }, [sops, selectedCategory, searchQuery]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Top Segmented Switcher between SOPs and JDs */}
+      <div
+        style={{
+          display: 'flex',
+          background: '#f1f5f9',
+          padding: '4px',
+          borderRadius: '12px',
+          gap: '4px',
+          width: 'fit-content',
+          border: '1px solid #e2e8f0',
+        }}
+      >
+        <button
+          onClick={() => setMainSection('sops')}
+          style={{
+            padding: '8px 18px',
+            borderRadius: '8px',
+            border: 'none',
+            background: mainSection === 'sops' ? '#ffffff' : 'transparent',
+            color: mainSection === 'sops' ? '#1e40af' : '#64748b',
+            fontWeight: mainSection === 'sops' ? 800 : 600,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            boxShadow: mainSection === 'sops' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          📑 នីតិវិធី និងគោលការណ៍ SOPs
+          <span
+            style={{
+              background: mainSection === 'sops' ? '#dbeafe' : '#e2e8f0',
+              color: mainSection === 'sops' ? '#1e40af' : '#475569',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+            }}
+          >
+            {sops.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setMainSection('jds')}
+          style={{
+            padding: '8px 18px',
+            borderRadius: '8px',
+            border: 'none',
+            background: mainSection === 'jds' ? '#ffffff' : 'transparent',
+            color: mainSection === 'jds' ? '#1e40af' : '#64748b',
+            fontWeight: mainSection === 'jds' ? 800 : 600,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            boxShadow: mainSection === 'jds' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          👔 សេចក្តីពិពណ៌នាមុខតំណែង JDs (Standard Roles)
+          <span
+            style={{
+              background: mainSection === 'jds' ? '#dbeafe' : '#e2e8f0',
+              color: mainSection === 'jds' ? '#1e40af' : '#475569',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+            }}
+          >
+            15
+          </span>
+        </button>
+      </div>
+
+      {mainSection === 'jds' ? (
+        <JdLibraryView
+          handlePrintTemplate={handlePrintTemplate}
+          handleExportPdf={handleExportPdf}
+        />
+      ) : (
+        <>
       {/* Top Controls Bar */}
       <div
         style={{
@@ -1438,16 +682,21 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
             }}
           >
             <option value="ALL">គ្រប់នីតិវិធីទាំងអស់ ({sops.length} SOPs)</option>
-            <option value="CHILD_LABOR">ពលកម្មកុមារ & ជួញដូរ</option>
             <option value="SAFETY">សុវត្ថិភាពការងារ & EHS</option>
-            <option value="TRAINING">បណ្តុះបណ្តាល & ហ្វឹកហ្វឺន</option>
+            <option value="HUMAN_RIGHTS">សិទ្ធិមនុស្ស & BSCI</option>
+            <option value="HR">ធនធានមនុស្ស & រដ្ឋបាល</option>
+            <option value="AUDIT">សវនកម្ម & អនុលោមភាព</option>
+            <option value="SECURITY">សន្តិសុខ & C-TPAT</option>
+            <option value="ENVIRONMENT">បរិស្ថាន & ZDHC</option>
             <option value="LEAVE">ច្បាប់ឈប់សម្រាក</option>
-            <option value="FOREIGN_WORKER">ពលករបរទេស & ចំណាកស្រុក</option>
+            <option value="GRIEVANCE">បណ្តឹងតវ៉ា & វិវាទ</option>
+            <option value="TRAINING">បណ្តុះបណ្តាល & ហ្វឹកហ្វឺន</option>
+            <option value="INTEGRITY">សុចរិតភាព & ក្រមសីលធម៌</option>
             <option value="MACHINERY">គ្រឿងចក្រ & ផលិតកម្ម</option>
             <option value="OUTSOURCE">អ្នកម៉ៅការបន្ត (Subcontractor)</option>
-            <option value="GRIEVANCE">វិវាទការងារ & កូដកម្ម</option>
-            <option value="ENVIRONMENT">បរិស្ថាន & កាកសំណល់ទឹក (ZDHC)</option>
-            <option value="HUMAN_RIGHTS">សិទ្ធិមនុស្សអន្តរជាតិ</option>
+            <option value="FOREIGN_WORKER">ពលករបរទេស & ចំណាកស្រុក</option>
+            <option value="CHILD_PROTECTION">ការពារកុមារ & សន្តិសុខ</option>
+            <option value="CHILD_LABOR">ពលកម្មកុមារ & ជួញដូរ</option>
           </select>
 
           <input
@@ -1650,6 +899,8 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
           </div>
         ))}
       </div>
+      </>
+      )}
 
       {/* MODAL 1: EDIT SOP CUSTOMIZER */}
       {editingSop && (

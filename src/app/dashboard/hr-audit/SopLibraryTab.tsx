@@ -219,6 +219,8 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
   // Modals state
   const [editingSop, setEditingSop] = useState<FactorySop | null>(null);
   const [previewSop, setPreviewSop] = useState<FactorySop | null>(null);
+  const [editingHeaderSop, setEditingHeaderSop] = useState<FactorySop | null>(null);
+  const [applySopHeaderToAll, setApplySopHeaderToAll] = useState<boolean>(false);
   const [previewLayoutMode, setPreviewLayoutMode] = useState<'1row' | 'paragraph'>('1row');
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [previewMultiPageMode, setPreviewMultiPageMode] = useState<'all' | 'single'>('all');
@@ -531,6 +533,50 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
     });
   };
 
+  const handleSaveQuickHeaderSop = () => {
+    if (!editingHeaderSop) return;
+
+    let updated: FactorySop[];
+    if (applySopHeaderToAll) {
+      updated = sops.map((s) => {
+        if (s.id === editingHeaderSop.id) {
+          return editingHeaderSop;
+        }
+        return {
+          ...s,
+          companyName: editingHeaderSop.companyName,
+          productType: editingHeaderSop.productType,
+          preparedBy: editingHeaderSop.preparedBy,
+          preparedRole: editingHeaderSop.preparedRole,
+          preparedDate: editingHeaderSop.preparedDate,
+          approvedBy: editingHeaderSop.approvedBy,
+          approvedRole: editingHeaderSop.approvedRole,
+          approvedDate: editingHeaderSop.approvedDate,
+          initialIssuedDate: editingHeaderSop.initialIssuedDate,
+          effectiveDate: editingHeaderSop.effectiveDate,
+          amendDate: editingHeaderSop.amendDate,
+        };
+      });
+    } else {
+      updated = sops.map((s) => (s.id === editingHeaderSop.id ? editingHeaderSop : s));
+    }
+
+    saveSops(updated);
+    if (previewSop && previewSop.id === editingHeaderSop.id) {
+      setPreviewSop(editingHeaderSop);
+    }
+    setEditingHeaderSop(null);
+    Swal.fire({
+      icon: 'success',
+      title: applySopHeaderToAll ? 'បានធ្វើបច្ចុប្បន្នភាពគ្រប់ SOP ទាំងអស់!' : 'បានធ្វើបច្ចុប្បន្នភាព!',
+      text: applySopHeaderToAll
+        ? 'ឈ្មោះរោងចក្រ ឈ្មោះហត្ថលេខី និងកាលបរិច្ឆេទ ត្រូវបានអនុវត្តចំពោះរាល់ SOP ទាំងអស់។'
+        : 'Doc No, ឈ្មោះហត្ថលេខី, ឈ្មោះរោងចក្រ និងកាលបរិច្ឆេទ ត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។',
+      timer: 1800,
+      showConfirmButton: false,
+    });
+  };
+
   // Replace company name across all text of this SOP
   const handleBatchReplaceCompany = (oldName: string, newName: string) => {
     if (!editingSop || !newName) return;
@@ -559,7 +605,9 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
         sop.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sop.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sop.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sop.productType.toLowerCase().includes(searchQuery.toLowerCase());
+        sop.productType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (sop.preparedBy && sop.preparedBy.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (sop.approvedBy && sop.approvedBy.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchCat && matchSearch;
     });
   }, [sops, selectedCategory, searchQuery]);
@@ -856,6 +904,28 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
 
               <div style={{ display: 'flex', gap: '4px' }}>
                 <button
+                  onClick={() => {
+                    setEditingHeaderSop({ ...sop });
+                    setApplySopHeaderToAll(false);
+                  }}
+                  style={{
+                    background: '#ecfdf5',
+                    color: '#047857',
+                    border: '1px solid #a7f3d0',
+                    padding: '5px 8px',
+                    borderRadius: '5px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                  }}
+                  title="កែប្រែឈ្មោះរោងចក្រ ឈ្មោះហត្ថលេខី និងកាលបរិច្ឆេទ"
+                >
+                  ✍️ កែប្រែឈ្មោះ
+                </button>
+                <button
                   onClick={() => handleOpenEditModal(sop)}
                   style={{
                     background: '#fef3c7',
@@ -1150,43 +1220,71 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                 </div>
               </div>
 
-              {/* Form Metadata Fields - Section 3: Approvals */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                <div>
-                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>រៀបចំដោយ (Prepared By):</label>
-                  <input
-                    type="text"
-                    value={editingSop.preparedBy}
-                    onChange={(e) => setEditingSop({ ...editingSop, preparedBy: e.target.value })}
-                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
-                  />
+              {/* Form Metadata Fields - Section 3: Approvals (Names, Roles, Dates) */}
+              <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#047857' }}>
+                  ✍️ ហត្ថលេខី និងតួនាទី (Signatory Names, Roles & Dates)
                 </div>
-                <div>
-                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>កាលបរិច្ឆេទរៀបចំ (Date):</label>
-                  <input
-                    type="text"
-                    value={editingSop.preparedDate}
-                    onChange={(e) => setEditingSop({ ...editingSop, preparedDate: e.target.value })}
-                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
-                  />
+                {/* 1. PREPARED BY */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 0.8fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>រៀបចំដោយ (Prepared By Name):</label>
+                    <input
+                      type="text"
+                      value={editingSop.preparedBy}
+                      onChange={(e) => setEditingSop({ ...editingSop, preparedBy: e.target.value })}
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>តួនាទីអ្នករៀបចំ (Prepared Role):</label>
+                    <input
+                      type="text"
+                      value={editingSop.preparedRole}
+                      onChange={(e) => setEditingSop({ ...editingSop, preparedRole: e.target.value })}
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>កាលបរិច្ឆេទ (Date):</label>
+                    <input
+                      type="text"
+                      value={editingSop.preparedDate}
+                      onChange={(e) => setEditingSop({ ...editingSop, preparedDate: e.target.value })}
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>អនុម័តដោយ (Approved By):</label>
-                  <input
-                    type="text"
-                    value={editingSop.approvedBy}
-                    onChange={(e) => setEditingSop({ ...editingSop, approvedBy: e.target.value })}
-                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.74rem', fontWeight: 700 }}>កាលបរិច្ឆេទអនុម័ត (Date):</label>
-                  <input
-                    type="text"
-                    value={editingSop.approvedDate}
-                    onChange={(e) => setEditingSop({ ...editingSop, approvedDate: e.target.value })}
-                    style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
-                  />
+
+                {/* 2. APPROVED BY */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 0.8fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>អនុម័តដោយ (Approved By Name):</label>
+                    <input
+                      type="text"
+                      value={editingSop.approvedBy}
+                      onChange={(e) => setEditingSop({ ...editingSop, approvedBy: e.target.value })}
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>តួនាទីអ្នកអនុម័ត (Approved Role):</label>
+                    <input
+                      type="text"
+                      value={editingSop.approvedRole}
+                      onChange={(e) => setEditingSop({ ...editingSop, approvedRole: e.target.value })}
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>កាលបរិច្ឆេទ (Date):</label>
+                    <input
+                      type="text"
+                      value={editingSop.approvedDate}
+                      onChange={(e) => setEditingSop({ ...editingSop, approvedDate: e.target.value })}
+                      style={{ width: '100%', padding: '5px 8px', borderRadius: '5px', border: '1px solid #cbd5e1', fontSize: '0.78rem', marginTop: '2px' }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1771,8 +1869,8 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
 
                 <button
                   onClick={() => {
-                    handleOpenEditModal(previewSop);
-                    setPreviewSop(null);
+                    setEditingHeaderSop({ ...previewSop });
+                    setApplySopHeaderToAll(false);
                   }}
                   style={{
                     background: '#047857',
@@ -1787,9 +1885,32 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                     alignItems: 'center',
                     gap: '4px',
                   }}
-                  title="កែប្រែ Doc No, Edition, Issued Date, Effective Date, Amend Date"
+                  title="កែប្រែឈ្មោះរោងចក្រ, ឈ្មោះហត្ថលេខី, Doc No, និងកាលបរិច្ឆេទ"
                 >
-                  ✏️ កែប្រែ Doc No & កាលបរិច្ឆេទ
+                  ✍️ កែប្រែឈ្មោះ & ក្រុមហ៊ុន
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleOpenEditModal(previewSop);
+                    setPreviewSop(null);
+                  }}
+                  style={{
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '5px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                  title="កែប្រែខ្លឹមសារ និងតារាង ១ជួរ ២ភាសា"
+                >
+                  📝 កែប្រែខ្លឹមសារ SOP
                 </button>
 
                 <button
@@ -2019,6 +2140,11 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                     </td>
 
                                     <td
+                                      onClick={() => {
+                                        setEditingHeaderSop({ ...previewSop });
+                                        setApplySopHeaderToAll(false);
+                                      }}
+                                      title="ចុចទីនេះដើម្បីកែប្រែឈ្មោះរោងចក្រ/ក្រុមហ៊ុន"
                                       style={{
                                         border: '1px solid #1e293b',
                                         padding: '8px 10px',
@@ -2026,6 +2152,7 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                         textAlign: 'center',
                                         verticalAlign: 'middle',
                                         background: '#ffffff',
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.3 }}>
@@ -2056,11 +2183,17 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                   {/* ROW 2: INITIAL ISSUED DATE | POLICY TITLE | EDITION */}
                                   <tr>
                                     <td
+                                      onClick={() => {
+                                        setEditingHeaderSop({ ...previewSop });
+                                        setApplySopHeaderToAll(false);
+                                      }}
+                                      title="ចុចទីនេះដើម្បីកែប្រែ Doc No, Edition, និងកាលបរិច្ឆេទ"
                                       style={{
                                         border: '1px solid #1e293b',
                                         padding: '6px 8px',
                                         verticalAlign: 'top',
                                         background: '#ffffff',
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទចេញដំបូង៖</div>
@@ -2093,11 +2226,17 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                     </td>
 
                                     <td
+                                      onClick={() => {
+                                        setEditingHeaderSop({ ...previewSop });
+                                        setApplySopHeaderToAll(false);
+                                      }}
+                                      title="ចុចទីនេះដើម្បីកែប្រែ Doc No, Edition, និងកាលបរិច្ឆេទ"
                                       style={{
                                         border: '1px solid #1e293b',
                                         padding: '6px 8px',
                                         verticalAlign: 'top',
                                         background: '#ffffff',
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
@@ -2110,11 +2249,17 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                   {/* ROW 3: AMEND DATE | EFFECTIVE DATE | DOCUMENT NO */}
                                   <tr>
                                     <td
+                                      onClick={() => {
+                                        setEditingHeaderSop({ ...previewSop });
+                                        setApplySopHeaderToAll(false);
+                                      }}
+                                      title="ចុចទីនេះដើម្បីកែប្រែ Doc No, Edition, និងកាលបរិច្ឆេទ"
                                       style={{
                                         border: '1px solid #1e293b',
                                         padding: '6px 8px',
                                         verticalAlign: 'top',
                                         background: '#ffffff',
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>កាលបរិច្ឆេទត្រូវពិនិត្យឡើងវិញ៖</div>
@@ -2125,12 +2270,18 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                     </td>
 
                                     <td
+                                      onClick={() => {
+                                        setEditingHeaderSop({ ...previewSop });
+                                        setApplySopHeaderToAll(false);
+                                      }}
+                                      title="ចុចទីនេះដើម្បីកែប្រែ Doc No, Edition, និងកាលបរិច្ឆេទ"
                                       style={{
                                         border: '1px solid #1e293b',
                                         padding: '6px 10px',
                                         textAlign: 'left',
                                         verticalAlign: 'top',
                                         background: '#ffffff',
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <div style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.76rem' }}>
@@ -2143,11 +2294,17 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                     </td>
 
                                     <td
+                                      onClick={() => {
+                                        setEditingHeaderSop({ ...previewSop });
+                                        setApplySopHeaderToAll(false);
+                                      }}
+                                      title="ចុចទីនេះដើម្បីកែប្រែ Doc No, Edition, និងកាលបរិច្ឆេទ"
                                       style={{
                                         border: '1px solid #1e293b',
                                         padding: '6px 8px',
                                         verticalAlign: 'middle',
                                         background: '#ffffff',
+                                        cursor: 'pointer',
                                       }}
                                     >
                                       <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.76rem' }}>
@@ -2156,8 +2313,15 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
                                     </td>
                                   </tr>
 
-                                  {/* ROW 4: PREPARED BY | STAMP | APPROVED BY */}
-                                  <tr>
+                                  {/* ROW 4: PREPARED BY | STAMP | APPROVED BY (CLICKABLE TO EDIT) */}
+                                  <tr
+                                    onClick={() => {
+                                      setEditingHeaderSop({ ...previewSop });
+                                      setApplySopHeaderToAll(false);
+                                    }}
+                                    title="ចុចទីនេះដើម្បីកែប្រែឈ្មោះ និងតួនាទីអ្នករៀបចំ និងអ្នកអនុម័ត"
+                                    style={{ cursor: 'pointer' }}
+                                  >
                                     <td
                                       style={{
                                         border: '1px solid #1e293b',
@@ -2457,6 +2621,333 @@ export default function SopLibraryTab({ handlePrintTemplate, handleExportPdf }: 
           </div>
         </div>
       )}
+
+      {/* QUICK HEADER & SIGNATORIES EDIT MODAL FOR SOP */}
+      {editingHeaderSop && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.75)',
+            zIndex: 10000,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+            overflowY: 'auto',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '95%',
+              maxWidth: '680px',
+              maxHeight: '94vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                padding: '14px 20px',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: '#f8fafc',
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+                  ✍️ កែប្រែឈ្មោះរោងចក្រ & ហត្ថលេខី SOP: {editingHeaderSop.code}
+                </h3>
+                <span style={{ fontSize: '0.74rem', color: '#64748b' }}>
+                  កំណត់ឈ្មោះក្រុមហ៊ុន និងឈ្មោះអ្នកចុះហត្ថលេខាឱ្យត្រូវតាមរោងចក្រជាក់ស្តែង
+                </span>
+              </div>
+              <button
+                onClick={() => setEditingHeaderSop(null)}
+                style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', color: '#64748b' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ padding: '20px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* COMPANY NAME & PRODUCT */}
+              <div style={{ background: '#eff6ff', padding: '12px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', display: 'block', marginBottom: '4px' }}>
+                      🏢 ឈ្មោះក្រុមហ៊ុន / រោងចក្រ (Factory / Company Name):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.companyName}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, companyName: e.target.value })}
+                      placeholder="e.g. G.S.textileGarment(Cambodia) co.,Ltd"
+                      style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #93c5fd', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', display: 'block', marginBottom: '4px' }}>
+                      🏭 ប្រភេទផលិតផល (Product Type):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.productType}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, productType: e.target.value })}
+                      placeholder="e.g. Garment & Textile Products"
+                      style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #93c5fd', borderRadius: '6px', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DOCUMENT DETAILS */}
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#334155', marginBottom: '8px' }}>
+                  📄 លេខកូដឯកសារ និងកាលបរិច្ឆេទ (Doc No & Dates)
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '2px' }}>
+                      Doc No:
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.code}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, code: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.8rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '2px' }}>
+                      Edition:
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.edition}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, edition: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.8rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '2px' }}>
+                      Page Info:
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.pageInfo}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, pageInfo: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.8rem' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '2px' }}>
+                      ចេញដំបូង (Issued):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.initialIssuedDate || '10-11-2023'}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, initialIssuedDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.8rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '2px' }}>
+                      ចូលជាធរមាន (Effective):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.effectiveDate || '11-11-2024'}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, effectiveDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.8rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '2px' }}>
+                      កែប្រែ/ពិនិត្យ (Amend):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.amendDate || '10-10-2025'}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, amendDate: e.target.value })}
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.8rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SIGNATORIES: PREPARED BY & APPROVED BY */}
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#047857', marginBottom: '8px' }}>
+                  ✍️ ឈ្មោះហត្ថលេខី និងតួនាទី (Signatory Names & Roles)
+                </div>
+
+                {/* 1. PREPARED BY */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 0.8fr', gap: '8px', marginBottom: '10px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      ឈ្មោះអ្នករៀបចំ (Prepared By Name):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.preparedBy}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, preparedBy: e.target.value })}
+                      placeholder="e.g. Mr. CHAN PHEARUM"
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      តួនាទីអ្នករៀបចំ (Prepared Role):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.preparedRole}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, preparedRole: e.target.value })}
+                      placeholder="e.g. ប្រធានរដ្ឋបាល/ធនធានមនុស្ស HR/Admin Manager"
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      កាលបរិច្ឆេទ (Date):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.preparedDate}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, preparedDate: e.target.value })}
+                      placeholder="e.g. 01-11-2024"
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                </div>
+
+                {/* 2. APPROVED BY */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 0.8fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      ឈ្មោះអ្នកអនុម័ត (Approved By Name):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.approvedBy}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, approvedBy: e.target.value })}
+                      placeholder="e.g. Mr. CHEN LANMAO"
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      តួនាទីអ្នកអនុម័ត (Approved Role):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.approvedRole}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, approvedRole: e.target.value })}
+                      placeholder="e.g. នាយកក្រុមហ៊ុន General Manager"
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }}>
+                      កាលបរិច្ឆេទ (Date):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHeaderSop.approvedDate}
+                      onChange={(e) => setEditingHeaderSop({ ...editingHeaderSop, approvedDate: e.target.value })}
+                      placeholder="e.g. 11-11-2024"
+                      style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '5px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* BATCH APPLY CHECKBOX */}
+              <div
+                style={{
+                  background: '#fef3c7',
+                  border: '1px solid #fde68a',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="applySopHeaderAllCheckbox"
+                  checked={applySopHeaderToAll}
+                  onChange={(e) => setApplySopHeaderToAll(e.target.checked)}
+                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                <label
+                  htmlFor="applySopHeaderAllCheckbox"
+                  style={{ fontSize: '0.78rem', fontWeight: 700, color: '#92400e', cursor: 'pointer' }}
+                >
+                  ⚡ អនុវត្តឈ្មោះរោងចក្រ ឈ្មោះហត្ថលេខី (រៀបចំ/អនុម័ត) និងកាលបរិច្ឆេទនេះ ទៅកាន់រាល់ SOP ទាំងអស់ (Apply to all 64 SOPs)
+                </label>
+              </div>
+            </div>
+
+            <div
+              style={{
+                padding: '12px 20px',
+                borderTop: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '8px',
+                background: '#f8fafc',
+              }}
+            >
+              <button
+                onClick={() => setEditingHeaderSop(null)}
+                style={{
+                  padding: '7px 14px',
+                  background: '#e2e8f0',
+                  color: '#475569',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                បោះបង់ (Cancel)
+              </button>
+              <button
+                onClick={handleSaveQuickHeaderSop}
+                style={{
+                  padding: '7px 18px',
+                  background: '#047857',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                💾 រក្សាទុក (Save Changes)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

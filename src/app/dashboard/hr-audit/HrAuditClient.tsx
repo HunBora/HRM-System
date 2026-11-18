@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
+import { runAutomatedDataAudit, AutoAuditReport, AutoAuditIssue } from './actions';
 
 interface ChecklistItem {
   id: string;
@@ -312,25 +313,52 @@ const INITIAL_CAPS: CapItem[] = [
     deadline: '2026-12-20',
     status: 'OPEN',
   },
+];
+
+const LABOR_LAW_ARTICLES = [
   {
-    id: 'cap-3',
-    code: 'CAP-2026-003',
-    category: '៤. គ្រប់គ្រងសមិទ្ធកម្ម',
-    finding: 'ទម្រង់ផែនការកែលម្អការងារ (PIP Form) មិនទាន់មានលក្ខណៈស្តង់ដា',
-    risk: 'MEDIUM',
-    action: 'ធ្វើបច្ចុប្បន្នភាពទម្រង់ PIP ដោយដាក់បញ្ចូលគោលដៅ SMART និងកាលវិភាគ Follow-up',
-    pic: 'កញ្ញា ម៉ៅ សុភា (HR Manager)',
-    deadline: '2026-11-30',
-    status: 'IN_PROGRESS',
+    article: 'មាត្រា ៦៧ & ៧៣',
+    topic: 'កិច្ចសន្យាកំណត់ថិរវេលា (FDC Contract)',
+    lawText: 'កិច្ចសន្យាការងារមានថិរវេលាកំណត់ (FDC) អាចបន្តបានម្តង ឬច្រើនដង ប៉ុន្តែថិរវេលាសរុបមិនត្រូវលើសពី ២ ឆ្នាំ (២៤ ខែ) ឡើយ។ ប្រសិនបើបន្តលើសពី ២ ឆ្នាំ កិច្ចសន្យានេះនឹងក្លាយជាកិច្ចសន្យាមិនកំណត់ថិរវេលា (UDC) ដោយស្វ័យប្រវត្តិ។',
+    keyPoint: 'ហានិភ័យ៖ បើបុគ្គលិកធ្វើការលើស ២ ឆ្នាំ និយោជកមិនអាចបញ្ចប់កិច្ចសន្យាដោយមិនទូទាត់សំណងជំងឺចិត្ត និងប្រាក់ដំណាច់តាមច្បាប់ UDC បានឡើយ។',
+  },
+  {
+    article: 'មាត្រា ៨៩ & ប្រកាស ៤៤៣',
+    topic: 'ប្រាក់រំលឹកអតីតភាពការងារ (Seniority Indemnity)',
+    lawText: 'និយោជកត្រូវទូទាត់ប្រាក់រំលឹកអតីតភាពការងារចំនួន ១៥ ថ្ងៃនៃប្រាក់ឈ្នួល និងអត្ថប្រយោជន៍ផ្សេងៗក្នុងមួយឆ្នាំ សម្រាប់បុគ្គលិកដែលមានកិច្ចសន្យា UDC ដោយបែងចែកជា ២ ដងក្នុងមួយឆ្នាំ (៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ)។',
+    keyPoint: 'ហានិភ័យ៖ ការខកខានមិនបានទូទាត់ទាន់ពេលវេលា អាចប្រឈមនឹងការពិន័យអន្តរកាលពីអធិការការងារ។',
+  },
+  {
+    article: 'មាត្រា ១៣៧ & ១៣៩',
+    topic: 'ម៉ោងការងារធម្មតា និងការថែមម៉ោង (Working Hours & OT)',
+    lawText: 'ម៉ោងធ្វើការធម្មតាមិនត្រូវលើសពី ៨ ម៉ោងក្នុងមួយថ្ងៃ ឬ ៤៨ ម៉ោងក្នុងមួយសប្តាហ៍។ ការថែមម៉ោងបន្ទាន់ត្រូវធ្វើឡើងដោយស្ម័គ្រចិត្ត និងមិនឱ្យលើសពី ២ ម៉ោងក្នុងមួយថ្ងៃ។ ប្រាក់ឈ្នួលថែមម៉ោងត្រូវគណនាអត្រា ១៥០% (ថ្ងៃធម្មតា), ២០០% (ថ្ងៃអាទិត្យ/បុណ្យ), និងបន្ថែមប្រាក់ឧបត្ថម្ភពេលយប់។',
+    keyPoint: 'ហានិភ័យ៖ ការបង្ខិតបង្ខំបុគ្គលិកឱ្យថែមម៉ោង ឬធ្វើលើស ២ ម៉ោង/ថ្ងៃ គឺជាអំពើល្មើសច្បាប់ការងារធ្ងន់ធ្ងរ។',
+  },
+  {
+    article: 'មាត្រា ២៦១',
+    topic: 'ការប្រើប្រាស់កម្លាំងពលករបរទេស (Foreign Workers)',
+    lawText: 'ជនបរទេសណាដែលគ្មានប័ណ្ណការងារ និងសៀវភៅការងារដែលចេញដោយក្រសួងការងារ មិនអាចត្រូវបានជួលឱ្យធ្វើការបានឡើយ។ សហគ្រាសត្រូវស្នើសុំកូតាប្រើប្រាស់ពលករបរទេស (មិនឱ្យលើសពី ១០% នៃកម្លាំងពលកម្មខ្មែរ)។',
+    keyPoint: 'ហានិភ័យ៖ ការជួលជនបរទេសគ្មានប័ណ្ណការងារ ប្រឈមនឹងការផាកពិន័យពី ៦១ ទៅ ៩០ ថ្ងៃនៃប្រាក់ចំណូលមូលដ្ឋាន និងការបណ្តេញចេញពីប្រទេស។',
+  },
+  {
+    article: 'ច្បាប់ ប.ស.ស. មាត្រា ៧',
+    topic: 'កាតព្វកិច្ចចុះបញ្ជីបុគ្គលិកនៅ ប.ស.ស. (NSSF Obligations)',
+    lawText: 'ម្ចាស់សហគ្រាសត្រូវចុះបញ្ជីបុគ្គលិកទាំងអស់ (ទាំងខ្មែរ និងបរទេស ទាំងសាកល្បង និងពេញសិទ្ធិ) នៅ ប.ស.ស. ក្នុងរយៈពេលយ៉ាងយូរ ៣០ ថ្ងៃ គិតចាប់ពីថ្ងៃចូលបម្រើការងារ។ ត្រូវបង់ភាគទានរបបហានិភ័យការងារ ថែទាំសុខភាព និងប្រាក់សោធនទៀងទាត់។',
+    keyPoint: 'ហានិភ័យ៖ និយោជកដែលមិនចុះបញ្ជី ប.ស.ស. ត្រូវទទួលខុសត្រូវរាល់ការចំណាយលើការព្យាបាល និងសំណងគ្រោះថ្នាក់ការងារជំនួស ប.ស.ស. ទាំងស្រុង។',
   },
 ];
 
 export default function HrAuditClient({ userRole }: { userRole: string }) {
-  const [activeTab, setActiveTab] = useState<'handbook' | 'checklists' | 'cap' | 'templates'>('handbook');
+  const [activeTab, setActiveTab] = useState<'scan' | 'handbook' | 'checklists' | 'cap' | 'law' | 'templates'>('scan');
   const [checklists, setChecklists] = useState<ChecklistItem[]>(INITIAL_CHECKLISTS);
   const [caps, setCaps] = useState<CapItem[]>(INITIAL_CAPS);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [lawSearchQuery, setLawSearchQuery] = useState<string>('');
+
+  // Auto Audit State
+  const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [autoReport, setAutoReport] = useState<AutoAuditReport | null>(null);
 
   // LocalStorage sync
   useEffect(() => {
@@ -353,6 +381,58 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
   const saveCaps = (items: CapItem[]) => {
     setCaps(items);
     localStorage.setItem('hrm_audit_caps', JSON.stringify(items));
+  };
+
+  // Run Real-time Automated Data Audit Scan
+  const handleRunAutoAudit = async () => {
+    setIsScanning(true);
+    try {
+      const res = await runAutomatedDataAudit();
+      if (res.success && res.report) {
+        setAutoReport(res.report);
+        Swal.fire({
+          icon: 'success',
+          title: 'ស្កេនទិន្នន័យជោគជ័យ!',
+          text: `បានស្កេនបុគ្គលិក ${res.report.totalEmployeesScanned} នាក់ និងកិច្ចសន្យា ${res.report.totalContractsScanned}។ រកឃើញហានិភ័យខ្ពស់ ${res.report.highRiskCount} ចំណុច។`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'បរាជ័យក្នុងការស្កេន',
+          text: res.error || 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យ',
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({ icon: 'error', title: 'កំហុសបច្ចេកទេស', text: err.message });
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Convert an auto-detected issue into a CAP Item
+  const handleConvertIssueToCap = (issue: AutoAuditIssue) => {
+    const newCap: CapItem = {
+      id: 'cap-' + Date.now(),
+      code: `CAP-${new Date().getFullYear()}-${String(caps.length + 1).padStart(3, '0')}`,
+      category: issue.categoryKh,
+      finding: `${issue.titleKh}: ${issue.descriptionKh}`,
+      risk: issue.severity,
+      action: issue.recommendedActionKh,
+      pic: 'HR Officer',
+      deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      status: 'OPEN',
+    };
+
+    saveCaps([newCap, ...caps]);
+    Swal.fire({
+      icon: 'success',
+      title: 'បានបញ្ចូលទៅក្នុង CAP!',
+      text: `លេខកូដសកម្មភាពថ្មី៖ ${newCap.code}`,
+      timer: 1600,
+      showConfirmButton: false,
+    });
   };
 
   // Metrics
@@ -510,6 +590,17 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
     });
   }, [checklists, selectedCategory, searchQuery]);
 
+  // Filter Labor Laws
+  const filteredLaws = useMemo(() => {
+    return LABOR_LAW_ARTICLES.filter((law) => {
+      return (
+        law.article.toLowerCase().includes(lawSearchQuery.toLowerCase()) ||
+        law.topic.toLowerCase().includes(lawSearchQuery.toLowerCase()) ||
+        law.lawText.toLowerCase().includes(lawSearchQuery.toLowerCase())
+      );
+    });
+  }, [lawSearchQuery]);
+
   return (
     <div style={{ padding: '24px 20px', minHeight: '100vh', background: '#f8fafc', color: '#0f172a' }}>
       {/* Top Banner & Header */}
@@ -532,7 +623,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
             <span style={{ fontSize: '1.8rem' }}>📋</span>
             <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
-              សវនកម្មធនធានមនុស្ស & អនុលោមភាព (HR Audit & Compliance)
+              សវនកម្មធនធានមនុស្ស & ច្បាប់ការងារ (HR Audit & Labor Compliance)
             </h1>
             <span
               style={{
@@ -545,15 +636,35 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                 border: '1px solid rgba(56, 189, 248, 0.4)',
               }}
             >
-              MHRM Standard v2.0
+              Enterprise v2.5
             </span>
           </div>
-          <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.9rem', maxWidth: '750px' }}>
-            សៀវភៅណែនាំសវនកម្មស្តង់ដា, តារាងផ្ទៀងផ្ទាត់អនុលោមភាពច្បាប់ការងារកម្ពុជា (MLVT/NSSF) និងការគ្រប់គ្រងផែនការកែលម្អ (CAP)
+          <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.9rem', maxWidth: '800px' }}>
+            ប្រព័ន្ធស្កេនទិន្នន័យស្វ័យប្រវត្ត (Auto-Audit Scan), សៀវភៅណែនាំសវនកម្ម, បណ្ណាល័យច្បាប់ការងារ និងការគ្រប់គ្រងផែនការកែលម្អ (CAP)
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={handleRunAutoAudit}
+            disabled={isScanning}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '9px 16px',
+              borderRadius: '8px',
+              background: isScanning ? '#64748b' : '#38bdf8',
+              color: '#0f172a',
+              border: 'none',
+              cursor: isScanning ? 'not-allowed' : 'pointer',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+              boxShadow: '0 2px 8px rgba(56, 189, 248, 0.3)',
+            }}
+          >
+            {isScanning ? '⏳ កំពុងស្កេន...' : '⚡ ស្កេនទិន្នន័យផ្ទាល់ (Auto-Audit)'}
+          </button>
           <button
             onClick={() => window.print()}
             style={{
@@ -568,10 +679,9 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               cursor: 'pointer',
               fontWeight: 600,
               fontSize: '0.85rem',
-              transition: 'all 0.2s',
             }}
           >
-            🖨️ បោះពុម្ពរបាយការណ៍ (Print Report)
+            🖨️ បោះពុម្ព (Print)
           </button>
         </div>
       </div>
@@ -594,7 +704,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
-          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ពិន្ទុអនុលោមភាពសរុប (Compliance Score)</div>
+          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ពិន្ទុអនុលោមភាពទូទៅ (Compliance Score)</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
             <span
               style={{
@@ -620,11 +730,20 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           }}
         >
-          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ស្ថានភាពផ្ទៀងផ្ទាត់ (Verification Status)</div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '10px', fontSize: '0.85rem' }}>
-            <span style={{ color: '#16a34a', fontWeight: 700 }}>🟢 {stats.compliant} អនុលោម</span>
-            <span style={{ color: '#d97706', fontWeight: 700 }}>🟡 {stats.partial} ដោយផ្នែក</span>
-            <span style={{ color: '#dc2626', fontWeight: 700 }}>🔴 {stats.nonCompliant} មិនអនុលោម</span>
+          <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>លទ្ធផល Auto-Audit ស្កេនទិន្នន័យ</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
+            <span
+              style={{
+                fontSize: '2rem',
+                fontWeight: 900,
+                color: autoReport ? (autoReport.healthScore >= 80 ? '#16a34a' : '#dc2626') : '#64748b',
+              }}
+            >
+              {autoReport ? `${autoReport.healthScore}%` : 'មិនទាន់ស្កេន'}
+            </span>
+            <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
+              {autoReport ? `រកឃើញ ${autoReport.issues.length} បញ្ហា` : 'ចុចប៊ូតុងស្កេនខាងលើ'}
+            </span>
           </div>
         </div>
 
@@ -639,10 +758,17 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         >
           <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ហានិភ័យច្បាប់ខ្ពស់ (High Risk Gaps)</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
-            <span style={{ fontSize: '2rem', fontWeight: 900, color: stats.highRiskIssues > 0 ? '#dc2626' : '#16a34a' }}>
-              {stats.highRiskIssues}
+            <span
+              style={{
+                fontSize: '2rem',
+                fontWeight: 900,
+                color:
+                  (autoReport ? autoReport.highRiskCount : stats.highRiskIssues) > 0 ? '#dc2626' : '#16a34a',
+              }}
+            >
+              {autoReport ? autoReport.highRiskCount : stats.highRiskIssues}
             </span>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>ចំណុចប្រឈមច្បាប់</span>
+            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>ចំណុចប្រឈមច្បាប់ការងារ</span>
           </div>
         </div>
 
@@ -657,8 +783,8 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         >
           <div style={{ color: '#64748b', fontSize: '0.82rem', fontWeight: 600 }}>ផែនការកែលម្អ (CAP Action Items)</div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '10px', fontSize: '0.85rem' }}>
-            <span style={{ color: '#dc2626', fontWeight: 700 }}>⏳ {stats.openCaps} កំពុងរង់ចាំ</span>
-            <span style={{ color: '#2563eb', fontWeight: 700 }}>🔄 {stats.inProgressCaps} កំពុងដោះស្រាយ</span>
+            <span style={{ color: '#dc2626', fontWeight: 700 }}>⏳ {stats.openCaps} រង់ចាំ</span>
+            <span style={{ color: '#2563eb', fontWeight: 700 }}>🔄 {stats.inProgressCaps} កំពុងធ្វើ</span>
             <span style={{ color: '#16a34a', fontWeight: 700 }}>✅ {stats.closedCaps} រួចរាល់</span>
           </div>
         </div>
@@ -671,13 +797,16 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
           borderBottom: '2px solid #e2e8f0',
           gap: '8px',
           marginBottom: '20px',
+          overflowX: 'auto',
         }}
       >
         {[
+          { key: 'scan', labelKh: '⚡ ម៉ាស៊ីនស្កេនទិន្នន័យ (Auto-Audit Scan)', count: autoReport ? autoReport.issues.length : null },
           { key: 'handbook', labelKh: '📖 សៀវភៅណែនាំសវនកម្ម (Handbook)', count: null },
-          { key: 'checklists', labelKh: '📋 តារាងត្រួតពិនិត្យអន្តរកម្ម (Audit Matrix)', count: checklists.length },
-          { key: 'cap', labelKh: '🎯 ផែនការសកម្មភាពកែលម្អ (CAP Tracker)', count: caps.length },
-          { key: 'templates', labelKh: '📁 ទម្រង់គំរូទាញយក (Templates & Forms)', count: 5 },
+          { key: 'checklists', labelKh: '📋 តារាងត្រួតពិនិត្យ ៩ ផ្នែក (Checklists)', count: checklists.length },
+          { key: 'cap', labelKh: '🎯 ផែនការកែលម្អ (CAP Tracker)', count: caps.length },
+          { key: 'law', labelKh: '📚 បណ្ណាល័យច្បាប់ការងារ (Labor Law Library)', count: LABOR_LAW_ARTICLES.length },
+          { key: 'templates', labelKh: '📁 ទម្រង់គំរូទាញយក (Templates)', count: 5 },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -687,13 +816,14 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               border: 'none',
               background: 'none',
               fontWeight: activeTab === tab.key ? 800 : 600,
-              fontSize: '0.92rem',
+              fontSize: '0.9rem',
               color: activeTab === tab.key ? '#1e40af' : '#64748b',
               borderBottom: activeTab === tab.key ? '3px solid #1e40af' : '3px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
+              whiteSpace: 'nowrap',
               transition: 'all 0.2s ease',
             }}
           >
@@ -716,10 +846,334 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         ))}
       </div>
 
-      {/* TAB 1: HANDBOOK */}
+      {/* TAB: AUTO-AUDIT SCAN */}
+      {activeTab === 'scan' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '14px',
+              border: '1px solid #e2e8f0',
+              padding: '24px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '16px',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.4rem' }}>⚡</span>
+                <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+                  ការស្កេនទិន្នន័យជាក់ស្តែងតាមប្រព័ន្ធ (Automated Labor Compliance Scan)
+                </h2>
+              </div>
+              <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+                ម៉ាស៊ីនស្កេននេះដំណើរការ Query ផ្ទាល់ទៅកាន់ Database ស្វែងរកកិច្ចសន្យា FDC លើស ២ ឆ្នាំ, បុគ្គលិកខ្វះកាត ប.ស.ស., ប័ណ្ណការងារជនបរទេសផុតកំណត់ និងការថែមម៉ោងខុសច្បាប់។
+              </p>
+            </div>
+
+            <button
+              onClick={handleRunAutoAudit}
+              disabled={isScanning}
+              style={{
+                background: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: isScanning ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 10px rgba(37, 99, 235, 0.25)',
+              }}
+            >
+              {isScanning ? '⏳ កំពុងដំណើរការស្កេន...' : '🚀 ចាប់ផ្តើមស្កេនឥឡូវនេះ (Run Scan)'}
+            </button>
+          </div>
+
+          {!autoReport ? (
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '14px',
+                border: '1px dashed #cbd5e1',
+                padding: '48px 24px',
+                textAlign: 'center',
+                color: '#64748b',
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔍</div>
+              <h3 style={{ margin: 0, color: '#0f172a', fontWeight: 800 }}>មិនទាន់មានលទ្ធផលស្កេនទិន្នន័យនៅឡើយទេ</h3>
+              <p style={{ margin: '8px 0 20px', fontSize: '0.9rem' }}>
+                សូមចុចប៊ូតុង "ចាប់ផ្តើមស្កេនឥឡូវនេះ" ដើម្បីឱ្យប្រព័ន្ធស្កេនសំណុំឯកសារបុគ្គលិក កិច្ចសន្យា និងកំណត់ត្រា OT ក្នុង Database ជាក់ស្តែង។
+              </p>
+              <button
+                onClick={handleRunAutoAudit}
+                style={{
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                }}
+              >
+                ⚡ ដំណើរការស្កេនទិន្នន័យ
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Scan Summary Card */}
+              <div
+                style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '16px 20px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ fontSize: '0.85rem', color: '#475569' }}>
+                  កាលបរិច្ឆេទស្កេនចុងក្រោយ៖ <strong>{new Date(autoReport.scannedAt).toLocaleString()}</strong> | បានស្កេនបុគ្គលិក៖{' '}
+                  <strong>{autoReport.totalEmployeesScanned} នាក់</strong> | កិច្ចសន្យា៖{' '}
+                  <strong>{autoReport.totalContractsScanned}</strong> | កំណត់ត្រា OT៖{' '}
+                  <strong>{autoReport.totalOtScanned}</strong>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <span style={{ background: '#fee2e2', color: '#991b1b', padding: '4px 10px', borderRadius: '12px', fontSize: '0.78rem', fontWeight: 800 }}>
+                    🔴 ហានិភ័យខ្ពស់៖ {autoReport.highRiskCount}
+                  </span>
+                  <span style={{ background: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '12px', fontSize: '0.78rem', fontWeight: 800 }}>
+                    🟡 ហានិភ័យមធ្យម៖ {autoReport.mediumRiskCount}
+                  </span>
+                </div>
+              </div>
+
+              {/* Issues List */}
+              {autoReport.issues.length === 0 ? (
+                <div
+                  style={{
+                    background: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: '12px',
+                    padding: '30px',
+                    textAlign: 'center',
+                    color: '#166534',
+                  }}
+                >
+                  <h3>🎉 អបអរសាទរ! មិនមានរកឃើញបញ្ហាប្រឈមច្បាប់ការងារឡើយ</h3>
+                  <p>ទិន្នន័យបុគ្គលិក កិច្ចសន្យា ប.ស.ស. និងម៉ោងធ្វើការអនុលោមតាមច្បាប់ការងារយ៉ាងល្អប្រសើរ។</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {autoReport.issues.map((issue) => (
+                    <div
+                      key={issue.id}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderLeft: `5px solid ${issue.severity === 'HIGH' ? '#dc2626' : issue.severity === 'MEDIUM' ? '#f59e0b' : '#3b82f6'}`,
+                        borderRadius: '10px',
+                        padding: '18px 20px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        flexWrap: 'wrap',
+                        gap: '16px',
+                      }}
+                    >
+                      <div style={{ flex: '1 1 500px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                          <span
+                            style={{
+                              background: issue.severity === 'HIGH' ? '#fee2e2' : '#fef3c7',
+                              color: issue.severity === 'HIGH' ? '#991b1b' : '#92400e',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 800,
+                            }}
+                          >
+                            {issue.severity} RISK
+                          </span>
+                          <span style={{ fontSize: '0.78rem', color: '#3b82f6', fontWeight: 700 }}>
+                            {issue.categoryKh}
+                          </span>
+                        </div>
+
+                        <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a', marginBottom: '4px' }}>
+                          {issue.titleKh}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '10px', lineHeight: '1.5' }}>
+                          {issue.descriptionKh}
+                        </div>
+
+                        <div
+                          style={{
+                            background: '#f8fafc',
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            border: '1px solid #f1f5f9',
+                            fontSize: '0.8rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px',
+                          }}
+                        >
+                          <div style={{ color: '#166534', fontWeight: 700 }}>
+                            💡 ដំណោះស្រាយណែនាំ៖ {issue.recommendedActionKh}
+                          </div>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem' }}>
+                            ⚖️ យោងច្បាប់៖ {issue.legalReferenceKh}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+                        <button
+                          onClick={() => handleConvertIssueToCap(issue)}
+                          style={{
+                            background: '#2563eb',
+                            color: '#ffffff',
+                            border: 'none',
+                            padding: '8px 14px',
+                            borderRadius: '6px',
+                            fontWeight: 700,
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          ➕ បញ្ចូលទៅ CAP (Fix Gap)
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: LABOR LAW & LEGAL LIBRARY */}
+      {activeTab === 'law' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              padding: '18px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+            }}
+          >
+            <div>
+              <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+                📚 បណ្ណាល័យច្បាប់ការងារ និងប្រកាសផ្លូវការ (Cambodia Labor Law Library)
+              </h2>
+              <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.85rem' }}>
+                មាត្រាគន្លឹះនៃច្បាប់ស្តីពីការងារនៃព្រះរាជាណាចក្រកម្ពុជា, ប្រកាសលេខ ៤៤៣, និងច្បាប់ស្តីពីរបបសន្តិសុខសង្គម
+              </p>
+            </div>
+
+            <input
+              type="text"
+              value={lawSearchQuery}
+              onChange={(e) => setLawSearchQuery(e.target.value)}
+              placeholder="ស្វែងរកតាមមាត្រា ឬប្រធានបទ..."
+              style={{
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.85rem',
+                minWidth: '260px',
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
+            {filteredLaws.map((law, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: '#ffffff',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span
+                      style={{
+                        background: '#dbeafe',
+                        color: '#1e40af',
+                        padding: '3px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                      }}
+                    >
+                      {law.article}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>MLVT Labor Code</span>
+                  </div>
+
+                  <h3 style={{ margin: '4px 0 10px', fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>
+                    {law.topic}
+                  </h3>
+
+                  <p style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.6', marginBottom: '14px' }}>
+                    {law.lawText}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    background: '#fef2f2',
+                    border: '1px solid #fee2e2',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    fontSize: '0.78rem',
+                    color: '#991b1b',
+                    lineHeight: '1.4',
+                  }}
+                >
+                  ⚠️ <strong>ការអនុវត្ត និងហានិភ័យ៖</strong> {law.keyPoint}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB: HANDBOOK */}
       {activeTab === 'handbook' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Card: Guide Overview */}
           <div
             style={{
               background: '#ffffff',
@@ -763,7 +1217,6 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             </div>
           </div>
 
-          {/* Card: 5-Stage Audit Methodology */}
           <div
             style={{
               background: '#ffffff',
@@ -835,80 +1288,12 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
               ))}
             </div>
           </div>
-
-          {/* Card: 9 Standard Audit Domains */}
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: '14px',
-              border: '1px solid #e2e8f0',
-              padding: '28px',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '1.6rem' }}>🗂️</span>
-              <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
-                ៣. ជំពូកសវនកម្មទាំង ៩ ផ្នែក (The 9 Audit Domains)
-              </h2>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
-              {[
-                { no: '១', title: 'Compliance Audit', kh: 'អនុលោមភាពច្បាប់ការងារ បទបញ្ជាផ្ទៃក្នុង និង ប.ស.ស.' },
-                { no: '២', title: 'Recruitment & Hiring', kh: 'ការជ្រើសរើស សម្ភាសន៍ និងការបញ្ជាក់ប្រវត្តិរូបបេក្ខជន' },
-                { no: '៣', title: 'Compensation & Benefits', kh: 'ប្រាក់ឈ្នួលអប្បបរមា ប្រាក់រំលឹកអតីតភាព និងការថែមម៉ោង OT' },
-                { no: '៤', title: 'Performance Management', kh: 'ការវាយតម្លៃសមិទ្ធកម្មការងារ ៣៦០ ដឺក្រេ និងផែនការ PIP' },
-                { no: '៥', title: 'Employee Relations', kh: 'នីតិវិធីដោះស្រាយបណ្តឹងតវ៉ា និងការសម្ភាសន៍ចាកចេញ (Exit)' },
-                { no: '៦', title: 'Training & Development', kh: 'សមាហរណកម្មបុគ្គលិកថ្មី (Onboarding) និងការបណ្តុះបណ្តាល' },
-                { no: '៧', title: 'HR Policies & SOPs', kh: 'សៀវភៅបុគ្គលិក និងការការពារទិន្នន័យសម្ងាត់ (Data Privacy)' },
-                { no: '៨', title: 'Health & Safety (EHS)', kh: 'ស្តង់ដាសុវត្ថិភាពការងារ គ្លីនិក និងការហាត់សមអគ្គិភ័យ' },
-                { no: '៩', title: 'Diversity, Equity & Inclusion', kh: 'សមធម៌ និងការទប់ស្កាត់ការបៀតបៀននៅកន្លែងធ្វើការ' },
-              ].map((domain, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '12px',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    background: '#f8fafc',
-                    border: '1px solid #f1f5f9',
-                  }}
-                >
-                  <div
-                    style={{
-                      background: '#1e3a8a',
-                      color: '#ffffff',
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: '0.8rem',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {domain.no}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>{domain.title}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{domain.kh}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
-      {/* TAB 2: INTERACTIVE CHECKLIST MATRIX */}
+      {/* TAB: CHECKLIST MATRIX */}
       {activeTab === 'checklists' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Controls Bar */}
           <div
             style={{
               background: '#ffffff',
@@ -969,7 +1354,6 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             </div>
           </div>
 
-          {/* Checklist Table */}
           <div
             style={{
               background: '#ffffff',
@@ -1100,10 +1484,9 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         </div>
       )}
 
-      {/* TAB 3: CORRECTIVE ACTION PLAN (CAP TRACKER) */}
+      {/* TAB: CAP */}
       {activeTab === 'cap' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Header Action Bar */}
           <div
             style={{
               background: '#ffffff',
@@ -1145,7 +1528,6 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
             </button>
           </div>
 
-          {/* CAP Table */}
           <div
             style={{
               background: '#ffffff',
@@ -1255,7 +1637,7 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
         </div>
       )}
 
-      {/* TAB 4: TEMPLATES & RESOURCES */}
+      {/* TAB: TEMPLATES */}
       {activeTab === 'templates' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
           {[

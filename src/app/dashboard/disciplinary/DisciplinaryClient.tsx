@@ -85,13 +85,13 @@ const ACTION_TYPES: Record<string, { labelKh: string; labelEn: string; labelZh: 
   }
 };
 
-const REASON_TYPES: Record<string, { labelKh: string; labelEn: string }> = {
-  ATTENDANCE: { labelKh: 'អវត្តមាន/មកយឺតញឹកញាប់', labelEn: 'Attendance / Tardiness' },
-  MISCONDUCT: { labelKh: 'កំហុសប្រព្រឹត្តមិនគប្បី', labelEn: 'Misconduct / Insubordination' },
-  NEGLIGENCE: { labelKh: 'ការធ្វេសប្រហែសក្នុងភារកិច្ច', labelEn: 'Gross Negligence' },
-  POLICY_VIOLATION: { labelKh: 'ការបំពានបទបញ្ជាផ្ទៃក្នុង', labelEn: 'Company Policy Violation' },
-  SAFETY: { labelKh: 'ការបំពានសុវត្ថិភាពការងារ', labelEn: 'Workplace Safety Breach' },
-  OTHER: { labelKh: 'មូលហេតុផ្សេងៗ', labelEn: 'Other Reasons' }
+const REASON_TYPES: Record<string, { labelKh: string; labelEn: string; labelZh: string }> = {
+  ATTENDANCE: { labelKh: 'អវត្តមាន/មកយឺតញឹកញាប់', labelEn: 'Attendance / Tardiness', labelZh: '旷工 / 迟到早退' },
+  MISCONDUCT: { labelKh: 'កំហុសប្រព្រឹត្តមិនគប្បី', labelEn: 'Misconduct / Insubordination', labelZh: '品行不端 / 不服从管理' },
+  NEGLIGENCE: { labelKh: 'ការធ្វេសប្រហែសក្នុងភារកិច្ច', labelEn: 'Gross Negligence', labelZh: '重大工作疏忽' },
+  POLICY_VIOLATION: { labelKh: 'ការបំពានបទបញ្ជាផ្ទៃក្នុង', labelEn: 'Company Policy Violation', labelZh: '违反公司内部规章' },
+  SAFETY: { labelKh: 'ការបំពានសុវត្ថិភាពការងារ', labelEn: 'Workplace Safety Breach', labelZh: '违反车间安全操作规程' },
+  OTHER: { labelKh: 'មូលហេតុផ្សេងៗ', labelEn: 'Other Reasons', labelZh: '其他违纪原因' }
 };
 
 const STATUS_CONFIG: Record<string, { labelKh: string; labelEn: string; bg: string; text: string }> = {
@@ -116,8 +116,105 @@ export default function DisciplinaryClient({ initialActions, employees, departme
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editingAction, setEditingAction] = useState<DisciplinaryAction | null>(null);
 
-  // Warning Letter Print / Preview Modal
+  // Warning Letter Print / Preview Modal (Trilingual Factory Standard)
   const [letterAction, setLetterAction] = useState<DisciplinaryAction | null>(null);
+  const [slipCompanyKh, setSlipCompanyKh] = useState<string>('ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក');
+  const [slipCompanyZh, setSlipCompanyZh] = useState<string>('長青戶外用品（柬埔寨）有限公司');
+  const [slipCompanyEn, setSlipCompanyEn] = useState<string>('EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD.');
+  const [slipSelectedLevel, setSlipSelectedLevel] = useState<string>('minor-2');
+  const [slipHireDate, setSlipHireDate] = useState<string>('');
+  const [slipLine, setSlipLine] = useState<string>('Line 01');
+  const [isEditingSlipSettings, setIsEditingSlipSettings] = useState<boolean>(false);
+
+  const openWarningLetterSlip = (act: DisciplinaryAction) => {
+    setLetterAction(act);
+    if (act.actionType === 'TERMINATION') {
+      setSlipSelectedLevel('serious');
+    } else if (act.actionType === 'VERBAL_WARNING') {
+      setSlipSelectedLevel('minor-1');
+    } else if (act.actionType === 'WRITTEN_WARNING') {
+      if (act.warningCount === 1) setSlipSelectedLevel('minor-2');
+      else if (act.warningCount === 2) setSlipSelectedLevel('minor-3');
+      else setSlipSelectedLevel('minor-4');
+    } else {
+      setSlipSelectedLevel('moderate-1');
+    }
+    setSlipLine(act.employee.line || 'Line 01');
+    const d = new Date(act.incidentDate);
+    // hire date default: 1 year prior or clean formatted date
+    const hireEst = new Date(d);
+    hireEst.setFullYear(d.getFullYear() - 1);
+    setSlipHireDate(hireEst.toISOString().split('T')[0]);
+  };
+
+  const handlePrintWarningSlip = () => {
+    const printContent = document.getElementById('printable-warning-letter');
+    if (!printContent) {
+      window.print();
+      return;
+    }
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="km">
+      <head>
+        <meta charset="UTF-8">
+        <title>កំណត់ត្រាការដាក់ទណ្ឌកម្មវិន័យ (Disciplinary Record) - ${letterAction?.employee.employeeId || 'Slip'}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 8mm 12mm;
+          }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          body {
+            font-family: 'Kantumruy Pro', 'Inter', 'Microsoft YaHei', SimSun, -apple-system, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            line-height: 1.45;
+            font-size: 9.5pt;
+            padding: 6px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid #1e293b;
+            padding: 4px 8px;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent.innerHTML}
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() {
+              window.close();
+            };
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
   // Form State
   const [form, setForm] = useState({
@@ -871,7 +968,7 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                         <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                           {/* Print / Preview Warning Letter */}
                           <button
-                            onClick={() => setLetterAction(act)}
+                            onClick={() => openWarningLetterSlip(act)}
                             title="មើល និងបោះពុម្ពលិខិតព្រមាន (Print Warning Letter)"
                             style={{
                               background: '#f0fdf4',
@@ -1262,7 +1359,7 @@ export default function DisciplinaryClient({ initialActions, employees, departme
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(15, 23, 42, 0.75)',
+          background: 'rgba(15, 23, 42, 0.78)',
           backdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
@@ -1274,9 +1371,9 @@ export default function DisciplinaryClient({ initialActions, employees, departme
             background: '#ffffff',
             borderRadius: '16px',
             width: '100%',
-            maxWidth: '850px',
-            maxHeight: '94vh',
-            boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+            maxWidth: '920px',
+            maxHeight: '96vh',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden'
@@ -1285,30 +1382,53 @@ export default function DisciplinaryClient({ initialActions, employees, departme
             <div style={{
               background: '#0f172a',
               color: '#ffffff',
-              padding: '14px 24px',
+              padding: '12px 20px',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '10px'
             }}>
-              <div style={{ fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>📄</span>
-                <span>ទម្រង់លិខិតព្រមានផ្លូវការ (Official Warning Letter Slip)</span>
+              <div style={{ fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.2rem' }}>📋</span>
+                <span>កំណត់ត្រាការដាក់ទណ្ឌកម្មវិន័យ ៣ ភាសា (Trilingual Factory Disciplinary Record Slip)</span>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => setIsEditingSlipSettings(!isEditingSlipSettings)}
                   style={{
-                    background: '#22c55e',
-                    border: 'none',
+                    background: isEditingSlipSettings ? '#f59e0b' : '#334155',
+                    border: '1px solid #475569',
                     color: '#ffffff',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
+                    padding: '6px 12px',
+                    borderRadius: '7px',
                     cursor: 'pointer',
                     fontWeight: 700,
-                    fontSize: '0.85rem'
+                    fontSize: '0.8rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}
                 >
-                  🖨️ បោះពុម្ព (Print)
+                  ⚙️ <span>{isEditingSlipSettings ? 'បិទការកែប្រែ' : 'កែប្រែឈ្មោះក្រុមហ៊ុន & ព័ត៌មាន'}</span>
+                </button>
+                <button
+                  onClick={handlePrintWarningSlip}
+                  style={{
+                    background: '#16a34a',
+                    border: 'none',
+                    color: '#ffffff',
+                    padding: '6px 14px',
+                    borderRadius: '7px',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  🖨️ <span>បោះពុម្ព (Print)</span>
                 </button>
                 <button
                   onClick={() => setLetterAction(null)}
@@ -1316,11 +1436,11 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                     background: '#334155',
                     border: 'none',
                     color: '#ffffff',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
+                    padding: '6px 12px',
+                    borderRadius: '7px',
                     cursor: 'pointer',
                     fontWeight: 700,
-                    fontSize: '0.85rem'
+                    fontSize: '0.82rem'
                   }}
                 >
                   ✕ បិទ
@@ -1328,128 +1448,462 @@ export default function DisciplinaryClient({ initialActions, employees, departme
               </div>
             </div>
 
+            {/* Editable Company & Form Settings Bar */}
+            {isEditingSlipSettings && (
+              <div style={{
+                background: '#f8fafc',
+                borderBottom: '2px solid #e2e8f0',
+                padding: '14px 20px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: '12px',
+                fontSize: '0.82rem'
+              }}>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                    ឈ្មោះក្រុមហ៊ុន (ភាសាខ្មែរ):
+                  </label>
+                  <input
+                    type="text"
+                    value={slipCompanyKh}
+                    onChange={(e) => setSlipCompanyKh(e.target.value)}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                    公司名称 (中文):
+                  </label>
+                  <input
+                    type="text"
+                    value={slipCompanyZh}
+                    onChange={(e) => setSlipCompanyZh(e.target.value)}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                    Company Name (English):
+                  </label>
+                  <input
+                    type="text"
+                    value={slipCompanyEn}
+                    onChange={(e) => setSlipCompanyEn(e.target.value)}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                    ក្រុម/ខ្សែផលិតកម្ម (Team/Line):
+                  </label>
+                  <input
+                    type="text"
+                    value={slipLine}
+                    onChange={(e) => setSlipLine(e.target.value)}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                    ថ្ងៃចូលធ្វើការ (进厂日期 / Hire Date):
+                  </label>
+                  <input
+                    type="date"
+                    value={slipHireDate}
+                    onChange={(e) => setSlipHireDate(e.target.value)}
+                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+                  <button
+                    onClick={() => {
+                      setSlipCompanyKh('ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក');
+                      setSlipCompanyZh('長青戶外用品（柬埔寨）有限公司');
+                      setSlipCompanyEn('EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD.');
+                    }}
+                    style={{ padding: '6px 10px', background: '#e2e8f0', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', fontSize: '0.78rem' }}
+                  >
+                    🔄 គំរូ Evergreen
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSlipCompanyKh('ក្រុមហ៊ុន / រោងចក្រ ស្តង់ដារកាត់ដេរ (ខេមបូឌា) ឯ.ក');
+                      setSlipCompanyZh('标准成衣制造（柬埔寨）有限公司');
+                      setSlipCompanyEn('STANDARD GARMENT MANUFACTURING (CAMBODIA) CO., LTD.');
+                    }}
+                    style={{ padding: '6px 10px', background: '#e2e8f0', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', fontSize: '0.78rem' }}
+                  >
+                    🏢 គំរូទូទៅ
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Printable Document Body */}
             <div id="printable-warning-letter" style={{
-              padding: '40px',
+              padding: '28px 36px',
               overflowY: 'auto',
               background: '#ffffff',
-              color: '#000000',
-              fontFamily: 'serif',
-              lineHeight: 1.6
+              color: '#0f172a',
+              fontFamily: "'Kantumruy Pro', 'Inter', 'Microsoft YaHei', SimSun, sans-serif",
+              lineHeight: 1.5,
+              fontSize: '9.5pt'
             }}>
-              {/* National Header */}
-              <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e3a8a' }}>
-                  ព្រះរាជាណាចក្រកម្ពុជា
+              
+              {/* Top Company Header (Matching Factory Standard) */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  {/* Company Logo Badge */}
+                  <div style={{
+                    width: '54px',
+                    height: '54px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #15803d 0%, #166534 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    fontSize: '1.6rem',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                  }}>
+                    🌳
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#166534', lineHeight: 1.3 }}>
+                      {slipCompanyKh}
+                    </div>
+                    <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#334155', lineHeight: 1.3 }}>
+                      {slipCompanyZh}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      {slipCompanyEn}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1e3a8a' }}>
-                  ជាតិ សាសនា ព្រះមហាក្សត្រ
+
+                {/* Document Metadata Ref */}
+                <div style={{ textAlign: 'right', fontSize: '0.82rem', color: '#334155', lineHeight: 1.4 }}>
+                  <div><strong>កាលបរិច្ឆេទ / 日期 / Date:</strong> {new Date(letterAction.incidentDate).toISOString().split('T')[0]}</div>
+                  <div><strong>លេខយោង / 编号 / Ref:</strong> HR-WL-{new Date().getFullYear()}-{letterAction.employee.employeeId}</div>
+                  <div><strong>កូដឯកសារ / 表格编号:</strong> SOP-HR-DISC-001</div>
                 </div>
-                <div style={{ fontSize: '0.9rem', fontStyle: 'italic', color: '#64748b', marginTop: '2px' }}>
-                  KINGDOM OF CAMBODIA • NATION RELIGION KING
-                </div>
-                <div style={{ letterSpacing: '4px', fontSize: '12px', marginTop: '4px' }}>❖ ❖ ❖</div>
               </div>
 
-              {/* Company Info */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '24px' }}>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>ក្រុមហ៊ុន / ស្ថាប័ន (COMPANY HRM SYSTEM)</div>
-                  <div style={{ fontSize: '0.85rem' }}>ការិយាល័យធនធានមនុស្ស (Human Resources Department)</div>
+              {/* Title Header (3 Languages) */}
+              <div style={{ textAlign: 'center', margin: '14px 0 18px 0' }}>
+                <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>
+                  កំណត់ត្រាការដាក់ទណ្ឌកម្មវិន័យ
+                </h1>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#1e3a8a', marginTop: '2px' }}>
+                  Disciplinary Record
                 </div>
-                <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
-                  <div>កាលបរិច្ឆេទ: {new Date().toISOString().split('T')[0]}</div>
-                  <div>លេខយោង: HR-WL-{new Date().getFullYear()}-{letterAction.employee.employeeId}</div>
-                </div>
-              </div>
-
-              {/* Letter Title */}
-              <div style={{ textAlign: 'center', margin: '24px 0' }}>
-                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, textDecoration: 'underline' }}>
-                  លិខិតព្រមានជាលាយលក្ខណ៍អក្សរ
-                </h2>
-                <div style={{ fontSize: '1rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>
-                  WRITTEN WARNING LETTER (លើកទី {letterAction.warningCount})
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: '#334155' }}>
+                  纪律记录表
                 </div>
               </div>
 
-              {/* Employee Particulars Table */}
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px', border: '1px solid #cbd5e1' }}>
+              {/* Employee Particulars Grid Table (3 Languages) */}
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '16px', border: '1px solid #1e293b' }}>
                 <tbody>
-                  <tr style={{ background: '#f8fafc' }}>
-                    <td style={{ padding: '8px 12px', fontWeight: 700, width: '25%', border: '1px solid #cbd5e1' }}>គោត្តនាម និងនាម / Name:</td>
-                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1' }}>
+                  <tr>
+                    <td style={{ width: '22%', fontWeight: 700, background: '#f8fafc', padding: '6px 8px', border: '1px solid #334155' }}>
+                      ឈ្មោះអ្នកប្រព្រឹត្តកំហុស<br />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>工人名字 / Employee:</span>
+                    </td>
+                    <td style={{ width: '28%', fontWeight: 700, padding: '6px 8px', border: '1px solid #334155', color: '#0f172a' }}>
                       {letterAction.employee.lastNameKh || ''} {letterAction.employee.firstNameKh || ''} ({letterAction.employee.firstNameEn} {letterAction.employee.lastNameEn})
                     </td>
-                    <td style={{ padding: '8px 12px', fontWeight: 700, width: '20%', border: '1px solid #cbd5e1' }}>អត្តលេខ / Emp ID:</td>
-                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#1e40af' }}>
+                    <td style={{ width: '20%', fontWeight: 700, background: '#f8fafc', padding: '6px 8px', border: '1px solid #334155' }}>
+                      អត្តលេខ<br />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>工号 / Emp ID:</span>
+                    </td>
+                    <td style={{ width: '30%', fontWeight: 800, padding: '6px 8px', border: '1px solid #334155', color: '#1e40af' }}>
                       {letterAction.employee.employeeId}
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ padding: '8px 12px', fontWeight: 700, border: '1px solid #cbd5e1' }}>ផ្នែក / Department:</td>
-                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1' }}>{letterAction.employee.department}</td>
-                    <td style={{ padding: '8px 12px', fontWeight: 700, border: '1px solid #cbd5e1' }}>តួនាទី / Position:</td>
-                    <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1' }}>{letterAction.employee.position}</td>
+                    <td style={{ fontWeight: 700, background: '#f8fafc', padding: '6px 8px', border: '1px solid #334155' }}>
+                      ផ្នែក<br />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>部门 / Department:</span>
+                    </td>
+                    <td style={{ padding: '6px 8px', border: '1px solid #334155' }}>
+                      {letterAction.employee.department}
+                    </td>
+                    <td style={{ fontWeight: 700, background: '#f8fafc', padding: '6px 8px', border: '1px solid #334155' }}>
+                      ក្រុម/ខ្សែ & តួនាទី<br />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>组 & 职位 / Line & Pos:</span>
+                    </td>
+                    <td style={{ padding: '6px 8px', border: '1px solid #334155' }}>
+                      {slipLine} • {letterAction.employee.position}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 700, background: '#f8fafc', padding: '6px 8px', border: '1px solid #334155' }}>
+                      ថ្ងៃចូលធ្វើការ<br />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>进厂日期 / Hire Date:</span>
+                    </td>
+                    <td style={{ padding: '6px 8px', border: '1px solid #334155' }}>
+                      {slipHireDate || '01/01/2024'}
+                    </td>
+                    <td style={{ fontWeight: 700, background: '#f8fafc', padding: '6px 8px', border: '1px solid #334155' }}>
+                      កាលបរិច្ឆេទកើតហេតុ<br />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569' }}>违纪日期 / Incident:</span>
+                    </td>
+                    <td style={{ padding: '6px 8px', border: '1px solid #334155', fontWeight: 700 }}>
+                      {new Date(letterAction.incidentDate).toISOString().split('T')[0]}
+                    </td>
                   </tr>
                 </tbody>
               </table>
 
-              {/* Details of Violation */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.95rem' }}>
-                <div>
-                  <strong>១. កាលបរិច្ឆេទកើតហេតុ (Incident Date):</strong> {new Date(letterAction.incidentDate).toISOString().split('T')[0]}
+              {/* Description of Misconduct (3 Languages) */}
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                  ការពិពណ៌នាអំពីកំហុស / 错误说明 / Details of Misconduct:
                 </div>
-                <div>
-                  <strong>២. ប្រភេទកំហុសឆ្គង (Violation Type):</strong> {REASON_TYPES[letterAction.reason]?.labelKh || letterAction.reason} ({REASON_TYPES[letterAction.reason]?.labelEn || ''})
-                </div>
-                <div>
-                  <strong>៣. កម្មវត្ថុ (Subject):</strong> {letterAction.subject}
-                </div>
-                <div>
-                  <strong>៤. សេចក្តីពិពណ៌នាអំពីកំហុសឆ្គង (Details of Misconduct):</strong>
-                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', marginTop: '6px' }}>
-                    {letterAction.description || 'បានប្រព្រឹត្តការបំពានលើបទបញ្ជាផ្ទៃក្នុងរបស់ក្រុមហ៊ុន និងច្បាប់ការងារជាធរមាន។'}
+                <div style={{ background: '#f8fafc', border: '1px solid #334155', borderRadius: '6px', padding: '8px 12px', fontSize: '0.9rem' }}>
+                  <div style={{ marginBottom: '4px' }}>
+                    <strong>ប្រភេទកំហុស / 违纪类型 / Violation:</strong>{' '}
+                    <span style={{ color: '#b91c1c', fontWeight: 700 }}>
+                      {REASON_TYPES[letterAction.reason]?.labelKh || letterAction.reason} ({REASON_TYPES[letterAction.reason]?.labelZh || ''} / {REASON_TYPES[letterAction.reason]?.labelEn || ''})
+                    </span>
                   </div>
-                </div>
-                <div>
-                  <strong>៥. វិធានការវិន័យ និងការកែលម្អ (Corrective Action & Consequences):</strong>
-                  <div style={{ background: '#fff1f2', padding: '12px', borderRadius: '6px', border: '1px solid #fecaca', marginTop: '6px', color: '#991b1b' }}>
-                    {letterAction.actionTaken || `នេះជាលិខិតព្រមានលើកទី ${letterAction.warningCount}។ ប្រសិនបើនៅតែបន្តប្រព្រឹត្តកំហុសដដែល ឬកំហុសផ្សេងទៀត ក្រុមហ៊ុននឹងចាត់វិធានការវិន័យធ្ងន់ធ្ងរជាងនេះ រហូតដល់ការបញ្ឈប់ពីការងារដោយគ្មានសំណងស្របតាមច្បាប់ការងារ។`}
+                  <div style={{ marginBottom: '4px' }}>
+                    <strong>កម្មវត្ថុ / 事由 / Subject:</strong> {letterAction.subject || 'ការបំពានវិន័យការងារ (Disciplinary Breach)'}
+                  </div>
+                  <div>
+                    <strong>ខ្លឹមសារលម្អិត / 具体说明 / Description:</strong>{' '}
+                    {letterAction.description || 'បានប្រព្រឹត្តការបំពានលើបទបញ្ជាផ្ទៃក្នុងរបស់ក្រុមហ៊ុន និងច្បាប់ការងារជាធរមាន។ / 违反了公司内部规章制度及现行劳动法之相关规定。'}
                   </div>
                 </div>
               </div>
 
-              {/* Signatures */}
+              {/* Internal Regulation Reference Clause */}
+              <div style={{ fontSize: '0.88rem', fontWeight: 700, margin: '14px 0 10px 0', color: '#0f172a', lineHeight: 1.45 }}>
+                <div>** យោងតាមបទបញ្ជាផ្ទៃក្នុងនៃ {slipCompanyKh} ឯក</div>
+                <div style={{ color: '#334155', fontSize: '0.85rem' }}>根据 {slipCompanyZh} 的内部规定:</div>
+                <div style={{ color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase' }}>According to the Internal Regulations of {slipCompanyEn}:</div>
+                <div style={{ marginTop: '4px', color: '#1e40af' }}>
+                  កម្មករនិយោជិតឈ្មោះ: <u>{letterAction.employee.lastNameKh || ''} {letterAction.employee.firstNameKh || ''} ({letterAction.employee.firstNameEn})</u> អត្តលេខ: <u>{letterAction.employee.employeeId}</u> ត្រូវដាក់ទោសវិន័យក្នុងកម្រិត៖ / 工人名字: {letterAction.employee.firstNameEn} 工号: {letterAction.employee.employeeId} 处分级别:
+                </div>
+              </div>
+
+              {/* 3-Tier Classification Checklist Matrix (Direct Replica of Factory Standard Image 2) */}
+              <div style={{ border: '1px solid #1e293b', borderRadius: '8px', padding: '12px 16px', marginBottom: '14px', background: '#ffffff' }}>
+                
+                {/* TIER 1: MINOR OFFENSES */}
+                <div style={{ marginBottom: '12px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <div style={{ fontWeight: 800, width: '130px', flexShrink: 0 }}>
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel.startsWith('minor')}
+                          onChange={() => setSlipSelectedLevel(slipSelectedLevel.startsWith('minor') ? 'moderate-1' : 'minor-1')}
+                        />
+                        <span>កំហុសស្រាល:</span>
+                      </label>
+                      <div style={{ fontSize: '0.78rem', color: '#475569', marginLeft: '22px' }}>轻微错误 / Minor</div>
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.86rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'minor-1'}
+                          onChange={() => setSlipSelectedLevel('minor-1')}
+                        />
+                        <span>
+                          <strong>ក/ កំហុសលើកទី1៖</strong> ត្រូវទទួលការអប់រំដាស់តឿនផ្ទាល់មាត់។ <span style={{ color: '#475569' }}>/ 口头警告的初犯。 (1st Offense: Verbal Warning)</span>
+                        </span>
+                      </label>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'minor-2'}
+                          onChange={() => setSlipSelectedLevel('minor-2')}
+                        />
+                        <span>
+                          <strong>ខ/ កំហុសលើកទី2៖</strong> ត្រូវទទួលការព្រមានជាលាយលក្ខណ៍អក្សរ (ស្មើនឹងកំហុសមធ្យមលើកទី1)។ <span style={{ color: '#475569' }}>/ 第二次错误需要书面警告。 (2nd Offense: 1st Written Warning)</span>
+                        </span>
+                      </label>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'minor-3'}
+                          onChange={() => setSlipSelectedLevel('minor-3')}
+                        />
+                        <span>
+                          <strong>គ/ កំហុសលើកទី3៖</strong> ត្រូវទទួលការព្រមានជាលាយលក្ខណ៍អក្សរ (ស្មើនឹងកំហុសមធ្យមលើកទី2)។ <span style={{ color: '#475569' }}>/ 第三次错误需要书面警告。 (3rd Offense: 2nd Written Warning)</span>
+                        </span>
+                      </label>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'minor-4'}
+                          onChange={() => setSlipSelectedLevel('minor-4')}
+                        />
+                        <span style={{ color: '#b91c1c', fontWeight: 700 }}>
+                          <strong>ឃ/ លើកទី4៖</strong> ត្រូវបញ្ឈប់ពីការងារ។ <span style={{ color: '#7f1d1d' }}>/ 第四次警告终止劳动合同。 (4th Offense: Termination)</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* TIER 2: MODERATE OFFENSES */}
+                <div style={{ marginBottom: '12px', borderBottom: '1px dashed #cbd5e1', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <div style={{ fontWeight: 800, width: '130px', flexShrink: 0 }}>
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel.startsWith('moderate')}
+                          onChange={() => setSlipSelectedLevel(slipSelectedLevel.startsWith('moderate') ? 'minor-2' : 'moderate-1')}
+                        />
+                        <span>កំហុសមធ្យម:</span>
+                      </label>
+                      <div style={{ fontSize: '0.78rem', color: '#475569', marginLeft: '22px' }}>中度错误 / Moderate</div>
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.86rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'moderate-1'}
+                          onChange={() => setSlipSelectedLevel('moderate-1')}
+                        />
+                        <span>
+                          <strong>ក/ លើកទី1៖</strong> ត្រូវទទួលការព្រមានជាលាយលក្ខណ៍អក្សរ។ <span style={{ color: '#475569' }}>/ 第一次错误需要书面警告。 (1st Offense: 1st Written Warning)</span>
+                        </span>
+                      </label>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'moderate-2'}
+                          onChange={() => setSlipSelectedLevel('moderate-2')}
+                        />
+                        <span>
+                          <strong>ខ/ លើកទី2៖</strong> ត្រូវទទួលការព្រមានជាលាយលក្ខណ៍អក្សរ។ <span style={{ color: '#475569' }}>/ 第二次错误需要书面警告。 (2nd Offense: 2nd Written Warning - Final)</span>
+                        </span>
+                      </label>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'moderate-3'}
+                          onChange={() => setSlipSelectedLevel('moderate-3')}
+                        />
+                        <span style={{ color: '#b91c1c', fontWeight: 700 }}>
+                          <strong>គ/ លើកទី3៖</strong> ត្រូវបញ្ឈប់ពីការងារ។ <span style={{ color: '#7f1d1d' }}>/ 第三次警告终止劳动合同。 (3rd Offense: Termination)</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* TIER 3: SERIOUS MISCONDUCT */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <div style={{ fontWeight: 800, width: '130px', flexShrink: 0 }}>
+                      <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'serious'}
+                          onChange={() => setSlipSelectedLevel(slipSelectedLevel === 'serious' ? 'minor-2' : 'serious')}
+                        />
+                        <span style={{ color: '#b91c1c' }}>កំហុសធ្ងន់:</span>
+                      </label>
+                      <div style={{ fontSize: '0.78rem', color: '#b91c1c', marginLeft: '22px' }}>严重错误 / Serious</div>
+                    </div>
+
+                    <div style={{ flex: 1, fontSize: '0.85rem', lineHeight: 1.5 }}>
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={slipSelectedLevel === 'serious'}
+                          onChange={() => setSlipSelectedLevel('serious')}
+                        />
+                        <span>
+                          <strong>ដូចមានចែងក្នុងច្បាប់ស្តីពីការងារ (មាត្រា ៨៣) និងបទបញ្ជាផ្ទៃក្នុង៖</strong> ត្រូវបញ្ឈប់ពីការងារភ្លាមៗដោយគ្មានសំណងជូនដំណឹងមុន ឬប្រាក់បំណាច់ឡើយ។ ក្នុងករណីចាំបាច់ ក្រុមហ៊ុននឹងបញ្ជូនសំណុំរឿងទៅក្រសួងមានសមត្ថកិច្ចដើម្បីធ្វើការដោះស្រាយតាមច្បាប់ជាធរមាន។
+                          <br />
+                          <span style={{ color: '#475569' }}>
+                            根据《劳动法》第83条及公司内部规章制度的规定，将被立即解雇并不予任何经济补偿。如有必要，公司将根据适用法律将案件移交给主管部门解决。
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Statutory Note on 12-Month Clean Record (Direct from Factory Standard Image 2) */}
+              <div style={{ background: '#f8fafc', border: '1px solid #94a3b8', borderRadius: '6px', padding: '8px 12px', fontSize: '0.84rem', marginBottom: '14px' }}>
+                <div style={{ fontWeight: 700, color: '#0f172a' }}>
+                  បញ្ជាក់៖ កំហុសរយៈពេល 12 ខែមុនឡើងទៅ ក្រុមហ៊ុនមិនបូកសរុបដើម្បីធ្វើការដាក់វិន័យនៅពេលបន្ទាប់ឡើយ (លុបចោលស្វ័យប្រវត្តិតាមច្បាប់)។
+                </div>
+                <div style={{ color: '#334155' }}>
+                  注意: 在过去的12个月里未再次违纪的，公司在下一期间不再累计先前的纪律处分（消除前科）。
+                </div>
+                <div style={{ color: '#64748b', fontSize: '0.78rem' }}>
+                  Note: Disciplinary infractions older than 12 months without repeat misconduct will not be accumulated for future sanctions.
+                </div>
+              </div>
+
+              {/* Corrective Action Section */}
+              <div style={{ marginBottom: '18px' }}>
+                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                  វិធានការវិន័យ និងការកែលម្អ / 处分措施与整改要求 / Corrective Action & Consequences:
+                </div>
+                <div style={{ background: '#fff1f2', border: '1px solid #fecaca', padding: '8px 12px', borderRadius: '6px', color: '#991b1b', fontSize: '0.88rem' }}>
+                  {letterAction.actionTaken || `នេះជាការកត់ត្រាដាក់វិន័យផ្លូវការ។ កម្មករនិយោជិតត្រូវកែលម្អឥរិយាបថជាបន្ទាន់ និងមិនត្រូវឱ្យកើតមានកំហុសដដែលម្តងទៀតឡើយ។ ប្រសិនបើនៅតែបន្តប្រព្រឹត្ត ក្រុមហ៊ុននឹងចាត់វិធានការកម្រិតបន្ទាប់រហូតដល់ការបញ្ឈប់ពីការងារស្របតាមច្បាប់ការងារ។`}
+                </div>
+              </div>
+
+              {/* 3 Signatures in 3 Languages (Matching Image 2) */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '20px',
-                marginTop: '48px',
-                paddingTop: '20px',
-                textAlign: 'center'
+                gap: '14px',
+                marginTop: '28px',
+                paddingTop: '16px',
+                borderTop: '1px solid #cbd5e1',
+                textAlign: 'center',
+                fontSize: '0.82rem'
               }}>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>ហត្ថលេខាសាមីខ្លួន</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Employee Acknowledgment</div>
-                  <div style={{ height: '70px', borderBottom: '1px dashed #94a3b8', margin: '10px 20px' }}></div>
-                  <div style={{ fontSize: '0.82rem' }}>កាលបរិច្ឆេទ: ......./......./...........</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a' }}>ឈ្មោះហត្ថលេខា និង ស្នាមមេដៃ</div>
+                  <div style={{ fontWeight: 700, color: '#1e3a8a' }}>សាមីជនប្រព្រឹត្តកំហុស</div>
+                  <div style={{ color: '#475569' }}>工人名字（签名与指模）</div>
+                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Employee Signature & Thumbprint</div>
+                  <div style={{ height: '60px', borderBottom: '1px dashed #475569', margin: '8px 16px' }}></div>
+                  <div>កាលបរិច្ឆេទ / 日期: ......./......./...........</div>
                 </div>
 
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>ប្រធានផ្នែក</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Head of Department</div>
-                  <div style={{ height: '70px', borderBottom: '1px dashed #94a3b8', margin: '10px 20px' }}></div>
-                  <div style={{ fontSize: '0.82rem' }}>កាលបរិច្ឆេទ: ......./......./...........</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a' }}>ហត្ថលេខា</div>
+                  <div style={{ fontWeight: 700, color: '#1e3a8a' }}>តំណាងសហជីព/តំណាងកម្មករ/ប្រធាន</div>
+                  <div style={{ color: '#475569' }}>工会 / 工人代表 / 组长</div>
+                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Union / Worker Rep / Line Leader</div>
+                  <div style={{ height: '60px', borderBottom: '1px dashed #475569', margin: '8px 16px' }}></div>
+                  <div>កាលបរិច្ឆេទ / 日期: ......./......./...........</div>
                 </div>
 
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>អ្នកគ្រប់គ្រងធនធានមនុស្ស</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>HR Manager / Director</div>
-                  <div style={{ height: '70px', borderBottom: '1px dashed #94a3b8', margin: '10px 20px' }}></div>
-                  <div style={{ fontSize: '0.82rem' }}>កាលបរិច្ឆេទ: ......./......./...........</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a' }}>អនុញ្ញាត្តិដោយ</div>
+                  <div style={{ fontWeight: 700, color: '#1e3a8a' }}>ផ្នែកធនធានមនុស្ស</div>
+                  <div style={{ color: '#475569' }}>人事部审批</div>
+                  <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Approved by HR Department</div>
+                  <div style={{ height: '60px', borderBottom: '1px dashed #475569', margin: '8px 16px' }}></div>
+                  <div>កាលបរិច្ឆេទ / 日期: ......./......./...........</div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

@@ -87,6 +87,8 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDept, setSelectedDept] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(30); // 30 records per page default
 
   // Compute department counts for "Amount by dept"
   const deptCounts = useMemo(() => {
@@ -226,6 +228,17 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
       return matchesSearch && matchesDept && matchesStatus;
     });
   }, [matrixData, searchTerm, selectedDept, selectedStatus]);
+
+  // Pagination calculation
+  const totalRecords = filteredData.length;
+  const totalPages = pageSize === -1 ? 1 : Math.max(1, Math.ceil(totalRecords / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedData = useMemo(() => {
+    if (pageSize === -1) return filteredData;
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return filteredData.slice(startIndex, startIndex + pageSize);
+  }, [filteredData, safeCurrentPage, pageSize]);
 
   // Export to Excel replicating exact Factory Form format
   const handleExportExcel = () => {
@@ -455,13 +468,19 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
         <input
           type="text"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
           placeholder="🔍 ស្វែងរកតាម ID, ឈ្មោះ, ឬ ផ្នែក..."
           style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem', flex: '1 1 220px' }}
         />
         <select
           value={selectedDept}
-          onChange={(e) => setSelectedDept(e.target.value)}
+          onChange={(e) => {
+            setSelectedDept(e.target.value);
+            setCurrentPage(1);
+          }}
           style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem', background: '#ffffff' }}
         >
           <option value="ALL">🏢 គ្រប់ផ្នែក (All Depts)</option>
@@ -473,7 +492,10 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
         </select>
         <select
           value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
+          onChange={(e) => {
+            setSelectedStatus(e.target.value);
+            setCurrentPage(1);
+          }}
           style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem', background: '#ffffff' }}
         >
           <option value="ALL">📋 គ្រប់ស្ថានភាពកិច្ចសន្យា</option>
@@ -543,14 +565,14 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
             </tr>
           </thead>
           <tbody>
-            {filteredData.length === 0 ? (
+            {paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={38} style={{ padding: '2rem', color: '#94a3b8', textAlign: 'center' }}>
                   មិនមានទិន្នន័យត្រូវនឹងការស្វែងរកឡើយ (No records matched)
                 </td>
               </tr>
             ) : (
-              filteredData.map((row, idx) => (
+              paginatedData.map((row, idx) => (
                 <tr
                   key={row.id}
                   style={{
@@ -617,6 +639,155 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination Bar (Matching Employee Table Exactly) */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '8px 16px',
+          borderTop: '1px solid #cbd5e1',
+          background: '#f8fafc',
+          borderRadius: '0 0 8px 8px',
+          flexWrap: 'wrap',
+          gap: '8px',
+          fontSize: '0.82rem',
+          marginTop: '-1px'
+        }}
+      >
+        {/* Record range */}
+        <div style={{ color: '#334155', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span>បង្ហាញ / Showing:</span>
+          <strong>
+            {totalRecords === 0 ? 0 : (safeCurrentPage - 1) * (pageSize === -1 ? 0 : pageSize) + 1}
+          </strong>
+          <span>-</span>
+          <strong>
+            {pageSize === -1 ? totalRecords : Math.min(safeCurrentPage * pageSize, totalRecords)}
+          </strong>
+          <span>នៃ / of</span>
+          <strong style={{ color: '#2563eb' }}>{totalRecords.toLocaleString()}</strong>
+          <span style={{ color: '#64748b', marginLeft: '4px' }}>
+            បុគ្គលិក / Employees / 员工
+          </span>
+        </div>
+
+        {/* Page size and navigation controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Page Size Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ color: '#64748b', fontSize: '0.8rem' }}>ក្នុង១ទំព័រ / Per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#ffffff',
+                color: '#1e293b',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              <option value={15}>15</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+              <option value={-1}>ទាំងអស់ (All)</option>
+            </select>
+          </div>
+
+          {/* Page Navigation Buttons */}
+          {pageSize !== -1 && totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(1)}
+                disabled={safeCurrentPage === 1}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  background: safeCurrentPage === 1 ? '#f1f5f9' : '#ffffff',
+                  color: safeCurrentPage === 1 ? '#94a3b8' : '#1e293b',
+                  cursor: safeCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                }}
+                title="First Page / ទំព័រដំបូង"
+              >
+                ⏮
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={safeCurrentPage === 1}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  background: safeCurrentPage === 1 ? '#f1f5f9' : '#ffffff',
+                  color: safeCurrentPage === 1 ? '#94a3b8' : '#1e293b',
+                  cursor: safeCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                }}
+                title="Previous Page / ទំព័រមុន"
+              >
+                ◀
+              </button>
+
+              <span style={{ fontSize: '0.8rem', padding: '0 8px', fontWeight: 700, color: '#1e3a8a' }}>
+                ទំព័រ {safeCurrentPage} / {totalPages}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={safeCurrentPage === totalPages}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  background: safeCurrentPage === totalPages ? '#f1f5f9' : '#ffffff',
+                  color: safeCurrentPage === totalPages ? '#94a3b8' : '#1e293b',
+                  cursor: safeCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                }}
+                title="Next Page / ទំព័របន្ទាប់"
+              >
+                ▶
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={safeCurrentPage === totalPages}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: '5px',
+                  border: '1px solid #cbd5e1',
+                  background: safeCurrentPage === totalPages ? '#f1f5f9' : '#ffffff',
+                  color: safeCurrentPage === totalPages ? '#94a3b8' : '#1e293b',
+                  cursor: safeCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                }}
+                title="Last Page / ទំព័រចុងក្រោយ"
+              >
+                ⏭
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

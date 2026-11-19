@@ -61,6 +61,27 @@ function addMonths(date: Date, months: number): Date {
   return result;
 }
 
+function getChineseDept(dept: string, line?: string | null): string {
+  if (line === 'Line 01' || dept.includes('1组') || (line && line.includes('01'))) return '1组';
+  if (line === 'Line 02' || dept.includes('2组') || (line && line.includes('02'))) return '2组';
+  if (line === 'Line 03' || dept.includes('3组') || (line && line.includes('03'))) return '3组';
+  if (line === 'Line 05' || dept.includes('5组') || (line && line.includes('05'))) return '5组';
+  if (line === 'Line 06' || dept.includes('6组') || (line && line.includes('06'))) return '6组';
+  if (dept.toLowerCase().includes('warehouse') || dept.includes('仓库')) return '仓库';
+  if (dept.toLowerCase().includes('office') || dept.includes('办公室')) return '办公室';
+  if (dept.toLowerCase().includes('cut') || dept.includes('开料')) return '开料';
+  if (dept.toLowerCase().includes('glu') || dept.includes('胶水')) return '胶水';
+  if (dept.toLowerCase().includes('pack') || dept.includes('包装')) return '包装';
+  if (dept.toLowerCase().includes('quality') || dept.toLowerCase().includes('qc') || dept.includes('品检')) return '品检部';
+  return line || dept || '1组';
+}
+
+function getChinesePos(pos: string, deptZh: string): string {
+  if (pos.toLowerCase().includes('leader') || pos.includes('组长')) return '组长';
+  if (pos.toLowerCase().includes('cleaner') || pos.includes('清洁工')) return '清洁工';
+  return deptZh;
+}
+
 function computeSeniority(hireDateStr: string, asOfDate: Date = new Date()): string {
   const start = new Date(hireDateStr);
   if (isNaN(start.getTime())) return '0 Year, 0 Month, 0 Days';
@@ -177,10 +198,14 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
 
       const deptGroupKey = emp.line ? `${emp.department} - ${emp.line}` : emp.department;
       const deptWorkerCount = deptCounts[deptGroupKey] || 1;
+      const deptRaw = getChineseDept(emp.department, emp.line);
+      const posRaw = getChinesePos(emp.position, deptRaw);
 
       return {
         no: index + 1,
         id: emp.employeeId,
+        deptRaw,
+        posRaw,
         deptWorkerCount,
         nameEn: `${emp.lastNameEn} ${emp.firstNameEn}`,
         nameKh: emp.firstNameKh && emp.lastNameKh ? `${emp.lastNameKh} ${emp.firstNameKh}` : '',
@@ -241,91 +266,156 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
   }, [filteredData, safeCurrentPage, pageSize]);
 
   // Export to Excel replicating exact Factory Form format
+  // Export to Excel replicating exact Factory Form format (100% Original Structure)
   const handleExportExcel = () => {
     const wb = XLSX.utils.book_new();
-
-    // Multi-tier header structure matching user's CSV
     const wsData: any[][] = [];
 
-    // Row 1: Title
-    wsData.push(['Name list of workers With Period of Contract']);
+    // Row 0: Empty spacer row (46 columns)
+    wsData.push(new Array(46).fill(''));
 
-    // Row 2: Subheader groups
-    const subheaderRow = new Array(42).fill('');
-    subheaderRow[12] = '1st FDC Contract';
-    subheaderRow[14] = '2nd FDC Contract';
-    subheaderRow[16] = '3rd FDC Contract';
-    subheaderRow[18] = '4th FDC Contract';
-    subheaderRow[20] = '5th FDC Contract';
-    subheaderRow[22] = '6th FDC Contract';
-    subheaderRow[24] = '7th FDC Contract';
-    subheaderRow[26] = '8th FDC Contract';
-    subheaderRow[28] = '9th FDC Contract';
-    subheaderRow[30] = 'UDC Starting Date';
-    wsData.push(subheaderRow);
+    // Row 1: Title Header
+    const row1 = new Array(46).fill('');
+    row1[1] = 'Name list of workers With Period of Contract';
+    wsData.push(row1);
 
-    // Row 3: Numeric Indices
-    const numRow = [];
-    for (let i = 1; i <= 42; i++) numRow.push(i.toString());
-    wsData.push(numRow);
+    // Row 2: FDC & UDC Group Headers
+    const row2 = new Array(46).fill('');
+    row2[13] = '1st FDC\nContract';
+    row2[15] = '2nd FDC\nContract';
+    row2[17] = '3rd  FDC\nContract';
+    row2[19] = '4th FDC\nContract';
+    row2[21] = '5th FDC\nContract';
+    row2[23] = '6th FDC\nContract';
+    row2[25] = '7th FDC\nContract';
+    row2[27] = '8th FDC\nContract';
+    row2[29] = '9th FDC\nContract';
+    row2[31] = 'UDC Starting Date';
+    wsData.push(row2);
 
-    // Row 4: Column Labels (Bilingual / Factory standard)
-    wsData.push([
-      'ID',
-      'No',
-      'Amount by dept',
-      'ID',
-      'Name',
-      'Khmer Name',
-      'Sex',
-      'Department',
-      'Position',
-      'Join Date',
-      'Duration',
-      'Finish Probation',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Finish',
-      'Start',
-      'Status',
-      'NATIONAL ID',
-      'NSSF',
-      'DATE OF BIRTH',
-      'BASIC SALARY',
-      'TEL 1',
-      'PLACE OF BIRTH',
-      'NATIONALITY',
-    ]);
+    // Row 3: Number Indices (1 to 27)
+    const row3 = [
+      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+      '11', '12', '13', '14', '15', '16', '17', '17', '18', '19',
+      '20', '21', '22', '23', '24', '25', '26', '27'
+    ];
+    while (row3.length < 46) row3.push('');
+    wsData.push(row3);
 
-    // Row 5+: Data rows
-    filteredData.forEach((r) => {
-      wsData.push([
-        r.id,
-        r.no,
+    // Row 4: English Headers
+    const row4 = [
+      'ID ', 'No', 'Amount by dept', 'ID ', 'Name ', '', 'Sex', 'Department ', 'Position ', 'Join Date', 'Duration ', '2026-08-10', 'Finish\nProbation',
+      'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish', 'Start', 'Finish',
+      'Start', '', '', '', 'NATIONAL ID', 'NSSF', 'DATE OF BIRTH', 'AGE', 'BASIC SALARY', 'TEL 1', 'PLACE OF BIRTH', '', '', '', 'NATIONALITY'
+    ];
+    wsData.push(row4);
+
+    // Row 5: Chinese & Place of Birth Headers
+    const row5 = [
+      '工号', '编号', '部门工人数量', '工号', '名字', '', '性别', '部门', '职位', '进场日期', '', '', '',
+      '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+      '', '', '', '', '', '', '', '', '', '', 'VILLAGE', 'COMMUNE', 'DISTRICT', 'PROVICE', 'Cambodia'
+    ];
+    wsData.push(row5);
+
+    // Row 6+: Exact 46-Column Data Rows
+    filteredData.forEach((r, idx) => {
+      const row = new Array(46).fill('');
+      row[0] = r.id;
+      row[1] = idx + 1;
+      row[2] = r.deptWorkerCount;
+      row[3] = r.id;
+      row[4] = r.nameEn;
+      row[5] = r.nameKh || '';
+      row[6] = r.genderRaw === 'FEMALE' ? '女' : '男';
+      row[7] = r.deptRaw;
+      row[8] = r.posRaw;
+      row[9] = r.joinDate;
+      row[10] = r.seniority ? `${r.seniority},` : '';
+      row[11] = r.seniority ? `${r.seniority},` : '';
+      row[12] = r.finishProbation;
+
+      // 9 FDC start & finish cycles
+      row[13] = r.fdcCycles[0]?.start || '';
+      row[14] = r.fdcCycles[0]?.finish || '';
+      row[15] = r.fdcCycles[1]?.start || '';
+      row[16] = r.fdcCycles[1]?.finish || '';
+      row[17] = r.fdcCycles[2]?.start || '';
+      row[18] = r.fdcCycles[2]?.finish || '';
+      row[19] = r.fdcCycles[3]?.start || '';
+      row[20] = r.fdcCycles[3]?.finish || '';
+      row[21] = r.fdcCycles[4]?.start || '';
+      row[22] = r.fdcCycles[4]?.finish || '';
+      row[23] = r.fdcCycles[5]?.start || '';
+      row[24] = r.fdcCycles[5]?.finish || '';
+      row[25] = r.fdcCycles[6]?.start || '';
+      row[26] = r.fdcCycles[6]?.finish || '';
+      row[27] = r.fdcCycles[7]?.start || '';
+      row[28] = r.fdcCycles[7]?.finish || '';
+      row[29] = r.fdcCycles[8]?.start || '';
+      row[30] = r.fdcCycles[8]?.finish || '';
+
+      // UDC Start
+      row[31] = r.udcStartDate || '';
+
+      // Profile details
+      row[35] = r.nationalId || '';
+      row[36] = r.nssf || '';
+      row[37] = r.dob || '';
+      row[38] = r.dob ? String(new Date().getFullYear() - new Date(r.dob).getFullYear()) : '';
+      row[39] = r.basicSalary ? String(r.basicSalary) : '';
+      row[40] = r.phone || '';
+      row[41] = r.placeOfBirth || '';
+      row[45] = r.nationality || 'Cambodia';
+
+      wsData.push(row);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Apply Merges matching original factory layout
+    ws['!merges'] = [
+      { s: { r: 1, c: 1 }, e: { r: 1, c: 45 } }, // Title
+      { s: { r: 2, c: 13 }, e: { r: 2, c: 14 } }, // 1st FDC
+      { s: { r: 2, c: 15 }, e: { r: 2, c: 16 } }, // 2nd FDC
+      { s: { r: 2, c: 17 }, e: { r: 2, c: 18 } }, // 3rd FDC
+      { s: { r: 2, c: 19 }, e: { r: 2, c: 20 } }, // 4th FDC
+      { s: { r: 2, c: 21 }, e: { r: 2, c: 22 } }, // 5th FDC
+      { s: { r: 2, c: 23 }, e: { r: 2, c: 24 } }, // 6th FDC
+      { s: { r: 2, c: 25 }, e: { r: 2, c: 26 } }, // 7th FDC
+      { s: { r: 2, c: 27 }, e: { r: 2, c: 28 } }, // 8th FDC
+      { s: { r: 2, c: 29 }, e: { r: 2, c: 30 } }, // 9th FDC
+      { s: { r: 4, c: 41 }, e: { r: 4, c: 44 } }, // PLACE OF BIRTH spans 41-44
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Workers Period of Contract');
+    XLSX.writeFile(wb, `Name_list_of_workers_With_Period_of_Contract_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  // Export as original CSV format identical to source
+  const handleExportCsv = () => {
+    const lines: string[] = [];
+    lines.push(new Array(46).fill('').join(','));
+    lines.push(`,Name list of workers With Period of Contract${new Array(44).fill('').join(',')}`);
+    lines.push(`,,,,,,,,,,,,,"1st FDC\\nContract",,"2nd FDC\\nContract",,"3rd  FDC\\nContract",,"4th FDC\\nContract",,"5th FDC\\nContract",,"6th FDC\\nContract",,"7th FDC\\nContract",,"8th FDC\\nContract",,"9th FDC\\nContract",,UDC Starting Date,,,,,,,,,,,,,,`);
+    lines.push(`1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,17,18,19,20,21,22,23,24,25,26,27,,,,,,,,,,,,,,,,,,`);
+    lines.push(`ID ,No,Amount by dept,ID ,Name ,,Sex,Department ,Position ,Join Date,Duration ,2026-08-10,"Finish\\nProbation",Start,Finish,Start,Finish,Start,Finish,Start,Finish,Start,Finish,Start,Finish,Start,Finish,Start,Finish,Start,Finish,Start,,,,NATIONAL ID,NSSF,DATE OF BIRTH,AGE,BASIC SALARY,TEL 1,PLACE OF BIRTH,,,,NATIONALITY`);
+    lines.push(`工号,编号,部门工人数量,工号,名字,,性别,部门,职位,进场日期,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,VILLAGE,COMMUNE,DISTRICT,PROVICE,Cambodia`);
+
+    filteredData.forEach((r, idx) => {
+      const row = [
+        `"${r.id}"`,
+        idx + 1,
         r.deptWorkerCount,
-        r.id,
-        r.nameEn,
-        r.nameKh,
-        r.sex,
-        r.department,
-        r.position,
+        `"${r.id}"`,
+        `"${r.nameEn}"`,
+        `"${r.nameKh || ''}"`,
+        r.genderRaw === 'FEMALE' ? '女' : '男',
+        `"${r.deptRaw}"`,
+        `"${r.posRaw}"`,
         r.joinDate,
-        r.seniority,
+        `"${r.seniority},"`,
+        `"${r.seniority},"`,
         r.finishProbation,
         r.fdcCycles[0]?.start || '',
         r.fdcCycles[0]?.finish || '',
@@ -345,36 +435,33 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
         r.fdcCycles[7]?.finish || '',
         r.fdcCycles[8]?.start || '',
         r.fdcCycles[8]?.finish || '',
-        r.udcStartDate,
-        r.isUdcActive ? 'UDC Active' : 'FDC Active',
-        r.nationalId,
-        r.nssf,
-        r.dob,
-        r.basicSalary,
-        r.phone,
-        r.placeOfBirth,
-        r.nationality,
-      ]);
+        r.udcStartDate || '',
+        '',
+        '',
+        '',
+        `"${r.nationalId || ''}"`,
+        `"${r.nssf || ''}"`,
+        r.dob || '',
+        r.dob ? new Date().getFullYear() - new Date(r.dob).getFullYear() : '',
+        r.basicSalary || '',
+        `"${r.phone || ''}"`,
+        `"${r.placeOfBirth || ''}"`,
+        '',
+        '',
+        '',
+        `"${r.nationality || 'Cambodia'}"`
+      ];
+      lines.push(row.join(','));
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Apply Merges for Subheaders
-    ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 38 } }, // Title
-      { s: { r: 1, c: 12 }, e: { r: 1, c: 13 } }, // 1st FDC
-      { s: { r: 1, c: 14 }, e: { r: 1, c: 15 } }, // 2nd FDC
-      { s: { r: 1, c: 16 }, e: { r: 1, c: 17 } }, // 3rd FDC
-      { s: { r: 1, c: 18 }, e: { r: 1, c: 19 } }, // 4th FDC
-      { s: { r: 1, c: 20 }, e: { r: 1, c: 21 } }, // 5th FDC
-      { s: { r: 1, c: 22 }, e: { r: 1, c: 23 } }, // 6th FDC
-      { s: { r: 1, c: 24 }, e: { r: 1, c: 25 } }, // 7th FDC
-      { s: { r: 1, c: 26 }, e: { r: 1, c: 27 } }, // 8th FDC
-      { s: { r: 1, c: 28 }, e: { r: 1, c: 29 } }, // 9th FDC
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, 'Contract Matrix');
-    XLSX.writeFile(wb, `Workers_Period_of_Contract_Matrix_${new Date().toISOString().split('T')[0]}.xlsx`);
+    const csvContent = "\uFEFF" + lines.join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Name_list_of_workers_With_Period_of_Contract_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // Print Form View
@@ -399,6 +486,7 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
           <button
             type="button"
             onClick={handleExportExcel}
+            title="Export ជា Excel តាមទម្រង់ដើម 100% (Exact Original Template)"
             style={{
               background: '#16a34a',
               color: '#ffffff',
@@ -413,7 +501,27 @@ export default function FactoryContractPeriodMatrix({ employees, companySettings
               gap: '6px',
             }}
           >
-            📥 <span>Export ជា Excel (.xlsx)</span>
+            📥 <span>Export ជា Excel (.xlsx) [ទម្រង់ដើម]</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            title="Export ជា CSV តាមទម្រង់ដើម 100% (Exact Original Template CSV)"
+            style={{
+              background: '#0d9488',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '7px',
+              padding: '7px 14px',
+              fontWeight: 700,
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            📄 <span>Export ជា CSV [ទម្រង់ដើម]</span>
           </button>
           <button
             type="button"

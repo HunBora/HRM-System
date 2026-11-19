@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>កំណត់ត្រាវគ្គបណ្ដុះបណ្ដាលបង្ការពន្លត់អគ្គីភ័យ និងជម្លៀសខ្លួនចេញពីអគ្គីភ័យ | Fire Drill and Evacuation Training Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #15803d;
+      --primary-dark: #166534;
+      --primary-light: #dcfce7;
+      --navy: #0f172a;
+      --slate: #334155;
+      --light-bg: #f8fafc;
+      --border: #cbd5e1;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Kantumruy Pro', 'Inter', 'Noto Sans SC', sans-serif;
+      background-color: #525659;
+      color: #1e293b;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Fixed Top Control Bar */
+    .top-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #1e293b;
+      color: #ffffff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toolbar-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-chip {
+      background: #22c55e;
+      color: #064e3b;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #22c55e;
+      color: #052e16;
+    }
+    .btn-primary:hover {
+      background: #16a34a;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: #334155;
+      color: #f1f5f9;
+      border: 1px solid #475569;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: #451a03;
+    }
+    .btn-warning:hover {
+      background: #d97706;
+      color: #ffffff;
+    }
+
+    /* Document Sheet Container (A4) */
+    .document-wrapper {
+      max-width: 210mm;
+      margin: 25px auto;
+      padding-bottom: 50px;
+    }
+
+    .a4-page {
+      background: #ffffff;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 30px auto;
+      padding: 16mm 18mm 16mm 18mm;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Page Header */
+    .doc-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .company-logo-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 8px;
+    }
+
+    .logo-img {
+      max-height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .header-doc-code {
+      text-align: right;
+      font-size: 0.75rem;
+      color: #475569;
+      line-height: 1.35;
+    }
+
+    .doc-main-title {
+      text-align: center;
+      margin: 6px 0 10px 0;
+    }
+
+    .doc-main-title h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.2px;
+      margin-bottom: 2px;
+    }
+
+    .doc-main-title h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      margin-bottom: 2px;
+    }
+
+    .doc-main-title h3 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    /* Meta Info Grid */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .meta-table td {
+      padding: 5px 10px;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+
+    .meta-table .lbl {
+      font-weight: 700;
+      color: #0f172a;
+      width: 22%;
+      background: #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .meta-table .val {
+      color: #1e293b;
+      font-weight: 500;
+    }
+
+    /* Section Styles */
+    .section-title {
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 4px 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      border-left: 4px solid #15803d;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-time-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #166534;
+      background: #dcfce7;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .content-box {
+      font-size: 0.82rem;
+      color: #334155;
+      line-height: 1.55;
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    .content-box p {
+      margin-bottom: 6px;
+    }
+
+    .bullet-list {
+      margin-left: 20px;
+      margin-bottom: 8px;
+    }
+
+    .bullet-list li {
+      margin-bottom: 3px;
+    }
+
+    .sub-bullet-list {
+      margin-left: 20px;
+      margin-top: 3px;
+    }
+
+    .highlight-stat {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-left: 3px solid #dc2626;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #991b1b;
+      margin: 6px 0;
+    }
+
+    /* Photo Containers & Grids */
+    .photo-card {
+      position: relative;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-caption {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #334155;
+      padding: 4px 6px;
+      text-align: center;
+      background: #ffffff;
+      width: 100%;
+      border-top: 1px solid #e2e8f0;
+      line-height: 1.25;
+    }
+
+    .photo-date-stamp {
+      position: absolute;
+      bottom: 24px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fbbf24;
+      font-family: monospace;
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .upload-overlay {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: 0.68rem;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .photo-card:hover .upload-overlay {
+      opacity: 1;
+    }
+
+    /* Grid Layouts by Page */
+    .grid-page2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .grid-page3 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .grid-page4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    /* Signature Section */
+    .signature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #cbd5e1;
+      text-align: center;
+    }
+
+    .sig-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sig-title-kh {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .sig-title-en {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 50px;
+    }
+
+    .sig-line {
+      width: 85%;
+      border-bottom: 1.5px solid #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .sig-name {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .sig-role {
+      font-size: 0.75rem;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    /* Footer Pagination */
+    .page-footer {
+      position: absolute;
+      bottom: 6mm;
+      left: 18mm;
+      right: 18mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 4px;
+    }
+
+    /* Editable Styling */
+    [contenteditable="true"] {
+      outline: none;
+      transition: background 0.2s, box-shadow 0.2s;
+      border-radius: 2px;
+      padding: 1px 3px;
+    }
+
+    [contenteditable="true"]:hover {
+      background: #fef08a;
+      box-shadow: 0 0 0 1px #eab308;
+    }
+
+    [contenteditable="true"]:focus {
+      background: #ffffff;
+      box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    /* Print Setup */
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .top-toolbar {
+        display: none !important;
+      }
+      .upload-overlay {
+        display: none !important;
+      }
+      .document-wrapper {
+        margin: 0;
+        padding: 0;
+        max-width: none;
+      }
+      .a4-page {
+        margin: 0;
+        padding: 12mm 15mm 12mm 15mm;
+        box-shadow: none;
+        page-break-after: always;
+        height: 297mm;
+        max-height: 297mm;
+      }
+      .a4-page:last-child {
+        page-break-after: avoid;
+      }
+      [contenteditable="true"]:hover,
+      [contenteditable="true"]:focus {
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP TOOLBAR -->
+  <div class="top-toolbar">
+    <div class="toolbar-left">
+      <div class="toolbar-title">
+        <span>🧯 របាយការណ៍ហាត់សមអគ្គិភ័យ និងជម្លៀសខ្លួន</span>
+        <span class="badge-chip">SOP-TR-FIRE-001</span>
+      </div>
+      <span style="font-size: 0.78rem; color: #94a3b8;">
+        (Evergreen Sporting Goods • 3 ភាសា • 4 ទំព័រ A4 ពេញលេញ)
+      </span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-secondary" onclick="toggleEditMode()" id="btn-edit-mode">
+        ✏️ <span>របៀបកែសម្រួល (Editable: ON)</span>
+      </button>
+      <button class="btn btn-warning" onclick="resetToOriginalTemplate()">
+        🔄 <span>កំណត់ឡើងវិញ (Reset)</span>
+      </button>
+      <button class="btn btn-primary" onclick="window.print()">
+        🖨️ <span>បោះពុម្ព / រក្សាទុកជា PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="document-wrapper">
+
+    <!-- ==================== PAGE 1 ==================== -->
+    <div class="a4-page" id="page-1">
+      <div class="doc-header">
+        <div class="company-logo-strip">
+          <img src="/images/fire-drill/evergreen_logo.png" alt="Company Logo" class="logo-img" id="company-logo">
+          <div class="header-doc-code">
+            <div><strong>កូដឯកសារ / Form No:</strong> SOP-TR-FIRE-2024</div>
+            <div><strong>កាលបរិច្ឆេទ / Date:</strong> 23-11-2024</div>
+            <div><strong>កំណែ / Version:</strong> Rev 01 (Annual Safety Drill)</div>
+          </div>
+        </div>
+
+        <div class="doc-main-title">
+          <h1 contenteditable="true">កំណត់ត្រាវគ្គបណ្ដុះបណ្ដាលបង្ការពន្លត់អគ្គីភ័យ និងជម្លៀសខ្លួនចេញពីអគ្គីភ័យ</h1>
+          <h2 contenteditable="true">Fire Drill and Evacuation Training Report</h2>
+          <h3 contenteditable="true">消防演练与紧急疏散培训报告</h3>
+        </div>
+      </div>
+
+      <!-- Metadata Table -->
+      <table class="meta-table">
+        <tr>
+          <td class="lbl">កាលបរិច្ឆេទ / Date:</td>
+          <td class="val" contenteditable="true">
+            ថ្ងៃទី 23 ខែ វិច្ឆិកា ឆ្នាំ 2024 វេលាម៉ោង 14:00 - 16:00 នាទី (23-11-2024 From 14:00 till 16:00)
+          </td>
+        </tr>
+        <tr>
+          <td class="lbl">ទីកន្លែង / Place:</td>
+          <td class="val" contenteditable="true">
+            ក្រុមហ៊ុន អេចវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក / Evergreen Sporting Goods (Cambodia) Co., Ltd (长青户外用品)
+          </td>
+        </tr>
+        <tr>
+          <td class="lbl">អ្នកចូលរួម / Participation:</td>
+          <td class="val" contenteditable="true">
+            កម្មករនិយោជិតទាំងអស់ / All Workers / 全体员工 (បុគ្គលិកសរុបប្រមាណ ៥៥ នាក់ និងតំណាងគ្រប់ផ្នែក)
+          </td>
+        </tr>
+        <tr>
+          <td class="lbl">គ្រូឧទ្ទេស / Trainer:</td>
+          <td class="val" contenteditable="true">
+            ភ្នាក់ងារនគរបាលនៃក្រសួងមហាផ្ទៃទទួលបន្ទុកផែនបង្ការនិងពន្លត់អគ្គិភ័យ និង លោក ចាន់ ភារម្យ មន្ត្រីអនុវត្តច្បាប់ប្រចាំក្រុមហ៊ុន<br>
+            <span style="font-size: 0.75rem; color: #64748b;">(Police from Ministry of Interior Responsible For Fire Prevention and Mr. Chan Phearum - HRM)</span>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Section I: Training & Agenda -->
+      <div class="section-title">
+        <span>១. វគ្គបណ្តុះបណ្តាលទ្រឹស្តីក្នុងបន្ទប់ប្រជុំ (Classroom Training & Fire Safety Theory)</span>
+        <span class="section-time-badge">វេលាម៉ោង 14:00 - 14:45</span>
+      </div>
+
+      <div class="content-box">
+        <p contenteditable="true">
+          លោក <strong>ចាន់ ភារម្យ</strong> (HRM) សហការជាមួយ <strong>ភ្នាក់ងារនគរបាលជំនាញបង្ការអគ្គិភ័យ នៃក្រសួងមហាផ្ទៃ</strong> បានរៀបចំវគ្គបណ្តុះបណ្តាលបង្ការនិងពន្លត់អគ្គិភ័យដល់ប្រធានផ្នែក មេក្រុម និងតំណាងកម្មករនិយោជិតមកពីគ្រប់ផ្នែក ដោយផ្តោតលើចំណុចសំខាន់ៗចំនួន ៤ ដូចខាងក្រោម៖
+        </p>
+
+        <ul class="bullet-list" contenteditable="true">
+          <li><strong>១. ការណែនាំដល់ប្រធានក្រុមនិមួយៗ៖</strong> យល់ដឹងពីតួនាទីក្នុងការដឹកនាំការរត់ជម្លៀសកូនចៅ ការរក្សាភាពស្ងប់ស្ងាត់ ការត្រួតពិនិត្យផ្លូវសុវត្ថិភាព និងការគ្រប់គ្រងកម្លាំងពលកម្ម។</li>
+          <li><strong>២. ការរត់ជម្លៀសរបស់កម្មករនិយោជិត និងការយល់ដឹងពីរបៀបបាញ់ពន្លត់អគ្គិភ័យ៖</strong>
+            <ul class="sub-bullet-list">
+              <li><strong>ក. អគ្គីភ័យគឺជាអ្វី?</strong> និយមន័យនៃគ្រោះអគ្គិភ័យ និងផលប៉ះពាល់ធ្ងន់ធ្ងរដល់អាយុជីវិត និងទ្រព្យសម្បត្តិរោងចក្រ។</li>
+              <li><strong>ខ. ធាតុផ្សំបង្កើតអគ្គីភ័យ (Fire Triangle):</strong> កម្តៅ (Heat), អុកស៊ីសែន (Oxygen), និងឥន្ធនៈ/សារធាតុឆេះ (Fuel)។</li>
+              <li><strong>គ. មូលហេតុបង្កអគ្គីភ័យក្នុងរោងចក្រ៖</strong> ការឆ្លងចរន្តអគ្គិសនី (Short Circuit), ម៉ាស៊ីនឡើងកម្តៅ, សារធាតុគីមី/កាវ, និងការមិនប្រុងប្រយ័ត្ន។</li>
+              <li><strong>ឃ. លក្ខណៈ និងថ្នាក់នៃអគ្គីភ័យ (Classes of Fire):</strong> ថ្នាក់ A (ឈើ/ក្រណាត់), ថ្នាក់ B (វត្ថុរាវឆេះ), ថ្នាក់ C (ឧស្ម័ន), ថ្នាក់ E (ចរន្តអគ្គិសនី)។</li>
+              <li><strong>ង. សុវត្ថិភាពក្នុងការគ្រប់គ្រងអគ្គីភ័យ៖</strong> វិធីបង្ការ និងការប្រើប្រាស់ឧបករណ៍ការពារសុវត្ថិភាពផ្ទាល់ខ្លួន (PPE)។</li>
+            </ul>
+          </li>
+          <li><strong>៣. ការស្វែងរកគោលដៅត្រឹមត្រូវសម្រាប់ការជួបជុំ (Emergency Assembly Point):</strong> ការដើរតាមគន្លងផ្លូវជម្លៀសពណ៌លឿង ឆ្ពោះទៅកាន់ទីធ្លាសុវត្ថិភាពខាងមុខរោងចក្រ។</li>
+          <li><strong>៤. ការផ្តល់អនុសាសន៍សម្រាប់ការជម្លៀសខ្លួនប្រកបដោយប្រសិទ្ធភាពខ្ពស់បំផុត៖</strong> ហាមរត់ជាន់គ្នា ហាមឈប់យកទ្រព្យសម្បត្តិផ្ទាល់ខ្លួន ត្រូវឱនក្បាលទាបពេលមានផ្សែង និងប្រមូលផ្តុំរាប់ចំនួនមនុស្សភ្លាមៗ។</li>
+        </ul>
+
+        <p contenteditable="true">
+          <strong>ការប្រជុំមុនពេលជម្លៀសខ្លួន៖</strong> ប្រធានក្រុម និងកម្មករនិយោជិតទាំងអស់គ្នា ដែលជាតំណាងមកពីគ្រប់ផ្នែកបានមកចូលរួមប្រជុំ និងវគ្គបណ្តុះបណ្តាលបង្ការពន្លត់អគ្គិភ័យ និងជម្លៀសខ្លួនចេញពីអគ្គិភ័យ បានមកជួបជុំគ្នានៅបន្ទប់បណ្តុះបណ្តាល វេលាម៉ោង ១៤:០០ ដល់ ១៤:៤៥ នាទី។ ក្នុងនោះលោក ចាន់ ភារម្យ បានបង្រៀនផ្ទាល់ពីតិចនិច និងជំហានប្រើប្រាស់បំពង់ពន្លត់អគ្គិភ័យ (P.A.S.S) វេលាម៉ោង ១៤:២០ ដល់ ១៤:៤០ នាទី មុននឹងចាប់ផ្តើមការហាត់សមជាក់ស្តែង។
+        </p>
+      </div>
+
+      <!-- Photo: Classroom Training -->
+      <div class="photo-card" style="height: 145px; margin-top: auto; margin-bottom: 12px;">
+        <img src="/images/fire-drill/image_01.jpg" alt="Classroom Training Session">
+        <span class="photo-date-stamp">23-11-2024</span>
+        <div class="photo-caption" contenteditable="true">
+          រូបភាពទី ១៖ វគ្គបណ្តុះបណ្តាលទ្រឹស្តី និងបទបង្ហាញស្តីពីការបង្ការអគ្គិភ័យក្នុងបន្ទប់ប្រជុំ (Classroom Presentation & Meeting)
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <span>ក្រុមហ៊ុន អេចវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក | Fire Drill & Evacuation Report</span>
+        <span>ទំព័រទី ១ / ៤ (Page 1 of 4)</span>
+      </div>
+    </div>
+
+
+    <!-- ==================== PAGE 2 ==================== -->
+    <div class="a4-page" id="page-2">
+      <div class="doc-header">
+        <div class="company-logo-strip">
+          <img src="/images/fire-drill/evergreen_logo.png" alt="Company Logo" class="logo-img">
+          <div class="header-doc-code">
+            <div><strong>របាយការណ៍ហាត់សមអគ្គិភ័យ / Fire Drill Report</strong></div>
+            <div><strong>កាលបរិច្ឆេទ / Date:</strong> 23-11-2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section II: Evacuation -->
+      <div class="section-title">
+        <span>២. ការចុចកណ្ដឹងប្រកាសអាសន្ន និងការជម្លៀសខ្លួនក្នុងរោងចក្រ (Alarm Activation & Evacuation)</span>
+        <span class="section-time-badge">វេលាម៉ោង 15:20</span>
+      </div>
+
+      <div class="content-box">
+        <p contenteditable="true">
+          <strong>ការចុចកណ្ដឹងប្រកាសអាសន្ន៖</strong> ក្រុមជាងភ្លើង និងសន្តិសុខប្រចាំការបានចាប់ផ្ដើមចុចកណ្ដឹងប្រកាសអាសន្ន (Fire Alarm Bell) នៅវេលាម៉ោង <strong>១៥:២០ នាទី</strong> ដើម្បីផ្ដល់ជាសញ្ញាអាសន្នដល់កម្មករនិយោជិតទាំងអស់គ្នាឱ្យបានដឹងក្នុងការជម្លៀសខ្លួនចេញពីអគារផលិតកម្ម និងសំដៅទៅកន្លែងជួបជុំសុវត្ថិភាព។
+        </p>
+        <p contenteditable="true">
+          <strong>កំឡុងពេលជម្លៀសខ្លួន៖</strong> កម្មករនិយោជិតនៅតាមក្រុម និងផ្នែកនីមួយៗ បានជម្លៀសខ្លួនទៅតាមប្រធានក្រុមរបស់ខ្លួន ដោយមានប្រធានក្រុមជាអ្នកនាំមុខដើរជាជួរតម្រង់ទៅកាន់កន្លែងជួបជុំនៅទីធ្លាខាងមុខអគារផលិតកម្ម។ បុគ្គលិកទាំងអស់បានអនុវត្តតាមវិធានការសុវត្ថិភាពយ៉ាងម៉ឺងម៉ាត់ មិនរត់ជាន់គ្នា មិនភ័យស្លន់ស្លោ និងដើរតាមគន្លងផ្លូវសុវត្ថិភាពពណ៌លឿង (Yellow Walkways) ឆ្ពោះទៅច្រកទ្វារអាសន្ន (Emergency Fire Exits)។
+        </p>
+        <div class="highlight-stat" contenteditable="true">
+          ⏱️ <strong>រយៈពេលជម្លៀសខ្លួនសរុប (Total Evacuation Time):</strong> ចំណាយពេលត្រឹមតែ <strong>៣ នាទី ២៥ វិនាទី</strong> (3 Minutes 25 Seconds) — ជោគជ័យស្របតាមបទដ្ឋានសុវត្ថិភាពអន្តរជាតិ (ក្រោម ៥ នាទី)។
+        </div>
+      </div>
+
+      <!-- Grid of Photos: Alarm, Evacuation, Line Leaders -->
+      <div style="font-weight: 700; font-size: 0.8rem; color: #1e3a8a; margin-top: 4px;">
+        📸 រូបភាពសកម្មភាពរោទិ៍អាសន្ន និងដំណើរការជម្លៀសតាមជួរ (Evacuation & Team Leaders):
+      </div>
+
+      <!-- Row 1: Ceiling Alarm + Walking in Aisles -->
+      <div class="grid-page2">
+        <div class="photo-card" style="height: 135px;">
+          <img src="/images/fire-drill/image_03.jpg" alt="Ceiling Alarm and Exit Sign">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ២៖ កណ្ដឹងប្រកាសអាសន្ន និងភ្លើងសញ្ញាច្រកចេញសង្គ្រោះបន្ទាន់
+          </div>
+        </div>
+
+        <div class="photo-card" style="height: 135px;">
+          <img src="/images/fire-drill/image_04.jpg" alt="Workers Evacuating Aisles">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៣៖ កម្មករនិយោជិតចាប់ផ្តើមជម្លៀសចេញពីផ្នែកផលិតកម្ម
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Moving through Aisles -->
+      <div class="grid-page2" style="margin-top: 6px;">
+        <div class="photo-card" style="height: 135px;">
+          <img src="/images/fire-drill/image_05.jpg" alt="Workers in Line">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៤៖ បុគ្គលិកដើរជាជួរតាមគន្លងផ្លូវសុវត្ថិភាពពណ៌លឿង
+          </div>
+        </div>
+
+        <div class="photo-card" style="height: 135px;">
+          <img src="/images/fire-drill/image_06.jpg" alt="Exiting Factory">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៥៖ ការជម្លៀសចេញប្រកបដោយរបៀបរៀបរយ និងភាពស្ងប់ស្ងាត់
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Line Leaders with Placards -->
+      <div class="grid-page2" style="margin-top: 6px; margin-bottom: 12px;">
+        <div class="photo-card" style="height: 145px;">
+          <img src="/images/fire-drill/image_07.jpg" alt="Line Leaders Holding Signs">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៦៖ មេក្រុមពាក់អាវចំណាំងផ្លាត និងលើកស្លាកសញ្ញាសម្គាល់ក្រុម (Computer Line / Line 01)
+          </div>
+        </div>
+
+        <div class="photo-card" style="height: 145px;">
+          <img src="/images/fire-drill/image_08.jpg" alt="Line Leaders Line 02">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៧៖ មេក្រុមផ្នែកកាត់ដេរ (ផ្នែកកាត់ដេរ 02) ដឹកនាំជួរជម្លៀសកូនចៅ
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <span>ក្រុមហ៊ុន អេចវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក | Fire Drill & Evacuation Report</span>
+        <span>ទំព័រទី ២ / ៤ (Page 2 of 4)</span>
+      </div>
+    </div>
+
+
+    <!-- ==================== PAGE 3 ==================== -->
+    <div class="a4-page" id="page-3">
+      <div class="doc-header">
+        <div class="company-logo-strip">
+          <img src="/images/fire-drill/evergreen_logo.png" alt="Company Logo" class="logo-img">
+          <div class="header-doc-code">
+            <div><strong>របាយការណ៍ហាត់សមអគ្គិភ័យ / Fire Drill Report</strong></div>
+            <div><strong>កាលបរិច្ឆេទ / Date:</strong> 23-11-2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section III: Assembly Area & Hose Drill -->
+      <div class="section-title">
+        <span>៣. ការប្រមូលផ្តុំនៅទីតាំងសុវត្ថិភាព ការរាប់ចំនួនមនុស្ស និងការហ្វឹកហាត់ទុយោទឹកពន្លត់</span>
+        <span class="section-time-badge">វេលាម៉ោង 15:25 - 15:45</span>
+      </div>
+
+      <div class="content-box">
+        <p contenteditable="true">
+          <strong>នៅកន្លែងជួបជុំ (Emergency Assembly Point):</strong> កម្មករនិយោជិតទាំងអស់គ្នាបានជម្លៀសខ្លួនចេញពីអគារទៅកាន់កន្លែងជួបជុំដោយសុវត្ថិភាពនៅទីធ្លាខាងមុខរោងចក្រ។ ប្រធានក្រុមនិមួយៗបានធ្វើការរាប់ចំនួនមនុស្ស (Headcount & Roll Call) បានយ៉ាងរហ័ស និងរាយការណ៍ជូនមន្ត្រីអនុលោមភាព (Compliance Officer) និងប្រធានរដ្ឋបាល-ធនធានមនុស្ស។ <strong>លទ្ធផល៖</strong> បុគ្គលិកទាំងអស់មានវត្តមានគ្រប់ចំនួន ១០០% គ្មាននរណាម្នាក់បាត់ខ្លួន ឬរងរបួសឡើយ។
+        </p>
+        <p contenteditable="true">
+          <strong>ការហ្វឹកហាត់ប្រព័ន្ធទុយោពន្លត់អគ្គិភ័យ (Fire Hydrant & Hose System):</strong> ភ្នាក់ងារនគរបាលជំនាញបានណែនាំពីការបើកទូពន្លត់អគ្គិភ័យ ការពន្លាខ្សែទុយោ ការតភ្ជាប់ក្បាលរ៉ូប៊ីណេ និងបច្ចេកទេសកាន់ទុយោបាញ់ទឹកសម្ពាធខ្ពស់។ ក្រុមឆ្លើយតបបន្ទាន់ (ERT / Fire Brigade) បានចូលរួមអនុវត្តការបាញ់ទឹកពន្លត់ជាក់ស្តែងយ៉ាងស្ទាត់ជំនាញ។
+        </p>
+      </div>
+
+      <!-- Photos Grid: Page 3 (Assembly, Hydrant, Hose, Assembly crowd, Fire Barrel) -->
+      <div class="grid-page3">
+        <!-- Photo 8: Assembly Point Sign -->
+        <div class="photo-card" style="height: 125px;">
+          <img src="/images/fire-drill/image_09.jpg" alt="Assembly Point Sign">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៨៖ ស្លាកសញ្ញាកន្លែងជួបជុំពេលមានអាសន្ន (Emergency Assembly Point Area)
+          </div>
+        </div>
+
+        <!-- Photo 9: Hydrant Cabinet Instruction -->
+        <div class="photo-card" style="height: 125px;">
+          <img src="/images/fire-drill/image_10.jpg" alt="Police Showing Hydrant Cabinet">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ៩៖ នគរបាលណែនាំពីរបៀបបើកទូពន្លត់អគ្គិភ័យ និងក្បាលទុយោទឹក
+          </div>
+        </div>
+
+        <!-- Photo 10: Holding Fire Hose -->
+        <div class="photo-card" style="height: 125px;">
+          <img src="/images/fire-drill/image_13.jpg" alt="Workers Holding Hose">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ១០៖ ក្រុមការងារហ្វឹកហាត់កាន់ទុយោពន្លត់អគ្គិភ័យតភ្ជាប់ពីម៉ាស៊ីនបូម
+          </div>
+        </div>
+
+        <!-- Photo 11: Spraying High Pressure Water -->
+        <div class="photo-card" style="height: 125px;">
+          <img src="/images/fire-drill/image_15.jpg" alt="Spraying Water Hose">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ១១៖ ការហាត់សមបាញ់ទឹកពន្លត់អគ្គិភ័យជាក់ស្តែងនៅទីធ្លារោងចក្រ
+          </div>
+        </div>
+
+        <!-- Photo 12: Workers Line Up at Assembly Point -->
+        <div class="photo-card" style="height: 125px;">
+          <img src="/images/fire-drill/image_17.jpg" alt="Workers Lined Up Outside">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ១២៖ កម្មករនិយោជិតទាំងអស់ជួបជុំគ្នាតម្រៀបជាជួររង់ចាំការរាប់ចំនួន
+          </div>
+        </div>
+
+        <!-- Photo 13: Controlled Fire Barrel Ignition -->
+        <div class="photo-card" style="height: 125px;">
+          <img src="/images/fire-drill/image_19.jpg" alt="Fire in Barrel for Drill">
+          <span class="photo-date-stamp">23-11-2024</span>
+          <div class="photo-caption" contenteditable="true">
+            រូបភាពទី ១៣៖ ការរៀបចំដុតភ្លើងពិសោធន៍ក្នុងធុងដែកសម្រាប់អនុវត្តការបាញ់ពន្លត់
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <span>ក្រុមហ៊ុន អេចវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក | Fire Drill & Evacuation Report</span>
+        <span>ទំព័រទី ៣ / ៤ (Page 3 of 4)</span>
+      </div>
+    </div>
+
+
+    <!-- ==================== PAGE 4 ==================== -->
+    <div class="a4-page" id="page-4">
+      <div class="doc-header">
+        <div class="company-logo-strip">
+          <img src="/images/fire-drill/evergreen_logo.png" alt="Company Logo" class="logo-img">
+          <div class="header-doc-code">
+            <div><strong>របាយការណ៍ហាត់សមអគ្គិភ័យ / Fire Drill Report</strong></div>
+            <div><strong>កាលបរិច្ឆេទ / Date:</strong> 23-11-2024</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section IV: Extinguisher Drill & Signatures -->
+      <div class="section-title">
+        <span>៤. ការអនុវត្តជាក់ស្តែងដោយបំពង់ពន្លត់អគ្គិភ័យ និងការវាយតម្លៃសន្និដ្ឋាន</span>
+        <span class="section-time-badge">វេលាម៉ោង 15:45 - 16:00</span>
+      </div>
+
+      <div class="content-box">
+        <p contenteditable="true">
+          <strong>ការអនុវត្តបាញ់ពន្លត់ជាក់ស្តែង (Practical Fire Extinguisher Drill):</strong> តំណាងកម្មករនិយោជិត ប្រធានក្រុម និងក្រុមការងារសង្គ្រោះបឋម បានចូលរួមអនុវត្តការបាញ់ពន្លត់ភ្លើងក្នុងធុងពិសោធន៍ដោយផ្ទាល់ដៃ ដោយប្រើប្រាស់បំពង់ពន្លត់ប្រភេទម្សៅគីមីស្ងួត (ABC Dry Powder Extinguisher) ក្រោមការណែនាំយ៉ាងយកចិត្តទុកដាក់ពីមន្ត្រីនគរបាលជំនាញ និងអនុវត្តតាមវិធាន <strong>P.A.S.S</strong> (Pull the pin • Aim at the base of fire • Squeeze the lever • Sweep side to side)។
+        </p>
+
+        <!-- 2 Photos on Page 4 -->
+        <div class="grid-page4">
+          <div class="photo-card" style="height: 155px;">
+            <img src="/images/fire-drill/image_25.jpg" alt="Extinguisher Practice 1">
+            <span class="photo-date-stamp">23-11-2024</span>
+            <div class="photo-caption" contenteditable="true">
+              រូបភាពទី ១៤៖ កម្មករនិយោជិតរៀបចំដកគន្លឹះ និងតម្រង់ក្បាលបាញ់បំពង់ពន្លត់អគ្គិភ័យ
+            </div>
+          </div>
+
+          <div class="photo-card" style="height: 155px;">
+            <img src="/images/fire-drill/image_26.jpg" alt="Extinguisher Practice 2">
+            <span class="photo-date-stamp">23-11-2024</span>
+            <div class="photo-caption" contenteditable="true">
+              រូបភាពទី ១៥៖ ការបាញ់ពន្លត់ភ្លើងជាក់ស្តែងក្នុងធុងពិសោធន៍ដោយជោគជ័យ
+            </div>
+          </div>
+        </div>
+
+        <p contenteditable="true">
+          <strong>ការផ្តល់អនុសាសន៍សម្រាប់ការជម្លៀសខ្លួនដ៏មានប្រសិទ្ធភាពបំផុត៖</strong> បន្ទាប់ពីបានរាប់ចំនួនកម្មករនិយោជិតជម្លៀសខ្លួនទាំងអស់គ្នារួចមក គ្រូបង្ហាត់បានធ្វើការសំណេះសំណាលជាមួយបងប្អូនកម្មករកម្មការិនី និងពន្យល់បន្ថែមពីការរត់ជម្លៀសឱ្យមានសុវត្ថិភាពបំផុត និងបានបង្រៀនអំពីរបៀបប្រើប្រាស់បំពង់ពន្លត់អគ្គីភ័យ ដល់បងប្អូនកម្មករនិយោជិតរបស់ក្រុមហ៊ុន អេចវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក។
+        </p>
+
+        <p contenteditable="true">
+          <strong>ការបញ្ចប់ពេលជម្លៀសខ្លួន៖</strong> ការបង្រៀន និងជម្លៀសខ្លួន បានចប់សព្វគ្រប់ នៅវេលាម៉ោង <strong>១៦:០០ នាទី</strong>។
+        </p>
+
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 3px solid #16a34a; padding: 6px 10px; border-radius: 4px; font-size: 0.78rem; color: #166534; margin: 8px 0;" contenteditable="true">
+          ⚖️ <strong>ការអនុលោមតាមច្បាប់ និងស្តង់ដាសវនកម្ម (Audit & Legal Compliance):</strong> វគ្គហាត់សមនេះត្រូវបានរៀបចំឡើងស្របតាមច្បាប់ស្តីពីការងារនៃព្រះរាជាណាចក្រកម្ពុជា, ប្រកាសស្តីពីសុខភាពនិងសុវត្ថិភាពការងារ OSH, បទប្បញ្ញត្តិក្រសួងមហាផ្ទៃ និងស្តង់ដាសវនកម្មសង្គមអន្តរជាតិ (Better Factories Cambodia - BFC, BSCI Code of Conduct, SMETA 4-Pillar, WRAP Principle 9, ISO 45001:2018)។
+        </div>
+      </div>
+
+      <!-- Signatures Block -->
+      <div class="signature-grid">
+        <div class="sig-block">
+          <div class="sig-title-kh">ធ្វើរបាយការណ៍ដោយ</div>
+          <div class="sig-title-en">Prepared by</div>
+          <div class="sig-line"></div>
+          <div class="sig-name" contenteditable="true">ភឿក លីដា (Pheuk Lyda)</div>
+          <div class="sig-role" contenteditable="true">Compliance Officer</div>
+        </div>
+
+        <div class="sig-block">
+          <div class="sig-title-kh">ពិនិត្យដោយ</div>
+          <div class="sig-title-en">Checked by</div>
+          <div class="sig-line"></div>
+          <div class="sig-name" contenteditable="true">ចាន់ ភារម្យ (Chan Phearum)</div>
+          <div class="sig-role" contenteditable="true">Admin / HR / CSR Manager</div>
+        </div>
+
+        <div class="sig-block">
+          <div class="sig-title-kh">អនុម័តដោយ</div>
+          <div class="sig-title-en">Approved by</div>
+          <div class="sig-line"></div>
+          <div class="sig-name" contenteditable="true">CHEN LANMAO</div>
+          <div class="sig-role" contenteditable="true">General Manager</div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <span>ក្រុមហ៊ុន អេចវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក | Fire Drill & Evacuation Report</span>
+        <span>ទំព័រទី ៤ / ៤ (Page 4 of 4)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let isEditing = true;
+
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      const editables = document.querySelectorAll('[contenteditable]');
+      editables.forEach(el => {
+        el.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+      });
+      const btn = document.getElementById('btn-edit-mode');
+      if (btn) {
+        btn.innerHTML = isEditing ? '✏️ <span>របៀបកែសម្រួល (Editable: ON)</span>' : '👁️ <span>របៀបមើល (View Only)</span>';
+      }
+    }
+
+    function resetToOriginalTemplate() {
+      if (confirm('តើអ្នកពិតជាចង់កំណត់ទម្រង់នេះឡើងវិញទៅតាមទិន្នន័យដើមរបស់រោងចក្រមែនទេ?')) {
+        window.location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

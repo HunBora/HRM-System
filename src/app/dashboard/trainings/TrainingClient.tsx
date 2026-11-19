@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import FireDrillReportTab from './FireDrillReportTab';
 
 interface EmployeeSimple {
   id: string;
@@ -69,7 +70,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; labelKh: string 
 
 export default function TrainingClient({ initialTrainings, initialEnrollments, employees, userRole = 'ADMIN' }: Props) {
   const isHR = userRole === 'ADMIN' || userRole === 'HR_MANAGER' || userRole === 'HR';
-  const [activeTab, setActiveTab] = useState<'trainings' | 'enrollments'>('trainings');
+  const [activeTab, setActiveTab] = useState<'trainings' | 'enrollments' | 'fire-drill'>('trainings');
   const [trainings, setTrainings] = useState<TrainingProgram[]>(initialTrainings);
   const [enrollments, setEnrollments] = useState<TrainingEnrollment[]>(initialEnrollments);
   const [loading, setLoading] = useState(false);
@@ -483,6 +484,30 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                 >
                   📖 <span>កញ្ចប់បណ្តុះបណ្តាល (11+ Modules)</span>
                 </a>
+                <a
+                  href="/docs/fire_drill_evacuation_report.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    backgroundColor: '#166534',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    height: '28px',
+                    boxSizing: 'border-box',
+                    textDecoration: 'none'
+                  }}
+                  title="របាយការណ៍ហាត់សមបង្ការពន្លត់អគ្គិភ័យ និងជម្លៀសខ្លួន ៤ ទំព័រ (Fire Drill & Evacuation Report)"
+                >
+                  🧯 <span>របាយការណ៍អគ្គិភ័យ ↗</span>
+                </a>
                 <button
                   onClick={openCreateTrainingModal}
                   style={{
@@ -651,6 +676,24 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
           }}
         >
           👥 បញ្ជីសិក្ខាកាម & វិញ្ញាបនបត្រ ({enrollments.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('fire-drill')}
+          style={{
+            padding: '5px 12px',
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'fire-drill' ? '2px solid #166534' : '2px solid transparent',
+            color: activeTab === 'fire-drill' ? '#166534' : '#64748b',
+            fontWeight: 700,
+            fontSize: '0.82rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+          }}
+        >
+          🧯 របាយការណ៍ហាត់សមអគ្គិភ័យ (Fire Drill Report)
         </button>
       </div>
 
@@ -989,6 +1032,11 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
             </table>
           </div>
         </div>
+      )}
+
+      {/* Tab 3: Fire Drill and Evacuation Report */}
+      {activeTab === 'fire-drill' && (
+        <FireDrillReportTab />
       )}
 
       {/* Modal: Create/Edit Training */}

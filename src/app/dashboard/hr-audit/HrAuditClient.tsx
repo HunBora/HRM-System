@@ -1706,6 +1706,28 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
                         <div style={{ background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0', fontSize: '0.75rem', lineHeight: '1.3' }}>
                           📑 {item.evidenceKh}
                         </div>
+                        {item.id === 'ehs-2' && (
+                          <a
+                            href="/docs/fire_drill_evacuation_report.html"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              marginTop: '4px',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              background: '#166534',
+                              color: '#ffffff',
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              textDecoration: 'none'
+                            }}
+                          >
+                            🧯 បើករបាយការណ៍ហាត់សមអគ្គិភ័យ (Fire Drill Report) ↗
+                          </a>
+                        )}
                       </td>
 
                       <td style={{ padding: '6px 10px', verticalAlign: 'top', textAlign: 'center' }}>

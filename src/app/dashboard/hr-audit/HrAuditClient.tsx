@@ -1373,6 +1373,58 @@ export default function HrAuditClient({ userRole }: { userRole: string }) {
       {/* TAB: HANDBOOK */}
       {activeTab === 'handbook' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Interactive Curriculum Manual Callout Banner */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+              borderRadius: '14px',
+              padding: '20px 24px',
+              color: '#ffffff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '16px',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '1.4rem' }}>🎓</span>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc' }}>
+                  កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ (Interactive Curriculum Manual)
+                </h3>
+                <span style={{ background: '#2563eb', color: '#fff', fontSize: '0.72rem', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+                  11+ Modules • Custom Editable
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>
+                ចងក្រងតាមស្តង់ដារ BFC, BSCI, SMETA, WRAP និងច្បាប់ការងារកម្ពុជា។ លោកអ្នកអាចកែសម្រួលកូដឯកសារ កាលបរិច្ឆេទ ខ្លឹមសារ ឬបន្ថែម Module ថ្មីបានតាមចិត្ត។
+              </p>
+            </div>
+            <a
+              href="/docs/training_curriculum_manual.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: '#2563eb',
+                color: '#ffffff',
+                padding: '10px 18px',
+                borderRadius: '8px',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'background 0.2s',
+                boxShadow: '0 2px 8px rgba(37,99,235,0.3)',
+              }}
+            >
+              📖 <span>បើកសៀវភៅណែនាំ (Edit & Print)</span> ↗
+            </a>
+          </div>
+
           <div
             style={{
               background: '#ffffff',

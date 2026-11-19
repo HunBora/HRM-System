@@ -459,6 +459,30 @@ export default function TrainingClient({ initialTrainings, initialEnrollments, e
                 >
                   📊 <span>Excel</span>
                 </button>
+                <a
+                  href="/docs/training_curriculum_manual.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    backgroundColor: '#0f172a',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    height: '28px',
+                    boxSizing: 'border-box',
+                    textDecoration: 'none'
+                  }}
+                  title="បើកសៀវភៅណែនាំបណ្តុះបណ្តាលរោងចក្រ ១១ ផ្នែក (អាចកែប្រែ & បន្ថែម Module បាន)"
+                >
+                  📖 <span>កញ្ចប់បណ្តុះបណ្តាល (11+ Modules)</span>
+                </a>
                 <button
                   onClick={openCreateTrainingModal}
                   style={{

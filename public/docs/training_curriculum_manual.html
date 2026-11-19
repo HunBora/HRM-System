@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រ ១១ ផ្នែក (Factory HR & Compliance Master Curriculum Manual)</title>
+  <title>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រ (Interactive Factory HR & Compliance Master Curriculum)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #2563eb;
@@ -20,6 +20,7 @@
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
+      --purple: #7c3aed;
     }
 
     * {
@@ -29,7 +30,7 @@
     }
 
     body {
-      font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Kantumruy Pro', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.75;
@@ -37,20 +38,134 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
       background: var(--card-bg);
       border-radius: 16px;
       box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
       border: 1px solid var(--border);
       padding: 40px;
+      position: relative;
+    }
+
+    /* Top Sticky Control Bar */
+    .top-toolbar {
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #334155;
+      color: #fff;
+      border: 1px solid #475569;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: #475569;
+      transform: translateY(-1px);
+    }
+
+    .toolbar-btn.btn-primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+    }
+    .toolbar-btn.btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .toolbar-btn.btn-edit-active {
+      background: #f59e0b;
+      border-color: #fbbf24;
+      color: #78350f;
+    }
+
+    .toolbar-btn.btn-success {
+      background: #10b981;
+      border-color: #34d399;
+    }
+    .toolbar-btn.btn-success:hover {
+      background: #059669;
+    }
+
+    .toolbar-btn.btn-danger {
+      background: #ef4444;
+      border-color: #f87171;
+    }
+    .toolbar-btn.btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #94a3b8;
+    }
+    .mode-badge.active {
+      background: #fef3c7;
+      color: #b45309;
+      border-color: #fde68a;
+    }
+
+    /* Edit Notice Banner */
+    .edit-notice-banner {
+      display: none;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      color: #92400e;
+      font-size: 0.88rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .edit-notice-banner.show {
+      display: flex;
     }
 
     /* Header & Control Box */
     .header {
       border-bottom: 2px solid #e2e8f0;
       padding-bottom: 24px;
-      margin-bottom: 30px;
+      margin-bottom: 28px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -58,11 +173,17 @@
       gap: 16px;
     }
 
+    .header-title {
+      flex: 1;
+      min-width: 300px;
+    }
+
     .header-title h1 {
       font-size: 1.65rem;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--secondary);
       margin-bottom: 6px;
+      line-height: 1.4;
     }
 
     .header-title p {
@@ -71,42 +192,55 @@
       font-weight: 600;
     }
 
+    /* Document Control Box (Customizable) */
     .doc-control {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 12px 18px;
-      font-size: 0.85rem;
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 0.88rem;
       color: #334155;
+      min-width: 320px;
+      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .doc-control div {
-      margin-bottom: 3px;
+    .doc-control.editable-box {
+      border: 2px dashed #f59e0b;
+      background: #fffdf5;
+      cursor: pointer;
+    }
+    .doc-control.editable-box:hover {
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+
+    .doc-control-row {
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .doc-control strong {
       color: #0f172a;
     }
 
-    .btn-print {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #2563eb;
+    .btn-edit-doccontrol {
+      display: none;
+      margin-top: 8px;
+      width: 100%;
+      padding: 4px 8px;
+      background: #f59e0b;
       color: #fff;
       border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-weight: 600;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
       cursor: pointer;
       font-family: inherit;
-      font-size: 0.9rem;
-      text-decoration: none;
-      transition: background 0.2s;
     }
-
-    .btn-print:hover {
-      background: var(--primary-dark);
+    .editable-box .btn-edit-doccontrol {
+      display: block;
     }
 
     /* Roadmap box */
@@ -137,9 +271,10 @@
     .roadmap-phase.p2 { border-left-color: #059669; }
     .roadmap-phase.p3 { border-left-color: #d97706; }
     .roadmap-phase.p4 { border-left-color: #7c3aed; }
+    .roadmap-phase.p-custom { border-left-color: #ec4899; }
 
     .roadmap-phase h4 {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
@@ -147,10 +282,11 @@
     }
 
     .roadmap-phase p {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 600;
       color: var(--secondary);
       margin-bottom: 0;
+      line-height: 1.5;
     }
 
     /* Navigation TOC */
@@ -162,13 +298,22 @@
       margin-bottom: 36px;
     }
 
+    .toc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
     .toc h3 {
       font-size: 1.15rem;
       color: #1e3a8a;
-      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
+      margin: 0;
+      border: none;
+      padding: 0;
     }
 
     .toc ul {
@@ -176,6 +321,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 10px;
+      padding: 0;
     }
 
     .toc a {
@@ -184,10 +330,11 @@
       font-weight: 500;
       font-size: 0.88rem;
       display: block;
-      padding: 6px 10px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.7);
-      transition: background 0.15s, transform 0.1s;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #dbeafe;
+      transition: all 0.15s;
     }
 
     .toc a:hover {
@@ -195,20 +342,46 @@
       transform: translateX(3px);
     }
 
-    /* Section Styles */
+    /* Module Card */
     .module-card {
-      margin-bottom: 40px;
+      margin-bottom: 36px;
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
       background: #fff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+
+    .module-card:hover {
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
     .module-header {
       background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
       color: #fff;
-      padding: 18px 24px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .module-header-text {
+      flex: 1;
+    }
+
+    .module-header h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .module-header p {
+      font-size: 0.86rem;
+      opacity: 0.92;
+      margin-top: 3px;
     }
 
     .module-header.m1  { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
@@ -222,21 +395,60 @@
     .module-header.m9  { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
     .module-header.m10 { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
     .module-header.m11 { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
+    .module-header.m-custom { background: linear-gradient(135deg, #be185d 0%, #9d174d 100%); }
     .module-header.m-app { background: linear-gradient(135deg, #475569 0%, #1e293b 100%); }
 
-    .module-header h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
+    .module-actions {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .edit-mode-active .module-actions {
+      display: flex;
     }
 
-    .module-header p {
-      font-size: 0.88rem;
-      opacity: 0.92;
-      margin-top: 3px;
+    .btn-mod-action {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-mod-action:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+    .btn-mod-action.btn-mod-delete {
+      background: rgba(239, 68, 68, 0.8);
+      border-color: #ef4444;
+    }
+    .btn-mod-action.btn-mod-delete:hover {
+      background: #dc2626;
     }
 
     .module-body {
       padding: 26px;
+    }
+
+    /* ContentEditable visual cues */
+    .edit-mode-active [contenteditable="true"] {
+      outline: 2px dashed #cbd5e1;
+      outline-offset: 4px;
+      border-radius: 4px;
+      padding: 2px 4px;
+      transition: outline-color 0.2s, background 0.2s;
+    }
+    .edit-mode-active [contenteditable="true"]:hover {
+      outline-color: #f59e0b;
+      background: rgba(254, 243, 199, 0.2);
+    }
+    .edit-mode-active [contenteditable="true"]:focus {
+      outline-color: #2563eb;
+      background: #eff6ff;
     }
 
     h3 {
@@ -277,6 +489,7 @@
     .badge-yellow { background: #fef3c7; color: #b45309; }
     .badge-red { background: #fee2e2; color: #b91c1c; }
     .badge-purple { background: #ede9fe; color: #6d28d9; }
+    .badge-pink { background: #fce7f3; color: #be185d; }
 
     /* Tables */
     table {
@@ -368,6 +581,151 @@
       margin-bottom: 4px;
     }
 
+    /* Floating Add Module Button */
+    .btn-add-module-big {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      margin: 30px 0;
+      background: #f8fafc;
+      border: 2px dashed #94a3b8;
+      border-radius: 12px;
+      color: #334155;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-add-module-big:hover {
+      background: #eff6ff;
+      border-color: #2563eb;
+      color: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    /* Modals (Doc Control, Add Module, Legal Guide) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      border: 1px solid #e2e8f0;
+      padding: 28px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .modal-header h3 {
+      font-size: 1.25rem;
+      color: #0f172a;
+      margin: 0;
+      border: none;
+      padding: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: #0f172a;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea.form-control {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 2px solid #f1f5f9;
+      padding-top: 16px;
+      margin-top: 20px;
+    }
+
+    /* Toast Notification */
+    .toast-notice {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
     /* Print styling */
     @media print {
       body {
@@ -380,40 +738,93 @@
         padding: 0;
         max-width: 100%;
       }
-      .btn-print, .toc, .roadmap-box {
+      .top-toolbar, .edit-notice-banner, .btn-add-module-big, .module-actions, .btn-edit-doccontrol, .modal-overlay, .toast-notice {
+        display: none !important;
+      }
+      .doc-control {
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+      }
+      .toc, .roadmap-box {
         display: none;
       }
       .module-card {
         page-break-after: always;
         border: 1px solid #ccc;
+        box-shadow: none !important;
+      }
+      [contenteditable="true"] {
+        outline: none !important;
+        background: transparent !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <!-- Floating Toast -->
+  <div id="toast" class="toast-notice">
+    <span id="toast-icon">✅</span>
+    <span id="toast-msg">បានរក្សាទុកការកែប្រែដោយជោគជ័យ!</span>
+  </div>
+
+  <div class="container" id="printable-area">
+
+    <!-- Top Toolbar (Hidden on Print) -->
+    <div class="top-toolbar">
+      <div class="toolbar-left">
+        <span class="mode-badge" id="mode-badge">👁️ របៀបមើល (View Mode)</span>
+        <button class="toolbar-btn" id="btn-toggle-edit" onclick="toggleEditMode()">✏️ បើករបៀបកែប្រែ (Edit Mode)</button>
+        <button class="toolbar-btn btn-primary" onclick="openAddModuleModal()">➕ បន្ថែម Module ថ្មី</button>
+        <button class="toolbar-btn" onclick="openDocControlModal()">⚙️ កែសម្រួលកូដឯកសារ & ព័ត៌មាន</button>
+      </div>
+      <div class="toolbar-right">
+        <button class="toolbar-btn" onclick="openLegalGuideModal()">⚖️ មគ្គុទ្ទេសក៍ច្បាប់ការងារ</button>
+        <button class="toolbar-btn btn-success" onclick="saveAllChanges()">💾 រក្សាទុក (Save)</button>
+        <button class="toolbar-btn" onclick="resetDefaultCurriculum()">🔄 កំណត់ដើមវិញ</button>
+        <button class="toolbar-btn btn-primary" onclick="window.print()">🖨️ បោះពុម្ព / PDF</button>
+      </div>
+    </div>
+
+    <!-- Edit Notice Banner -->
+    <div id="edit-notice" class="edit-notice-banner">
+      <div>
+        <strong>✏️ របៀបកែប្រែកំពុងដំណើរការ៖</strong> លោកអ្នកអាចចុចលើអត្ថបទផ្ទាល់ (Heading, កថាខណ្ឌ, តារាង, Q&A) ដើម្បីកែប្រែពាក្យ ឬចុចប៊ូតុងកែប្រែលើ Module នីមួយៗបានតាមចិត្ត!
+      </div>
+      <button class="toolbar-btn btn-success" onclick="saveAllChanges()">💾 រក្សាទុកឥឡូវនេះ</button>
+    </div>
+
     <!-- Header -->
     <div class="header">
       <div class="header-title">
-        <h1>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ ១១ ផ្នែក</h1>
-        <p>Comprehensive Factory HR & Compliance Management Curriculum Manual (Master Edition)</p>
+        <h1 id="doc-title" contenteditable="false">កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ ១១ ផ្នែក</h1>
+        <p id="doc-subtitle" contenteditable="false">Comprehensive Factory HR & Compliance Management Curriculum Manual (Master Edition)</p>
       </div>
-      <div class="doc-control">
-        <div><strong>កូដឯកសារ:</strong> SOP-TR-2026-V2</div>
-        <div><strong>កំណែប្រែ:</strong> Rev 2.0 (Master 11-Section Edition)</div>
-        <div><strong>ផ្នែកទទួលបន្ទុក:</strong> Human Resources & Social Compliance</div>
-        <div><strong>កាលបរិច្ឆេទអនុវត្ត:</strong> ខែវិច្ឆិកា ឆ្នាំ២០២៦</div>
-      </div>
-      <div>
-        <button class="btn-print" onclick="window.print()">🖨️ បោះពុម្ព / រក្សាទុកជា PDF</button>
+      <div class="doc-control" id="doc-control-box" title="ចុចដើម្បីកែប្រែកូដឯកសារ និងព័ត៌មានរដ្ឋបាល" onclick="if(isEditMode) openDocControlModal();">
+        <div class="doc-control-row">
+          <span><strong>កូដឯកសារ:</strong></span>
+          <span id="ctrl-code">SOP-TR-2026-V2</span>
+        </div>
+        <div class="doc-control-row">
+          <span><strong>កំណែប្រែ:</strong></span>
+          <span id="ctrl-rev">Rev 2.0 (Master 11-Section Edition)</span>
+        </div>
+        <div class="doc-control-row">
+          <span><strong>ផ្នែកទទួលបន្ទុក:</strong></span>
+          <span id="ctrl-dept">Human Resources & Social Compliance</span>
+        </div>
+        <div class="doc-control-row">
+          <span><strong>កាលបរិច្ឆេទអនុវត្ត:</strong></span>
+          <span id="ctrl-date">ខែវិច្ឆិកា ឆ្នាំ២០២៦</span>
+        </div>
+        <button class="btn-edit-doccontrol" onclick="event.stopPropagation(); openDocControlModal();">✏️ កែប្រែព័ត៌មានឯកសារ</button>
       </div>
     </div>
 
     <!-- Roadmap overview -->
-    <div class="roadmap-box">
+    <div class="roadmap-box" id="roadmap-container">
       <h3>🧭 ផែនទីបង្ហាញផ្លូវវគ្គបណ្តុះបណ្តាល (11-Section Training Roadmap)</h3>
-      <div class="roadmap-grid">
+      <div class="roadmap-grid" id="roadmap-grid">
         <div class="roadmap-phase p1">
           <h4>ដំណាក់កាលទី ១៖ មូលដ្ឋានគ្រឹះ</h4>
           <p>M1. ច្បាប់ការងារ & គតិយុត្ត<br>M2. ការជ្រើសរើស & កុមារ<br>M3. វិន័យ & បទបញ្ជាផ្ទៃក្នុង</p>
@@ -434,340 +845,33 @@
     </div>
 
     <!-- Table of Contents -->
-    <div class="toc">
-      <h3>📑 មាតិកានៃសៀវភៅណែនាំ (Table of Contents)</h3>
-      <ul>
-        <li><a href="#m1">Module 1: ច្បាប់ស្តីពីការងារ និងក្របខ័ណ្ឌគតិយុត្ត</a></li>
-        <li><a href="#m2">Module 2: យុទ្ធសាស្ត្រជ្រើសរើសបុគ្គលិក & ពលកម្មកុមារ</a></li>
-        <li><a href="#m3">Module 3: ពិធីសារគ្រប់គ្រងបុគ្គលិក វិន័យ & បទបញ្ជា</a></li>
-        <li><a href="#m4">Module 4: សុវត្ថិភាព និងសុខភាពការងារ (OHS)</a></li>
-        <li><a href="#m5">Module 5: ក្រមសីលធម៌បរិស្ថាន សំណល់ & សារធាតុគីមី</a></li>
-        <li><a href="#m6">Module 6: សវនកម្មសង្គម (BFC, BSCI, SMETA, WRAP)</a></li>
-        <li><a href="#m7">Module 7: ទំនាក់ទំនងការងារ & យន្តការបណ្តឹងសារទុក្ខ</a></li>
-        <li><a href="#m8">Module 8: ប្រព័ន្ធប្រាក់ឈ្នួល គណនា Payroll & អត្ថប្រយោជន៍</a></li>
-        <li><a href="#m9">Module 9: វិភាគរកឫសគល់ (RCA) & ផែនការកែតម្រូវ (CAP)</a></li>
-        <li><a href="#m10">Module 10: ប្រតិបត្តិការរោងចក្រ & មេការ JDs</a></li>
-        <li><a href="#m11">Module 11: ការធ្វើ Mock Audit & ឡើងជាថ្នាក់គ្រប់គ្រង</a></li>
-        <li><a href="#appendices">កម្រងឧបសម្ព័ន្ធ៖ Toolkits, Templates & គំរូអនុវត្ត</a></li>
+    <div class="toc" id="toc-container">
+      <div class="toc-header">
+        <h3>📑 មាតិកានៃសៀវភៅណែនាំ (Table of Contents)</h3>
+        <span class="badge badge-blue" id="toc-count-badge">១១ ម៉ូឌុល</span>
+      </div>
+      <ul id="toc-list">
+        <!-- Dynamically populated or rendered from state -->
       </ul>
     </div>
 
-    <!-- MODULE 1 -->
-    <div class="module-card" id="m1">
-      <div class="module-header m1">
-        <h2>Module 1: ច្បាប់ស្តីពីការងារ និងក្របខ័ណ្ឌគតិយុត្ត (Essential Labor Laws & Legal Framework)</h2>
-        <p>សិទ្ធិ កាតព្វកិច្ច ក្របខ័ណ្ឌកិច្ចសន្យាការងារ និងការការពារស្របច្បាប់នៃព្រះរាជាណាចក្រកម្ពុជា</p>
-      </div>
-      <div class="module-body">
-        <h3>១. ក្របខ័ណ្ឌកិច្ចសន្យាការងារ ៣ ប្រភេទ</h3>
-        <ul>
-          <li><strong>កិច្ចសន្យាសាកល្បងការងារ (Probation Contract):</strong> រយៈពេលអតិបរមា ៣ ខែ (ការិយាល័យ/ជំនាញ), ១ ខែ (កម្មករជំនាញ), ១ សប្តាហ៍ (ពលកម្មសាមញ្ញ)។ បញ្ចប់បានគ្រប់ពេលដោយគ្មានសំណងបើតេស្តមិនជាប់។</li>
-          <li><strong>កិច្ចសន្យាមានថេរវេលាកំណត់ (Fixed Duration Contract - FDC):</strong> ធ្វើជាលាយលក្ខណ៍អក្សរ។ រយៈពេលលើកដំបូងអតិបរមា ២ ឆ្នាំ។ អាចបន្តបានម្តង ឬច្រើនដងដរាបណារយៈពេលសរុបមិនលើស ២ ឆ្នាំ (២៤ ខែ)។ បើលើស ២ ឆ្នាំ ក្លាយជា UDC ដោយស្វ័យប្រវត្តិតាមមាត្រា ៦៧។ ប្រាក់បំណាច់បញ្ចប់កិច្ចសន្យា ៥% (Severance Pay)។</li>
-          <li><strong>កិច្ចសន្យាគ្មានថេរវេលាកំណត់ (Undetermined Duration Contract - UDC):</strong> ផ្តល់សន្តិសុខការងាររឹងមាំ ការពារដោយការជូនដំណឹងមុន (Prior Notice) និងប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity)។</li>
-        </ul>
-
-        <h3>២. ម៉ោងធ្វើការ និងការឈប់សម្រាកស្របច្បាប់</h3>
-        <p>ម៉ោងធ្វើការធម្មតាអតិបរមា ៨ ម៉ោង/ថ្ងៃ ឬ ៤៨ ម៉ោង/សប្តាហ៍។ សម្រាកប្រចាំសប្តាហ៍យ៉ាងតិច ២៤ ម៉ោងជាប់គ្នា (ថ្ងៃអាទិត្យ)។ ឈប់សម្រាកប្រចាំឆ្នាំ ១៨ ថ្ងៃ/ឆ្នាំ សម្រាប់អ្នកធ្វើការពេញ ១ ឆ្នាំ (ថែម ១ ថ្ងៃរៀងរាល់ ៣ ឆ្នាំអតីតភាព)។</p>
-
-        <div class="qa-box">
-          <div class="qa-q">❓ សំណួរ៖ ប្រសិនបើកិច្ចសន្យា FDC បន្តសរុបរយៈពេលដល់ ២ ឆ្នាំពេញ តើរោងចក្រអាចបន្ត FDC ទៀតបានទេ?</div>
-          <div class="qa-a">💡 ចម្លើយ៖ ដាច់ខាតមិនអាចបន្តជា FDC បានទៀតឡើយ។ រោងចក្រត្រូវប្តូរកិច្ចសន្យាទៅជា UDC (គ្មានថេរវេលាកំណត់) ជាស្វ័យប្រវត្តិតាមមាត្រា ៦៧ នៃច្បាប់ការងារកម្ពុជា។</div>
-        </div>
-      </div>
+    <!-- MODULES CONTAINER -->
+    <div id="modules-container">
+      <!-- Modules will be dynamically injected here from state -->
     </div>
 
-    <!-- MODULE 2 -->
-    <div class="module-card" id="m2">
-      <div class="module-header m2">
-        <h2>Module 2: យុទ្ធសាស្ត្រជ្រើសរើសបុគ្គលិក និងការទប់ស្កាត់ពលកម្មកុមារ (Recruitment & Child Labor Prevention)</h2>
-        <p>នីតិវិធីជ្រើសរើសដោយស្មើភាព តម្លាភាព និងវិធានការការពារពលកម្មកុមារ ១០០%</p>
-      </div>
-      <div class="module-body">
-        <h3>១. ពិធីសារផ្ទៀងផ្ទាត់អាយុ ៤ ជំហាន (Age Verification SOP)</h3>
-        <div class="step-flow">
-          <div class="step-item">
-            <strong>ជំហាន ១៖ ប្រមូលឯកសារ</strong>
-            អត្តសញ្ញាណប័ណ្ណ សំបុត្រកំណើត ឬសៀវភៅគ្រួសារច្បាប់ដើម (Original Documents)
-          </div>
-          <div class="step-item">
-            <strong>ជំហាន ២៖ ពិនិត្យកាយវិការ & ត្រា</strong>
-            ផ្ទៀងផ្ទាត់ត្រារដ្ឋបាល រូបថត ស្នាមកោសលុប និងថ្ងៃខែឆ្នាំកំណើត
-          </div>
-          <div class="step-item">
-            <strong>ជំហាន ៣៖ សម្ភាសន៍ផ្ទៀងផ្ទាត់</strong>
-            សួរសំណួរចិនសែ (ឆ្នាំកំណើត) សាលារៀន ឈ្មោះឪពុកម្តាយ និងបងប្អូន
-          </div>
-          <div class="step-item">
-            <strong>ជំហាន ៤៖ សម្រេចចិត្ត</strong>
-            ≥១៨ ឆ្នាំ៖ កិច្ចសន្យាធម្មតា | ១៥-១៧ ឆ្នាំ៖ កម្មករវ័យក្មេង | &lt;១៥ ឆ្នាំ៖ បដិសេធ & ស្តារនីតិសម្បទា
-          </div>
-        </div>
-
-        <h3>២. វិធានការការពារកម្មករវ័យក្មេង (អាយុ ១៥ ដល់ក្រោម ១៨ ឆ្នាំ)</h3>
-        <ul>
-          <li>ហាមដាច់ខាតមិនឱ្យធ្វើការងារធ្ងន់ធ្ងរ កន្លែងគីមីគ្រោះថ្នាក់ ម៉ាស៊ីនកាត់ ម៉ាស៊ីន Boiler ឬលើកធ្ងន់។</li>
-          <li>ហាមធ្វើការលើសពី ៨ ម៉ោង/ថ្ងៃ និងហាមដាច់ខាតមិនឱ្យធ្វើការថែមម៉ោង (OT)។</li>
-          <li>ហាមធ្វើការងារវេនយប់ (ចន្លោះម៉ោង ១០:០០ យប់ ដល់ ០៥:០០ ព្រឹក)។</li>
-        </ul>
-
-        <h3>៣. នីតិវិធីស្តារនីតិសម្បទាពលកម្មកុមារ (Child Labor Remediation)</h3>
-        <p>ករណីរកឃើញកុមារអាយុក្រោម ១៥ ឆ្នាំធ្វើការដោយអចេតនា៖ ត្រូវដកចេញពីផលិតកម្មភ្លាមៗទៅកាន់បន្ទប់សុវត្ថិភាព ជូនដំណឹងដល់ឪពុកម្តាយ និងបន្តឧបត្ថម្ភប្រាក់ស្មើនឹងប្រាក់ឈ្នួលអប្បបរមាប្រចាំខែរហូតដល់កុមារគ្រប់អាយុ ១៥ ឆ្នាំ ដោយភ្ជាប់លក្ខខណ្ឌឱ្យកុមារចូលរៀននៅសាលា។</p>
-      </div>
-    </div>
-
-    <!-- MODULE 3 -->
-    <div class="module-card" id="m3">
-      <div class="module-header m3">
-        <h2>Module 3: ពិធីសារគ្រប់គ្រងបុគ្គលិក វិន័យ និងបទបញ្ជាផ្ទៃក្នុង (Personnel Management & Discipline)</h2>
-        <p>ការគ្រប់គ្រងវត្តមាន ឋានានុក្រមវិធានការវិន័យ ៥ កម្រិត និងបទបញ្ជាផ្ទៃក្នុងស្របច្បាប់</p>
-      </div>
-      <div class="module-body">
-        <h3>១. ឋានានុក្រមនៃវិធានការវិន័យ ៥ កម្រិត (Progressive Discipline)</h3>
-        <ol>
-          <li><strong>កម្រិត ១៖ ការរំលឹកផ្ទាល់មាត់ (Verbal Warning):</strong> ណែនាំដោយឡែកដោយសន្តិវិធី កត់ត្រាទុកក្នុងកំណត់ត្រាផ្ទៃក្នុង។</li>
-          <li><strong>កម្រិត ២៖ លិខិតព្រមានលើកទី ១ (Written Warning 1):</strong> ចេញលិខិតផ្លូវការ មានសុពលភាព ៣ ខែ។</li>
-          <li><strong>កម្រិត ៣៖ លិខិតព្រមានលើកទី ២ (Written Warning 2):</strong> ករណីបន្តប្រព្រឹត្តកំហុសដដែលក្នុងអំឡុងសុពលភាពលិខិតទី ១។</li>
-          <li><strong>កម្រិត ៤៖ លិខិតព្រមានចុងក្រោយ (Final Warning):</strong> ការព្រមានកម្រិតខ្ពស់បំផុតមុនឈានដល់ការបញ្ចប់ការងារ។</li>
-          <li><strong>កម្រិត ៥៖ ការបញ្ឈប់ពីការងារ (Termination):</strong> អនុវត្តករណីបន្តខុស ឬកំហុសធ្ងន់ធ្ងរ (Serious Misconduct)។</li>
-        </ol>
-
-        <div class="callout callout-warning">
-          <strong>⚠️ ការអនុវត្តស្របច្បាប់៖</strong> លិខិតព្រមាននីមួយៗត្រូវផ្តល់សិទ្ធិឱ្យកម្មករបកស្រាយហេតុផល និងមានតំណាងកម្មករចូលរួមស្តាប់។ ហាមដាច់ខាតការកាត់ប្រាក់ខែជាទណ្ឌកម្មវិន័យ (ច្បាប់ការងារហាមឃាត់ការផាកពិន័យជាប្រាក់)។
-        </div>
-      </div>
-    </div>
-
-    <!-- MODULE 4 -->
-    <div class="module-card" id="m4">
-      <div class="module-header m4">
-        <h2>Module 4: សុវត្ថិភាព និងសុខភាពការងារ (Occupational Health & Safety - OHS)</h2>
-        <p>គណៈកម្មការ OSH ការវាយតម្លៃហានិភ័យ សុវត្ថិភាពអគ្គិសនី និងការត្រៀមបង្ការគ្រោះអាសន្ន</p>
-      </div>
-      <div class="module-body">
-        <h3>១. រចនាសម្ព័ន្ធគណៈកម្មការ OSH</h3>
-        <p>ត្រូវមានសមាសភាពស្មើគ្នារវាងតំណាងនិយោជក និងតំណាងកម្មករ (រួមទាំងកម្មករស្រ្តី និងគិលានុបដ្ឋាក)។ ប្រជុំ និងដើរត្រួតពិនិត្យរួមគ្នាប្រចាំខែ (Joint Walkthrough) និងរៀបចំការហ្វឹកហាត់ជម្លៀសខ្លួនពន្លត់អគ្គិភ័យយ៉ាងតិច ២ ដង/ឆ្នាំ។</p>
-
-        <h3>២. តារាងស្តង់ដារត្រួតពិនិត្យសុវត្ថិភាព</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>ចំណុចត្រួតពិនិត្យ</th>
-              <th>ស្តង់ដារបច្ចេកទេស</th>
-              <th>ស្ថានភាពអនុវត្ត</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>ទូបញ្ជាអគ្គិសនី (DB Panel)</strong></td>
-              <td>បិទជិត មានសោ ដាក់ស្លាកសញ្ញាគ្រោះថ្នាក់ <strong>ទុកគម្លាតទទេយ៉ាងតិច ១ ម៉ែត្រ</strong> មុខទូ</td>
-              <td><span class="badge badge-green">តម្រូវដាច់ខាត</span></td>
-            </tr>
-            <tr>
-              <td><strong>បំពង់ពន្លត់អគ្គិភ័យ</strong></td>
-              <td>កម្ពស់អតិបរមា ១.៥ម, កុងទ័រនៅតំបន់បៃតង, គ្មានសម្ភារៈរាំងស្ទះ, ត្រួតពិនិត្យរាល់ខែ</td>
-              <td><span class="badge badge-green">តម្រូវដាច់ខាត</span></td>
-            </tr>
-            <tr>
-              <td><strong>ច្រកចេញអាសន្ន (Emergency Exits)</strong></td>
-              <td>ទ្វាររុញចេញក្រៅ (Push-Bar), មិនចាក់សោក្នុងម៉ោងការងារ, ភ្លើង Exit បំភ្លឺជាប់</td>
-              <td><span class="badge badge-red">Zero Tolerance បើចាក់សោ</span></td>
-            </tr>
-            <tr>
-              <td><strong>ប្រអប់ First Aid & បន្ទប់ពេទ្យ</strong></td>
-              <td>មានសម្ភារៈ ១៦ មុខគ្រប់គ្រាន់, មិនចាក់សោ, មានគ្រូពេទ្យ/គិលានុបដ្ឋាកប្រចាំការ</td>
-              <td><span class="badge badge-blue">តាមចំនួនកម្មករ</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- MODULE 5 -->
-    <div class="module-card" id="m5">
-      <div class="module-header m5">
-        <h2>Module 5: ក្រមសីលធម៌បរិស្ថាន ការគ្រប់គ្រងសំណល់ និងសារធាតុគីមី (Environmental Ethics & Chemical Safety)</h2>
-        <p>ការបែងចែកសំរាម ៤ ពណ៌ សុវត្ថិភាពសារធាតុគីមី សន្លឹក SDS និងការការពារការកំពប់</p>
-      </div>
-      <div class="module-body">
-        <h3>១. ប្រព័ន្ធគ្រប់គ្រងសំណល់ ៤ ពណ៌</h3>
-        <ul>
-          <li><span class="badge badge-green">ធុងបៃតង</span> <strong>សំណល់សរីរាង្គ៖</strong> កាកសំណល់ម្ហូបអាហារ បន្លែ ផ្លែឈើ ស្លឹកឈើ។</li>
-          <li><span class="badge badge-blue">ធុងខៀវ</span> <strong>សំណល់កែច្នៃបាន៖</strong> ក្រដាស កេសកាតុង ដបជ័រ ដែក កំប៉ុង។</li>
-          <li><span class="badge badge-yellow">ធុងលឿង</span> <strong>សំណល់ទូទៅ៖</strong> ថង់ប្លាស្ទិកកខ្វក់ ក្រដាសសើម សម្ភារៈមិនអាចកែច្នៃបាន។</li>
-          <li><span class="badge badge-red">ធុងក្រហម</span> <strong>សំណល់គ្រោះថ្នាក់/គីមី៖</strong> កម្ទេចក្រណាត់ប្រឡាក់ប្រេង ដបគីមី ថ្មពិល អំពូលម៉ែត្រ។</li>
-        </ul>
-
-        <h3>២. វិធានការសុវត្ថិភាពសារធាតុគីមី</h3>
-        <p>គ្រប់ធុងគីមីត្រូវតែមាន <strong>សន្លឹកទិន្នន័យសុវត្ថិភាព (SDS) ជាភាសាខ្មែរ</strong> និងត្រូវដាក់លើ <strong>អាងស្តុកបន្ទាប់បន្សំ (Secondary Containment)</strong> ដែលអាចផ្ទុកចំណុះបានយ៉ាងតិច ១១០% នៃធុងធំបំផុត។ កន្លែងលាងភ្នែកបន្ទាន់ (Eyewash) ត្រូវនៅចម្ងាយមិនលើសពី ១០ វិនាទីនៃការដើរ។</p>
-      </div>
-    </div>
-
-    <!-- MODULE 6 -->
-    <div class="module-card" id="m6">
-      <div class="module-header m6">
-        <h2>Module 6: សវនកម្មទំនួលខុសត្រូវសង្គម និងស្តង់ដារអន្តរជាតិ (Social Responsibility Audits)</h2>
-        <p>ការត្រៀមខ្លួនសម្រាប់សវនកម្ម BFC, amfori BSCI, Sedex SMETA, WRAP និងការទប់ស្កាត់ Zero Tolerance</p>
-      </div>
-      <div class="module-body">
-        <h3>១. ដំណើរការសវនកម្ម ៣ ត្រីកោណ (Triangulation Audit Method)</h3>
-        <p>សវនករវាយតម្លៃផ្ទៀងផ្ទាត់ឆ្លងគ្នារវាង៖ <strong>(១) ការពិនិត្យឯកសារ</strong> (Payroll, ម៉ោងស្កេន, កិច្ចសន្យា), <strong>(២) ការដើរពិនិត្យទីតាំងជាក់ស្តែង</strong> (អនាម័យ, ភ្លើង, ច្រកចេញ), និង <strong>(៣) ការសម្ភាសន៍កម្មករជាសម្ងាត់</strong> ដោយគ្មានវត្តមានថ្នាក់គ្រប់គ្រង។</p>
-
-        <h3>២. បញ្ហា Zero Tolerance ដែលនាំឱ្យធ្លាក់សវនកម្មភ្លាមៗ</h3>
-        <div class="callout callout-danger">
-          <strong>🚫 បញ្ហាហាមឃាត់ដាច់ខាត៖</strong>
-          <br>១. រកឃើញពលកម្មកុមារ (Child Labor)
-          <br>២. ពលកម្មដោយបង្ខំ (Forced Labor / ចាក់សោទ្វារ / ដកហូតលិខិតឆ្លងដែន)
-          <br>៣. អំពើហិង្សា ឬការបៀតបៀនផ្លូវភេទធ្ងន់ធ្ងរ
-          <br>៤. ការក្លែងបន្លំឯកសារ ឬការសូកប៉ាន់សវនករ (Bribery / Double Books)
-        </div>
-      </div>
-    </div>
-
-    <!-- MODULE 7 -->
-    <div class="module-card" id="m7">
-      <div class="module-header m7">
-        <h2>Module 7: ទំនាក់ទំនងការងារ កិច្ចសន្ទនាសង្គម និងយន្តការបណ្តឹងសារទុក្ខ (Industrial Relations & Grievance)</h2>
-        <p>កិច្ចសន្ទនាសង្គម តំណាងកម្មករ សេរីភាពសហជីព និងប្រព័ន្ធដោះស្រាយបណ្តឹង ៤ ផ្លូវ</p>
-      </div>
-      <div class="module-body">
-        <h3>១. យន្តការទទួលបណ្តឹងសារទុក្ខ ៤ ផ្លូវ</h3>
-        <ol>
-          <li><strong>ប្រអប់បណ្តឹង (Suggestion Box):</strong> ដាក់នៅទីតាំងគ្មានកាមេរ៉ា បើកពិនិត្យរៀងរាល់ ២ សប្តាហ៍ម្តងដោយមានសាក្សី HR និងតំណាងកម្មករ។</li>
-          <li><strong>តំណាងកម្មករ / ប្រតិភូបុគ្គលិក:</strong> ជួបពិភាក្សា និងប្រមូលមតិកង្វល់មកប្រជុំជាមួយនិយោជក។</li>
-          <li><strong>ទូរសព្ទ Hotline / Telegram ផ្ទៃក្នុង:</strong> សម្រាប់ករណីបន្ទាន់ ឬការបៀតបៀនផ្លូវភេទ។</li>
-          <li><strong>ការជួបពិភាក្សាផ្ទាល់ (Open Door Policy):</strong> ជួបផ្ទាល់ជាមួយផ្នែក HR។</li>
-        </ol>
-
-        <div class="callout callout-info">
-          <strong>🛡️ ការធានាគ្មានការសងសឹក (Zero Retaliation):</strong> កម្មករដែលដាក់ពាក្យបណ្តឹង ឬផ្តល់ចម្លើយដល់សវនករ ត្រូវបានការពារដាច់ខាតពីការរើសអើង ការផ្ទេរការងារ ឬការបញ្ឈប់ពីការងារ។
-        </div>
-      </div>
-    </div>
-
-    <!-- MODULE 8 -->
-    <div class="module-card" id="m8">
-      <div class="module-header m8">
-        <h2>Module 8: ប្រព័ន្ធប្រាក់ឈ្នួល ការគណនា Payroll និងអត្ថប្រយោជន៍ (Compensation, Overtime & NSSF)</h2>
-        <p>រូបមន្តគណនាប្រាក់ម៉ោង ម៉ោងថែម OT ការកាត់វិភាគទាន ប.ស.ស. និងប្រាក់បំណាច់អតីតភាព</p>
-      </div>
-      <div class="module-body">
-        <h3>១. រូបមន្តគណនាប្រាក់ឈ្នួល និងម៉ោងថែម (OT Formulas)</h3>
-        <p><strong>ប្រាក់ឈ្នួលក្នុងមួយម៉ោង:</strong> <code>ប្រាក់ខែគោល ÷ (២៦ ថ្ងៃ × ៨ ម៉ោង) = ប្រាក់ខែគោល ÷ ២០៨</code></p>
-        <ul>
-          <li><strong>ថែមម៉ោងថ្ងៃធម្មតា (OT Normal Day):</strong> <code>ប្រាក់ម៉ោង × ១.៥ (150%)</code></li>
-          <li><strong>ថែមម៉ោងវេនយប់ (OT Night Shift):</strong> <code>ប្រាក់ម៉ោង × ២.០ (200%)</code></li>
-          <li><strong>ថែមម៉ោងថ្ងៃអាទិត្យ ឬថ្ងៃបុណ្យជាតិ:</strong> <code>ប្រាក់ម៉ោង × ២.០ (200%)</code> + ប្រាក់បាយថ្ងៃបុណ្យ</li>
-        </ul>
-
-        <h3>២. វិភាគទានរបបសន្តិសុខសង្គម (NSSF Contributions)</h3>
-        <p>ផ្នែកហានិភ័យការងារ (០.៨%) និងថែទាំសុខភាព (២.៦%) បង់ដោយនិយោជក ១០០%។ ផ្នែកប្រាក់សោធននិវត្តន៍ ៤% (និយោជកបង់ ២% និងកាត់ពីកម្មករ ២% លើពិតានប្រាក់ឈ្នួលអតិបរមា ១,២០០,០០០ រៀល)។</p>
-
-        <h3>៣. ប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) សម្រាប់ UDC</h3>
-        <p>បើកចំនួន ១៥ ថ្ងៃក្នុងមួយឆ្នាំ (ចែកជា ២ លើក៖ ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ) គិតលើប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំមធ្យម។</p>
-      </div>
-    </div>
-
-    <!-- MODULE 9 -->
-    <div class="module-card" id="m9">
-      <div class="module-header m9">
-        <h2>Module 9: ការវិភាគរកមូលហេតុឫសគល់ (RCA) និងផែនការកែតម្រូវ (CAP)</h2>
-        <p>វិធីសាស្ត្រ 5 Whys, Fishbone Diagram និងការគ្រប់គ្រងផែនការកែតម្រូវ Corrective Action Plan</p>
-      </div>
-      <div class="module-body">
-        <h3>១. វិធីសាស្ត្រវិភាគ RCA តាម 5 Whys</h3>
-        <p>ការសួរសំណួរ «ហេតុអ្វី?» ចំនួន ៥ ដងជាប់ៗគ្នា ដើម្បីជីកកកាយរកមូលហេតុពិតប្រាកដក្នុងប្រព័ន្ធគ្រប់គ្រង ចៀសវាងការស្តីបន្ទោសលើកម្មករម្នាក់ៗ។</p>
-
-        <h3>២. គំរូតារាង CAP ស្តង់ដារ ៨ ជួរ</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>ល.រ</th>
-              <th>ចំណុចអសកម្ម (Finding)</th>
-              <th>មូលហេតុឫសគល់ (Root Cause)</th>
-              <th>សកម្មភាពកែតម្រូវ (Corrective)</th>
-              <th>សកម្មភាពបង្ការ (Preventive)</th>
-              <th>អ្នកទទួលបន្ទុក (PIC)</th>
-              <th>កាលកំណត់</th>
-              <th>ស្ថានភាព & ភស្តុតាង</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>ច្រកអាសន្នត្រូវចាក់សោ</td>
-              <td>ខ្លាចបាត់ក្រណាត់ពេលយប់</td>
-              <td>ដោះសោចេញភ្លាមៗ</td>
-              <td>បំពាក់ Panic Bar & ស៊ីរ៉ែនអាសន្ន</td>
-              <td>Maintenance / Compliance</td>
-              <td>៧ ថ្ងៃ</td>
-              <td><span class="badge badge-green">បានបិទ (រូបថត)</span></td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>ទូភ្លើងគ្មានគម្រប និងគ្មានខ្សែដី</td>
-              <td>ជាងភ្លើងដោះចេញជួសជុលភ្លេចដាក់វិញ</td>
-              <td>បំពាក់គម្រប និងខ្សែតដីឡើងវិញ</td>
-              <td>បង្កើត SOP ត្រួតពិនិត្យទូភ្លើងប្រចាំសប្តាហ៍</td>
-              <td>Chief Electrician</td>
-              <td>៣ ថ្ងៃ</td>
-              <td><span class="badge badge-green">បានបិទ (កំណត់ហេតុ)</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- MODULE 10 -->
-    <div class="module-card" id="m10">
-      <div class="module-header m10">
-        <h2>Module 10: ប្រតិបត្តិការរោងចក្រ ការដឹកនាំរបស់មេការ និង Job Descriptions (Factory Operations & JDs)</h2>
-        <p>ការដឹកនាំវិជ្ជមាន គោលការណ៍ម្ជុលបាក់ 5S និង Job Descriptions សម្រាប់មេការគ្រប់ផ្នែក</p>
-      </div>
-      <div class="module-body">
-        <h3>១. គោលការណ៍ដឹកនាំវិជ្ជមានសម្រាប់មេការ</h3>
-        <p>ហាមដាច់ខាតការស្រែកគំហក ជេរប្រមាថ ឬគំរាមកំហែង។ ត្រូវពន្យល់ និងបង្វឹកកម្មករដោយសន្តិវិធី។ គ្រប់គ្រងលំហូរផលិតកម្មដោយផ្អែកលើទិន្នផល និងការលើកទឹកចិត្ត។</p>
-
-        <h3>២. នីតិវិធីម្ជុលបាក់ (Broken Needle Policy)</h3>
-        <p>ពេលម្ជុលបាក់ កម្មករត្រូវប្រមូលបំណែកម្ជុលឱ្យគ្រប់ ១០០% បិទលើក្រដាសកំណត់ត្រា ទើបប្តូរម្ជុលថ្មីជូន។ បើរករកមិនឃើញ ត្រូវយករ៉ូប/អាវនោះទៅរាវម៉ាស៊ីន Handheld Detector និងម៉ាស៊ីនកាត់ក្រណាត់ភ្លាម។ ម៉ាស៊ីនរាវម្ជុលធំត្រូវក្រិត Calibration រៀងរាល់ ២ ម៉ោងម្តង។</p>
-
-        <h3>៣. សង្ខេប Job Descriptions ផ្នែកផលិតកម្ម</h3>
-        <ul>
-          <li><strong>ប្រធានឃ្លាំងសម្ភារៈ (Raw Material):</strong> គ្រប់គ្រងស្តុក FIFO, ផ្ទៀងផ្ទាត់បញ្ជីដឹកជញ្ជូន, ចេញក្រណាត់ទៅតុកាត់ទាន់ពេល។</li>
-          <li><strong>ប្រធានតុកាត់ (Cutting Leader):</strong> ពិនិត្យ Marker, លាតក្រណាត់ត្រឹមត្រូវ, ពាក់ស្រោមដៃដែកការពារសុវត្ថិភាព។</li>
-          <li><strong>ប្រធានដេរ (Sewing Line Leader):</strong> ធ្វើ Line Balancing, ពិនិត្យ First Output, គ្រប់គ្រងវិន័យម្ជុលបាក់, សម្រេច Target។</li>
-          <li><strong>ប្រធាន QC (Quality Control Leader):</strong> ត្រួតពិនិត្យ AQL, បំបែកទំនិញ Defect, វិភាគកំហុសប្រចាំថ្ងៃជូន GM។</li>
-          <li><strong>ប្រធានវេចខ្ចប់ (Packing Leader):</strong> ផ្ទៀងផ្ទាត់ Barcode/Label, ធានាការឆ្លងកាត់ម៉ាស៊ីនរាវម្ជុល ១០០%។</li>
-          <li><strong>ប្រធានឃ្លាំងទំនិញសម្រេច (FG Warehouse):</strong> ត្រួតពិនិត្យកុងតឺន័រ (៧ ចំណុច), ការពារទំនិញមិនឱ្យខូចខាត, ផ្ទុកទំនិញទាន់ពេល។</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- MODULE 11 -->
-    <div class="module-card" id="m11">
-      <div class="module-header m11">
-        <h2>Module 11: ការធ្វើសវនកម្មសាកល្បង និងការអភិវឌ្ឍឡើងជាថ្នាក់គ្រប់គ្រង (Mock Audits & Career Progression)</h2>
-        <p>ការអនុវត្ត Internal Mock Audit ៥ ដំណាក់កាល និងផែនទីបង្ហាញផ្លូវឡើងកាន់តំណែងគ្រប់គ្រងជាន់ខ្ពស់</p>
-      </div>
-      <div class="module-body">
-        <h3>១. ដំណើរការធ្វើ Mock Audit ផ្ទៃក្នុង ៥ ដំណាក់កាល</h3>
-        <div class="step-flow">
-          <div class="step-item"><strong>១. ប្រជុំបើក</strong>Opening Meeting ជាមួយមេការ និង GM</div>
-          <div class="step-item"><strong>២. ដើរពិនិត្យ</strong>Walkthrough គ្រប់ផ្នែកផលិតកម្ម</div>
-          <div class="step-item"><strong>៣. ពិនិត្យឯកសារ</strong>Document Review ផ្ទៀងផ្ទាត់ Payroll</div>
-          <div class="step-item"><strong>៤. សម្ភាសន៍</strong>Worker Interviews ដោយសម្ងាត់</div>
-          <div class="step-item"><strong>៥. ប្រជុំបិទ & CAP</strong>Closing Meeting & រាយការណ៍ជូន GM</div>
-        </div>
-
-        <h3>២. ផែនទីបង្ហាញផ្លូវអភិវឌ្ឍន៍អាជីព (Career Progression Roadmap)</h3>
-        <p><strong>HR/Compliance Officer (១-២ ឆ្នាំ)</strong> ➡️ <strong>Senior Officer / Team Lead (២-៤ ឆ្នាំ)</strong> ➡️ <strong>Assistant Manager (៤-៦ ឆ្នាំ)</strong> ➡️ <strong>HR / Compliance Manager (៦-៨ ឆ្នាំ)</strong> ➡️ <strong>Director of Human Capital & Operations (៨ ឆ្នាំឡើង)</strong></p>
-      </div>
-    </div>
+    <!-- Big Add Module Button -->
+    <button class="btn-add-module-big" onclick="openAddModuleModal()">
+      ➕ ចុចទីនេះដើម្បីបន្ថែម Module ថ្មី (Add New Training Module)
+    </button>
 
     <!-- APPENDICES -->
     <div class="module-card" id="appendices">
       <div class="module-header m-app">
-        <h2>កម្រងឧបសម្ព័ន្ធ៖ Toolkits, Templates & គំរូអនុវត្ត (Operational Appendices)</h2>
-        <p>តារាងតាមដានកិច្ចសន្យា គំរូគណនាប្រាក់ខែ និងកំណត់ត្រាកំណែប្រែឯកសារ</p>
+        <div class="module-header-text">
+          <h2>កម្រងឧបសម្ព័ន្ធ៖ Toolkits, Templates & គំរូអនុវត្ត (Operational Appendices)</h2>
+          <p>តារាងតាមដានកិច្ចសន្យា គំរូគណនាប្រាក់ខែ និងកំណត់ត្រាកំណែប្រែឯកសារ</p>
+        </div>
       </div>
       <div class="module-body">
         <h3>ឧបសម្ព័ន្ធ ក៖ តារាងតាមដានកិច្ចសន្យា FDC / UDC Tracker</h3>
@@ -785,7 +889,7 @@
               <th>ស្ថានភាព</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody contenteditable="false" class="editable-table-body">
             <tr>
               <td>1</td>
               <td>EMP-001</td>
@@ -840,7 +944,7 @@
               <th>នៅសល់ត្រូវបើក</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody contenteditable="false" class="editable-table-body">
             <tr>
               <td>1</td>
               <td>កាត់ដេរ</td>
@@ -884,7 +988,7 @@
               <th>អ្នកអនុម័ត</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody contenteditable="false" class="editable-table-body">
             <tr>
               <td>17/11/2026</td>
               <td>1.0</td>
@@ -901,6 +1005,14 @@
               <td>HR & Compliance Team</td>
               <td>General Manager</td>
             </tr>
+            <tr id="rev-history-custom-row">
+              <td>ថ្ងៃនេះ</td>
+              <td>2.1+</td>
+              <td>កែប្រែ និងបន្ថែមម៉ូឌុល</td>
+              <td>កែប្រែតាមការចាត់ចែងជាក់ស្តែងរបស់រោងចក្រ</td>
+              <td>HR & Compliance Team</td>
+              <td>General Manager</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -908,5 +1020,880 @@
 
   </div>
 
+  <!-- MODAL: Edit Document Control -->
+  <div class="modal-overlay" id="modal-doccontrol">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚙️ កែសម្រួលព័ត៌មានរដ្ឋបាលនៃឯកសារ (Doc Control)</h3>
+        <button class="modal-close" onclick="closeDocControlModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>ចំណងជើងឯកសារ (ខ្មែរ):</label>
+        <input type="text" class="form-control" id="form-doc-title" value="កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ ១១ ផ្នែក">
+      </div>
+      <div class="form-group">
+        <label>ចំណងជើងឯកសារ (English Subtitle):</label>
+        <input type="text" class="form-control" id="form-doc-subtitle" value="Comprehensive Factory HR & Compliance Management Curriculum Manual (Master Edition)">
+      </div>
+      <div class="form-group">
+        <label>កូដឯកសារ (Document Code):</label>
+        <input type="text" class="form-control" id="form-ctrl-code" value="SOP-TR-2026-V2">
+      </div>
+      <div class="form-group">
+        <label>កំណែប្រែ (Revision):</label>
+        <input type="text" class="form-control" id="form-ctrl-rev" value="Rev 2.0 (Master 11-Section Edition)">
+      </div>
+      <div class="form-group">
+        <label>ផ្នែកទទួលបន្ទុក (Department in Charge):</label>
+        <input type="text" class="form-control" id="form-ctrl-dept" value="Human Resources & Social Compliance">
+      </div>
+      <div class="form-group">
+        <label>កាលបរិច្ឆេទអនុវត្ត (Effective Date):</label>
+        <input type="text" class="form-control" id="form-ctrl-date" value="ខែវិច្ឆិកា ឆ្នាំ២០២៦">
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" onclick="closeDocControlModal()">បោះបង់ (Cancel)</button>
+        <button class="toolbar-btn btn-primary" onclick="saveDocControlForm()">✅ រក្សាទុកព័ត៌មាន (Save)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add New Module (With Compliant Templates) -->
+  <div class="modal-overlay" id="modal-add-module">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>➕ បន្ថែម Module ថ្មី (Add Training Module)</h3>
+        <button class="modal-close" onclick="closeAddModuleModal()">&times;</button>
+      </div>
+
+      <div class="form-group">
+        <label>ជ្រើសរើសគំរូអនុលោមតាមច្បាប់ (Pre-filled Legal Compliance Template):</label>
+        <select class="form-control" id="template-select" onchange="applyModuleTemplate(this.value)">
+          <option value="custom">-- គំរូទូទៅតាមការកំណត់ផ្ទាល់ខ្លួន (Custom Blank Module) --</option>
+          <option value="fire_safety">🚒 សុវត្ថិភាពអគ្គិភ័យ និងការជម្លៀសខ្លួនអាសន្ន (Fire Safety & Evacuation SOP)</option>
+          <option value="anti_harassment">🛡️ គោលការណ៍ប្រឆាំងការបៀតបៀន និងអំពើហិង្សាការងារ (Anti-Harassment & Non-Violence)</option>
+          <option value="ctpat">🔒 សន្តិសុខខ្សែសង្វាក់ផ្គត់ផ្គង់ C-TPAT & ការការពារភេរវកម្ម (Supply Chain Security)</option>
+          <option value="boiler_safety">⚙️ សុវត្ថិភាពឡចំហាយទឹក និងសម្ពាធខ្ពស់ (Boiler & Pressure Vessel Safety)</option>
+          <option value="canteen_hygiene">🥗 អនាម័យអាហារដ្ឋាន និងទឹកស្អាតសុវត្ថិភាព (Canteen Hygiene & Clean Water)</option>
+          <option value="maternity_protection">🤰 សមធម៌យេនឌ័រ និងការការពារស្រ្តីមានផ្ទៃពោះ (Gender Equality & Maternity)</option>
+          <option value="subcontractor_mgmt">🤝 ការគ្រប់គ្រងអ្នកម៉ៅការបន្ត និងសេវាកម្មខាងក្រៅ (Subcontractor & Supplier Ethics)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>ចំណងជើង Module ជាភាសាខ្មែរ:</label>
+        <input type="text" class="form-control" id="mod-title-kh" placeholder="ឧទាហរណ៍៖ សុវត្ថិភាពអគ្គិភ័យ និងការជម្លៀសខ្លួនអាសន្ន">
+      </div>
+
+      <div class="form-group">
+        <label>ចំណងជើង Module ជាភាសាអង់គ្លេស:</label>
+        <input type="text" class="form-control" id="mod-title-en" placeholder="ឧទាហរណ៍៖ Fire Safety & Emergency Evacuation SOP">
+      </div>
+
+      <div class="form-group">
+        <label>សេចក្តីពិពណ៌នាសង្ខេប (Description):</label>
+        <input type="text" class="form-control" id="mod-desc" placeholder="សេចក្តីសង្ខេបនៃវគ្គបណ្តុះបណ្តាល">
+      </div>
+
+      <div class="form-group">
+        <label>មូលដ្ឋានច្បាប់ និងស្តង់ដារអនុលោមភាព (Compliance Baseline):</label>
+        <input type="text" class="form-control" id="mod-legal" placeholder="ឧទាហរណ៍៖ ច្បាប់ការងារកម្ពុជា, ស្តង់ដារ BFC, BSCI, ISO 45001">
+      </div>
+
+      <div class="form-group">
+        <label>ខ្លឹមសារលម្អិតនៃមេរៀន (HTML/Text Content):</label>
+        <textarea class="form-control" id="mod-content" style="min-height: 120px;" placeholder="បញ្ចូលខ្លឹមសារមេរៀន ឬចំណុចអនុវត្ត..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>សំណួរ-ចម្លើយវាស់ស្ទង់ (Sample Q&A):</label>
+        <input type="text" class="form-control" id="mod-qa-q" placeholder="សំណួរគន្លឹះ..." style="margin-bottom: 6px;">
+        <input type="text" class="form-control" id="mod-qa-a" placeholder="ចម្លើយគន្លឹះ...">
+      </div>
+
+      <div class="modal-footer">
+        <button class="toolbar-btn" onclick="closeAddModuleModal()">បោះបង់ (Cancel)</button>
+        <button class="toolbar-btn btn-primary" onclick="submitAddModule()">✅ បញ្ចូល Module ទៅក្នុងសៀវភៅណែនាំ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Legal Compliance Guidelines -->
+  <div class="modal-overlay" id="modal-legal-guide">
+    <div class="modal-card" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>⚖️ មគ្គុទ្ទេសក៍អនុលោមតាមច្បាប់ការងារ និងស្តង់ដារអន្តរជាតិ</h3>
+        <button class="modal-close" onclick="closeLegalGuideModal()">&times;</button>
+      </div>
+      <div>
+        <p style="font-size: 0.9rem; margin-bottom: 14px;">ដើម្បីធានាថារាល់ការកែប្រែ ឬបន្ថែម Module ថ្មីស្របតាមច្បាប់ការងារនៃព្រះរាជាណាចក្រកម្ពុជា និងស្តង់ដារ BFC, BSCI, SMETA, WRAP សូមប្រកាន់ខ្ជាប់នូវគោលការណ៍គ្រឹះដូចខាងក្រោម៖</p>
+        
+        <div class="qa-box" style="margin-bottom: 10px;">
+          <div class="qa-q">១. កិច្ចសន្យាការងារ FDC & UDC (មាត្រា ៦៧ នៃច្បាប់ការងារ)</div>
+          <div class="qa-a">កិច្ចសន្យា FDC លើកដំបូងអតិបរមា ២ ឆ្នាំ។ ការបន្តសរុបមិនត្រូវលើស ២ ឆ្នាំឡើយ។ ប្រសិនបើបន្តលើស ២ ឆ្នាំ នឹងក្លាយជាកិច្ចសន្យា UDC ដោយស្វ័យប្រវត្តិ។ ហាមដាច់ខាតការកាត់ផ្តាច់សិទ្ធិអតីតភាព។</div>
+        </div>
+
+        <div class="qa-box" style="margin-bottom: 10px;">
+          <div class="qa-q">២. ការការពារពលកម្មកុមារ និងកម្មករវ័យក្មេង (មាត្រា ១៧៧)</div>
+          <div class="qa-a">អាយុអប្បបរមា ១៥ ឆ្នាំ។ កម្មករវ័យក្មេង (១៥ ដល់ &lt;១៨ ឆ្នាំ) ហាមធ្វើការលើស ៨ ម៉ោង/ថ្ងៃ ហាមថែមម៉ោង OT ហាមធ្វើវេនយប់ និងហាមធ្វើការងារធ្ងន់ធ្ងរ/គីមី។</div>
+        </div>
+
+        <div class="qa-box" style="margin-bottom: 10px;">
+          <div class="qa-q">៣. វិន័យការងារ និងការហាមផាកពិន័យជាប្រាក់ (មាត្រា ២៨)</div>
+          <div class="qa-a">ច្បាប់ការងារកម្ពុជា <strong>ហាមដាច់ខាតនូវការផាកពិន័យជាប្រាក់ ឬកាត់ប្រាក់ឈ្នួល</strong> ជាទណ្ឌកម្មវិន័យ។ ការអនុវត្តវិន័យត្រូវធ្វើតាមលំដាប់លំដោយ (Verbal ➡️ Written 1 ➡️ Written 2 ➡️ Final ➡️ Termination)។</div>
+        </div>
+
+        <div class="qa-box" style="margin-bottom: 10px;">
+          <div class="qa-q">៤. សុវត្ថិភាពការងារ និងច្រកចេញអាសន្ន (Zero Tolerance)</div>
+          <div class="qa-a">ហាមចាក់សោច្រកចេញអាសន្ន ឬទ្វាររោងចក្រក្នុងអំឡុងពេលធ្វើការជាដាច់ខាត។ ទូភ្លើងត្រូវទុកគម្លាតទទេមុខទូ ១ ម៉ែត្រ។ បំពង់ពន្លត់អគ្គិភ័យត្រូវពិនិត្យរាល់ខែ។</div>
+        </div>
+
+        <div class="qa-box" style="margin-bottom: 10px;">
+          <div class="qa-q">៥. ម៉ោងថែម OT និងការបើកប្រាក់ឈ្នួល</div>
+          <div class="qa-a">ការថែមម៉ោង OT ត្រូវធ្វើឡើងដោយស្ម័គ្រចិត្ត។ អត្រា OT ថ្ងៃធម្មតា ១៥០%, ថ្ងៃអាទិត្យ/បុណ្យជាតិ ២០០%។ បើកប្រាក់ឈ្នួល ២ ដង/ខែ។</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn btn-primary" onclick="closeLegalGuideModal()">យល់ព្រម (Close)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initial 11 modules master data
+    const DEFAULT_MODULES = [
+      {
+        id: "m1",
+        num: 1,
+        titleKh: "Module 1: ច្បាប់ស្តីពីការងារ និងក្របខ័ណ្ឌគតិយុត្ត",
+        titleEn: "Essential Labor Laws & Legal Framework",
+        desc: "សិទ្ធិ កាតព្វកិច្ច ក្របខ័ណ្ឌកិច្ចសន្យាការងារ និងការការពារស្របច្បាប់នៃព្រះរាជាណាចក្រកម្ពុជា",
+        headerClass: "m1",
+        htmlContent: `
+          <h3>១. ក្របខ័ណ្ឌកិច្ចសន្យាការងារ ៣ ប្រភេទ</h3>
+          <ul>
+            <li><strong>កិច្ចសន្យាសាកល្បងការងារ (Probation Contract):</strong> រយៈពេលអតិបរមា ៣ ខែ (ការិយាល័យ/ជំនាញ), ១ ខែ (កម្មករជំនាញ), ១ សប្តាហ៍ (ពលកម្មសាមញ្ញ)។ បញ្ចប់បានគ្រប់ពេលដោយគ្មានសំណងបើតេស្តមិនជាប់។</li>
+            <li><strong>កិច្ចសន្យាមានថេរវេលាកំណត់ (Fixed Duration Contract - FDC):</strong> ធ្វើជាលាយលក្ខណ៍អក្សរ។ រយៈពេលលើកដំបូងអតិបរមា ២ ឆ្នាំ។ អាចបន្តបានម្តង ឬច្រើនដងដរាបណារយៈពេលសរុបមិនលើស ២ ឆ្នាំ (២៤ ខែ)។ បើលើស ២ ឆ្នាំ ក្លាយជា UDC ដោយស្វ័យប្រវត្តិតាមមាត្រា ៦៧។ ប្រាក់បំណាច់បញ្ចប់កិច្ចសន្យា ៥% (Severance Pay)។</li>
+            <li><strong>កិច្ចសន្យាគ្មានថេរវេលាកំណត់ (Undetermined Duration Contract - UDC):</strong> ផ្តល់សន្តិសុខការងាររឹងមាំ ការពារដោយការជូនដំណឹងមុន (Prior Notice) និងប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity)។</li>
+          </ul>
+          <h3>២. ម៉ោងធ្វើការ និងការឈប់សម្រាកស្របច្បាប់</h3>
+          <p>ម៉ោងធ្វើការធម្មតាអតិបរមា ៨ ម៉ោង/ថ្ងៃ ឬ ៤៨ ម៉ោង/សប្តាហ៍។ សម្រាកប្រចាំសប្តាហ៍យ៉ាងតិច ២៤ ម៉ោងជាប់គ្នា (ថ្ងៃអាទិត្យ)។ ឈប់សម្រាកប្រចាំឆ្នាំ ១៨ ថ្ងៃ/ឆ្នាំ សម្រាប់អ្នកធ្វើការពេញ ១ ឆ្នាំ (ថែម ១ ថ្ងៃរៀងរាល់ ៣ ឆ្នាំអតីតភាព)។</p>
+          <div class="qa-box">
+            <div class="qa-q">❓ សំណួរ៖ ប្រសិនបើកិច្ចសន្យា FDC បន្តសរុបរយៈពេលដល់ ២ ឆ្នាំពេញ តើរោងចក្រអាចបន្ត FDC ទៀតបានទេ?</div>
+            <div class="qa-a">💡 ចម្លើយ៖ ដាច់ខាតមិនអាចបន្តជា FDC បានទៀតឡើយ។ រោងចក្រត្រូវប្តូរកិច្ចសន្យាទៅជា UDC (គ្មានថេរវេលាកំណត់) ជាស្វ័យប្រវត្តិតាមមាត្រា ៦៧ នៃច្បាប់ការងារកម្ពុជា។</div>
+          </div>
+        `
+      },
+      {
+        id: "m2",
+        num: 2,
+        titleKh: "Module 2: យុទ្ធសាស្ត្រជ្រើសរើសបុគ្គលិក និងការទប់ស្កាត់ពលកម្មកុមារ",
+        titleEn: "Recruitment Strategies & Child Labor Prevention",
+        desc: "នីតិវិធីជ្រើសរើសដោយស្មើភាព តម្លាភាព និងវិធានការការពារពលកម្មកុមារ ១០០%",
+        headerClass: "m2",
+        htmlContent: `
+          <h3>១. ពិធីសារផ្ទៀងផ្ទាត់អាយុ ៤ ជំហាន (Age Verification SOP)</h3>
+          <div class="step-flow">
+            <div class="step-item"><strong>ជំហាន ១៖ ប្រមូលឯកសារ</strong>អត្តសញ្ញាណប័ណ្ណ សំបុត្រកំណើត ឬសៀវភៅគ្រួសារច្បាប់ដើម (Original Documents)</div>
+            <div class="step-item"><strong>ជំហាន ២៖ ពិនិត្យកាយវិការ & ត្រា</strong>ផ្ទៀងផ្ទាត់ត្រារដ្ឋបាល រូបថត ស្នាមកោសលុប និងថ្ងៃខែឆ្នាំកំណើត</div>
+            <div class="step-item"><strong>ជំហាន ៣៖ សម្ភាសន៍ផ្ទៀងផ្ទាត់</strong>សួរសំណួរចិនសែ (ឆ្នាំកំណើត) សាលារៀន ឈ្មោះឪពុកម្តាយ និងបងប្អូន</div>
+            <div class="step-item"><strong>ជំហាន ៤៖ សម្រេចចិត្ត</strong>≥១៨ ឆ្នាំ៖ កិច្ចសន្យាធម្មតា | ១៥-១៧ ឆ្នាំ៖ កម្មករវ័យក្មេង | &lt;១៥ ឆ្នាំ៖ បដិសេធ & ស្តារនីតិសម្បទា</div>
+          </div>
+          <h3>២. វិធានការការពារកម្មករវ័យក្មេង (អាយុ ១៥ ដល់ក្រោម ១៨ ឆ្នាំ)</h3>
+          <ul>
+            <li>ហាមដាច់ខាតមិនឱ្យធ្វើការងារធ្ងន់ធ្ងរ កន្លែងគីមីគ្រោះថ្នាក់ ម៉ាស៊ីនកាត់ ម៉ាស៊ីន Boiler ឬលើកធ្ងន់។</li>
+            <li>ហាមធ្វើការលើសពី ៨ ម៉ោង/ថ្ងៃ និងហាមដាច់ខាតមិនឱ្យធ្វើការថែមម៉ោង (OT)។</li>
+            <li>ហាមធ្វើការងារវេនយប់ (ចន្លោះម៉ោង ១០:០០ យប់ ដល់ ០៥:០០ ព្រឹក)។</li>
+          </ul>
+          <h3>៣. នីតិវិធីស្តារនីតិសម្បទាពលកម្មកុមារ (Child Labor Remediation)</h3>
+          <p>ករណីរកឃើញកុមារអាយុក្រោម ១៥ ឆ្នាំធ្វើការដោយអចេតនា៖ ត្រូវដកចេញពីផលិតកម្មភ្លាមៗទៅកាន់បន្ទប់សុវត្ថិភាព ជូនដំណឹងដល់ឪពុកម្តាយ និងបន្តឧបត្ថម្ភប្រាក់ស្មើនឹងប្រាក់ឈ្នួលអប្បបរមាប្រចាំខែរហូតដល់កុមារគ្រប់អាយុ ១៥ ឆ្នាំ ដោយភ្ជាប់លក្ខខណ្ឌឱ្យកុមារចូលរៀននៅសាលា។</p>
+        `
+      },
+      {
+        id: "m3",
+        num: 3,
+        titleKh: "Module 3: ពិធីសារគ្រប់គ្រងបុគ្គលិក វិន័យ និងបទបញ្ជាផ្ទៃក្នុង",
+        titleEn: "Personnel Management & Disciplinary Protocols",
+        desc: "ការគ្រប់គ្រងវត្តមាន ឋានានុក្រមវិធានការវិន័យ ៥ កម្រិត និងបទបញ្ជាផ្ទៃក្នុងស្របច្បាប់",
+        headerClass: "m3",
+        htmlContent: `
+          <h3>១. ឋានានុក្រមនៃវិធានការវិន័យ ៥ កម្រិត (Progressive Discipline)</h3>
+          <ol>
+            <li><strong>កម្រិត ១៖ ការរំលឹកផ្ទាល់មាត់ (Verbal Warning):</strong> ណែនាំដោយឡែកដោយសន្តិវិធី កត់ត្រាទុកក្នុងកំណត់ត្រាផ្ទៃក្នុង។</li>
+            <li><strong>កម្រិត ២៖ លិខិតព្រមានលើកទី ១ (Written Warning 1):</strong> ចេញលិខិតផ្លូវការ មានសុពលភាព ៣ ខែ។</li>
+            <li><strong>កម្រិត ៣៖ លិខិតព្រមានលើកទី ២ (Written Warning 2):</strong> ករណីបន្តប្រព្រឹត្តកំហុសដដែលក្នុងអំឡុងសុពលភាពលិខិតទី ១។</li>
+            <li><strong>កម្រិត ៤៖ លិខិតព្រមានចុងក្រោយ (Final Warning):</strong> ការព្រមានកម្រិតខ្ពស់បំផុតមុនឈានដល់ការបញ្ចប់ការងារ។</li>
+            <li><strong>កម្រិត ៥៖ ការបញ្ឈប់ពីការងារ (Termination):</strong> អនុវត្តករណីបន្តខុស ឬកំហុសធ្ងន់ធ្ងរ (Serious Misconduct)។</li>
+          </ol>
+          <div class="callout callout-warning">
+            <strong>⚠️ ការអនុវត្តស្របច្បាប់៖</strong> លិខិតព្រមាននីមួយៗត្រូវផ្តល់សិទ្ធិឱ្យកម្មករបកស្រាយហេតុផល និងមានតំណាងកម្មករចូលរួមស្តាប់។ ហាមដាច់ខាតការកាត់ប្រាក់ខែជាទណ្ឌកម្មវិន័យ (ច្បាប់ការងារហាមឃាត់ការផាកពិន័យជាប្រាក់)។
+          </div>
+        `
+      },
+      {
+        id: "m4",
+        num: 4,
+        titleKh: "Module 4: សុវត្ថិភាព និងសុខភាពការងារ (Occupational Health & Safety - OHS)",
+        titleEn: "Occupational Health & Safety - OHS",
+        desc: "គណៈកម្មការ OSH ការវាយតម្លៃហានិភ័យ សុវត្ថិភាពអគ្គិសនី និងការត្រៀមបង្ការគ្រោះអាសន្ន",
+        headerClass: "m4",
+        htmlContent: `
+          <h3>១. រចនាសម្ព័ន្ធគណៈកម្មការ OSH</h3>
+          <p>ត្រូវមានសមាសភាពស្មើគ្នារវាងតំណាងនិយោជក និងតំណាងកម្មករ (រួមទាំងកម្មករស្រ្តី និងគិលានុបដ្ឋាក)។ ប្រជុំ និងដើរត្រួតពិនិត្យរួមគ្នាប្រចាំខែ (Joint Walkthrough) និងរៀបចំការហ្វឹកហាត់ជម្លៀសខ្លួនពន្លត់អគ្គិភ័យយ៉ាងតិច ២ ដង/ឆ្នាំ។</p>
+          <h3>២. តារាងស្តង់ដារត្រួតពិនិត្យសុវត្ថិភាព</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ចំណុចត្រួតពិនិត្យ</th>
+                <th>ស្តង់ដារបច្ចេកទេស</th>
+                <th>ស្ថានភាពអនុវត្ត</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ទូបញ្ជាអគ្គិសនី (DB Panel)</strong></td>
+                <td>បិទជិត មានសោ ដាក់ស្លាកសញ្ញាគ្រោះថ្នាក់ <strong>ទុកគម្លាតទទេយ៉ាងតិច ១ ម៉ែត្រ</strong> មុខទូ</td>
+                <td><span class="badge badge-green">តម្រូវដាច់ខាត</span></td>
+              </tr>
+              <tr>
+                <td><strong>បំពង់ពន្លត់អគ្គិភ័យ</strong></td>
+                <td>កម្ពស់អតិបរមា ១.៥ម, កុងទ័រនៅតំបន់បៃតង, គ្មានសម្ភារៈរាំងស្ទះ, ត្រួតពិនិត្យរាល់ខែ</td>
+                <td><span class="badge badge-green">តម្រូវដាច់ខាត</span></td>
+              </tr>
+              <tr>
+                <td><strong>ច្រកចេញអាសន្ន (Emergency Exits)</strong></td>
+                <td>ទ្វាររុញចេញក្រៅ (Push-Bar), មិនចាក់សោក្នុងម៉ោងការងារ, ភ្លើង Exit បំភ្លឺជាប់</td>
+                <td><span class="badge badge-red">Zero Tolerance បើចាក់សោ</span></td>
+              </tr>
+              <tr>
+                <td><strong>ប្រអប់ First Aid & បន្ទប់ពេទ្យ</strong></td>
+                <td>មានសម្ភារៈ ១៦ មុខគ្រប់គ្រាន់, មិនចាក់សោ, មានគ្រូពេទ្យ/គិលានុបដ្ឋាកប្រចាំការ</td>
+                <td><span class="badge badge-blue">តាមចំនួនកម្មករ</span></td>
+              </tr>
+            </tbody>
+          </table>
+        `
+      },
+      {
+        id: "m5",
+        num: 5,
+        titleKh: "Module 5: ក្រមសីលធម៌បរិស្ថាន ការគ្រប់គ្រងសំណល់ និងសារធាតុគីមី",
+        titleEn: "Environmental Ethics, Chemical & Waste Management",
+        desc: "ការបែងចែកសំរាម ៤ ពណ៌ សុវត្ថិភាពសារធាតុគីមី សន្លឹក SDS និងការការពារការកំពប់",
+        headerClass: "m5",
+        htmlContent: `
+          <h3>១. ប្រព័ន្ធគ្រប់គ្រងសំណល់ ៤ ពណ៌</h3>
+          <ul>
+            <li><span class="badge badge-green">ធុងបៃតង</span> <strong>សំណល់សរីរាង្គ៖</strong> កាកសំណល់ម្ហូបអាហារ បន្លែ ផ្លែឈើ ស្លឹកឈើ។</li>
+            <li><span class="badge badge-blue">ធុងខៀវ</span> <strong>សំណល់កែច្នៃបាន៖</strong> ក្រដាស កេសកាតុង ដបជ័រ ដែក កំប៉ុង។</li>
+            <li><span class="badge badge-yellow">ធុងលឿង</span> <strong>សំណល់ទូទៅ៖</strong> ថង់ប្លាស្ទិកកខ្វក់ ក្រដាសសើម សម្ភារៈមិនអាចកែច្នៃបាន។</li>
+            <li><span class="badge badge-red">ធុងក្រហម</span> <strong>សំណល់គ្រោះថ្នាក់/គីមី៖</strong> កម្ទេចក្រណាត់ប្រឡាក់ប្រេង ដបគីមី ថ្មពិល អំពូលម៉ែត្រ។</li>
+          </ul>
+          <h3>២. វិធានការសុវត្ថិភាពសារធាតុគីមី</h3>
+          <p>គ្រប់ធុងគីមីត្រូវតែមាន <strong>សន្លឹកទិន្នន័យសុវត្ថិភាព (SDS) ជាភាសាខ្មែរ</strong> និងត្រូវដាក់លើ <strong>អាងស្តុកបន្ទាប់បន្សំ (Secondary Containment)</strong> ដែលអាចផ្ទុកចំណុះបានយ៉ាងតិច ១១០% នៃធុងធំបំផុត។ កន្លែងលាងភ្នែកបន្ទាន់ (Eyewash) ត្រូវនៅចម្ងាយមិនលើសពី ១០ វិនាទីនៃការដើរ។</p>
+        `
+      },
+      {
+        id: "m6",
+        num: 6,
+        titleKh: "Module 6: សវនកម្មទំនួលខុសត្រូវសង្គម និងស្តង់ដារអន្តរជាតិ",
+        titleEn: "Social Responsibility Audits (BFC, BSCI, SMETA, WRAP)",
+        desc: "ការត្រៀមខ្លួនសម្រាប់សវនកម្ម BFC, amfori BSCI, Sedex SMETA, WRAP និងការទប់ស្កាត់ Zero Tolerance",
+        headerClass: "m6",
+        htmlContent: `
+          <h3>១. ដំណើរការសវនកម្ម ៣ ត្រីកោណ (Triangulation Audit Method)</h3>
+          <p>សវនករវាយតម្លៃផ្ទៀងផ្ទាត់ឆ្លងគ្នារវាង៖ <strong>(១) ការពិនិត្យឯកសារ</strong> (Payroll, ម៉ោងស្កេន, កិច្ចសន្យា), <strong>(២) ការដើរពិនិត្យទីតាំងជាក់ស្តែង</strong> (អនាម័យ, ភ្លើង, ច្រកចេញ), និង <strong>(៣) ការសម្ភាសន៍កម្មករជាសម្ងាត់</strong> ដោយគ្មានវត្តមានថ្នាក់គ្រប់គ្រង។</p>
+          <h3>២. បញ្ហា Zero Tolerance ដែលនាំឱ្យធ្លាក់សវនកម្មភ្លាមៗ</h3>
+          <div class="callout callout-danger">
+            <strong>🚫 បញ្ហាហាមឃាត់ដាច់ខាត៖</strong>
+            <br>១. រកឃើញពលកម្មកុមារ (Child Labor)
+            <br>២. ពលកម្មដោយបង្ខំ (Forced Labor / ចាក់សោទ្វារ / ដកហូតលិខិតឆ្លងដែន)
+            <br>៣. អំពើហិង្សា ឬការបៀតបៀនផ្លូវភេទធ្ងន់ធ្ងរ
+            <br>៤. ការក្លែងបន្លំឯកសារ ឬការសូកប៉ាន់សវនករ (Bribery / Double Books)
+          </div>
+        `
+      },
+      {
+        id: "m7",
+        num: 7,
+        titleKh: "Module 7: ទំនាក់ទំនងការងារ កិច្ចសន្ទនាសង្គម និងយន្តការបណ្តឹងសារទុក្ខ",
+        titleEn: "Industrial Relations & Grievance Mechanism",
+        desc: "កិច្ចសន្ទនាសង្គម តំណាងកម្មករ សេរីភាពសហជីព និងប្រព័ន្ធដោះស្រាយបណ្តឹង ៤ ផ្លូវ",
+        headerClass: "m7",
+        htmlContent: `
+          <h3>១. យន្តការទទួលបណ្តឹងសារទុក្ខ ៤ ផ្លូវ</h3>
+          <ol>
+            <li><strong>ប្រអប់បណ្តឹង (Suggestion Box):</strong> ដាក់នៅទីតាំងគ្មានកាមេរ៉ា បើកពិនិត្យរៀងរាល់ ២ សប្តាហ៍ម្តងដោយមានសាក្សី HR និងតំណាងកម្មករ។</li>
+            <li><strong>តំណាងកម្មករ / ប្រតិភូបុគ្គលិក:</strong> ជួបពិភាក្សា និងប្រមូលមតិកង្វល់មកប្រជុំជាមួយនិយោជក។</li>
+            <li><strong>ទូរសព្ទ Hotline / Telegram ផ្ទៃក្នុង:</strong> សម្រាប់ករណីបន្ទាន់ ឬការបៀតបៀនផ្លូវភេទ។</li>
+            <li><strong>ការជួបពិភាក្សាផ្ទាល់ (Open Door Policy):</strong> ជួបផ្ទាល់ជាមួយផ្នែក HR។</li>
+          </ol>
+          <div class="callout callout-info">
+            <strong>🛡️ ការធានាគ្មានការសងសឹក (Zero Retaliation):</strong> កម្មករដែលដាក់ពាក្យបណ្តឹង ឬផ្តល់ចម្លើយដល់សវនករ ត្រូវបានការពារដាច់ខាតពីការរើសអើង ការផ្ទេរការងារ ឬការបញ្ឈប់ពីការងារ។
+          </div>
+        `
+      },
+      {
+        id: "m8",
+        num: 8,
+        titleKh: "Module 8: ប្រព័ន្ធប្រាក់ឈ្នួល ការគណនា Payroll និងអត្ថប្រយោជន៍",
+        titleEn: "Compensation, Overtime & NSSF Calculation",
+        desc: "រូបមន្តគណនាប្រាក់ម៉ោង ម៉ោងថែម OT ការកាត់វិភាគទាន ប.ស.ស. និងប្រាក់បំណាច់អតីតភាព",
+        headerClass: "m8",
+        htmlContent: `
+          <h3>១. រូបមន្តគណនាប្រាក់ឈ្នួល និងម៉ោងថែម (OT Formulas)</h3>
+          <p><strong>ប្រាក់ឈ្នួលក្នុងមួយម៉ោង:</strong> <code>ប្រាក់ខែគោល ÷ (២៦ ថ្ងៃ × ៨ ម៉ោង) = ប្រាក់ខែគោល ÷ ២០៨</code></p>
+          <ul>
+            <li><strong>ថែមម៉ោងថ្ងៃធម្មតា (OT Normal Day):</strong> <code>ប្រាក់ម៉ោង × ១.៥ (150%)</code></li>
+            <li><strong>ថែមម៉ោងវេនយប់ (OT Night Shift):</strong> <code>ប្រាក់ម៉ោង × ២.០ (200%)</code></li>
+            <li><strong>ថែមម៉ោងថ្ងៃអាទិត្យ ឬថ្ងៃបុណ្យជាតិ:</strong> <code>ប្រាក់ម៉ោង × ២.០ (200%)</code> + ប្រាក់បាយថ្ងៃបុណ្យ</li>
+          </ul>
+          <h3>២. វិភាគទានរបបសន្តិសុខសង្គម (NSSF Contributions)</h3>
+          <p>ផ្នែកហានិភ័យការងារ (០.៨%) និងថែទាំសុខភាព (២.៦%) បង់ដោយនិយោជក ១០០%។ ផ្នែកប្រាក់សោធននិវត្តន៍ ៤% (និយោជកបង់ ២% និងកាត់ពីកម្មករ ២% លើពិតានប្រាក់ឈ្នួលអតិបរមា ១,២០០,០០០ រៀល)។</p>
+          <h3>៣. ប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) សម្រាប់ UDC</h3>
+          <p>បើកចំនួន ១៥ ថ្ងៃក្នុងមួយឆ្នាំ (ចែកជា ២ លើក៖ ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ) គិតលើប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំមធ្យម។</p>
+        `
+      },
+      {
+        id: "m9",
+        num: 9,
+        titleKh: "Module 9: ការវិភាគរកមូលហេតុឫសគល់ (RCA) និងផែនការកែតម្រូវ (CAP)",
+        titleEn: "Root Cause Analysis (RCA) & Corrective Action Plan (CAP)",
+        desc: "វិធីសាស្ត្រ 5 Whys, Fishbone Diagram និងការគ្រប់គ្រងផែនការកែតម្រូវ Corrective Action Plan",
+        headerClass: "m9",
+        htmlContent: `
+          <h3>១. វិធីសាស្ត្រវិភាគ RCA តាម 5 Whys</h3>
+          <p>ការសួរសំណួរ «ហេតុអ្វី?» ចំនួន ៥ ដងជាប់ៗគ្នា ដើម្បីជីកកកាយរកមូលហេតុពិតប្រាកដក្នុងប្រព័ន្ធគ្រប់គ្រង ចៀសវាងការស្តីបន្ទោសលើកម្មករម្នាក់ៗ។</p>
+          <h3>២. គំរូតារាង CAP ស្តង់ដារ ៨ ជួរ</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ល.រ</th>
+                <th>ចំណុចអសកម្ម (Finding)</th>
+                <th>មូលហេតុឫសគល់ (Root Cause)</th>
+                <th>សកម្មភាពកែតម្រូវ (Corrective)</th>
+                <th>សកម្មភាពបង្ការ (Preventive)</th>
+                <th>អ្នកទទួលបន្ទុក (PIC)</th>
+                <th>កាលកំណត់</th>
+                <th>ស្ថានភាព & ភស្តុតាង</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>ច្រកអាសន្នត្រូវចាក់សោ</td>
+                <td>ខ្លាចបាត់ក្រណាត់ពេលយប់</td>
+                <td>ដោះសោចេញភ្លាមៗ</td>
+                <td>បំពាក់ Panic Bar & ស៊ីរ៉ែនអាសន្ន</td>
+                <td>Maintenance / Compliance</td>
+                <td>៧ ថ្ងៃ</td>
+                <td><span class="badge badge-green">បានបិទ (រូបថត)</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>ទូភ្លើងគ្មានគម្រប និងគ្មានខ្សែដី</td>
+                <td>ជាងភ្លើងដោះចេញជួសជុលភ្លេចដាក់វិញ</td>
+                <td>បំពាក់គម្រប និងខ្សែតដីឡើងវិញ</td>
+                <td>បង្កើត SOP ត្រួតពិនិត្យទូភ្លើងប្រចាំសប្តាហ៍</td>
+                <td>Chief Electrician</td>
+                <td>៣ ថ្ងៃ</td>
+                <td><span class="badge badge-green">បានបិទ (កំណត់ហេតុ)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        `
+      },
+      {
+        id: "m10",
+        num: 10,
+        titleKh: "Module 10: ប្រតិបត្តិការរោងចក្រ ការដឹកនាំរបស់មេការ និង Job Descriptions",
+        titleEn: "Factory Operations, Supervisory Leadership & JDs",
+        desc: "ការដឹកនាំវិជ្ជមាន គោលការណ៍ម្ជុលបាក់ 5S និង Job Descriptions សម្រាប់មេការគ្រប់ផ្នែក",
+        headerClass: "m10",
+        htmlContent: `
+          <h3>១. គោលការណ៍ដឹកនាំវិជ្ជមានសម្រាប់មេការ</h3>
+          <p>ហាមដាច់ខាតការស្រែកគំហក ជេរប្រមាថ ឬគំរាមកំហែង។ ត្រូវពន្យល់ និងបង្វឹកកម្មករដោយសន្តិវិធី។ គ្រប់គ្រងលំហូរផលិតកម្មដោយផ្អែកលើទិន្នផល និងការលើកទឹកចិត្ត។</p>
+          <h3>២. នីតិវិធីម្ជុលបាក់ (Broken Needle Policy)</h3>
+          <p>ពេលម្ជុលបាក់ កម្មករត្រូវប្រមូលបំណែកម្ជុលឱ្យគ្រប់ ១០០% បិទលើក្រដាសកំណត់ត្រា ទើបប្តូរម្ជុលថ្មីជូន។ បើរករកមិនឃើញ ត្រូវយករ៉ូប/អាវនោះទៅរាវម៉ាស៊ីន Handheld Detector និងម៉ាស៊ីនកាត់ក្រណាត់ភ្លាម។ ម៉ាស៊ីនរាវម្ជុលធំត្រូវក្រិត Calibration រៀងរាល់ ២ ម៉ោងម្តង។</p>
+          <h3>៣. សង្ខេប Job Descriptions ផ្នែកផលិតកម្ម</h3>
+          <ul>
+            <li><strong>ប្រធានឃ្លាំងសម្ភារៈ (Raw Material):</strong> គ្រប់គ្រងស្តុក FIFO, ផ្ទៀងផ្ទាត់បញ្ជីដឹកជញ្ជូន, ចេញក្រណាត់ទៅតុកាត់ទាន់ពេល។</li>
+            <li><strong>ប្រធានតុកាត់ (Cutting Leader):</strong> ពិនិត្យ Marker, លាតក្រណាត់ត្រឹមត្រូវ, ពាក់ស្រោមដៃដែកការពារសុវត្ថិភាព។</li>
+            <li><strong>ប្រធានដេរ (Sewing Line Leader):</strong> ធ្វើ Line Balancing, ពិនិត្យ First Output, គ្រប់គ្រងវិន័យម្ជុលបាក់, សម្រេច Target។</li>
+            <li><strong>ប្រធាន QC (Quality Control Leader):</strong> ត្រួតពិនិត្យ AQL, បំបែកទំនិញ Defect, វិភាគកំហុសប្រចាំថ្ងៃជូន GM។</li>
+            <li><strong>ប្រធានវេចខ្ចប់ (Packing Leader):</strong> ផ្ទៀងផ្ទាត់ Barcode/Label, ធានាការឆ្លងកាត់ម៉ាស៊ីនរាវម្ជុល ១០០%។</li>
+            <li><strong>ប្រធានឃ្លាំងទំនិញសម្រេច (FG Warehouse):</strong> ត្រួតពិនិត្យកុងតឺន័រ (៧ ចំណុច), ការពារទំនិញមិនឱ្យខូចខាត, ផ្ទុកទំនិញទាន់ពេល។</li>
+          </ul>
+        `
+      },
+      {
+        id: "m11",
+        num: 11,
+        titleKh: "Module 11: ការធ្វើសវនកម្មសាកល្បង និងការអភិវឌ្ឍឡើងជាថ្នាក់គ្រប់គ្រង",
+        titleEn: "Practical Mock Audits & Career Progression",
+        desc: "ការអនុវត្ត Internal Mock Audit ៥ ដំណាក់កាល និងផែនទីបង្ហាញផ្លូវឡើងកាន់តំណែងគ្រប់គ្រងជាន់ខ្ពស់",
+        headerClass: "m11",
+        htmlContent: `
+          <h3>១. ដំណើរការធ្វើ Mock Audit ផ្ទៃក្នុង ៥ ដំណាក់កាល</h3>
+          <div class="step-flow">
+            <div class="step-item"><strong>១. ប្រជុំបើក</strong>Opening Meeting ជាមួយមេការ និង GM</div>
+            <div class="step-item"><strong>២. ដើរពិនិត្យ</strong>Walkthrough គ្រប់ផ្នែកផលិតកម្ម</div>
+            <div class="step-item"><strong>៣. ពិនិត្យឯកសារ</strong>Document Review ផ្ទៀងផ្ទាត់ Payroll</div>
+            <div class="step-item"><strong>៤. សម្ភាសន៍</strong>Worker Interviews ដោយសម្ងាត់</div>
+            <div class="step-item"><strong>៥. ប្រជុំបិទ & CAP</strong>Closing Meeting & រាយការណ៍ជូន GM</div>
+          </div>
+          <h3>២. ផែនទីបង្ហាញផ្លូវអភិវឌ្ឍន៍អាជីព (Career Progression Roadmap)</h3>
+          <p><strong>HR/Compliance Officer (១-២ ឆ្នាំ)</strong> ➡️ <strong>Senior Officer / Team Lead (២-៤ ឆ្នាំ)</strong> ➡️ <strong>Assistant Manager (៤-៦ ឆ្នាំ)</strong> ➡️ <strong>HR / Compliance Manager (៦-៨ ឆ្នាំ)</strong> ➡️ <strong>Director of Human Capital & Operations (៨ ឆ្នាំឡើង)</strong></p>
+        `
+      }
+    ];
+
+    // Pre-filled Compliance Templates dictionary
+    const COMPLIANCE_TEMPLATES = {
+      fire_safety: {
+        titleKh: "សុវត្ថិភាពអគ្គិភ័យ និងការជម្លៀសខ្លួនអាសន្ន",
+        titleEn: "Fire Safety & Emergency Evacuation SOP",
+        desc: "នីតិវិធីបង្ការអគ្គិភ័យ ការប្រើប្រាស់បំពង់ពន្លត់អគ្គិភ័យ និងការជម្លៀសខ្លួនសុវត្ថិភាព",
+        legal: "ប្រកាសក្រសួងការងារ MLVT ស្តីពីសុវត្ថិភាពអគ្គិភ័យ, BFC, amfori BSCI",
+        content: `
+          <h3>១. ការត្រួតពិនិត្យឧបករណ៍ពន្លត់អគ្គិភ័យប្រចាំខែ</h3>
+          <p>បំពង់ពន្លត់អគ្គិភ័យទាំងអស់ត្រូវដាក់ព្យួរនៅកម្ពស់អតិបរមា ១.៥ ម៉ែត្រ មានស្លាកលេខកូដសម្គាល់ និងត្រួតពិនិត្យសម្ពាធកុងទ័រ (ព្រួញនៅតំបន់បៃតង) ជារៀងរាល់ខែ។</p>
+          <h3>២. ផ្លូវរត់គេចខ្លួន និងច្រកទ្វារអាសន្ន</h3>
+          <ul>
+            <li>ទ្វារសង្គ្រោះបន្ទាន់ទាំងអស់ត្រូវតែប្រើប្រាស់សោរបាររុញចេញក្រៅ (Panic Push-Bar) និងហាមដាច់ខាតមិនឱ្យចាក់សោក្នុងអំឡុងពេលធ្វើការ។</li>
+            <li>គូសបន្ទាត់លឿងទំហំ ១.២ ម៉ែត្រសម្រាប់ផ្លូវរត់គេចខ្លួន និងហាមដាក់សម្ភារៈរាំងស្ទះ។</li>
+            <li>ហ្វឹកហាត់ជម្លៀសខ្លួនពន្លត់អគ្គិភ័យជាក់ស្តែង (Fire Evacuation Drill) យ៉ាងតិច ២ ដងក្នុងមួយឆ្នាំ។</li>
+          </ul>
+        `,
+        qaQ: "ប្រសិនបើស៊ីរ៉ែនរោទ៍អាសន្ន តើកម្មករនិយោជិតត្រូវធ្វើដូចម្តេច?",
+        qaA: "ត្រូវផ្អាកការងារភ្លាមៗ បិទកុងតាក់ម៉ាស៊ីន មិនបាច់យកទ្រព្យសម្បត្តិផ្ទាល់ខ្លួន រួចដើរតាមជួរតាមផ្លូវបន្ទាត់លឿងឆ្ពោះទៅកាន់ទីលានជួបជុំសុវត្ថិភាព (Assembly Point) មិនត្រូវរត់ជាន់គ្នាឡើយ។"
+      },
+      anti_harassment: {
+        titleKh: "គោលការណ៍ប្រឆាំងការបៀតបៀន និងអំពើហិង្សានៅកន្លែងធ្វើការ",
+        titleEn: "Anti-Harassment & Prevention of Workplace Violence",
+        desc: "ការទប់ស្កាត់ការបៀតបៀនផ្លូវភេទ អំពើហិង្សា និងការធានាបរិយាកាសការងារប្រកបដោយការគោរព",
+        legal: "អនុសញ្ញា ILO លេខ ១៩០, ច្បាប់ការងារកម្ពុជា, ស្តង់ដារ SMETA & BSCI",
+        content: `
+          <h3>១. និយមន័យនៃការបៀតបៀន និងអំពើហិង្សា</h3>
+          <p>ហាមឃាត់ដាច់ខាតនូវរាល់ទង្វើបៀតបៀនផ្លូវភេទ ទាំងពាក្យសម្តី កែវភ្នែក កាយវិការ និងការប៉ះពាល់រាងកាយ ព្រមទាំងការស្រែកគំហក ជេរប្រមាថ និងគំរាមកំហែងពីសំណាក់ប្រធានក្រុម ឬមេការ។</p>
+          <h3>២. នីតិវិធីដាក់ពាក្យបណ្តឹង និងការស៊ើបអង្កេត</h3>
+          <ul>
+            <li>ជនរងគ្រោះ ឬសាក្សីអាចរាយការណ៍ផ្ទាល់ទៅកាន់គណៈកម្មការបណ្តឹងសារទុក្ខ ឬតាមរយៈ Hotline សម្ងាត់។</li>
+            <li>ការស៊ើបអង្កេតត្រូវធ្វើឡើងដោយអព្យាក្រឹតក្នុងរយៈពេលមិនលើសពី ៧ ថ្ងៃនៃថ្ងៃធ្វើការ។</li>
+            <li>រោងចក្រធានាការរក្សាការសម្ងាត់ខ្ពស់បំផុត និងគ្មានការសងសឹក (Zero Retaliation) ចំពោះអ្នករាយការណ៍។</li>
+          </ul>
+        `,
+        qaQ: "តើជនប្រព្រឹត្តការបៀតបៀនផ្លូវភេទធ្ងន់ធ្ងរត្រូវទទួលទោសបែបណា?",
+        qaA: "ចាត់ទុកជាកំហុសធ្ងន់ធ្ងរ (Serious Misconduct) ត្រូវទទួលទណ្ឌកម្មបញ្ឈប់ពីការងារភ្លាមៗដោយគ្មានសំណង និងត្រូវបញ្ជូនសំណុំរឿងទៅអាជ្ញាធរមានសមត្ថកិច្ចតាមច្បាប់។"
+      },
+      ctpat: {
+        titleKh: "សន្តិសុខខ្សែសង្វាក់ផ្គត់ផ្គង់ C-TPAT & ការការពារភេរវកម្ម",
+        titleEn: "Supply Chain Security & Anti-Terrorism (C-TPAT / GSV)",
+        desc: "សុវត្ថិភាពកុងតឺន័រ សន្តិសុខទីតាំងរោងចក្រ និងការត្រួតពិនិត្យ ៧ ចំណុច",
+        legal: "U.S. Customs and Border Protection C-TPAT Standard, GSV",
+        content: `
+          <h3>១. ការត្រួតពិនិត្យកុងតឺន័រ ៧ ចំណុច (7-Point Container Inspection)</h3>
+          <p>មុនពេលផ្ទុកទំនិញ ផ្នែកសន្តិសុខ និងឃ្លាំងត្រូវពិនិត្យ៖ (១) ជញ្ជាំងខាងមុខ, (២) ជញ្ជាំងខាងឆ្វេង, (៣) ជញ្ជាំងខាងស្តាំ, (៤) កម្រាលបាត, (៥) ដំបូលខាងលើ, (៦) ទ្វារខាងក្រៅ និងខាងក្នុង, (៧) សោសុវត្ថិភាព និងគ្រោងក្រោម។</p>
+          <h3>២. សន្តិសុខបុគ្គលិក និងភ្ញៀវចូលចេញ</h3>
+          <ul>
+            <li>ភ្ញៀវទាំងអស់ត្រូវចុះឈ្មោះ ផ្លាស់ប្តូរកាតសម្គាល់ និងមានបុគ្គលិករោងចក្រដើរអមដំណើរគ្រប់ពេល។</li>
+            <li>បំពាក់កាមេរ៉ាសុវត្ថិភាព CCTV គ្រប់ច្រកចូលចេញ ឃ្លាំងទំនិញសម្រេច និងតំបន់ផ្ទុកទំនិញ ដោយរក្សាទុកទិន្នន័យយ៉ាងតិច ៣០ ថ្ងៃ។</li>
+          </ul>
+        `,
+        qaQ: "ប្រសិនបើរករកឃើញកុងតឺន័រមានរន្ធធ្លាយ ឬមានក្លិនគីមីមិនប្រក្រតី តើត្រូវធ្វើដូចម្តេច?",
+        qaA: "ត្រូវបដិសេធមិនទទួលកុងតឺន័រនោះជាបន្ទាន់ ថតរូបជាភស្តុតាង និងរាយការណ៍ទៅក្រុមហ៊ុនដឹកជញ្ជូន និងអ្នកបញ្ជាទិញភ្លាមៗ។"
+      },
+      boiler_safety: {
+        titleKh: "សុវត្ថិភាពឡចំហាយទឹក និងសម្ពាធខ្ពស់",
+        titleEn: "Boiler & Pressure Vessel Safety",
+        desc: "ការគ្រប់គ្រងឡស្ទីម ការត្រួតពិនិត្យបច្ចេកទេស និងការការពារការផ្ទុះ",
+        legal: "ប្រកាសក្រសួងការងារស្តីពីសុវត្ថិភាពឡស្ទីម, ស្តង់ដារ OSH",
+        content: `
+          <h3>១. វិញ្ញាបនបត្របច្ចេកទេសឡស្ទីម</h3>
+          <p>ឡចំហាយទឹកត្រូវតែមានវិញ្ញាបនបត្រត្រួតពិនិត្យបច្ចេកទេសពីក្រសួងការងារ និងបណ្តុះបណ្តាលវិជ្ជាជីវៈដែលមានសុពលភាពជាប្រចាំ (ត្រួតពិនិត្យប្រចាំឆ្នាំ)។</p>
+          <h3>២. ស្តង់ដារប្រតិបត្តិការសម្រាប់ជាងឡស្ទីម</h3>
+          <ul>
+            <li>ជាងបញ្ជាឡស្ទីមត្រូវតែឆ្លងកាត់ការបណ្តុះបណ្តាល និងមានប័ណ្ណបញ្ជាក់សមត្ថភាពត្រឹមត្រូវ។</li>
+            <li>ត្រួតពិនិត្យកុងទ័រសម្ពាធ (Pressure Gauge) វ៉ាល់សុវត្ថិភាព (Safety Valve) និងកម្រិតទឹក ២ ដងក្នុងមួយថ្ងៃ។</li>
+          </ul>
+        `,
+        qaQ: "តើកម្រិតសម្ពាធអតិបរមាអនុញ្ញាតលើឡស្ទីមត្រូវបានកំណត់យ៉ាងដូចម្តេច?",
+        qaA: "កំណត់ដោយបន្ទាត់ក្រហមនៅលើកុងទ័រសម្ពាធ និងត្រូវក្រិតវ៉ាល់សុវត្ថិភាពឱ្យបញ្ចេញចំហាយស្វ័យប្រវត្តិកាលណាសម្ពាធឡើងលើសកម្រិតកំណត់។"
+      },
+      canteen_hygiene: {
+        titleKh: "អនាម័យអាហារដ្ឋាន និងទឹកស្អាតសុវត្ថិភាព",
+        titleEn: "Canteen Hygiene & Clean Drinking Water",
+        desc: "ការធ្វើតេស្តគុណភាពទឹកផឹក អនាម័យចុងភៅ និងការបង្ការការពុលចំណីអាហារ",
+        legal: "ស្តង់ដារ BFC, ច្បាប់ការងារស្តីពីអនាម័យម្ហូបអាហារ",
+        content: `
+          <h3>១. ការធ្វើតេស្តគុណភាពទឹកផឹក</h3>
+          <p>រោងចក្រត្រូវបញ្ជូនគំរូទឹកផឹករបស់កម្មករទៅធ្វើតេស្តបាក់តេរី និងសារធាតុគីមីនៅមន្ទីរពិសោធន៍ទទួលស្គាល់ដោយរដ្ឋ (Pasteur Institute ឬមន្ទីរពិសោធន៍រដ្ឋ) រៀងរាល់ ៦ ខែម្តង។</p>
+          <h3>២. អនាម័យអ្នកចម្អិន និងអាហារដ្ឋាន</h3>
+          <ul>
+            <li>អ្នកចម្អិនអាហារត្រូវពិនិត្យសុខភាពប្រចាំឆ្នាំ ពាក់មួកបាំងសក់ ម៉ាស់ និងអៀមគ្រប់ពេល។</li>
+            <li>រក្សាទុកគំរូម្ហូបអាហារ (Food Sample) ក្នុងទូទឹកកករយៈពេល ៧២ ម៉ោងសម្រាប់ធ្វើតេស្តករណីមានការពុល។</li>
+          </ul>
+        `,
+        qaQ: "ប្រសិនបើមានកម្មករច្រើននាក់រាករូស ឬក្អួតចង្អោរក្រោយហូបបាយ តើត្រូវចាត់ចែងដូចម្តេច?",
+        qaA: "បញ្ជូនទៅបន្ទប់ពេទ្យ ឬមន្ទីរពេទ្យជាបន្ទាន់ រាយការណ៍ជូន OSH និង GM និងរក្សាទុកគំរូម្ហូបអាហារជូនមន្ត្រីសុខាភិបាលស៊ើបអង្កេត។"
+      },
+      maternity_protection: {
+        titleKh: "សមធម៌យេនឌ័រ និងការការពារស្រ្តីមានផ្ទៃពោះ",
+        titleEn: "Gender Equality & Maternity Protection",
+        desc: "ការឈប់សម្រាកលំហែមាតុភាព បន្ទប់បំបៅកូន និងការការពារស្រ្តីមានផ្ទៃពោះ",
+        legal: "មាត្រា ១៨២-១៨៧ នៃច្បាប់ការងារ, អនុសញ្ញា ILO លេខ ១៨៣",
+        content: `
+          <h3>១. ការឈប់សម្រាកលំហែមាតុភាព (Maternity Leave)</h3>
+          <p>កម្មការិនីមានសិទ្ធិឈប់សម្រាកលំហែមាតុភាពចំនួន <strong>៩០ ថ្ងៃ</strong> ដោយទទួលបានប្រាក់ឈ្នួល ៥០% ពីនិយោជក (បើរោងចក្របំពេញលក្ខខណ្ឌ) និងប្រាក់ឧបត្ថម្ភពី ប.ស.ស. និងរាជរដ្ឋាភិបាល។</p>
+          <h3>២. ការការពារការងារក្នុងអំឡុងពេលមានផ្ទៃពោះ</h3>
+          <ul>
+            <li>ហាមដាច់ខាតមិនឱ្យបញ្ឈប់កម្មការិនីពីការងារក្នុងអំឡុងពេលមានផ្ទៃពោះ និងលំហែមាតុភាព។</li>
+            <li>ស្រ្តីមានផ្ទៃពោះចាប់ពីខែទី ៧ ឡើងទៅ ត្រូវបានអនុញ្ញាតឱ្យចេញពីការងារមុនម៉ោងធម្មតា ១៥ នាទី។</li>
+            <li>រោងចក្រត្រូវរៀបចំបន្ទប់បំបៅដោះកូន (Daycare/Nursing Room) សម្រាប់កម្មការិនីដែលមានកូនអាយុក្រោម ១៨ ខែ។</li>
+          </ul>
+        `,
+        qaQ: "តើស្រ្តីមានផ្ទៃពោះអាចធ្វើការងារថែមម៉ោង OT ឬវេនយប់បានទេ?",
+        qaA: "ដាច់ខាតមិនអនុញ្ញាតឡើយ! ច្បាប់ការងារហាមឃាត់ការប្រើប្រាស់ស្រ្តីមានផ្ទៃពោះ ឬបំបៅកូនឱ្យធ្វើការថែមម៉ោង ឬវេនយប់។"
+      },
+      subcontractor_mgmt: {
+        titleKh: "ការគ្រប់គ្រងអ្នកម៉ៅការបន្ត និងសេវាកម្មខាងក្រៅ",
+        titleEn: "Subcontractor & Supplier Ethics Management",
+        desc: "ការគ្រប់គ្រងសន្តិសុខសង្គមអ្នកម៉ៅការបន្ត អាហារដ្ឋាន និងអ្នកដឹកជញ្ជូន",
+        legal: "ស្តង់ដារ amfori BSCI, BFC, Buyer Supplier Code of Conduct",
+        content: `
+          <h3>១. ការវាយតម្លៃអ្នកផ្គត់ផ្គង់ និងអ្នកម៉ៅការបន្ត (Vendor Due Diligence)</h3>
+          <p>មុនចុះកិច្ចសន្យា ក្រុមហ៊ុនម៉ៅការបន្ត (សន្តិសុខ, សម្អាត, អាហារដ្ឋាន, ដឹកជញ្ជូន) ត្រូវតែចុះហត្ថលេខាយល់ព្រមអនុវត្តតាមក្រមសីលធម៌ការងារ (Code of Conduct) របស់រោងចក្រ។</p>
+          <h3>២. ការត្រួតពិនិត្យអនុលោមភាពរបស់អ្នកម៉ៅការ</h3>
+          <ul>
+            <li>ធានាថាបុគ្គលិកសន្តិសុខ និងអ្នកសម្អាតទទួលបានប្រាក់ឈ្នួលអប្បបរមា មិនលើសម៉ោងការងារស្របច្បាប់ និងមានកាត ប.ស.ស.។</li>
+            <li>ហាមដាច់ខាតការលួចផ្ទេរការងារផលិតកម្មទៅកាន់រោងចក្រក្រៅផ្លូវការ (Unauthorized Subcontracting) ដោយគ្មានការអនុញ្ញាតពីអ្នកបញ្ជាទិញ។</li>
+          </ul>
+        `,
+        qaQ: "តើអ្វីទៅជាការម៉ៅការបន្តខុសច្បាប់ (Unauthorized Subcontracting)?",
+        qaA: "ជាការលួចយកទំនិញរបស់អ្នកបញ្ជាទិញទៅកាត់ដេរនៅរោងចក្រក្រៅដែលគ្មានការ Audit ដែលជាកំហុស Zero Tolerance ធ្ងន់ធ្ងរបំផុតរបស់អ្នកបញ្ជាទិញ។"
+      }
+    };
+
+    // State
+    let isEditMode = false;
+    let curriculumData = {
+      docControl: {
+        title: "កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ ១១ ផ្នែក",
+        subtitle: "Comprehensive Factory HR & Compliance Management Curriculum Manual (Master Edition)",
+        code: "SOP-TR-2026-V2",
+        rev: "Rev 2.0 (Master 11-Section Edition)",
+        dept: "Human Resources & Social Compliance",
+        date: "ខែវិច្ឆិកា ឆ្នាំ២០២៦"
+      },
+      modules: JSON.parse(JSON.stringify(DEFAULT_MODULES))
+    };
+
+    // Initialize from LocalStorage if available
+    function initApp() {
+      const saved = localStorage.getItem("FACTORY_CURRICULUM_DATA_V2");
+      if (saved) {
+        try {
+          curriculumData = JSON.parse(saved);
+        } catch (e) {
+          console.error("Error loading localStorage data", e);
+        }
+      }
+      renderDocControl();
+      renderModules();
+      renderTOC();
+    }
+
+    // Render Document Control Info
+    function renderDocControl() {
+      document.getElementById("doc-title").innerText = curriculumData.docControl.title;
+      document.getElementById("doc-subtitle").innerText = curriculumData.docControl.subtitle;
+      document.getElementById("ctrl-code").innerText = curriculumData.docControl.code;
+      document.getElementById("ctrl-rev").innerText = curriculumData.docControl.rev;
+      document.getElementById("ctrl-dept").innerText = curriculumData.docControl.dept;
+      document.getElementById("ctrl-date").innerText = curriculumData.docControl.date;
+    }
+
+    // Render Table of Contents
+    function renderTOC() {
+      const tocList = document.getElementById("toc-list");
+      tocList.innerHTML = "";
+      curriculumData.modules.forEach(m => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="#${m.id}">${m.titleKh}</a>`;
+        tocList.appendChild(li);
+      });
+      // Appendices link
+      const liApp = document.createElement("li");
+      liApp.innerHTML = `<a href="#appendices">កម្រងឧបសម្ព័ន្ធ៖ Toolkits, Templates & គំរូអនុវត្ត</a>`;
+      tocList.appendChild(liApp);
+
+      document.getElementById("toc-count-badge").innerText = `${curriculumData.modules.length} ម៉ូឌុល`;
+    }
+
+    // Render All Modules
+    function renderModules() {
+      const container = document.getElementById("modules-container");
+      container.innerHTML = "";
+
+      curriculumData.modules.forEach((mod, idx) => {
+        const headerClass = mod.headerClass || "m-custom";
+        const card = document.createElement("div");
+        card.className = "module-card";
+        card.id = mod.id;
+
+        card.innerHTML = `
+          <div class="module-header ${headerClass}">
+            <div class="module-header-text">
+              <h2 class="editable-content" data-field="titleKh" data-index="${idx}" contenteditable="${isEditMode}">${mod.titleKh} (${mod.titleEn})</h2>
+              <p class="editable-content" data-field="desc" data-index="${idx}" contenteditable="${isEditMode}">${mod.desc}</p>
+            </div>
+            <div class="module-actions">
+              <button class="btn-mod-action" onclick="editModuleInline(${idx})">✏️ កែ</button>
+              <button class="btn-mod-action btn-mod-delete" onclick="deleteModule(${idx})">🗑️ លុប</button>
+            </div>
+          </div>
+          <div class="module-body editable-content" data-field="htmlContent" data-index="${idx}" contenteditable="${isEditMode}">
+            ${mod.htmlContent}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Toggle Edit Mode
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const btn = document.getElementById("btn-toggle-edit");
+      const badge = document.getElementById("mode-badge");
+      const banner = document.getElementById("edit-notice");
+      const docBox = document.getElementById("doc-control-box");
+      const container = document.getElementById("printable-area");
+
+      if (isEditMode) {
+        btn.innerText = "👁️ បិទរបៀបកែប្រែ (Done)";
+        btn.classList.add("btn-edit-active");
+        badge.innerText = "✏️ កំពុងកែប្រែ (Editing Active)";
+        badge.classList.add("active");
+        banner.classList.add("show");
+        docBox.classList.add("editable-box");
+        container.classList.add("edit-mode-active");
+        showToast("✏️ របៀបកែប្រែត្រូវបានបើក! លោកអ្នកអាចចុចលើអត្ថបទផ្ទាល់ដើម្បីកែប្រែបាន។", "ℹ️");
+      } else {
+        btn.innerText = "✏️ បើករបៀបកែប្រែ (Edit Mode)";
+        btn.classList.remove("btn-edit-active");
+        badge.innerText = "👁️ របៀបមើល (View Mode)";
+        badge.classList.remove("active");
+        banner.classList.remove("show");
+        docBox.classList.remove("editable-box");
+        container.classList.remove("edit-mode-active");
+        saveAllChanges();
+      }
+
+      // Re-render modules to update contenteditable attributes
+      renderModules();
+    }
+
+    // Open & Close Doc Control Modal
+    function openDocControlModal() {
+      document.getElementById("form-doc-title").value = curriculumData.docControl.title;
+      document.getElementById("form-doc-subtitle").value = curriculumData.docControl.subtitle;
+      document.getElementById("form-ctrl-code").value = curriculumData.docControl.code;
+      document.getElementById("form-ctrl-rev").value = curriculumData.docControl.rev;
+      document.getElementById("form-ctrl-dept").value = curriculumData.docControl.dept;
+      document.getElementById("form-ctrl-date").value = curriculumData.docControl.date;
+      document.getElementById("modal-doccontrol").classList.add("active");
+    }
+
+    function closeDocControlModal() {
+      document.getElementById("modal-doccontrol").classList.remove("active");
+    }
+
+    function saveDocControlForm() {
+      curriculumData.docControl.title = document.getElementById("form-doc-title").value.trim();
+      curriculumData.docControl.subtitle = document.getElementById("form-doc-subtitle").value.trim();
+      curriculumData.docControl.code = document.getElementById("form-ctrl-code").value.trim();
+      curriculumData.docControl.rev = document.getElementById("form-ctrl-rev").value.trim();
+      curriculumData.docControl.dept = document.getElementById("form-ctrl-dept").value.trim();
+      curriculumData.docControl.date = document.getElementById("form-ctrl-date").value.trim();
+
+      renderDocControl();
+      closeDocControlModal();
+      saveToStorage();
+      showToast("✅ បានកែសម្រួលព័ត៌មានរដ្ឋបាលនៃឯកសារជោគជ័យ!", "💾");
+    }
+
+    // Add Module Modal
+    function openAddModuleModal() {
+      document.getElementById("template-select").value = "custom";
+      document.getElementById("mod-title-kh").value = "";
+      document.getElementById("mod-title-en").value = "";
+      document.getElementById("mod-desc").value = "";
+      document.getElementById("mod-legal").value = "";
+      document.getElementById("mod-content").value = "";
+      document.getElementById("mod-qa-q").value = "";
+      document.getElementById("mod-qa-a").value = "";
+      document.getElementById("modal-add-module").classList.add("active");
+    }
+
+    function closeAddModuleModal() {
+      document.getElementById("modal-add-module").classList.remove("active");
+    }
+
+    function applyModuleTemplate(key) {
+      if (key === "custom" || !COMPLIANCE_TEMPLATES[key]) return;
+      const t = COMPLIANCE_TEMPLATES[key];
+      document.getElementById("mod-title-kh").value = t.titleKh;
+      document.getElementById("mod-title-en").value = t.titleEn;
+      document.getElementById("mod-desc").value = t.desc;
+      document.getElementById("mod-legal").value = t.legal;
+      document.getElementById("mod-content").value = t.content.trim();
+      document.getElementById("mod-qa-q").value = t.qaQ;
+      document.getElementById("mod-qa-a").value = t.qaA;
+    }
+
+    function submitAddModule() {
+      const titleKh = document.getElementById("mod-title-kh").value.trim();
+      const titleEn = document.getElementById("mod-title-en").value.trim();
+      const desc = document.getElementById("mod-desc").value.trim();
+      const legal = document.getElementById("mod-legal").value.trim();
+      let content = document.getElementById("mod-content").value.trim();
+      const qaQ = document.getElementById("mod-qa-q").value.trim();
+      const qaA = document.getElementById("mod-qa-a").value.trim();
+
+      if (!titleKh) {
+        alert("សូមបញ្ចូលចំណងជើង Module ជាភាសាខ្មែរ!");
+        return;
+      }
+
+      const nextNum = curriculumData.modules.length + 1;
+      const modId = "m" + nextNum + "_" + Date.now();
+
+      let finalHtml = "";
+      if (legal) {
+        finalHtml += `<div class="callout callout-info"><strong>⚖️ មូលដ្ឋានច្បាប់ & ស្តង់ដារអនុលោមភាព:</strong> ${legal}</div>`;
+      }
+      finalHtml += content;
+      if (qaQ && qaA) {
+        finalHtml += `
+          <div class="qa-box">
+            <div class="qa-q">❓ សំណួរ៖ ${qaQ}</div>
+            <div class="qa-a">💡 ចម្លើយ៖ ${qaA}</div>
+          </div>
+        `;
+      }
+
+      const newMod = {
+        id: modId,
+        num: nextNum,
+        titleKh: `Module ${nextNum}: ${titleKh}`,
+        titleEn: titleEn || "Training Module",
+        desc: desc || "វគ្គបណ្តុះបណ្តាលបន្ថែមដោយអនុលោមតាមច្បាប់",
+        headerClass: "m-custom",
+        htmlContent: finalHtml
+      };
+
+      curriculumData.modules.push(newMod);
+      renderModules();
+      renderTOC();
+      closeAddModuleModal();
+      saveToStorage();
+
+      // Scroll to new module
+      setTimeout(() => {
+        const el = document.getElementById(modId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+
+      showToast(`✅ បានបន្ថែម ${newMod.titleKh} ជោគជ័យ!`, "➕");
+    }
+
+    // Delete Module
+    function deleteModule(idx) {
+      const mod = curriculumData.modules[idx];
+      if (confirm(`តើអ្នកពិតជាចង់លុប "${mod.titleKh}" មែនទេ?`)) {
+        curriculumData.modules.splice(idx, 1);
+        renderModules();
+        renderTOC();
+        saveToStorage();
+        showToast("🗑️ បានលុប Module រួចរាល់!", "🗑️");
+      }
+    }
+
+    function editModuleInline(idx) {
+      alert("អ្នកអាចចុចលើអត្ថបទក្នុង Module នេះផ្ទាល់ដើម្បីកែប្រែអក្សរបានភ្លាមៗ! បន្ទាប់មកចុចប៊ូតុង 'រក្សាទុក' នៅខាងលើ។");
+    }
+
+    // Legal Guide Modal
+    function openLegalGuideModal() {
+      document.getElementById("modal-legal-guide").classList.add("active");
+    }
+    function closeLegalGuideModal() {
+      document.getElementById("modal-legal-guide").classList.remove("active");
+    }
+
+    // Save All Changes (Captures ContentEditable Changes)
+    function saveAllChanges() {
+      // Capture live DOM text for each module
+      const moduleCards = document.querySelectorAll(".module-card");
+      moduleCards.forEach((card, idx) => {
+        if (idx < curriculumData.modules.length) {
+          const bodyEl = card.querySelector(".module-body");
+          if (bodyEl) {
+            curriculumData.modules[idx].htmlContent = bodyEl.innerHTML;
+          }
+        }
+      });
+
+      // Capture doc title/subtitle if edited directly
+      const titleEl = document.getElementById("doc-title");
+      if (titleEl) curriculumData.docControl.title = titleEl.innerText.trim();
+      const subtitleEl = document.getElementById("doc-subtitle");
+      if (subtitleEl) curriculumData.docControl.subtitle = subtitleEl.innerText.trim();
+
+      saveToStorage();
+      showToast("💾 បានរក្សាទុកការកែប្រែទាំងអស់ចូលទៅក្នុង Browser រួចរាល់!", "✅");
+    }
+
+    function saveToStorage() {
+      localStorage.setItem("FACTORY_CURRICULUM_DATA_V2", JSON.stringify(curriculumData));
+    }
+
+    // Reset to Default
+    function resetDefaultCurriculum() {
+      if (confirm("តើលោកអ្នកពិតជាចង់កំណត់សៀវភៅណែនាំនេះត្រឡប់ទៅជាទម្រង់ដើម ១១ ម៉ូឌុលវិញមែនទេ? ការកែប្រែទាំងអស់នឹងត្រូវបានលុប។")) {
+        localStorage.removeItem("FACTORY_CURRICULUM_DATA_V2");
+        curriculumData = {
+          docControl: {
+            title: "កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ ១១ ផ្នែក",
+            subtitle: "Comprehensive Factory HR & Compliance Management Curriculum Manual (Master Edition)",
+            code: "SOP-TR-2026-V2",
+            rev: "Rev 2.0 (Master 11-Section Edition)",
+            dept: "Human Resources & Social Compliance",
+            date: "ខែវិច្ឆិកា ឆ្នាំ២០២៦"
+          },
+          modules: JSON.parse(JSON.stringify(DEFAULT_MODULES))
+        };
+        renderDocControl();
+        renderModules();
+        renderTOC();
+        showToast("🔄 បានកំណត់ត្រឡប់ទៅទម្រង់ដើមវិញរួចរាល់!", "🔄");
+      }
+    }
+
+    // Toast Notice helper
+    function showToast(msg, icon = "✅") {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-msg").innerText = msg;
+      document.getElementById("toast-icon").innerText = icon;
+      toast.style.display = "flex";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 4000);
+    }
+
+    // Start on DOM ready
+    window.addEventListener("DOMContentLoaded", initApp);
+  </script>
 </body>
 </html>

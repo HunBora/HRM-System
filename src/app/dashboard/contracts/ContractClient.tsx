@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import FactoryContractPeriodMatrix from './FactoryContractPeriodMatrix';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import styles from './contracts.module.css';
@@ -29,6 +30,10 @@ interface EmployeeItem {
   nationalId?: string | null;
   position: string;
   department: string;
+  line?: string | null;
+  phone?: string | null;
+  nssfNo?: string | null;
+  placeOfBirth?: string | null;
   address?: string | null;
   nationality?: string | null;
   basicSalary: number;
@@ -36,6 +41,15 @@ interface EmployeeItem {
   photoUrl?: string | null;
   probationStart?: string | null;
   probationEnd?: string | null;
+  contracts?: Array<{
+    id: string;
+    contractNo: string;
+    contractType: string;
+    status: string;
+    startDate: string;
+    endDate?: string | null;
+    renewalCount?: number;
+  }>;
 }
 
 interface ContractRecord {
@@ -79,6 +93,7 @@ export default function ContractClient({
 }: Props) {
   const [contracts, setContracts] = useState<ContractRecord[]>(initialContracts);
   const [mounted, setMounted] = useState(false);
+  const [mainViewMode, setMainViewMode] = useState<'MATRIX' | 'LIST'>('MATRIX');
 
   useEffect(() => {
     setMounted(true);
@@ -999,6 +1014,50 @@ export default function ContractClient({
           </div>
 
           <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* View Switcher: Matrix vs Standard List */}
+            <div style={{ display: 'flex', background: 'rgba(0,0,0,0.25)', padding: '2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.25)', marginRight: '6px' }}>
+              <button
+                type="button"
+                onClick={() => setMainViewMode('MATRIX')}
+                style={{
+                  background: mainViewMode === 'MATRIX' ? '#ffffff' : 'transparent',
+                  color: mainViewMode === 'MATRIX' ? '#1e3a8a' : '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 10px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <span>📑</span>
+                <span>ទម្រង់រោងចក្រ 1st–9th FDC & UDC (Matrix)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMainViewMode('LIST')}
+                style={{
+                  background: mainViewMode === 'LIST' ? '#ffffff' : 'transparent',
+                  color: mainViewMode === 'LIST' ? '#1e3a8a' : '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 10px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <span>📋</span>
+                <span>បញ្ជីកិច្ចសន្យា (List)</span>
+              </button>
+            </div>
+
             {/* Telegram Alert Button */}
             <button
               onClick={handleSendTelegramAlerts}
@@ -1077,7 +1136,8 @@ export default function ContractClient({
           </div>
         </div>
 
-        {/* Row 2: Slim Alert Chips Toolbar */}
+        {mainViewMode === 'LIST' && (
+        /* Row 2: Slim Alert Chips Toolbar */
         <div className={styles.fitBoxAlertRow}>
           <div
             style={{
@@ -1270,9 +1330,15 @@ export default function ContractClient({
             </button>
           )}
         </div>
+        )}
       </div>
 
-      {/* --- 2. TABLE CARD & TOOLBAR (FIT CONTENT & HIGH CAPACITY) --- */}
+      {mainViewMode === 'MATRIX' ? (
+        <div style={{ marginTop: '12px' }}>
+          <FactoryContractPeriodMatrix employees={employees} companySettings={companySettings} />
+        </div>
+      ) : (
+      /* --- 2. TABLE CARD & TOOLBAR (FIT CONTENT & HIGH CAPACITY) --- */
       <div className={styles.tableCard}>
         {/* Compact Toolbar */}
         <div
@@ -1804,6 +1870,7 @@ export default function ContractClient({
           </div>
         </div>
       </div>
+      )}
 
       {/* Modal Contract Editor / Previewer */}
       {isModalOpen && mounted && createPortal(

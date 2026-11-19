@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 
@@ -40,6 +40,10 @@ interface Props {
   employees: EmployeeSimple[];
   departments: string[];
   userRole?: string;
+  companySettings?: {
+    companyName?: string;
+    logoUrl?: string | null;
+  } | null;
 }
 
 const ACTION_TYPES: Record<string, { labelKh: string; labelEn: string; labelZh: string; bg: string; text: string; icon: string }> = {
@@ -100,7 +104,7 @@ const STATUS_CONFIG: Record<string, { labelKh: string; labelEn: string; bg: stri
   APPEALED: { labelKh: 'កំពុងប្តឹងតវ៉ា', labelEn: 'Appealed', bg: '#fef3c7', text: '#b45309' }
 };
 
-export default function DisciplinaryClient({ initialActions, employees, departments, userRole = 'ADMIN' }: Props) {
+export default function DisciplinaryClient({ initialActions, employees, departments, userRole = 'ADMIN', companySettings }: Props) {
   const isHR = userRole === 'ADMIN' || userRole === 'HR_MANAGER' || userRole === 'HR';
 
   const [actions, setActions] = useState<DisciplinaryAction[]>(initialActions);
@@ -121,10 +125,117 @@ export default function DisciplinaryClient({ initialActions, employees, departme
   const [slipCompanyKh, setSlipCompanyKh] = useState<string>('ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក');
   const [slipCompanyZh, setSlipCompanyZh] = useState<string>('長青戶外用品（柬埔寨）有限公司');
   const [slipCompanyEn, setSlipCompanyEn] = useState<string>('EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD.');
+  const [slipLogoUrl, setSlipLogoUrl] = useState<string>('');
+  const [slipLogoType, setSlipLogoType] = useState<'image' | 'evergreen' | 'factory'>('evergreen');
   const [slipSelectedLevel, setSlipSelectedLevel] = useState<string>('minor-2');
   const [slipHireDate, setSlipHireDate] = useState<string>('');
   const [slipLine, setSlipLine] = useState<string>('Line 01');
   const [isEditingSlipSettings, setIsEditingSlipSettings] = useState<boolean>(false);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string>('');
+
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('FACTORY_DISC_SLIP_SETTINGS');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.companyKh !== undefined) setSlipCompanyKh(parsed.companyKh);
+        if (parsed.companyZh !== undefined) setSlipCompanyZh(parsed.companyZh);
+        if (parsed.companyEn !== undefined) setSlipCompanyEn(parsed.companyEn);
+        if (parsed.logoUrl !== undefined) setSlipLogoUrl(parsed.logoUrl);
+        if (parsed.logoType) setSlipLogoType(parsed.logoType);
+      } else if (companySettings) {
+        if (companySettings.logoUrl) {
+          setSlipLogoUrl(companySettings.logoUrl);
+          setSlipLogoType('image');
+        }
+        if (companySettings.companyName) {
+          setSlipCompanyEn(companySettings.companyName);
+          setSlipCompanyKh(`ក្រុមហ៊ុន ${companySettings.companyName}`);
+          setSlipCompanyZh(companySettings.companyName);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load warning slip settings:', e);
+    }
+  }, [companySettings]);
+
+  const saveSlipSettingsToStorage = (
+    kh = slipCompanyKh,
+    zh = slipCompanyZh,
+    en = slipCompanyEn,
+    logo = slipLogoUrl,
+    type = slipLogoType
+  ) => {
+    try {
+      localStorage.setItem('FACTORY_DISC_SLIP_SETTINGS', JSON.stringify({
+        companyKh: kh,
+        companyZh: zh,
+        companyEn: en,
+        logoUrl: logo,
+        logoType: type,
+      }));
+      setSaveSuccessMsg('បានរក្សាទុក ✓');
+      setTimeout(() => setSaveSuccessMsg(''), 3000);
+    } catch (e) {
+      console.error('Failed to save slip settings:', e);
+    }
+  };
+
+  const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('សូមជ្រើសរើសឯកសារជារូបភាព (PNG, JPG, SVG, WEBP)');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setSlipLogoUrl(result);
+      setSlipLogoType('image');
+      saveSlipSettingsToStorage(slipCompanyKh, slipCompanyZh, slipCompanyEn, result, 'image');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleApplyPreset = (preset: 'system' | 'evergreen' | 'factory') => {
+    if (preset === 'system') {
+      const sysName = companySettings?.companyName || 'HRM System';
+      const sysLogo = companySettings?.logoUrl || '';
+      const kh = `ក្រុមហ៊ុន ${sysName}`;
+      const zh = sysName;
+      const en = sysName;
+      const type = sysLogo ? 'image' : 'factory';
+      setSlipCompanyKh(kh);
+      setSlipCompanyZh(zh);
+      setSlipCompanyEn(en);
+      setSlipLogoUrl(sysLogo);
+      setSlipLogoType(type);
+      saveSlipSettingsToStorage(kh, zh, en, sysLogo, type);
+    } else if (preset === 'evergreen') {
+      const kh = 'ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក';
+      const zh = '長青戶外用品（柬埔寨）有限公司';
+      const en = 'EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD.';
+      setSlipCompanyKh(kh);
+      setSlipCompanyZh(zh);
+      setSlipCompanyEn(en);
+      setSlipLogoType('evergreen');
+      setSlipLogoUrl('');
+      saveSlipSettingsToStorage(kh, zh, en, '', 'evergreen');
+    } else {
+      const kh = 'ក្រុមហ៊ុន / រោងចក្រ ស្តង់ដារកាត់ដេរ (ខេមបូឌា) ឯ.ក';
+      const zh = '标准成衣制造（柬埔寨）有限公司';
+      const en = 'STANDARD GARMENT MANUFACTURING (CAMBODIA) CO., LTD.';
+      setSlipCompanyKh(kh);
+      setSlipCompanyZh(zh);
+      setSlipCompanyEn(en);
+      setSlipLogoType('factory');
+      setSlipLogoUrl('');
+      saveSlipSettingsToStorage(kh, zh, en, '', 'factory');
+    }
+  };
 
   const openWarningLetterSlip = (act: DisciplinaryAction) => {
     setLetterAction(act);
@@ -463,6 +574,11 @@ export default function DisciplinaryClient({ initialActions, employees, departme
       });
     }
   };
+
+  const displayCompanyKh = (slipCompanyKh || '').trim() || 'ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក';
+  const displayCompanyZh = (slipCompanyZh || '').trim() || '長青戶外用品（柬埔寨）有限公司';
+  const displayCompanyEn = (slipCompanyEn || '').trim() || 'EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD.';
+  const cleanKhCompanyName = displayCompanyKh.replace(/\s*ឯ\.?ក\s*$/, '');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1410,7 +1526,7 @@ export default function DisciplinaryClient({ initialActions, employees, departme
                     gap: '4px'
                   }}
                 >
-                  ⚙️ <span>{isEditingSlipSettings ? 'បិទការកែប្រែ' : 'កែប្រែឈ្មោះក្រុមហ៊ុន & ព័ត៌មាន'}</span>
+                  ⚙️ <span>{isEditingSlipSettings ? 'បិទផ្ទាំងកែប្រែ' : 'កែប្រែ Logo & ក្រុមហ៊ុន (Setup Logo & Company)'}</span>
                 </button>
                 <button
                   onClick={handlePrintWarningSlip}
@@ -1448,92 +1564,266 @@ export default function DisciplinaryClient({ initialActions, employees, departme
               </div>
             </div>
 
+            {/* Hidden Logo File Input */}
+            <input
+              type="file"
+              ref={logoFileInputRef}
+              accept="image/*"
+              onChange={handleLogoFileUpload}
+              style={{ display: 'none' }}
+            />
+
             {/* Editable Company & Form Settings Bar */}
             {isEditingSlipSettings && (
               <div style={{
                 background: '#f8fafc',
-                borderBottom: '2px solid #e2e8f0',
-                padding: '14px 20px',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                gap: '12px',
-                fontSize: '0.82rem'
+                borderBottom: '2px solid #cbd5e1',
+                padding: '16px 20px',
+                fontSize: '0.82rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
               }}>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
-                    ឈ្មោះក្រុមហ៊ុន (ភាសាខ្មែរ):
-                  </label>
-                  <input
-                    type="text"
-                    value={slipCompanyKh}
-                    onChange={(e) => setSlipCompanyKh(e.target.value)}
-                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
-                  />
+                {/* Row 1: Logo Auto Setup & Custom Logo Options */}
+                <div style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '12px 14px',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div
+                      onClick={() => logoFileInputRef.current?.click()}
+                      title="ចុចដើម្បីផ្ទុកឡើងរូបភាព Logo ពីរោងចក្រ / Click to upload factory logo"
+                      style={{
+                        width: '54px',
+                        height: '54px',
+                        borderRadius: '8px',
+                        border: '2px dashed #94a3b8',
+                        background: slipLogoType === 'evergreen' ? 'linear-gradient(135deg, #15803d 0%, #166534 100%)' : '#f1f5f9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        overflow: 'hidden',
+                        flexShrink: 0
+                      }}
+                    >
+                      {slipLogoType === 'image' && slipLogoUrl ? (
+                        <img src={slipLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      ) : slipLogoType === 'factory' ? (
+                        <span style={{ fontSize: '1.6rem' }}>🏢</span>
+                      ) : (
+                        <span style={{ fontSize: '1.6rem', color: '#ffffff' }}>🌳</span>
+                      )}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '2px' }}>
+                        កំណត់រូបសញ្ញា Logo (Factory / Company Logo)
+                      </div>
+                      <div style={{ color: '#64748b', fontSize: '0.76rem' }}>
+                        អ្នកអាចផ្ទុកឡើងរូបភាពផ្ទាល់ខ្លួន បិទភ្ជាប់តំណ Link ឬទាញយកស្វ័យប្រវត្តពីប្រព័ន្ធ
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => logoFileInputRef.current?.click()}
+                      style={{
+                        background: '#2563eb',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.78rem'
+                      }}
+                    >
+                      📁 <span>ផ្ទុកឡើង Logo (Upload)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('system')}
+                      title="ទាញយកឈ្មោះ និង Logo ពីការកំណត់ប្រព័ន្ធស្វ័យប្រវត្តិ"
+                      style={{
+                        background: '#059669',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: '0.78rem'
+                      }}
+                    >
+                      🔄 <span>Auto Setup ពីប្រព័ន្ធ</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('evergreen')}
+                      style={{
+                        background: '#e2e8f0',
+                        color: '#0f172a',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '0.78rem'
+                      }}
+                    >
+                      🌲 គំរូ Evergreen
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('factory')}
+                      style={{
+                        background: '#e2e8f0',
+                        color: '#0f172a',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '0.78rem'
+                      }}
+                    >
+                      🏢 គំរូ Factory
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
-                    公司名称 (中文):
-                  </label>
-                  <input
-                    type="text"
-                    value={slipCompanyZh}
-                    onChange={(e) => setSlipCompanyZh(e.target.value)}
-                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
-                  />
+
+                {/* Row 2: Inputs Grid */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                      ឈ្មោះក្រុមហ៊ុន (ភាសាខ្មែរ):
+                    </label>
+                    <input
+                      type="text"
+                      value={slipCompanyKh}
+                      onChange={(e) => {
+                        setSlipCompanyKh(e.target.value);
+                        saveSlipSettingsToStorage(e.target.value, slipCompanyZh, slipCompanyEn);
+                      }}
+                      placeholder="ឧ. ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក"
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                      公司名称 (中文):
+                    </label>
+                    <input
+                      type="text"
+                      value={slipCompanyZh}
+                      onChange={(e) => {
+                        setSlipCompanyZh(e.target.value);
+                        saveSlipSettingsToStorage(slipCompanyKh, e.target.value, slipCompanyEn);
+                      }}
+                      placeholder="例：長青戶外用品（柬埔寨）有限公司"
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                      Company Name (English):
+                    </label>
+                    <input
+                      type="text"
+                      value={slipCompanyEn}
+                      onChange={(e) => {
+                        setSlipCompanyEn(e.target.value);
+                        saveSlipSettingsToStorage(slipCompanyKh, slipCompanyZh, e.target.value);
+                      }}
+                      placeholder="e.g. EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD."
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                      តំណភ្ជាប់រូបភាព Logo (URL / Optional):
+                    </label>
+                    <input
+                      type="text"
+                      value={slipLogoUrl}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSlipLogoUrl(val);
+                        const type = val ? 'image' : 'evergreen';
+                        setSlipLogoType(type);
+                        saveSlipSettingsToStorage(slipCompanyKh, slipCompanyZh, slipCompanyEn, val, type);
+                      }}
+                      placeholder="https://... ឬ file path"
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                      ក្រុម/ខ្សែផលិតកម្ម (Team/Line):
+                    </label>
+                    <input
+                      type="text"
+                      value={slipLine}
+                      onChange={(e) => setSlipLine(e.target.value)}
+                      placeholder="Line 01"
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
+                      ថ្ងៃចូលធ្វើការ (进厂日期 / Hire Date):
+                    </label>
+                    <input
+                      type="date"
+                      value={slipHireDate}
+                      onChange={(e) => setSlipHireDate(e.target.value)}
+                      style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
-                    Company Name (English):
-                  </label>
-                  <input
-                    type="text"
-                    value={slipCompanyEn}
-                    onChange={(e) => setSlipCompanyEn(e.target.value)}
-                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
-                    ក្រុម/ខ្សែផលិតកម្ម (Team/Line):
-                  </label>
-                  <input
-                    type="text"
-                    value={slipLine}
-                    onChange={(e) => setSlipLine(e.target.value)}
-                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontWeight: 700, marginBottom: '4px', color: '#1e293b' }}>
-                    ថ្ងៃចូលធ្វើការ (进厂日期 / Hire Date):
-                  </label>
-                  <input
-                    type="date"
-                    value={slipHireDate}
-                    onChange={(e) => setSlipHireDate(e.target.value)}
-                    style={{ width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.82rem' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+
+                {/* Row 3: Save button feedback */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+                  {saveSuccessMsg && (
+                    <span style={{ color: '#16a34a', fontWeight: 700, fontSize: '0.82rem' }}>
+                      ✓ {saveSuccessMsg}
+                    </span>
+                  )}
                   <button
-                    onClick={() => {
-                      setSlipCompanyKh('ក្រុមហ៊ុន អេវើហ្គ្រីន ស្ព័តធីង ហ្គូដ (ខេមបូឌា) ឯ.ក');
-                      setSlipCompanyZh('長青戶外用品（柬埔寨）有限公司');
-                      setSlipCompanyEn('EVERGREEN SPORTING GOODS (CAMBODIA) CO., LTD.');
+                    type="button"
+                    onClick={() => saveSlipSettingsToStorage()}
+                    style={{
+                      background: '#0f172a',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 14px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontSize: '0.8rem'
                     }}
-                    style={{ padding: '6px 10px', background: '#e2e8f0', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', fontSize: '0.78rem' }}
                   >
-                    🔄 គំរូ Evergreen
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSlipCompanyKh('ក្រុមហ៊ុន / រោងចក្រ ស្តង់ដារកាត់ដេរ (ខេមបូឌា) ឯ.ក');
-                      setSlipCompanyZh('标准成衣制造（柬埔寨）有限公司');
-                      setSlipCompanyEn('STANDARD GARMENT MANUFACTURING (CAMBODIA) CO., LTD.');
-                    }}
-                    style={{ padding: '6px 10px', background: '#e2e8f0', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', fontSize: '0.78rem' }}
-                  >
-                    🏢 គំរូទូទៅ
+                    💾 រក្សាទុកការកំណត់ (Save Preset)
                   </button>
                 </div>
               </div>
@@ -1553,30 +1843,51 @@ export default function DisciplinaryClient({ initialActions, employees, departme
               {/* Top Company Header (Matching Factory Standard) */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  {/* Company Logo Badge */}
-                  <div style={{
-                    width: '54px',
-                    height: '54px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #15803d 0%, #166534 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ffffff',
-                    fontSize: '1.6rem',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                  }}>
-                    🌳
+                  {/* Company Logo Badge (Clickable to change) */}
+                  <div
+                    onClick={() => {
+                      setIsEditingSlipSettings(true);
+                      logoFileInputRef.current?.click();
+                    }}
+                    title="ចុចត្រង់នេះដើម្បីប្តូរ Logo (Upload / Change Logo)"
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      background: slipLogoType === 'evergreen' ? 'linear-gradient(135deg, #15803d 0%, #166534 100%)' : '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ffffff',
+                      fontSize: '1.8rem',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      flexShrink: 0
+                    }}
+                  >
+                    {slipLogoType === 'image' && slipLogoUrl ? (
+                      <img
+                        src={slipLogoUrl}
+                        alt="Company Logo"
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '2px' }}
+                      />
+                    ) : slipLogoType === 'factory' ? (
+                      <span style={{ fontSize: '1.8rem' }}>🏢</span>
+                    ) : (
+                      <span style={{ fontSize: '1.8rem', color: '#ffffff' }}>🌳</span>
+                    )}
                   </div>
                   <div>
                     <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#166534', lineHeight: 1.3 }}>
-                      {slipCompanyKh}
+                      {displayCompanyKh}
                     </div>
                     <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#334155', lineHeight: 1.3 }}>
-                      {slipCompanyZh}
+                      {displayCompanyZh}
                     </div>
                     <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      {slipCompanyEn}
+                      {displayCompanyEn}
                     </div>
                   </div>
                 </div>
@@ -1680,9 +1991,9 @@ export default function DisciplinaryClient({ initialActions, employees, departme
 
               {/* Internal Regulation Reference Clause */}
               <div style={{ fontSize: '0.88rem', fontWeight: 700, margin: '14px 0 10px 0', color: '#0f172a', lineHeight: 1.45 }}>
-                <div>** យោងតាមបទបញ្ជាផ្ទៃក្នុងនៃ {slipCompanyKh} ឯក</div>
-                <div style={{ color: '#334155', fontSize: '0.85rem' }}>根据 {slipCompanyZh} 的内部规定:</div>
-                <div style={{ color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase' }}>According to the Internal Regulations of {slipCompanyEn}:</div>
+                <div>** យោងតាមបទបញ្ជាផ្ទៃក្នុងនៃ {cleanKhCompanyName} ឯ.ក</div>
+                <div style={{ color: '#334155', fontSize: '0.85rem' }}>根据 {displayCompanyZh} 的内部规定:</div>
+                <div style={{ color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase' }}>According to the Internal Regulations of {displayCompanyEn}:</div>
                 <div style={{ marginTop: '4px', color: '#1e40af' }}>
                   កម្មករនិយោជិតឈ្មោះ: <u>{letterAction.employee.lastNameKh || ''} {letterAction.employee.firstNameKh || ''} ({letterAction.employee.firstNameEn})</u> អត្តលេខ: <u>{letterAction.employee.employeeId}</u> ត្រូវដាក់ទោសវិន័យក្នុងកម្រិត៖ / 工人名字: {letterAction.employee.firstNameEn} 工号: {letterAction.employee.employeeId} 处分级别:
                 </div>

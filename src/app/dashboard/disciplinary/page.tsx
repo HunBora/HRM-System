@@ -10,8 +10,8 @@ export default async function DisciplinaryPage() {
     redirect('/login');
   }
 
-  // Pre-fetch disciplinary actions, active employees, and department list
-  const [initialActions, employees, departments] = await Promise.all([
+  // Pre-fetch disciplinary actions, active employees, department list, and company settings
+  const [initialActions, employees, departments, companySettings] = await Promise.all([
     prisma.disciplinaryAction.findMany({
       include: {
         employee: {
@@ -50,6 +50,9 @@ export default async function DisciplinaryPage() {
       where: { status: 'ACTIVE' },
       select: { department: true },
       distinct: ['department']
+    }),
+    prisma.companySettings.findUnique({
+      where: { id: 'default' }
     })
   ]);
 
@@ -65,6 +68,7 @@ export default async function DisciplinaryPage() {
         employees={JSON.parse(JSON.stringify(employees))}
         departments={departmentList}
         userRole={session.role}
+        companySettings={companySettings ? JSON.parse(JSON.stringify(companySettings)) : null}
       />
     </div>
   );

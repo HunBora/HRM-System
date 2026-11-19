@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រ (Factory Training Curriculum & Operations Manual)</title>
+  <title>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រ ១១ ផ្នែក (Factory HR & Compliance Master Curriculum Manual)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -32,16 +32,16 @@
       font-family: 'Kantumruy Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      line-height: 1.7;
+      line-height: 1.75;
       padding: 24px;
     }
 
     .container {
-      max-width: 1050px;
+      max-width: 1100px;
       margin: 0 auto;
       background: var(--card-bg);
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
       border: 1px solid var(--border);
       padding: 40px;
     }
@@ -59,7 +59,7 @@
     }
 
     .header-title h1 {
-      font-size: 1.6rem;
+      font-size: 1.65rem;
       font-weight: 700;
       color: var(--secondary);
       margin-bottom: 6px;
@@ -95,18 +95,62 @@
       background: #2563eb;
       color: #fff;
       border: none;
-      padding: 8px 16px;
+      padding: 10px 18px;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       text-decoration: none;
       transition: background 0.2s;
     }
 
     .btn-print:hover {
       background: var(--primary-dark);
+    }
+
+    /* Roadmap box */
+    .roadmap-box {
+      background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 30px;
+    }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .roadmap-phase {
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      border-left: 4px solid var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .roadmap-phase.p1 { border-left-color: #0284c7; }
+    .roadmap-phase.p2 { border-left-color: #059669; }
+    .roadmap-phase.p3 { border-left-color: #d97706; }
+    .roadmap-phase.p4 { border-left-color: #7c3aed; }
+
+    .roadmap-phase h4 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .roadmap-phase p {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 0;
     }
 
     /* Navigation TOC */
@@ -119,9 +163,9 @@
     }
 
     .toc h3 {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: #1e3a8a;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -130,7 +174,7 @@
     .toc ul {
       list-style-type: none;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 10px;
     }
 
@@ -138,15 +182,17 @@
       color: #2563eb;
       text-decoration: none;
       font-weight: 500;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       display: block;
-      padding: 4px 8px;
+      padding: 6px 10px;
       border-radius: 6px;
-      transition: background 0.15s;
+      background: rgba(255, 255, 255, 0.7);
+      transition: background 0.15s, transform 0.1s;
     }
 
     .toc a:hover {
       background: #dbeafe;
+      transform: translateX(3px);
     }
 
     /* Section Styles */
@@ -156,18 +202,27 @@
       border-radius: 14px;
       overflow: hidden;
       background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
     }
 
     .module-header {
       background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
       color: #fff;
-      padding: 16px 24px;
+      padding: 18px 24px;
     }
 
-    .module-header.m1 { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
-    .module-header.m2 { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
-    .module-header.m3 { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
-    .module-header.m4 { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+    .module-header.m1  { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); }
+    .module-header.m2  { background: linear-gradient(135deg, #0284c7 0%, #075985 100%); }
+    .module-header.m3  { background: linear-gradient(135deg, #0369a1 0%, #0f172a 100%); }
+    .module-header.m4  { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+    .module-header.m5  { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .module-header.m6  { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+    .module-header.m7  { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); }
+    .module-header.m8  { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+    .module-header.m9  { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+    .module-header.m10 { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
+    .module-header.m11 { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
+    .module-header.m-app { background: linear-gradient(135deg, #475569 0%, #1e293b 100%); }
 
     .module-header h2 {
       font-size: 1.25rem;
@@ -175,27 +230,27 @@
     }
 
     .module-header p {
-      font-size: 0.85rem;
-      opacity: 0.9;
-      margin-top: 2px;
+      font-size: 0.88rem;
+      opacity: 0.92;
+      margin-top: 3px;
     }
 
     .module-body {
-      padding: 24px;
+      padding: 26px;
     }
 
     h3 {
-      font-size: 1.1rem;
+      font-size: 1.12rem;
       color: #0f172a;
-      margin: 20px 0 10px 0;
-      border-bottom: 1px solid #f1f5f9;
+      margin: 22px 0 10px 0;
+      border-bottom: 2px solid #f1f5f9;
       padding-bottom: 6px;
     }
 
     h4 {
       font-size: 1rem;
       color: #334155;
-      margin: 14px 0 6px 0;
+      margin: 16px 0 8px 0;
     }
 
     p, li {
@@ -205,8 +260,8 @@
     }
 
     ul, ol {
-      padding-left: 20px;
-      margin-bottom: 14px;
+      padding-left: 22px;
+      margin-bottom: 16px;
     }
 
     /* Badges */
@@ -221,18 +276,19 @@
     .badge-blue { background: #e0f2fe; color: #0369a1; }
     .badge-yellow { background: #fef3c7; color: #b45309; }
     .badge-red { background: #fee2e2; color: #b91c1c; }
+    .badge-purple { background: #ede9fe; color: #6d28d9; }
 
     /* Tables */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 14px 0 20px 0;
+      margin: 16px 0 22px 0;
       font-size: 0.85rem;
     }
 
     th, td {
       border: 1px solid #cbd5e1;
-      padding: 8px 12px;
+      padding: 10px 12px;
       text-align: left;
     }
 
@@ -250,21 +306,66 @@
     .qa-box {
       background: #f8fafc;
       border-left: 4px solid var(--primary);
-      padding: 12px 16px;
-      margin-bottom: 12px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
       border-radius: 0 8px 8px 0;
     }
 
     .qa-q {
       font-weight: 600;
       color: #1e40af;
-      margin-bottom: 4px;
-      font-size: 0.9rem;
+      margin-bottom: 5px;
+      font-size: 0.92rem;
     }
 
     .qa-a {
       color: #334155;
       font-size: 0.88rem;
+    }
+
+    /* Callout Alert Boxes */
+    .callout {
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+    .callout-info {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      color: #1e3a8a;
+    }
+    .callout-warning {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+    .callout-danger {
+      background: #fef2f2;
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+
+    /* Process steps flow */
+    .step-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .step-item {
+      flex: 1;
+      min-width: 180px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.85rem;
+    }
+    .step-item strong {
+      display: block;
+      color: #0f172a;
+      margin-bottom: 4px;
     }
 
     /* Print styling */
@@ -279,7 +380,7 @@
         padding: 0;
         max-width: 100%;
       }
-      .btn-print, .toc {
+      .btn-print, .toc, .roadmap-box {
         display: none;
       }
       .module-card {
@@ -295,17 +396,40 @@
     <!-- Header -->
     <div class="header">
       <div class="header-title">
-        <h1>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រ</h1>
-        <p>Factory Training Curriculum & Operations Manual</p>
+        <h1>កញ្ចប់ឯកសារវគ្គបណ្តុះបណ្តាលស្តង់ដាររោងចក្រពេញលេញ ១១ ផ្នែក</h1>
+        <p>Comprehensive Factory HR & Compliance Management Curriculum Manual (Master Edition)</p>
       </div>
       <div class="doc-control">
-        <div><strong>កូដឯកសារ:</strong> SOP-TR-2026-V1</div>
-        <div><strong>កំណែប្រែ:</strong> Rev 1.0 (Master Edition)</div>
-        <div><strong>ផ្នែកទទួលបន្ទុក:</strong> HR & Compliance</div>
-        <div><strong>កាលបរិច្ឆេទ:</strong> 17/11/2026</div>
+        <div><strong>កូដឯកសារ:</strong> SOP-TR-2026-V2</div>
+        <div><strong>កំណែប្រែ:</strong> Rev 2.0 (Master 11-Section Edition)</div>
+        <div><strong>ផ្នែកទទួលបន្ទុក:</strong> Human Resources & Social Compliance</div>
+        <div><strong>កាលបរិច្ឆេទអនុវត្ត:</strong> ខែវិច្ឆិកា ឆ្នាំ២០២៦</div>
       </div>
       <div>
         <button class="btn-print" onclick="window.print()">🖨️ បោះពុម្ព / រក្សាទុកជា PDF</button>
+      </div>
+    </div>
+
+    <!-- Roadmap overview -->
+    <div class="roadmap-box">
+      <h3>🧭 ផែនទីបង្ហាញផ្លូវវគ្គបណ្តុះបណ្តាល (11-Section Training Roadmap)</h3>
+      <div class="roadmap-grid">
+        <div class="roadmap-phase p1">
+          <h4>ដំណាក់កាលទី ១៖ មូលដ្ឋានគ្រឹះ</h4>
+          <p>M1. ច្បាប់ការងារ & គតិយុត្ត<br>M2. ការជ្រើសរើស & កុមារ<br>M3. វិន័យ & បទបញ្ជាផ្ទៃក្នុង</p>
+        </div>
+        <div class="roadmap-phase p2">
+          <h4>ដំណាក់កាលទី ២៖ EHS & OHS</h4>
+          <p>M4. សុវត្ថិភាពការងារ OHS<br>M5. បរិស្ថាន សំណល់ & គីមី</p>
+        </div>
+        <div class="roadmap-phase p3">
+          <h4>ដំណាក់កាលទី ៣៖ សង្គម & ប្រាក់ខែ</h4>
+          <p>M6. សវនកម្មសង្គម BFC/BSCI<br>M7. ទំនាក់ទំនង & បណ្តឹង<br>M8. ប្រាក់ឈ្នួល & Payroll</p>
+        </div>
+        <div class="roadmap-phase p4">
+          <h4>ដំណាក់កាលទី ៤៖ ភាពជាអ្នកដឹកនាំ</h4>
+          <p>M9. វិភាគឫសគល់ RCA & CAP<br>M10. ប្រតិបត្តិការ & មេការ JDs<br>M11. Mock Audit & ឡើងតំណែង</p>
+        </div>
       </div>
     </div>
 
@@ -313,247 +437,472 @@
     <div class="toc">
       <h3>📑 មាតិកានៃសៀវភៅណែនាំ (Table of Contents)</h3>
       <ul>
-        <li><a href="#m1">Module 1: វគ្គតម្រង់ទិស និងសិទ្ធិការងារទូទៅ</a></li>
-        <li><a href="#m2">Module 2: វគ្គតួនាទី និងភាពជាអ្នកដឹកនាំ (JDs)</a></li>
-        <li><a href="#m3">Module 3: វគ្គគណៈកម្មការឯកទេស & កិច្ចសន្ទនាសង្គម</a></li>
-        <li><a href="#m4">Module 4: កញ្ចប់ប្រតិបត្តិការផ្ទៃក្នុង HR & Compliance</a></li>
+        <li><a href="#m1">Module 1: ច្បាប់ស្តីពីការងារ និងក្របខ័ណ្ឌគតិយុត្ត</a></li>
+        <li><a href="#m2">Module 2: យុទ្ធសាស្ត្រជ្រើសរើសបុគ្គលិក & ពលកម្មកុមារ</a></li>
+        <li><a href="#m3">Module 3: ពិធីសារគ្រប់គ្រងបុគ្គលិក វិន័យ & បទបញ្ជា</a></li>
+        <li><a href="#m4">Module 4: សុវត្ថិភាព និងសុខភាពការងារ (OHS)</a></li>
+        <li><a href="#m5">Module 5: ក្រមសីលធម៌បរិស្ថាន សំណល់ & សារធាតុគីមី</a></li>
+        <li><a href="#m6">Module 6: សវនកម្មសង្គម (BFC, BSCI, SMETA, WRAP)</a></li>
+        <li><a href="#m7">Module 7: ទំនាក់ទំនងការងារ & យន្តការបណ្តឹងសារទុក្ខ</a></li>
+        <li><a href="#m8">Module 8: ប្រព័ន្ធប្រាក់ឈ្នួល គណនា Payroll & អត្ថប្រយោជន៍</a></li>
+        <li><a href="#m9">Module 9: វិភាគរកឫសគល់ (RCA) & ផែនការកែតម្រូវ (CAP)</a></li>
+        <li><a href="#m10">Module 10: ប្រតិបត្តិការរោងចក្រ & មេការ JDs</a></li>
+        <li><a href="#m11">Module 11: ការធ្វើ Mock Audit & ឡើងជាថ្នាក់គ្រប់គ្រង</a></li>
+        <li><a href="#appendices">កម្រងឧបសម្ព័ន្ធ៖ Toolkits, Templates & គំរូអនុវត្ត</a></li>
       </ul>
     </div>
 
     <!-- MODULE 1 -->
     <div class="module-card" id="m1">
       <div class="module-header m1">
-        <h2>Module 1: វគ្គតម្រង់ទិស និងសិទ្ធិការងារទូទៅ (Worker Awareness & Orientation)</h2>
-        <p>សម្រាប់បណ្តុះបណ្តាលកម្មករនិយោជិតចូលថ្មី និងការផ្សព្វផ្សាយឡើងវិញប្រចាំឆ្នាំ</p>
+        <h2>Module 1: ច្បាប់ស្តីពីការងារ និងក្របខ័ណ្ឌគតិយុត្ត (Essential Labor Laws & Legal Framework)</h2>
+        <p>សិទ្ធិ កាតព្វកិច្ច ក្របខ័ណ្ឌកិច្ចសន្យាការងារ និងការការពារស្របច្បាប់នៃព្រះរាជាណាចក្រកម្ពុជា</p>
       </div>
       <div class="module-body">
-        
-        <h3>១. សុវត្ថិភាព និងសុខភាពការងារ (OSH)</h3>
-        <p>គណៈកម្មការ OSH ជាយន្តការចូលរួមរវាងតំណាងកម្មករ និងនិយោជក ដើម្បីសម្គាល់គ្រោះថ្នាក់ វាយតម្លៃហានិភ័យ និងតាមដានវិធានការការពារ។</p>
-        <div class="qa-box">
-          <div class="qa-q">❓ សំណួរ៖ ប្រសិនបើកម្មកររកឃើញម៉ាស៊ីនគ្មានរបាំងការពារ (Safety Guard) តើត្រូវធ្វើដូចម្តេច?</div>
-          <div class="qa-a">💡 ចម្លើយ៖ ត្រូវផ្អាកប្រើប្រាស់ម៉ាស៊ីននោះភ្លាម ដាក់ស្លាកហាមឃាត់ និងរាយការណ៍ទៅប្រធានក្រុម ឬសមាជិក OSH ដើម្បីកែសម្រួលមុនពេលដំណើរការឡើងវិញ។</div>
-        </div>
-        <div class="qa-box">
-          <div class="qa-q">❓ សំណួរ៖ ហេតុអ្វីត្រូវមានការចូលរួមពីកម្មករស្រ្តីក្នុងគណៈកម្មការ OSH?</div>
-          <div class="qa-a">💡 ចម្លើយ៖ ជួយឆ្លុះបញ្ចាំងពីបញ្ហាសុខភាពស្រ្តី ការពារហានិភ័យដល់ស្រ្តីមានផ្ទៃពោះ និងការរៀបចំកន្លែងធ្វើការឱ្យមានផាសុកភាពតាមសរីរវិទ្យា។</div>
-        </div>
-
-        <h3>២. ការការពារបរិស្ថាន និងការគ្រប់គ្រងសំណល់</h3>
-        <p>រោងចក្របែងចែកធុងសំរាមជា ៤ ប្រភេទច្បាស់លាស់៖</p>
+        <h3>១. ក្របខ័ណ្ឌកិច្ចសន្យាការងារ ៣ ប្រភេទ</h3>
         <ul>
-          <li><span class="badge badge-green">ធុងបៃតង</span> <strong>សំរាមសរីរាង្គ៖</strong> កាកសំណល់ម្ហូបអាហារ បន្លែ ផ្លែឈើ ស្លឹកឈើ។</li>
-          <li><span class="badge badge-blue">ធុងខៀវ</span> <strong>សំរាមកែច្នៃបាន៖</strong> ក្រដាស កេសកាតុង ដបជ័រ ដែក កំប៉ុង។</li>
-          <li><span class="badge badge-yellow">ធុងលឿង</span> <strong>សំរាមទូទៅ៖</strong> ថង់ប្លាស្ទិកកខ្វក់ ក្រដាសសើម សម្ភារៈមិនអាចកែច្នៃបាន។</li>
-          <li><span class="badge badge-red">ធុងក្រហម</span> <strong>សំណល់គ្រោះថ្នាក់/គីមី៖</strong> កម្ទេចក្រណាត់ប្រឡាក់ប្រេង ដបគីមី ថ្មពិល អំពូលម៉ែត្រ។</li>
+          <li><strong>កិច្ចសន្យាសាកល្បងការងារ (Probation Contract):</strong> រយៈពេលអតិបរមា ៣ ខែ (ការិយាល័យ/ជំនាញ), ១ ខែ (កម្មករជំនាញ), ១ សប្តាហ៍ (ពលកម្មសាមញ្ញ)។ បញ្ចប់បានគ្រប់ពេលដោយគ្មានសំណងបើតេស្តមិនជាប់។</li>
+          <li><strong>កិច្ចសន្យាមានថេរវេលាកំណត់ (Fixed Duration Contract - FDC):</strong> ធ្វើជាលាយលក្ខណ៍អក្សរ។ រយៈពេលលើកដំបូងអតិបរមា ២ ឆ្នាំ។ អាចបន្តបានម្តង ឬច្រើនដងដរាបណារយៈពេលសរុបមិនលើស ២ ឆ្នាំ (២៤ ខែ)។ បើលើស ២ ឆ្នាំ ក្លាយជា UDC ដោយស្វ័យប្រវត្តិតាមមាត្រា ៦៧។ ប្រាក់បំណាច់បញ្ចប់កិច្ចសន្យា ៥% (Severance Pay)។</li>
+          <li><strong>កិច្ចសន្យាគ្មានថេរវេលាកំណត់ (Undetermined Duration Contract - UDC):</strong> ផ្តល់សន្តិសុខការងាររឹងមាំ ការពារដោយការជូនដំណឹងមុន (Prior Notice) និងប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity)។</li>
         </ul>
+
+        <h3>២. ម៉ោងធ្វើការ និងការឈប់សម្រាកស្របច្បាប់</h3>
+        <p>ម៉ោងធ្វើការធម្មតាអតិបរមា ៨ ម៉ោង/ថ្ងៃ ឬ ៤៨ ម៉ោង/សប្តាហ៍។ សម្រាកប្រចាំសប្តាហ៍យ៉ាងតិច ២៤ ម៉ោងជាប់គ្នា (ថ្ងៃអាទិត្យ)។ ឈប់សម្រាកប្រចាំឆ្នាំ ១៨ ថ្ងៃ/ឆ្នាំ សម្រាប់អ្នកធ្វើការពេញ ១ ឆ្នាំ (ថែម ១ ថ្ងៃរៀងរាល់ ៣ ឆ្នាំអតីតភាព)។</p>
+
         <div class="qa-box">
-          <div class="qa-q">❓ សំណួរ៖ តើសំណល់គីមីអាចបោះចោលជាមួយសំរាមទូទៅបានទេ?</div>
-          <div class="qa-a">💡 ចម្លើយ៖ ដាច់ខាតមិនអាចទេ! ព្រោះវាជ្រាបចូលដី បំពុលប្រភពទឹក និងបង្កគ្រោះថ្នាក់ធ្ងន់ធ្ងរដល់សុខភាពមនុស្ស និងបរិស្ថាន។</div>
+          <div class="qa-q">❓ សំណួរ៖ ប្រសិនបើកិច្ចសន្យា FDC បន្តសរុបរយៈពេលដល់ ២ ឆ្នាំពេញ តើរោងចក្រអាចបន្ត FDC ទៀតបានទេ?</div>
+          <div class="qa-a">💡 ចម្លើយ៖ ដាច់ខាតមិនអាចបន្តជា FDC បានទៀតឡើយ។ រោងចក្រត្រូវប្តូរកិច្ចសន្យាទៅជា UDC (គ្មានថេរវេលាកំណត់) ជាស្វ័យប្រវត្តិតាមមាត្រា ៦៧ នៃច្បាប់ការងារកម្ពុជា។</div>
         </div>
-
-        <h3>៣. សុវត្ថិភាពសារធាតុគីមី (Chemical Safety & SDS)</h3>
-        <p>គ្រប់ធុងសារធាតុគីមីត្រូវតែមាន <strong>ស្លាកសញ្ញាព្រមានគ្រោះថ្នាក់ (GHS)</strong> និង <strong>សន្លឹកទិន្នន័យសុវត្ថិភាព (SDS) ជាភាសាខ្មែរ</strong>។ ហាមដាច់ខាតយកដបទឹកសុទ្ធមកច្រកគីមី។</p>
-        <p><strong>វិធានសង្គ្រោះបន្ទាន់៖</strong> ប្រសិនបើគីមីខ្ទាតប៉ះភ្នែក ឬស្បែក ត្រូវលាងទឹកស្អាតហូរយ៉ាងតិច <strong>១៥ នាទី</strong> និងបញ្ជូនទៅបន្ទប់ពេទ្យភ្លាម។</p>
-
-        <h3>៤. ការមិនរើសអើង និងការប្រឆាំងការបៀតបៀន</h3>
-        <p>រោងចក្រអនុវត្តគោលការណ៍ស្មើភាព៖ គ្មានការរើសអើងដោយសារ ភេទ ពូជសាសន៍ សាសនា ពិការភាព ឬការមានផ្ទៃពោះ។ ហាមដាច់ខាតនូវការជេរប្រមាថ ការស្រែកគំហក និងការបៀតបៀនផ្លូវភេទ។ រោងចក្រធានាមិនឱ្យមានការសងសឹក (Zero Retaliation) លើអ្នករាយការណ៍។</p>
-
-        <h3>៥. សេរីភាពនៃការបង្កើតសមាគម និងការចរចា</h3>
-        <p>កម្មករមានសិទ្ធិចូលរួម ឬមិនចូលរួមសហជីពដោយសេរី ដោយគ្មានការបង្ខិតបង្ខំពីមេការ ឬថ្នាក់គ្រប់គ្រងឡើយ។</p>
-
-        <h3>៦. ប្រាក់ឈ្នួល និងអត្ថប្រយោជន៍</h3>
-        <p>ប្រាក់ឈ្នួលបើកទៀងទាត់ ២ ដងក្នុងមួយខែ។ កម្មករត្រូវពិនិត្យប័ណ្ណ Payslip រាល់ខែ។ ការថែមម៉ោង (OT) ត្រូវធ្វើឡើងដោយស្ម័គ្រចិត្ត និងទទួលបានប្រាក់ថែមម៉ោងស្របតាមច្បាប់ការងារ។</p>
-
-        <h3>៧. យន្តការទទួល និងដោះស្រាយបណ្តឹងសារទុក្ខ</h3>
-        <p>កម្មករអាចដាក់បណ្តឹងតាម ៤ ផ្លូវ៖ (១) ប្រអប់បណ្តឹងដោយមិនបញ្ចេញឈ្មោះ (២) តំណាងកម្មករ (៣) ជួបផ្ទាល់ជាមួយ HR/Compliance (៤) Hotline ផ្ទៃក្នុង។ គ្រប់ករណីត្រូវបានរក្សាការសម្ងាត់ខ្ពស់បំផុត។</p>
-
-        <h3>៨. សុវត្ថិភាពអគ្គិសនី</h3>
-        <p>ហាមដាក់សម្ភារៈរាំងស្ទះមុខទូភ្លើង (ត្រូវទុកគម្លាតទទេ ១ ម៉ែត្រ)។ ទូភ្លើងត្រូវបិទទ្វារជិតជានិច្ច។ មានតែជាងអគ្គិសនីជំនាញប៉ុណ្ណោះដែលមានសិទ្ធិជួសជុល។</p>
-
-        <h3>៩. ការទប់ស្កាត់ពលកម្មកុមារ</h3>
-        <p>អាយុអប្បបរមាធ្វើការទូទៅគឺ ១៥ ឆ្នាំ។ កម្មករវ័យក្មេង (១៥ ដល់ក្រោម ១៨ ឆ្នាំ) ហាមធ្វើការលើស ៨ ម៉ោង/ថ្ងៃ ហាមធ្វើការយប់ និងហាមធ្វើការងារគ្រោះថ្នាក់។</p>
-
-        <h3>១០. ប្រអប់សង្គ្រោះបឋម និងបន្ទប់ពេទ្យ</h3>
-        <p>ប្រអប់ First Aid មានសម្ភារៈ ១៦ មុខគ្រប់គ្រាន់ មិនចាក់សោក្នុងម៉ោងធ្វើការ។ បន្ទប់ពេទ្យមានគ្រូពេទ្យ/គិលានុបដ្ឋាកប្រចាំការគ្រប់ពេល។</p>
-
       </div>
     </div>
 
     <!-- MODULE 2 -->
     <div class="module-card" id="m2">
       <div class="module-header m2">
-        <h2>Module 2: វគ្គតួនាទី និងភាពជាអ្នកដឹកនាំ (Supervisory Leadership & JDs)</h2>
-        <p>សម្រាប់ប្រធានក្រុម មេការ និងប្រធានផ្នែកផលិតកម្ម</p>
+        <h2>Module 2: យុទ្ធសាស្ត្រជ្រើសរើសបុគ្គលិក និងការទប់ស្កាត់ពលកម្មកុមារ (Recruitment & Child Labor Prevention)</h2>
+        <p>នីតិវិធីជ្រើសរើសដោយស្មើភាព តម្លាភាព និងវិធានការការពារពលកម្មកុមារ ១០០%</p>
       </div>
       <div class="module-body">
-        
-        <h3>កម្រងសេចក្តីពិពណ៌នាមុខតំណែងផ្នែកផលិតកម្ម (Production JDs)</h3>
-        
-        <table>
-          <thead>
-            <tr>
-              <th>មុខតំណែង</th>
-              <th>គោលបំណងចម្បង</th>
-              <th>ភារកិច្ចសំខាន់ៗ</th>
-              <th>សូចនាករ KPI ណែនាំ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>ប្រធានក្រុមឃ្លាំងសម្ភារៈ</strong></td>
-              <td>ការទទួល ទុកដាក់ និងចែកចាយវត្ថុធាតុដើមទាន់ពេល។</td>
-              <td>• ផ្ទៀងផ្ទាត់ចំនួន ពណ៌ និងគុណភាពជាមួយប័ណ្ណដឹកជញ្ជូន<br>• បែងចែកទីតាំង FIFO<br>• ផ្គត់ផ្គង់ក្រណាត់ទៅតុកាត់តាមផែនការ</td>
-              <td>ភាពត្រឹមត្រូវនៃស្តុក ≥ ៩៩%<br>ផ្គត់ផ្គង់ទាន់ពេល ១០០%</td>
-            </tr>
-            <tr>
-              <td><strong>ប្រធានតុកាត់</strong></td>
-              <td>គ្រប់គ្រងគុណភាព និងផលិតភាពផ្នែកកាត់។</td>
-              <td>• ពិនិត្យ Marker និងគំរូអនុម័ត<br>• គ្រប់គ្រងការលាតក្រណាត់មិនឱ្យតឹង<br>• ត្រួតពិនិត្យគែមកាត់ និងស្លាកលេខបាច់<br>• ធានាការប្រើស្រោមដៃដែក</td>
-              <td>អត្រាកំហុសកាត់ ≤ ០.៥%<br>ផលិតភាពសម្រេច ≥ ៩៨%</td>
-            </tr>
-            <tr>
-              <td><strong>ប្រធានដេរ</strong></td>
-              <td>គ្រប់គ្រងខ្សែដេរ ផលិតភាព និងស្តង់ដារគុណភាព។</td>
-              <td>• រៀបចំប្លង់ដេរ (Line Balancing)<br>• ពិនិត្យផលិតផលដំបូង (First Output)<br>• ដោះស្រាយបញ្ហាជាប់គាំងប្រចាំម៉ោង<br>• គ្រប់គ្រងប្រព័ន្ធប្តូរម្ជុលបាក់ និង 5S</td>
-              <td>ទិន្នផលសម្រេច ≥ ៩៥%<br>អត្រា Rework ≤ ៣%<br>វិន័យម្ជុលបាក់ ១០០%</td>
-            </tr>
-            <tr>
-              <td><strong>ប្រធានត្រួតពិនិត្យគុណភាព (QC)</strong></td>
-              <td>ធានាគុណភាពវត្ថុធាតុដើម និងផលិតផលសម្រេច។</td>
-              <td>• ចាត់ចែង QC Incoming, In-line, End-line<br>• កំណត់កម្រិតកំហុស Critical, Major, Minor<br>• បំបែកទំនិញ Defect និងបិទស្លាកច្បាស់លាស់<br>• វិភាគកំហុសដែលកើតញឹកញាប់</td>
-              <td>Defect Rate ≤ ២%<br>AQL ត្រឹមត្រូវ ≥ ៩៨%</td>
-            </tr>
-            <tr>
-              <td><strong>ប្រធានវេចខ្ចប់</strong></td>
-              <td>ធានាការត្រួតពិនិត្យ ការវេចខ្ចប់ និងស្លាកត្រឹមត្រូវ។</td>
-              <td>• ផ្ទៀងផ្ទាត់ស្លាកតម្លៃ Barcode ទំហំ និងការបត់ថង់<br>• គ្រប់គ្រងការរាប់ចំនួនកេសតាម Packing List<br>• ធានាផលិតផលឆ្លងកាត់ម៉ាស៊ីនរាវម្ជុល ១០០%</td>
-              <td>ភាពត្រឹមត្រូវស្លាក ១០០%<br>វេចខ្ចប់ទាន់ពេល ≥ ៩៨%</td>
-            </tr>
-            <tr>
-              <td><strong>ប្រធានឃ្លាំងទំនិញសម្រេច</strong></td>
-              <td>រក្សាទុក និងបញ្ចេញទំនិញសម្រេចនាំចេញ។</td>
-              <td>• ទទួល និងផ្ទៀងផ្ទាត់ចំនួនកេសពីផ្នែកវេចខ្ចប់<br>• រៀបចំស្តុកតាមលេខ PO និងទំនិញដែលបាន Approve<br>• ត្រួតពិនិត្យកុងតឺន័រមុនពេលផ្ទុកទំនិញ</td>
-              <td>ទំនិញដឹកចេញត្រឹមត្រូវ ១០០%<br>គ្មានការខូចខាតកេសពេលផ្ទុក</td>
-            </tr>
-          </tbody>
-        </table>
+        <h3>១. ពិធីសារផ្ទៀងផ្ទាត់អាយុ ៤ ជំហាន (Age Verification SOP)</h3>
+        <div class="step-flow">
+          <div class="step-item">
+            <strong>ជំហាន ១៖ ប្រមូលឯកសារ</strong>
+            អត្តសញ្ញាណប័ណ្ណ សំបុត្រកំណើត ឬសៀវភៅគ្រួសារច្បាប់ដើម (Original Documents)
+          </div>
+          <div class="step-item">
+            <strong>ជំហាន ២៖ ពិនិត្យកាយវិការ & ត្រា</strong>
+            ផ្ទៀងផ្ទាត់ត្រារដ្ឋបាល រូបថត ស្នាមកោសលុប និងថ្ងៃខែឆ្នាំកំណើត
+          </div>
+          <div class="step-item">
+            <strong>ជំហាន ៣៖ សម្ភាសន៍ផ្ទៀងផ្ទាត់</strong>
+            សួរសំណួរចិនសែ (ឆ្នាំកំណើត) សាលារៀន ឈ្មោះឪពុកម្តាយ និងបងប្អូន
+          </div>
+          <div class="step-item">
+            <strong>ជំហាន ៤៖ សម្រេចចិត្ត</strong>
+            ≥១៨ ឆ្នាំ៖ កិច្ចសន្យាធម្មតា | ១៥-១៧ ឆ្នាំ៖ កម្មករវ័យក្មេង | &lt;១៥ ឆ្នាំ៖ បដិសេធ & ស្តារនីតិសម្បទា
+          </div>
+        </div>
 
+        <h3>២. វិធានការការពារកម្មករវ័យក្មេង (អាយុ ១៥ ដល់ក្រោម ១៨ ឆ្នាំ)</h3>
+        <ul>
+          <li>ហាមដាច់ខាតមិនឱ្យធ្វើការងារធ្ងន់ធ្ងរ កន្លែងគីមីគ្រោះថ្នាក់ ម៉ាស៊ីនកាត់ ម៉ាស៊ីន Boiler ឬលើកធ្ងន់។</li>
+          <li>ហាមធ្វើការលើសពី ៨ ម៉ោង/ថ្ងៃ និងហាមដាច់ខាតមិនឱ្យធ្វើការថែមម៉ោង (OT)។</li>
+          <li>ហាមធ្វើការងារវេនយប់ (ចន្លោះម៉ោង ១០:០០ យប់ ដល់ ០៥:០០ ព្រឹក)។</li>
+        </ul>
+
+        <h3>៣. នីតិវិធីស្តារនីតិសម្បទាពលកម្មកុមារ (Child Labor Remediation)</h3>
+        <p>ករណីរកឃើញកុមារអាយុក្រោម ១៥ ឆ្នាំធ្វើការដោយអចេតនា៖ ត្រូវដកចេញពីផលិតកម្មភ្លាមៗទៅកាន់បន្ទប់សុវត្ថិភាព ជូនដំណឹងដល់ឪពុកម្តាយ និងបន្តឧបត្ថម្ភប្រាក់ស្មើនឹងប្រាក់ឈ្នួលអប្បបរមាប្រចាំខែរហូតដល់កុមារគ្រប់អាយុ ១៥ ឆ្នាំ ដោយភ្ជាប់លក្ខខណ្ឌឱ្យកុមារចូលរៀននៅសាលា។</p>
       </div>
     </div>
 
     <!-- MODULE 3 -->
     <div class="module-card" id="m3">
       <div class="module-header m3">
-        <h2>Module 3: វគ្គគណៈកម្មការឯកទេស & កិច្ចសន្ទនាសង្គម (Committees & Social Dialogue)</h2>
-        <p>សម្រាប់សមាជិកគណៈកម្មការ OSH, អេដស៍/គ្រឿងញៀន និងតំណាងកម្មករ</p>
+        <h2>Module 3: ពិធីសារគ្រប់គ្រងបុគ្គលិក វិន័យ និងបទបញ្ជាផ្ទៃក្នុង (Personnel Management & Discipline)</h2>
+        <p>ការគ្រប់គ្រងវត្តមាន ឋានានុក្រមវិធានការវិន័យ ៥ កម្រិត និងបទបញ្ជាផ្ទៃក្នុងស្របច្បាប់</p>
       </div>
       <div class="module-body">
-        
-        <h3>១. គណៈកម្មការ OSH (Occupational Safety & Health)</h3>
-        <p>• <strong>ការដើរត្រួតពិនិត្យរួម (Joint Walkthrough):</strong> យ៉ាងតិច ១ ដងក្នុងមួយខែ ពិនិត្យច្រកចេញ បរិក្ខារអគ្គិភ័យ ម៉ាស៊ីន និងអនាម័យ។<br>
-        • <strong>ការតាមដាន CAP Tracker:</strong> កំណត់អ្នកទទួលខុសត្រូវ ថ្ងៃកំណត់ និងភស្តុតាងបិទបញ្ហា (គោលដៅបិទ CAP ≥ ៩៥%)។</p>
+        <h3>១. ឋានានុក្រមនៃវិធានការវិន័យ ៥ កម្រិត (Progressive Discipline)</h3>
+        <ol>
+          <li><strong>កម្រិត ១៖ ការរំលឹកផ្ទាល់មាត់ (Verbal Warning):</strong> ណែនាំដោយឡែកដោយសន្តិវិធី កត់ត្រាទុកក្នុងកំណត់ត្រាផ្ទៃក្នុង។</li>
+          <li><strong>កម្រិត ២៖ លិខិតព្រមានលើកទី ១ (Written Warning 1):</strong> ចេញលិខិតផ្លូវការ មានសុពលភាព ៣ ខែ។</li>
+          <li><strong>កម្រិត ៣៖ លិខិតព្រមានលើកទី ២ (Written Warning 2):</strong> ករណីបន្តប្រព្រឹត្តកំហុសដដែលក្នុងអំឡុងសុពលភាពលិខិតទី ១។</li>
+          <li><strong>កម្រិត ៤៖ លិខិតព្រមានចុងក្រោយ (Final Warning):</strong> ការព្រមានកម្រិតខ្ពស់បំផុតមុនឈានដល់ការបញ្ចប់ការងារ។</li>
+          <li><strong>កម្រិត ៥៖ ការបញ្ឈប់ពីការងារ (Termination):</strong> អនុវត្តករណីបន្តខុស ឬកំហុសធ្ងន់ធ្ងរ (Serious Misconduct)។</li>
+        </ol>
 
-        <h3>២. តំណាងកម្មករ / ប្រតិភូបុគ្គលិក</h3>
-        <p>• <strong>តួនាទី:</strong> ប្រមូលសំណូមពរ សំឡេង និងកង្វល់របស់កម្មករដោយគ្មានការរើសអើង ដើម្បីពិគ្រោះយោបល់ជាមួយនិយោជក។<br>
-        • <strong>ការការពារពិសេស:</strong> តំណាងកម្មករត្រូវបានការពារដោយច្បាប់ មិនអាចបញ្ឈប់ ឬផ្ទេរការងារដោយសារការបំពេញតួនាទីតំណាងឡើយ។</p>
-
-        <h3>៣. គណៈកម្មការបង្ការមេរោគអេដស៍ និងគ្រឿងញៀន</h3>
-        <p>• <strong>ការរក្សាសម្ងាត់:</strong> មិនបង្ហាញស្ថានភាពសុខភាពរបស់បុគ្គលិកជាដាច់ខាត។<br>
-        • <strong>ការមិនរើសអើង:</strong> មិនត្រូវប្រើលទ្ធផលតេស្តអេដស៍ជាលក្ខខណ្ឌក្នុងការជ្រើសរើស ឬបន្តកិច្ចសន្យាឡើយ។</p>
-
+        <div class="callout callout-warning">
+          <strong>⚠️ ការអនុវត្តស្របច្បាប់៖</strong> លិខិតព្រមាននីមួយៗត្រូវផ្តល់សិទ្ធិឱ្យកម្មករបកស្រាយហេតុផល និងមានតំណាងកម្មករចូលរួមស្តាប់។ ហាមដាច់ខាតការកាត់ប្រាក់ខែជាទណ្ឌកម្មវិន័យ (ច្បាប់ការងារហាមឃាត់ការផាកពិន័យជាប្រាក់)។
+        </div>
       </div>
     </div>
 
     <!-- MODULE 4 -->
     <div class="module-card" id="m4">
       <div class="module-header m4">
-        <h2>Module 4: កញ្ចប់ប្រតិបត្តិការផ្ទៃក្នុង HR & Compliance (Internal Toolkit)</h2>
-        <p>ឧបករណ៍ប្រតិបត្តិការសម្រាប់ HR, Compliance & Managers</p>
+        <h2>Module 4: សុវត្ថិភាព និងសុខភាពការងារ (Occupational Health & Safety - OHS)</h2>
+        <p>គណៈកម្មការ OSH ការវាយតម្លៃហានិភ័យ សុវត្ថិភាពអគ្គិសនី និងការត្រៀមបង្ការគ្រោះអាសន្ន</p>
       </div>
       <div class="module-body">
-        
-        <h3>១. តួនាទី HR & Compliance</h3>
-        <ul>
-          <li><strong>ប្រធានធនធានមនុស្ស (HR Manager):</strong> ដឹកនាំការជ្រើសរើស កិច្ចសន្យា ប្រាក់ឈ្នួល ប.ស.ស. វត្តមាន និងទំនាក់ទំនងការងារ។</li>
-          <li><strong>ជំនួយការធនធានមនុស្ស (HR Assistant):</strong> ពិនិត្យទិន្នន័យស្កេនមេដៃ បញ្ជីកិច្ចសន្យា FDC ឯកសារ ប.ស.ស. បុគ្គលិក ៥០០ នាក់។</li>
-          <li><strong>ប្រធានផ្នែកអនុលោមភាព (Compliance Manager):</strong> ដឹកនាំប្រព័ន្ធសង្គម OSH បរិស្ថាន ដឹកនាំ Audit ផ្ទៃក្នុង និងសម្របសម្រួល Audit អ្នកទិញ។</li>
-          <li><strong>ជំនួយការផ្នែកអនុលោមភាព (Compliance Assistant):</strong> ចុះពិនិត្យទីតាំងជាក់ស្តែងតាម Checklist ប្រមូលភស្តុតាង OSH និងតាមដាន CAP។</li>
-        </ul>
+        <h3>១. រចនាសម្ព័ន្ធគណៈកម្មការ OSH</h3>
+        <p>ត្រូវមានសមាសភាពស្មើគ្នារវាងតំណាងនិយោជក និងតំណាងកម្មករ (រួមទាំងកម្មករស្រ្តី និងគិលានុបដ្ឋាក)។ ប្រជុំ និងដើរត្រួតពិនិត្យរួមគ្នាប្រចាំខែ (Joint Walkthrough) និងរៀបចំការហ្វឹកហាត់ជម្លៀសខ្លួនពន្លត់អគ្គិភ័យយ៉ាងតិច ២ ដង/ឆ្នាំ។</p>
 
-        <h3>២. គំរូទម្រង់តាមដានកិច្ចសន្យាការងារ (FDC & UDC Contract Tracker)</h3>
-        <p><em>វិធាន៖ ជូនដំណឹងមុន ១៥-៣០ ថ្ងៃ។ ប្រសិនបើសរុបរយៈពេលដល់ ២ ឆ្នាំ (២៤ ខែ) ត្រូវប្តូរជាកិច្ចសន្យាគ្មានកាលកំណត់ (UDC)។</em></p>
+        <h3>២. តារាងស្តង់ដារត្រួតពិនិត្យសុវត្ថិភាព</h3>
         <table>
           <thead>
             <tr>
-              <th>អត្តលេខ</th>
-              <th>ឈ្មោះបុគ្គលិក</th>
-              <th>ភេទ</th>
-              <th>ថ្ងៃចូលធ្វើការ</th>
-              <th>ប្រភេទកិច្ចសន្យា</th>
-              <th>ថ្ងៃផុតកំណត់</th>
-              <th>លើកទី</th>
-              <th>សកម្មភាព</th>
+              <th>ចំណុចត្រួតពិនិត្យ</th>
+              <th>ស្តង់ដារបច្ចេកទេស</th>
+              <th>ស្ថានភាពអនុវត្ត</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>005</td>
-              <td>ឈ្មោះគំរូ ក</td>
-              <td>ប្រុស</td>
-              <td>24/11/2025</td>
-              <td>FDC 3 ខែ</td>
-              <td>23/02/2026</td>
-              <td>1</td>
-              <td><span class="badge badge-green">បន្តកិច្ចសន្យាលើកទី ២</span></td>
+              <td><strong>ទូបញ្ជាអគ្គិសនី (DB Panel)</strong></td>
+              <td>បិទជិត មានសោ ដាក់ស្លាកសញ្ញាគ្រោះថ្នាក់ <strong>ទុកគម្លាតទទេយ៉ាងតិច ១ ម៉ែត្រ</strong> មុខទូ</td>
+              <td><span class="badge badge-green">តម្រូវដាច់ខាត</span></td>
             </tr>
             <tr>
-              <td>010</td>
-              <td>ឈ្មោះគំរូ ខ</td>
-              <td>ប្រុស</td>
+              <td><strong>បំពង់ពន្លត់អគ្គិភ័យ</strong></td>
+              <td>កម្ពស់អតិបរមា ១.៥ម, កុងទ័រនៅតំបន់បៃតង, គ្មានសម្ភារៈរាំងស្ទះ, ត្រួតពិនិត្យរាល់ខែ</td>
+              <td><span class="badge badge-green">តម្រូវដាច់ខាត</span></td>
+            </tr>
+            <tr>
+              <td><strong>ច្រកចេញអាសន្ន (Emergency Exits)</strong></td>
+              <td>ទ្វាររុញចេញក្រៅ (Push-Bar), មិនចាក់សោក្នុងម៉ោងការងារ, ភ្លើង Exit បំភ្លឺជាប់</td>
+              <td><span class="badge badge-red">Zero Tolerance បើចាក់សោ</span></td>
+            </tr>
+            <tr>
+              <td><strong>ប្រអប់ First Aid & បន្ទប់ពេទ្យ</strong></td>
+              <td>មានសម្ភារៈ ១៦ មុខគ្រប់គ្រាន់, មិនចាក់សោ, មានគ្រូពេទ្យ/គិលានុបដ្ឋាកប្រចាំការ</td>
+              <td><span class="badge badge-blue">តាមចំនួនកម្មករ</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODULE 5 -->
+    <div class="module-card" id="m5">
+      <div class="module-header m5">
+        <h2>Module 5: ក្រមសីលធម៌បរិស្ថាន ការគ្រប់គ្រងសំណល់ និងសារធាតុគីមី (Environmental Ethics & Chemical Safety)</h2>
+        <p>ការបែងចែកសំរាម ៤ ពណ៌ សុវត្ថិភាពសារធាតុគីមី សន្លឹក SDS និងការការពារការកំពប់</p>
+      </div>
+      <div class="module-body">
+        <h3>១. ប្រព័ន្ធគ្រប់គ្រងសំណល់ ៤ ពណ៌</h3>
+        <ul>
+          <li><span class="badge badge-green">ធុងបៃតង</span> <strong>សំណល់សរីរាង្គ៖</strong> កាកសំណល់ម្ហូបអាហារ បន្លែ ផ្លែឈើ ស្លឹកឈើ។</li>
+          <li><span class="badge badge-blue">ធុងខៀវ</span> <strong>សំណល់កែច្នៃបាន៖</strong> ក្រដាស កេសកាតុង ដបជ័រ ដែក កំប៉ុង។</li>
+          <li><span class="badge badge-yellow">ធុងលឿង</span> <strong>សំណល់ទូទៅ៖</strong> ថង់ប្លាស្ទិកកខ្វក់ ក្រដាសសើម សម្ភារៈមិនអាចកែច្នៃបាន។</li>
+          <li><span class="badge badge-red">ធុងក្រហម</span> <strong>សំណល់គ្រោះថ្នាក់/គីមី៖</strong> កម្ទេចក្រណាត់ប្រឡាក់ប្រេង ដបគីមី ថ្មពិល អំពូលម៉ែត្រ។</li>
+        </ul>
+
+        <h3>២. វិធានការសុវត្ថិភាពសារធាតុគីមី</h3>
+        <p>គ្រប់ធុងគីមីត្រូវតែមាន <strong>សន្លឹកទិន្នន័យសុវត្ថិភាព (SDS) ជាភាសាខ្មែរ</strong> និងត្រូវដាក់លើ <strong>អាងស្តុកបន្ទាប់បន្សំ (Secondary Containment)</strong> ដែលអាចផ្ទុកចំណុះបានយ៉ាងតិច ១១០% នៃធុងធំបំផុត។ កន្លែងលាងភ្នែកបន្ទាន់ (Eyewash) ត្រូវនៅចម្ងាយមិនលើសពី ១០ វិនាទីនៃការដើរ។</p>
+      </div>
+    </div>
+
+    <!-- MODULE 6 -->
+    <div class="module-card" id="m6">
+      <div class="module-header m6">
+        <h2>Module 6: សវនកម្មទំនួលខុសត្រូវសង្គម និងស្តង់ដារអន្តរជាតិ (Social Responsibility Audits)</h2>
+        <p>ការត្រៀមខ្លួនសម្រាប់សវនកម្ម BFC, amfori BSCI, Sedex SMETA, WRAP និងការទប់ស្កាត់ Zero Tolerance</p>
+      </div>
+      <div class="module-body">
+        <h3>១. ដំណើរការសវនកម្ម ៣ ត្រីកោណ (Triangulation Audit Method)</h3>
+        <p>សវនករវាយតម្លៃផ្ទៀងផ្ទាត់ឆ្លងគ្នារវាង៖ <strong>(១) ការពិនិត្យឯកសារ</strong> (Payroll, ម៉ោងស្កេន, កិច្ចសន្យា), <strong>(២) ការដើរពិនិត្យទីតាំងជាក់ស្តែង</strong> (អនាម័យ, ភ្លើង, ច្រកចេញ), និង <strong>(៣) ការសម្ភាសន៍កម្មករជាសម្ងាត់</strong> ដោយគ្មានវត្តមានថ្នាក់គ្រប់គ្រង។</p>
+
+        <h3>២. បញ្ហា Zero Tolerance ដែលនាំឱ្យធ្លាក់សវនកម្មភ្លាមៗ</h3>
+        <div class="callout callout-danger">
+          <strong>🚫 បញ្ហាហាមឃាត់ដាច់ខាត៖</strong>
+          <br>១. រកឃើញពលកម្មកុមារ (Child Labor)
+          <br>២. ពលកម្មដោយបង្ខំ (Forced Labor / ចាក់សោទ្វារ / ដកហូតលិខិតឆ្លងដែន)
+          <br>៣. អំពើហិង្សា ឬការបៀតបៀនផ្លូវភេទធ្ងន់ធ្ងរ
+          <br>៤. ការក្លែងបន្លំឯកសារ ឬការសូកប៉ាន់សវនករ (Bribery / Double Books)
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 7 -->
+    <div class="module-card" id="m7">
+      <div class="module-header m7">
+        <h2>Module 7: ទំនាក់ទំនងការងារ កិច្ចសន្ទនាសង្គម និងយន្តការបណ្តឹងសារទុក្ខ (Industrial Relations & Grievance)</h2>
+        <p>កិច្ចសន្ទនាសង្គម តំណាងកម្មករ សេរីភាពសហជីព និងប្រព័ន្ធដោះស្រាយបណ្តឹង ៤ ផ្លូវ</p>
+      </div>
+      <div class="module-body">
+        <h3>១. យន្តការទទួលបណ្តឹងសារទុក្ខ ៤ ផ្លូវ</h3>
+        <ol>
+          <li><strong>ប្រអប់បណ្តឹង (Suggestion Box):</strong> ដាក់នៅទីតាំងគ្មានកាមេរ៉ា បើកពិនិត្យរៀងរាល់ ២ សប្តាហ៍ម្តងដោយមានសាក្សី HR និងតំណាងកម្មករ។</li>
+          <li><strong>តំណាងកម្មករ / ប្រតិភូបុគ្គលិក:</strong> ជួបពិភាក្សា និងប្រមូលមតិកង្វល់មកប្រជុំជាមួយនិយោជក។</li>
+          <li><strong>ទូរសព្ទ Hotline / Telegram ផ្ទៃក្នុង:</strong> សម្រាប់ករណីបន្ទាន់ ឬការបៀតបៀនផ្លូវភេទ។</li>
+          <li><strong>ការជួបពិភាក្សាផ្ទាល់ (Open Door Policy):</strong> ជួបផ្ទាល់ជាមួយផ្នែក HR។</li>
+        </ol>
+
+        <div class="callout callout-info">
+          <strong>🛡️ ការធានាគ្មានការសងសឹក (Zero Retaliation):</strong> កម្មករដែលដាក់ពាក្យបណ្តឹង ឬផ្តល់ចម្លើយដល់សវនករ ត្រូវបានការពារដាច់ខាតពីការរើសអើង ការផ្ទេរការងារ ឬការបញ្ឈប់ពីការងារ។
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 8 -->
+    <div class="module-card" id="m8">
+      <div class="module-header m8">
+        <h2>Module 8: ប្រព័ន្ធប្រាក់ឈ្នួល ការគណនា Payroll និងអត្ថប្រយោជន៍ (Compensation, Overtime & NSSF)</h2>
+        <p>រូបមន្តគណនាប្រាក់ម៉ោង ម៉ោងថែម OT ការកាត់វិភាគទាន ប.ស.ស. និងប្រាក់បំណាច់អតីតភាព</p>
+      </div>
+      <div class="module-body">
+        <h3>១. រូបមន្តគណនាប្រាក់ឈ្នួល និងម៉ោងថែម (OT Formulas)</h3>
+        <p><strong>ប្រាក់ឈ្នួលក្នុងមួយម៉ោង:</strong> <code>ប្រាក់ខែគោល ÷ (២៦ ថ្ងៃ × ៨ ម៉ោង) = ប្រាក់ខែគោល ÷ ២០៨</code></p>
+        <ul>
+          <li><strong>ថែមម៉ោងថ្ងៃធម្មតា (OT Normal Day):</strong> <code>ប្រាក់ម៉ោង × ១.៥ (150%)</code></li>
+          <li><strong>ថែមម៉ោងវេនយប់ (OT Night Shift):</strong> <code>ប្រាក់ម៉ោង × ២.០ (200%)</code></li>
+          <li><strong>ថែមម៉ោងថ្ងៃអាទិត្យ ឬថ្ងៃបុណ្យជាតិ:</strong> <code>ប្រាក់ម៉ោង × ២.០ (200%)</code> + ប្រាក់បាយថ្ងៃបុណ្យ</li>
+        </ul>
+
+        <h3>២. វិភាគទានរបបសន្តិសុខសង្គម (NSSF Contributions)</h3>
+        <p>ផ្នែកហានិភ័យការងារ (០.៨%) និងថែទាំសុខភាព (២.៦%) បង់ដោយនិយោជក ១០០%។ ផ្នែកប្រាក់សោធននិវត្តន៍ ៤% (និយោជកបង់ ២% និងកាត់ពីកម្មករ ២% លើពិតានប្រាក់ឈ្នួលអតិបរមា ១,២០០,០០០ រៀល)។</p>
+
+        <h3>៣. ប្រាក់បំណាច់អតីតភាពការងារ (Seniority Indemnity) សម្រាប់ UDC</h3>
+        <p>បើកចំនួន ១៥ ថ្ងៃក្នុងមួយឆ្នាំ (ចែកជា ២ លើក៖ ៧.៥ ថ្ងៃក្នុងខែមិថុនា និង ៧.៥ ថ្ងៃក្នុងខែធ្នូ) គិតលើប្រាក់ឈ្នួល និងប្រាក់បន្ទាប់បន្សំមធ្យម។</p>
+      </div>
+    </div>
+
+    <!-- MODULE 9 -->
+    <div class="module-card" id="m9">
+      <div class="module-header m9">
+        <h2>Module 9: ការវិភាគរកមូលហេតុឫសគល់ (RCA) និងផែនការកែតម្រូវ (CAP)</h2>
+        <p>វិធីសាស្ត្រ 5 Whys, Fishbone Diagram និងការគ្រប់គ្រងផែនការកែតម្រូវ Corrective Action Plan</p>
+      </div>
+      <div class="module-body">
+        <h3>១. វិធីសាស្ត្រវិភាគ RCA តាម 5 Whys</h3>
+        <p>ការសួរសំណួរ «ហេតុអ្វី?» ចំនួន ៥ ដងជាប់ៗគ្នា ដើម្បីជីកកកាយរកមូលហេតុពិតប្រាកដក្នុងប្រព័ន្ធគ្រប់គ្រង ចៀសវាងការស្តីបន្ទោសលើកម្មករម្នាក់ៗ។</p>
+
+        <h3>២. គំរូតារាង CAP ស្តង់ដារ ៨ ជួរ</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ល.រ</th>
+              <th>ចំណុចអសកម្ម (Finding)</th>
+              <th>មូលហេតុឫសគល់ (Root Cause)</th>
+              <th>សកម្មភាពកែតម្រូវ (Corrective)</th>
+              <th>សកម្មភាពបង្ការ (Preventive)</th>
+              <th>អ្នកទទួលបន្ទុក (PIC)</th>
+              <th>កាលកំណត់</th>
+              <th>ស្ថានភាព & ភស្តុតាង</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>ច្រកអាសន្នត្រូវចាក់សោ</td>
+              <td>ខ្លាចបាត់ក្រណាត់ពេលយប់</td>
+              <td>ដោះសោចេញភ្លាមៗ</td>
+              <td>បំពាក់ Panic Bar & ស៊ីរ៉ែនអាសន្ន</td>
+              <td>Maintenance / Compliance</td>
+              <td>៧ ថ្ងៃ</td>
+              <td><span class="badge badge-green">បានបិទ (រូបថត)</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>ទូភ្លើងគ្មានគម្រប និងគ្មានខ្សែដី</td>
+              <td>ជាងភ្លើងដោះចេញជួសជុលភ្លេចដាក់វិញ</td>
+              <td>បំពាក់គម្រប និងខ្សែតដីឡើងវិញ</td>
+              <td>បង្កើត SOP ត្រួតពិនិត្យទូភ្លើងប្រចាំសប្តាហ៍</td>
+              <td>Chief Electrician</td>
+              <td>៣ ថ្ងៃ</td>
+              <td><span class="badge badge-green">បានបិទ (កំណត់ហេតុ)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODULE 10 -->
+    <div class="module-card" id="m10">
+      <div class="module-header m10">
+        <h2>Module 10: ប្រតិបត្តិការរោងចក្រ ការដឹកនាំរបស់មេការ និង Job Descriptions (Factory Operations & JDs)</h2>
+        <p>ការដឹកនាំវិជ្ជមាន គោលការណ៍ម្ជុលបាក់ 5S និង Job Descriptions សម្រាប់មេការគ្រប់ផ្នែក</p>
+      </div>
+      <div class="module-body">
+        <h3>១. គោលការណ៍ដឹកនាំវិជ្ជមានសម្រាប់មេការ</h3>
+        <p>ហាមដាច់ខាតការស្រែកគំហក ជេរប្រមាថ ឬគំរាមកំហែង។ ត្រូវពន្យល់ និងបង្វឹកកម្មករដោយសន្តិវិធី។ គ្រប់គ្រងលំហូរផលិតកម្មដោយផ្អែកលើទិន្នផល និងការលើកទឹកចិត្ត។</p>
+
+        <h3>២. នីតិវិធីម្ជុលបាក់ (Broken Needle Policy)</h3>
+        <p>ពេលម្ជុលបាក់ កម្មករត្រូវប្រមូលបំណែកម្ជុលឱ្យគ្រប់ ១០០% បិទលើក្រដាសកំណត់ត្រា ទើបប្តូរម្ជុលថ្មីជូន។ បើរករកមិនឃើញ ត្រូវយករ៉ូប/អាវនោះទៅរាវម៉ាស៊ីន Handheld Detector និងម៉ាស៊ីនកាត់ក្រណាត់ភ្លាម។ ម៉ាស៊ីនរាវម្ជុលធំត្រូវក្រិត Calibration រៀងរាល់ ២ ម៉ោងម្តង។</p>
+
+        <h3>៣. សង្ខេប Job Descriptions ផ្នែកផលិតកម្ម</h3>
+        <ul>
+          <li><strong>ប្រធានឃ្លាំងសម្ភារៈ (Raw Material):</strong> គ្រប់គ្រងស្តុក FIFO, ផ្ទៀងផ្ទាត់បញ្ជីដឹកជញ្ជូន, ចេញក្រណាត់ទៅតុកាត់ទាន់ពេល។</li>
+          <li><strong>ប្រធានតុកាត់ (Cutting Leader):</strong> ពិនិត្យ Marker, លាតក្រណាត់ត្រឹមត្រូវ, ពាក់ស្រោមដៃដែកការពារសុវត្ថិភាព។</li>
+          <li><strong>ប្រធានដេរ (Sewing Line Leader):</strong> ធ្វើ Line Balancing, ពិនិត្យ First Output, គ្រប់គ្រងវិន័យម្ជុលបាក់, សម្រេច Target។</li>
+          <li><strong>ប្រធាន QC (Quality Control Leader):</strong> ត្រួតពិនិត្យ AQL, បំបែកទំនិញ Defect, វិភាគកំហុសប្រចាំថ្ងៃជូន GM។</li>
+          <li><strong>ប្រធានវេចខ្ចប់ (Packing Leader):</strong> ផ្ទៀងផ្ទាត់ Barcode/Label, ធានាការឆ្លងកាត់ម៉ាស៊ីនរាវម្ជុល ១០០%។</li>
+          <li><strong>ប្រធានឃ្លាំងទំនិញសម្រេច (FG Warehouse):</strong> ត្រួតពិនិត្យកុងតឺន័រ (៧ ចំណុច), ការពារទំនិញមិនឱ្យខូចខាត, ផ្ទុកទំនិញទាន់ពេល។</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MODULE 11 -->
+    <div class="module-card" id="m11">
+      <div class="module-header m11">
+        <h2>Module 11: ការធ្វើសវនកម្មសាកល្បង និងការអភិវឌ្ឍឡើងជាថ្នាក់គ្រប់គ្រង (Mock Audits & Career Progression)</h2>
+        <p>ការអនុវត្ត Internal Mock Audit ៥ ដំណាក់កាល និងផែនទីបង្ហាញផ្លូវឡើងកាន់តំណែងគ្រប់គ្រងជាន់ខ្ពស់</p>
+      </div>
+      <div class="module-body">
+        <h3>១. ដំណើរការធ្វើ Mock Audit ផ្ទៃក្នុង ៥ ដំណាក់កាល</h3>
+        <div class="step-flow">
+          <div class="step-item"><strong>១. ប្រជុំបើក</strong>Opening Meeting ជាមួយមេការ និង GM</div>
+          <div class="step-item"><strong>២. ដើរពិនិត្យ</strong>Walkthrough គ្រប់ផ្នែកផលិតកម្ម</div>
+          <div class="step-item"><strong>៣. ពិនិត្យឯកសារ</strong>Document Review ផ្ទៀងផ្ទាត់ Payroll</div>
+          <div class="step-item"><strong>៤. សម្ភាសន៍</strong>Worker Interviews ដោយសម្ងាត់</div>
+          <div class="step-item"><strong>៥. ប្រជុំបិទ & CAP</strong>Closing Meeting & រាយការណ៍ជូន GM</div>
+        </div>
+
+        <h3>២. ផែនទីបង្ហាញផ្លូវអភិវឌ្ឍន៍អាជីព (Career Progression Roadmap)</h3>
+        <p><strong>HR/Compliance Officer (១-២ ឆ្នាំ)</strong> ➡️ <strong>Senior Officer / Team Lead (២-៤ ឆ្នាំ)</strong> ➡️ <strong>Assistant Manager (៤-៦ ឆ្នាំ)</strong> ➡️ <strong>HR / Compliance Manager (៦-៨ ឆ្នាំ)</strong> ➡️ <strong>Director of Human Capital & Operations (៨ ឆ្នាំឡើង)</strong></p>
+      </div>
+    </div>
+
+    <!-- APPENDICES -->
+    <div class="module-card" id="appendices">
+      <div class="module-header m-app">
+        <h2>កម្រងឧបសម្ព័ន្ធ៖ Toolkits, Templates & គំរូអនុវត្ត (Operational Appendices)</h2>
+        <p>តារាងតាមដានកិច្ចសន្យា គំរូគណនាប្រាក់ខែ និងកំណត់ត្រាកំណែប្រែឯកសារ</p>
+      </div>
+      <div class="module-body">
+        <h3>ឧបសម្ព័ន្ធ ក៖ តារាងតាមដានកិច្ចសន្យា FDC / UDC Tracker</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ល.រ</th>
+              <th>អត្តលេខ</th>
+              <th>ឈ្មោះបុគ្គលិក</th>
+              <th>ថ្ងៃចូលការងារ</th>
+              <th>ប្រភេទកិច្ចសន្យា</th>
+              <th>ថ្ងៃចាប់ផ្តើម</th>
+              <th>ថ្ងៃផុតកំណត់</th>
+              <th>សកម្មភាពត្រូវចាត់ចែង</th>
+              <th>ស្ថានភាព</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>EMP-001</td>
+              <td>បុគ្គលិក គំរូ ក</td>
+              <td>24/11/2025</td>
+              <td>FDC 3 ខែ</td>
+              <td>24/11/2025</td>
+              <td>23/02/2026</td>
+              <td>ចេញលិខិតជូនដំណឹងបន្ត FDC លើកទី ២</td>
+              <td><span class="badge badge-green">រួចរាល់</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>EMP-002</td>
+              <td>បុគ្គលិក គំរូ ខ</td>
+              <td>08/01/2026</td>
+              <td>FDC 3 ខែ</td>
+              <td>08/01/2026</td>
+              <td>07/03/2026</td>
+              <td>ជូនដំណឹងមុន ១៥ ថ្ងៃ</td>
+              <td><span class="badge badge-yellow">កំពុងចាត់ចែង</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>EMP-003</td>
+              <td>បុគ្គលិក គំរូ គ</td>
               <td>17/11/2024</td>
               <td>FDC 2 ឆ្នាំពេញ</td>
+              <td>17/11/2024</td>
               <td>16/11/2026</td>
-              <td>ចុងក្រោយ</td>
-              <td><span class="badge badge-yellow">ត្រូវប្តូរទៅជា UDC</span></td>
+              <td>រៀបចំកិច្ចសន្យា UDC (ហាមបន្ត FDC)</td>
+              <td><span class="badge badge-purple">ត្រូវប្តូរជា UDC</span></td>
             </tr>
           </tbody>
         </table>
 
-        <h3>៣. គំរូតារាងគណនាប្រាក់ខែ Payroll ស្តង់ដារ (Anonymized)</h3>
+        <h3>ឧបសម្ព័ន្ធ ខ៖ តារាងគណនា Payroll ស្តង់ដារ (Anonymized Sample)</h3>
         <table>
           <thead>
             <tr>
-              <th>អត្តលេខ</th>
-              <th>ឈ្មោះ</th>
+              <th>ល.រ</th>
               <th>មុខតំណែង</th>
               <th>ប្រាក់ខែគោល</th>
               <th>ថ្ងៃធ្វើការ</th>
-              <th>ម៉ោងថែម OT</th>
-              <th>ប្រាក់ថែម OT</th>
+              <th>ប្រាក់តាមថ្ងៃ</th>
+              <th>ម៉ោង OT</th>
+              <th>ប្រាក់ OT (150%)</th>
+              <th>ឧបត្ថម្ភ</th>
               <th>ប្រាក់សរុប Gross</th>
-              <th>កាត់ ប.ស.ស.</th>
-              <th>ប្រាក់បើកលើកទី១</th>
-              <th>ប្រាក់នៅសល់ Net</th>
+              <th>ប.ស.ស. (2%)</th>
+              <th>បើកលើកទី១</th>
+              <th>នៅសល់ត្រូវបើក</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>EMP-001</td>
-              <td>បុគ្គលិក ក</td>
+              <td>1</td>
               <td>កាត់ដេរ</td>
               <td>$208.00</td>
-              <td>26 ថ្ងៃ</td>
+              <td>26</td>
+              <td>$208.00</td>
               <td>20 ម៉ោង</td>
               <td>$30.00</td>
+              <td>$23.50</td>
               <td>$261.50</td>
               <td>$5.99</td>
               <td>$105.00</td>
               <td>$150.51</td>
             </tr>
+            <tr>
+              <td>2</td>
+              <td>វេចខ្ចប់</td>
+              <td>$208.00</td>
+              <td>24</td>
+              <td>$192.00</td>
+              <td>10 ម៉ោង</td>
+              <td>$15.00</td>
+              <td>$20.00</td>
+              <td>$227.00</td>
+              <td>$5.50</td>
+              <td>$105.00</td>
+              <td>$116.50</td>
+            </tr>
           </tbody>
         </table>
 
+        <h3>កំណត់ត្រាកំណែប្រែឯកសារ (Document Revision History)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>កាលបរិច្ឆេទ</th>
+              <th>កំណែប្រែ</th>
+              <th>ជំពូកដែលបានកែសម្រួល</th>
+              <th>មូលហេតុនៃការកែសម្រួល</th>
+              <th>អ្នករៀបចំ</th>
+              <th>អ្នកអនុម័ត</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>17/11/2026</td>
+              <td>1.0</td>
+              <td>ឯកសារទាំងមូល</td>
+              <td>ចងក្រងកញ្ចប់បណ្តុះបណ្តាល ៤ ម៉ូឌុលដំបូង</td>
+              <td>HR Officer</td>
+              <td>General Manager</td>
+            </tr>
+            <tr>
+              <td>19/11/2026</td>
+              <td>2.0</td>
+              <td>ឯកសារទាំងមូល (M1 - M11)</td>
+              <td>ពង្រីកជាកញ្ចប់ Master Curriculum ពេញលេញ ១១ ផ្នែក ស្របតាមស្តង់ដារ BFC/BSCI/SMETA</td>
+              <td>HR & Compliance Team</td>
+              <td>General Manager</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
